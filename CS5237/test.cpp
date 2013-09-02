@@ -172,7 +172,6 @@ void processFile(char* ifilename, char* ofilename){
 
 			globalSW.pause();
 			outputFile << line_noStr  << " " << outputAns << endl;
-			cout<<line_noStr<<endl;
 			globalSW.resume();
 		}
 		else if(!command.compare("IC")){
@@ -223,7 +222,7 @@ int main()
 	cerr << groupName <<endl;
 	cerr << "Start Time:  " << st.wHour << ":" << st.wMinute << ":" << st.wSecond + (st.wMilliseconds/1000.0) << endl;
 
-	for(int i=0;i<1;i++)
+	for(int i=0;i<no_exp;i++)
 	{
 		runningExperiment();
 		t[i] = globalSW.ms();
