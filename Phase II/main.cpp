@@ -172,6 +172,8 @@ void tryInsertPoint (LongInt x, LongInt y) {
 
 		if (myPointSet.inTri(p1Idx - 1, p2Idx - 1, p3Idx - 1, ptIndex - 1)) {
 			// Our new point is in the triangle.
+			cout << "Insert Point (" << x.printOut() << ", " << y.printOut() << ")" << endl;
+			cout << "Removing Triangle tId=" << tri << ", pts: " << p1Idx << ", " << p2Idx << ", " << p3Idx << endl;
 			myTrist.delTri((OrTri) (tri << 3));
 
 			myTrist.makeTri(p1Idx, p2Idx, ptIndex);
@@ -290,7 +292,6 @@ void readFile () {
 
 
 void animate(int t){
-	cout << "Animate func " << t << endl;
 	if(inputLines.size() > 0){
 		cout << "InputLine: " << inputLines[0] << endl;
 
