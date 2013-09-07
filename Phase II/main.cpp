@@ -15,6 +15,18 @@
 using namespace std;
 
 
+const int WINDOW_WIDTH_DEFAULT = 1000;
+const int WINDOW_HEIGHT_DEFAULT = 700;
+
+
+// For "simple" zooming in/out, and "simple" navigation,
+//  using just integers should be enough.
+// Could be improved, of course.
+int viewX = 0;
+int viewY = 0;
+const int VIEW_SCALE_DEFAULT = 100;
+int viewScale = VIEW_SCALE_DEFAULT; // Use integer to scale out of 100.
+
 // These three functions are for those who are not familiar with OpenGL, you can change these or even completely ignore them
 
 void drawAPoint (double x,double y) {
@@ -66,13 +78,24 @@ void display (void) {
 
 
 void reshape (int w, int h) {
-	glViewport (0, 0, (GLsizei) w, (GLsizei) h);
+	// TODO: Need to adjust this so that zooming occurs in the centre.
+
+	glViewport (viewX,
+		        viewY,
+				(GLsizei) (w * viewScale / VIEW_SCALE_DEFAULT),
+				(GLsizei) (h * viewScale / VIEW_SCALE_DEFAULT));
 	glMatrixMode (GL_PROJECTION);
 	glLoadIdentity();
 	gluOrtho2D(0,w,h,0);  
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
+}
+
+
+
+void refreshZoom(){
+	reshape(WINDOW_WIDTH_DEFAULT, WINDOW_HEIGHT_DEFAULT);
 }
 
 
@@ -164,6 +187,22 @@ void keyboard (unsigned char key, int x, int y) {
 			exit(0);
 		break;
 
+		case 'I':
+		case 'i':
+			// Add zoom scale by 5%
+			// MAGIC NUMBER
+			viewScale += 5;
+			refreshZoom();
+		break;
+
+		case 'O':
+		case 'o':
+			// Minus zoom scale by 5%
+			// MAGIC NUMBER
+			viewScale -= 5;
+			refreshZoom();
+		break;
+
 		default:
 		break;
 	}
@@ -202,7 +241,7 @@ int main (int argc, char **argv) {
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize (1000, 700);
+	glutInitWindowSize (WINDOW_WIDTH_DEFAULT, WINDOW_HEIGHT_DEFAULT);
 	glutInitWindowPosition (50, 50);
 	glutCreateWindow ("CS5237 Phase II");
 
