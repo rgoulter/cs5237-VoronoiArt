@@ -79,14 +79,16 @@ void display (void) {
 
 void reshape (int w, int h) {
 	// TODO: Need to adjust this so that zooming occurs in the centre.
+	int zoomedWidth = (w * viewScale / VIEW_SCALE_DEFAULT);
+	int zoomedHeight = (h * viewScale / VIEW_SCALE_DEFAULT);
 
-	glViewport (viewX,
-		        viewY,
-				(GLsizei) (w * viewScale / VIEW_SCALE_DEFAULT),
-				(GLsizei) (h * viewScale / VIEW_SCALE_DEFAULT));
+	glViewport (0, 0, (GLsizei) w, (GLsizei) h);
 	glMatrixMode (GL_PROJECTION);
 	glLoadIdentity();
-	gluOrtho2D(0,w,h,0);  
+	gluOrtho2D(viewX,
+			   viewX + zoomedWidth,
+			   viewY + zoomedHeight,
+			   viewY);  
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
@@ -177,7 +179,6 @@ void keyboard (unsigned char key, int x, int y) {
 		break;
 
 		case 'w':
-		case 'W':
 			cout << "Writing output file." << endl;
 			writeFile();
 		break;
@@ -191,7 +192,7 @@ void keyboard (unsigned char key, int x, int y) {
 		case 'i':
 			// Add zoom scale by 5%
 			// MAGIC NUMBER
-			viewScale += 5;
+			viewScale -= 5;
 			refreshZoom();
 		break;
 
@@ -199,7 +200,27 @@ void keyboard (unsigned char key, int x, int y) {
 		case 'o':
 			// Minus zoom scale by 5%
 			// MAGIC NUMBER
-			viewScale -= 5;
+			viewScale += 5;
+			refreshZoom();
+		break;
+
+		case 'W':
+			viewY += 50;
+			refreshZoom();
+		break;
+
+		case 'S':
+			viewY -= 50;
+			refreshZoom();
+		break;
+
+		case 'A':
+			viewX -= 50;
+			refreshZoom();
+		break;
+
+		case 'D':
+			viewX += 50;
 			refreshZoom();
 		break;
 
