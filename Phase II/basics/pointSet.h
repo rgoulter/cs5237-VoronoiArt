@@ -33,7 +33,7 @@ public:
 };
 
 class PointSet {
-private:
+protected:
 	std::vector<MyPoint> myPoints;
 
 public:

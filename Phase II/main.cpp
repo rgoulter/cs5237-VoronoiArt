@@ -20,6 +20,8 @@
 #include "basics\lmath.h"
 #include "basics\pointSet.h"
 
+#include "basicsP2\pointSetArray.h"
+
 using namespace std;
 
 
@@ -36,7 +38,7 @@ const int VIEW_SCALE_DEFAULT = 100;
 int viewScale = VIEW_SCALE_DEFAULT; // Use integer to scale out of 100.
 
 static StopWatch globalSW;
-PointSet myPointSet;
+PointSetArray myPointSet;
 
 
 
@@ -208,6 +210,23 @@ void writeFile () {
 
 
 
+void testSomeScratchShit () {
+	// This kindof thing should really be in a GoogleTest or something.
+
+	PointSetArray psa;
+
+	psa.addPoint(3, 4);
+	LongInt x = 0;
+	LongInt y = 0;
+	cout << "Trying: (Should be 1): " << psa.getPoint(0, x, y);
+	cout << "Point 0: " << x.printOut() << ", " << y.printOut() << endl;
+
+	cout << "Trying: (Should be 0): " << psa.getPoint(99, x, y);
+	cout << "Point 99: " << x.printOut() << ", " << y.printOut() << endl;
+}
+
+
+
 void keyboard (unsigned char key, int x, int y) {
 	switch (key) {
 		case 'r':
@@ -219,6 +238,11 @@ void keyboard (unsigned char key, int x, int y) {
 		case 'w':
 			cout << "Writing output file." << endl;
 			writeFile();
+		break;
+
+		case 't':
+			cout << "Test some scratch shit." << endl;
+			testSomeScratchShit();
 		break;
 
 		case 'Q':
