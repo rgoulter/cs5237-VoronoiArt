@@ -12,6 +12,14 @@
 #include <string>
 #include <sstream>
 
+#include "basics\stopWatch.h"
+
+// Include the PointSet implementation from the folder we used for
+//  Phase I. (Is there a nicer way to do this?)
+#include "..\basics\li.h"
+#include "..\basics\lmath.h"
+#include "..\basics\pointSet.h"
+
 using namespace std;
 
 
@@ -26,6 +34,11 @@ int viewX = WINDOW_WIDTH_DEFAULT / 2;
 int viewY = WINDOW_HEIGHT_DEFAULT / 2;
 const int VIEW_SCALE_DEFAULT = 100;
 int viewScale = VIEW_SCALE_DEFAULT; // Use integer to scale out of 100.
+
+static StopWatch globalSW;
+PointSet myPointSet;
+
+
 
 // These three functions are for those who are not familiar with OpenGL, you can change these or even completely ignore them
 
@@ -140,7 +153,19 @@ void readFile () {
 
 		if (!command.compare("AP")) {
 			linestream >> numberStr;
+			LongInt p1 = LongInt::LongInt(numberStr.c_str());
+
 			linestream >> numberStr;
+			LongInt p2 = LongInt::LongInt(numberStr.c_str());
+
+			int output = myPointSet.addPoint(p1, p2);
+			ostringstream convert;
+			convert << output;
+			outputAns = "#POINT = " + convert.str();
+
+			globalSW.pause();
+			outputFile << line_noStr  << " " << outputAns << endl;
+			globalSW.resume();
 		
 		} else if(!command.compare("OT")) {
 			linestream >> numberStr;
