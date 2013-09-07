@@ -1,6 +1,7 @@
 #ifndef TRISTH
 #define TRISTH
 
+#include <vector>
 
 /*
 
@@ -43,7 +44,7 @@ class TriRecord {
 class Trist {
 
 	protected:
-
+		std::vector<TriRecord> triPoints;
 		int en_[6];
 
 
