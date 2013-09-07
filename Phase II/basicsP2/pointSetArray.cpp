@@ -2,9 +2,10 @@
 
 
 
-int PointSetArray::getPoint (int pIndex, LongInt& x1,LongInt& y1) {
-	if(0 <= pIndex && pIndex <= myPoints.size()){
-		MyPoint *p = &(myPoints[pIndex]);
+int PointSetArray::getPoint (int obpIndex, LongInt& x1,LongInt& y1) {
+	// one-based point index
+	if(0 < obpIndex && obpIndex <= myPoints.size()){
+		MyPoint *p = &(myPoints[obpIndex - 1]);
 		x1 = p->x;
 		y1 = p->y;
 

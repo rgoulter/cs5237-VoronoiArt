@@ -21,6 +21,7 @@
 #include "basics\pointSet.h"
 
 #include "basicsP2\pointSetArray.h"
+#include "basicsP2\trist.h"
 
 using namespace std;
 
@@ -32,13 +33,14 @@ const int WINDOW_HEIGHT_DEFAULT = 700;
 // For "simple" zooming in/out, and "simple" navigation,
 //  using just integers should be enough.
 // Could be improved, of course.
-int viewX = WINDOW_WIDTH_DEFAULT / 2;
-int viewY = WINDOW_HEIGHT_DEFAULT / 2;
+int viewX = 0;
+int viewY = 0;
 const int VIEW_SCALE_DEFAULT = 100;
 int viewScale = VIEW_SCALE_DEFAULT; // Use integer to scale out of 100.
 
 static StopWatch globalSW;
 PointSetArray myPointSet;
+Trist myTrist;
 
 
 
@@ -82,9 +84,41 @@ void display (void) {
 	glPushMatrix();
 
 	// draw your output here (erase the following 3 lines)
-	drawAPoint(100,100);
+	/*drawAPoint(100,100);
 	drawALine(200,200,300,300);
-	drawATriangle(400,400,400,500,500,500);
+	drawATriangle(400,400,400,500,500,500);*/
+
+	int i;
+	for (i = 0; i < myTrist.noTri(); i++) {
+		// We want to be able to iterate through triangles.
+		int pIndex1, pIndex2, pIndex3;
+		
+		myTrist.getVertexIdx((OrTri) (i << 3), pIndex1, pIndex2, pIndex3);
+
+		// Probably could clean this up..
+		LongInt p1x, p1y, p2x, p2y, p3x, p3y;
+
+		myPointSet.getPoint(pIndex1, p1x, p1y);
+		myPointSet.getPoint(pIndex2, p2x, p2y);
+		myPointSet.getPoint(pIndex3, p3x, p3y);
+
+		drawATriangle(p1x.doubleValue(), p1y.doubleValue(),
+					  p2x.doubleValue(), p2y.doubleValue(),
+					  p3x.doubleValue(), p3y.doubleValue());
+		drawALine(p1x.doubleValue(), p1y.doubleValue(),
+			      p2x.doubleValue(), p2y.doubleValue());
+		drawALine(p2x.doubleValue(), p2y.doubleValue(),
+			      p3x.doubleValue(), p3y.doubleValue());
+		drawALine(p3x.doubleValue(), p3y.doubleValue(),
+			      p1x.doubleValue(), p1y.doubleValue());
+	}
+
+	// Point indices are 1-based here
+	for (i = 1; i <= myPointSet.noPt(); i++){
+		LongInt px, py;
+		myPointSet.getPoint(i, px, py);
+		drawAPoint(px.doubleValue(), py.doubleValue());
+	}
 
 	glPopMatrix();
 	glutSwapBuffers ();
@@ -170,6 +204,8 @@ void readFile () {
 			LongInt p2 = LongInt::LongInt(numberStr.c_str());
 
 			int output = myPointSet.addPoint(p1, p2);
+			glutPostRedisplay();
+
 			ostringstream convert;
 			convert << output;
 			outputAns = "#POINT = " + convert.str();
@@ -181,10 +217,18 @@ void readFile () {
 			globalSW.resume();
 
 		} else if(!command.compare("OT")) {
-			linestream >> numberStr;
-			linestream >> numberStr;			
-			linestream >> numberStr;
+			int p1Idx, p2Idx, p3Idx;
+			linestream >> p1Idx;
+			linestream >> p2Idx;			
+			linestream >> p3Idx;
 			
+			int triIdx = myTrist.makeTri(p1Idx, p2Idx, p3Idx, true);
+			glutPostRedisplay();
+			
+			globalSW.pause();
+			cout << "Triangle #" << triIdx << " pIdx: " << p1Idx << ", " << p2Idx << ", " << p3Idx << endl;
+			globalSW.resume();
+
 		} else if(!command.compare("IP")){
 			linestream >> numberStr;
 			linestream >> numberStr;
