@@ -17,8 +17,7 @@ using namespace std;
 
 // These three functions are for those who are not familiar with OpenGL, you can change these or even completely ignore them
 
-void drawAPoint(double x,double y)
-{
+void drawAPoint (double x,double y) {
 		glPointSize(5);
 		glBegin(GL_POINTS);
 		glColor3f(0,0,0);
@@ -27,8 +26,7 @@ void drawAPoint(double x,double y)
 		glPointSize(1);
 }
 
-void drawALine(double x1,double y1, double x2, double y2)
-{
+void drawALine (double x1,double y1, double x2, double y2) {
 		glPointSize(1);
 		glBegin(GL_LINE_LOOP);
 		glColor3f(0,0,1);
@@ -38,8 +36,9 @@ void drawALine(double x1,double y1, double x2, double y2)
 		glPointSize(1);
 }
 
-void drawATriangle(double x1,double y1, double x2, double y2, double x3, double y3)
-{
+
+
+void drawATriangle (double x1,double y1, double x2, double y2, double x3, double y3) {
 		glBegin(GL_POLYGON);
 		glColor3f(0,0.5,0);
 			glVertex2d(x1,y1);
@@ -51,11 +50,9 @@ void drawATriangle(double x1,double y1, double x2, double y2, double x3, double 
 
 
 
-void display(void)
-{
+void display (void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glPushMatrix();
-
 
 	// draw your output here (erase the following 3 lines)
 	drawAPoint(100,100);
@@ -66,9 +63,9 @@ void display(void)
 	glutSwapBuffers ();
 }
 
-void reshape (int w, int h)
-{
 
+
+void reshape (int w, int h) {
 	glViewport (0, 0, (GLsizei) w, (GLsizei) h);
 	glMatrixMode (GL_PROJECTION);
 	glLoadIdentity();
@@ -76,17 +73,17 @@ void reshape (int w, int h)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-
 }
 
-void init(void)
-{
+
+
+void init (void) {
 	glClearColor (1.0,1.0,1.0, 1.0);
 }
 
 
 
-void readFile(){
+void readFile () {
 
 	string line_noStr;
 
@@ -98,12 +95,12 @@ void readFile(){
 	ifstream inputFile("input.txt",ios::in);
 
 
-	if(inputFile.fail()){
+	if (inputFile.fail()) {
 		cerr << "Error: Cannot read input file \"" << "input.txt" << "\"";
 		return;
 	}
 
-	while(inputFile.good()){
+	while (inputFile.good()) {
 
 		getline(inputFile,line);
 		if(line.empty()) {
@@ -116,49 +113,49 @@ void readFile(){
 		linestream >> line_noStr;
 		linestream >> command;         // get the command
 
-		if(!command.compare("AP")){
+		if (!command.compare("AP")) {
 			linestream >> numberStr;
 			linestream >> numberStr;
 		
-		}
-		else if(!command.compare("OT")){
+		} else if(!command.compare("OT")) {
 			linestream >> numberStr;
 			linestream >> numberStr;			
 			linestream >> numberStr;
 			
-		}
-		else if(!command.compare("IP")){
+		} else if(!command.compare("IP")){
 			linestream >> numberStr;
 			linestream >> numberStr;
 			
-		}
-		else if(!command.compare("DY")){
+		} else if (!command.compare("DY")) {
 			linestream >> numberStr;
 
-		}
-		else{
+		} else {
 			cerr << "Exception: Wrong input command" << endl;
 		}
 	}
 
 }
 
-void writeFile()
-{
+
+
+void writeFile () {
 
 
 }
 
-void keyboard (unsigned char key, int x, int y)
-{
+
+
+void keyboard (unsigned char key, int x, int y) {
 	switch (key) {
 		case 'r':
 		case 'R':
+			cout << "Reading input file." << endl;
 			readFile();
 		break;
 
 		case 'w':
 		case 'W':
+			cout << "Writing output file." << endl;
 			writeFile();
 		break;
 
@@ -176,43 +173,46 @@ void keyboard (unsigned char key, int x, int y)
 
 
 
-void mouse(int button, int state, int x, int y)
-{
+void mouse(int button, int state, int x, int y) {
 	/*button: GLUT_LEFT_BUTTON, GLUT_MIDDLE_BUTTON, or GLUT_RIGHT_BUTTON */
 	/*state: GLUT_UP or GLUT_DOWN */
-	enum
-	{
+
+	enum {
 		MOUSE_LEFT_BUTTON = 0,
 		MOUSE_MIDDLE_BUTTON = 1,
 		MOUSE_RIGHT_BUTTON = 2,
 		MOUSE_SCROLL_UP = 3,
 		MOUSE_SCROLL_DOWN = 4
 	};
-	if((button == MOUSE_RIGHT_BUTTON)&&(state == GLUT_UP))
-	{
+
+	if ((button == MOUSE_RIGHT_BUTTON) && (state == GLUT_UP)) {
 
 	}
 
 	glutPostRedisplay();
 }
 
-int main(int argc, char **argv)
-{
+int main (int argc, char **argv) {
 	cout<<"CS5237 Phase II"<< endl<< endl;
+
 	cout << "Right mouse click: OT operation"<<endl;
 	cout << "Q: Quit" <<endl;
 	cout << "R: Read in control points from \"input.txt\"" <<endl;
 	cout << "W: Write control points to \"input.txt\"" <<endl;
+
 	glutInit(&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize (1000, 700);
 	glutInitWindowPosition (50, 50);
 	glutCreateWindow ("CS5237 Phase II");
-	init ();
+
+	init();
+
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutMouseFunc(mouse);
 	glutKeyboardFunc(keyboard);
+
 	glutMainLoop();
 
 	return 0;
