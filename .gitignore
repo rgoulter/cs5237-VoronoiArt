@@ -1,3 +1,5 @@
 # Compiled object files.
 *.obj
 **/Debug/*
+*.sdf
+*.opensdf
