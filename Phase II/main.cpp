@@ -307,8 +307,28 @@ void animate(int t){
 
 
 void writeFile () {
+	ofstream outfile;
+	outfile.open ("savefile.txt", ios::out | ios::trunc);
 
+	// Let's add all points;
+	// This will include the invalid points we failed to make into triangles.
+	// Otherwise, Trist would need to be restructured.
+	for(int pt = 1; pt <= myPointSet.noPt(); pt++){
+		LongInt x, y;
+		myPointSet.getPoint(pt, x, y); // one-based index
+		
+		// Don't care about line numbers atm.
+		outfile << "0000: AP " << x.printOut() << " " << y.printOut() << endl;
+	}
 
+	for(int tri = 0; tri < myTrist.noTri(); tri++){
+		int p1Idx, p2Idx, p3Idx;
+
+		myTrist.getVertexIdx((OrTri) (tri << 3), p1Idx, p2Idx, p3Idx);
+		outfile << "0000: OT " << p1Idx << " " << p2Idx << " " << p3Idx << endl;
+	}
+
+	outfile.close();
 }
 
 
