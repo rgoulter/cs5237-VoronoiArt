@@ -22,8 +22,8 @@ const int WINDOW_HEIGHT_DEFAULT = 700;
 // For "simple" zooming in/out, and "simple" navigation,
 //  using just integers should be enough.
 // Could be improved, of course.
-int viewX = 0;
-int viewY = 0;
+int viewX = WINDOW_WIDTH_DEFAULT / 2;
+int viewY = WINDOW_HEIGHT_DEFAULT / 2;
 const int VIEW_SCALE_DEFAULT = 100;
 int viewScale = VIEW_SCALE_DEFAULT; // Use integer to scale out of 100.
 
@@ -85,10 +85,10 @@ void reshape (int w, int h) {
 	glViewport (0, 0, (GLsizei) w, (GLsizei) h);
 	glMatrixMode (GL_PROJECTION);
 	glLoadIdentity();
-	gluOrtho2D(viewX,
-			   viewX + zoomedWidth,
-			   viewY + zoomedHeight,
-			   viewY);  
+	gluOrtho2D(viewX - zoomedWidth / 2,
+			   viewX + zoomedWidth / 2,
+			   viewY + zoomedHeight / 2,
+			   viewY - zoomedHeight / 2);  
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
@@ -205,12 +205,12 @@ void keyboard (unsigned char key, int x, int y) {
 		break;
 
 		case 'W':
-			viewY += 50;
+			viewY -= 50;
 			refreshZoom();
 		break;
 
 		case 'S':
-			viewY -= 50;
+			viewY += 50;
 			refreshZoom();
 		break;
 
