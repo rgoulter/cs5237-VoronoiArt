@@ -157,6 +157,29 @@ void init (void) {
 
 
 
+void tryInsertPoint (LongInt x, LongInt y) {
+	int ptIndex = myPointSet.addPoint(x, y);
+	
+	for (int tri = 0; tri < myTrist.noTri(); tri++) {
+		int p1Idx, p2Idx, p3Idx;
+
+		myTrist.getVertexIdx((OrTri) (tri << 3), p1Idx, p2Idx, p3Idx);
+
+		if (myPointSet.inTri(p1Idx - 1, p2Idx - 1, p3Idx - 1, ptIndex - 1)) {
+			// Our new point is in the triangle.
+			myTrist.delTri((OrTri) (tri << 3));
+
+			myTrist.makeTri(p1Idx, p2Idx, ptIndex);
+			myTrist.makeTri(p2Idx, p3Idx, ptIndex);
+			myTrist.makeTri(p3Idx, p1Idx, ptIndex);
+
+			return;
+		}
+	}
+}
+
+
+
 void readFile () {
 
 	string line_noStr;
@@ -211,9 +234,7 @@ void readFile () {
 			outputAns = "#POINT = " + convert.str();
 
 			globalSW.pause();
-			cout << "Point X, Y: " << p1.printOut() << ", " << p2.printOut() << endl;
-
-			cout << line_noStr  << " " << outputAns << endl;
+			cout << line_noStr  << " " << outputAns << " (" << p1.printOut() << ", " << p2.printOut() << ")" << endl;
 			globalSW.resume();
 
 		} else if(!command.compare("OT")) {
@@ -231,7 +252,17 @@ void readFile () {
 
 		} else if(!command.compare("IP")){
 			linestream >> numberStr;
+			LongInt p1 = LongInt::LongInt(numberStr.c_str());
+
 			linestream >> numberStr;
+			LongInt p2 = LongInt::LongInt(numberStr.c_str());
+
+			tryInsertPoint(p1, p2);
+
+			globalSW.pause();
+			globalSW.resume();
+
+
 			
 		} else if (!command.compare("DY")) {
 			linestream >> delayAmount;
