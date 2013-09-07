@@ -129,6 +129,8 @@ void readFile () {
 	string command;// the command of each line
 	string numberStr; // for single LongInt operation
 	string outputAns = "Answer of your computation"; // the answer you computed
+	
+	int delayAmount = 0; // Number of seconds to delay between reading inputs.
 
 	ifstream inputFile("input.txt",ios::in);
 
@@ -139,6 +141,13 @@ void readFile () {
 	}
 
 	while (inputFile.good()) {
+
+		// Busy-waiting delay between commands.
+		ULONGLONG delayStart = globalSW.ms();
+		while(globalSW.ms() < delayStart + delayAmount * 1000){
+			globalSW.pause();
+			globalSW.resume();
+		}
 
 		getline(inputFile,line);
 		if(line.empty()) {
@@ -164,9 +173,11 @@ void readFile () {
 			outputAns = "#POINT = " + convert.str();
 
 			globalSW.pause();
-			outputFile << line_noStr  << " " << outputAns << endl;
+			cout << "Point X, Y: " << p1.printOut() << ", " << p2.printOut() << endl;
+
+			cout << line_noStr  << " " << outputAns << endl;
 			globalSW.resume();
-		
+
 		} else if(!command.compare("OT")) {
 			linestream >> numberStr;
 			linestream >> numberStr;			
@@ -177,7 +188,9 @@ void readFile () {
 			linestream >> numberStr;
 			
 		} else if (!command.compare("DY")) {
-			linestream >> numberStr;
+			linestream >> delayAmount;
+
+			cout << "Delay for " << delayAmount << " seconds." << endl;
 
 		} else {
 			cerr << "Exception: Wrong input command" << endl;
