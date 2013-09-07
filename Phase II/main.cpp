@@ -16,9 +16,9 @@
 
 // Include the PointSet implementation from the folder we used for
 //  Phase I. (Is there a nicer way to do this?)
-#include "..\basics\li.h"
-#include "..\basics\lmath.h"
-#include "..\basics\pointSet.h"
+#include "basics\li.h"
+#include "basics\lmath.h"
+#include "basics\pointSet.h"
 
 using namespace std;
 
