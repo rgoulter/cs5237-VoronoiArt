@@ -15,12 +15,13 @@ Trist::Trist()
 
 
 int Trist::noTri(){
+	// TODO: Account for deleted triangles.
 	return triPoints.size();
 }
 
 
 
-int Trist::makeTri(int pIndex1, int pIndex2, int pIndex3, bool autoMerge = false){
+int Trist::makeTri(int pIndex1, int pIndex2, int pIndex3, bool autoMerge){
 	// Add a triangle into the Trist with the three point indices
 	// Moreover, automatically establish the fnext pointers to its neigbhours if autoMerge = true
 
@@ -104,7 +105,7 @@ int Trist::org(OrTri ef){
 	TriRecord record = triPoints[tId];
 
 	// See formula in trist.h
-	int i = (v < 3) ? v : (v + 1) % 3;
+	return (v < 3) ? v : (v + 1) % 3;
 }
 
 
@@ -116,7 +117,7 @@ int Trist::dest(OrTri ef){
 	TriRecord record = triPoints[tId];
 
 	// See formula in trist.h
-	int i = (v < 3) ? (v + 1) % 3 : v;
+	return (v < 3) ? (v + 1) % 3 : v;
 }
 
 
@@ -124,6 +125,19 @@ int Trist::dest(OrTri ef){
 void Trist::fmerge(OrTri abc, OrTri abd){
 	// glue two neighbouring triangles, result abd = fnext(abc)
 	// ASSUME 2D ONLY
+	// This assumption helps us with gluing them together, since we
+	//  don't need to search for the next triangles in general.
+
+	// Here we DO NOT glue the symmetric triangles together. Because.
+
+	int abcIdx = abc >> 3;
+	int abcV = abc & 7;
+	int abdIdx = abd >> 3;
+	int abdV = abd & 7;
+	
+	// 2D only
+	triPoints[abcIdx].fnext_[abcV] = abd; // We record the OrdTri in fnext_.
+	triPoints[abdIdx].fnext_[abdV] = abc; // We record the OrdTri in fnext_.
 }
 
 
@@ -131,6 +145,28 @@ void Trist::fmerge(OrTri abc, OrTri abd){
 void Trist::fdetach(OrTri abc){
 	// detach triangle abc with all its neighbours (undo fmerge)
 	// ASSUME 2D ONLY
+	// this assumption allows us to just not give a toss.
+
+	OrTri t = abc;
+	int tIdx, v;
+
+	tIdx = t >> 3;
+	v = t & 7;
+	
+	TriRecord *r = &(triPoints[tIdx]);
+	
+	for(v = 0; v < 6; v++){
+		if(r->fnext_[v] >= 0){
+			int nextTIdx = (r->fnext_[v] >> 3);
+			int nextV = (r->fnext_[v] & 7);
+			TriRecord *nextT = &(triPoints[nextTIdx]);
+
+			// Assumes 2D
+			nextT->fnext_[nextV] = -1;
+
+			r->fnext_[v] = -1;
+		}
+	}
 }
 
 
@@ -140,4 +176,16 @@ void Trist::incidentTriangles(int ptIndex, int& noOrTri, OrTri* otList){
 	// that are incident to this point
 	// Ignore this if you don't feel a need
 
+	noOrTri = 0;
+
+	for(unsigned int i = 0; i < triPoints.size(); i++){
+		TriRecord *r = &(triPoints[i]);
+
+		if(r->vi_[0] == ptIndex || r->vi_[1] == ptIndex || r->vi_[2] == ptIndex){
+			   noOrTri = noOrTri + 1;
+			   otList = (OrTri*) realloc(otList, noOrTri * sizeof(OrTri));
+
+			   otList[noOrTri - 1] = i;
+		}
+	}
 }
