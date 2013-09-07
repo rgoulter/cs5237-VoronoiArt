@@ -38,6 +38,11 @@ int viewY = 0;
 const int VIEW_SCALE_DEFAULT = 100;
 int viewScale = VIEW_SCALE_DEFAULT; // Use integer to scale out of 100.
 
+
+int delayAmount = 0; // Number of seconds to delay between reading inputs.
+std::vector<string> inputLines;
+
+
 static StopWatch globalSW;
 PointSetArray myPointSet;
 Trist myTrist;
@@ -180,16 +185,85 @@ void tryInsertPoint (LongInt x, LongInt y) {
 
 
 
-void readFile () {
-
+void handleInputLine(string line){
 	string line_noStr;
 
-	string line;   // each line of the file
 	string command;// the command of each line
 	string numberStr; // for single LongInt operation
 	string outputAns = "Answer of your computation"; // the answer you computed
-	
-	int delayAmount = 0; // Number of seconds to delay between reading inputs.
+
+	// Busy-waiting delay between commands.
+	ULONGLONG delayStart = globalSW.ms();
+	while(globalSW.ms() < delayStart + delayAmount * 1000){
+		globalSW.pause();
+		globalSW.resume();
+	}
+
+	stringstream linestream(line);
+
+	linestream >> line_noStr;
+	linestream >> command;         // get the command
+
+	if (!command.compare("AP")) {
+		linestream >> numberStr;
+		LongInt p1 = LongInt::LongInt(numberStr.c_str());
+
+		linestream >> numberStr;
+		LongInt p2 = LongInt::LongInt(numberStr.c_str());
+
+		int output = myPointSet.addPoint(p1, p2);
+		glutPostRedisplay();
+
+		ostringstream convert;
+		convert << output;
+		outputAns = "#POINT = " + convert.str();
+
+		globalSW.pause();
+		cout << line_noStr  << " " << outputAns << " (" << p1.printOut() << ", " << p2.printOut() << ")" << endl;
+		globalSW.resume();
+
+	} else if(!command.compare("OT")) {
+		int p1Idx, p2Idx, p3Idx;
+		linestream >> p1Idx;
+		linestream >> p2Idx;			
+		linestream >> p3Idx;
+			
+		int triIdx = myTrist.makeTri(p1Idx, p2Idx, p3Idx, true);
+			
+		globalSW.pause();
+		cout << "Triangle #" << triIdx << " pIdx: " << p1Idx << ", " << p2Idx << ", " << p3Idx << endl;
+		globalSW.resume();
+
+	} else if(!command.compare("IP")){
+		linestream >> numberStr;
+		LongInt p1 = LongInt::LongInt(numberStr.c_str());
+
+		linestream >> numberStr;
+		LongInt p2 = LongInt::LongInt(numberStr.c_str());
+
+		tryInsertPoint(p1, p2);
+
+		globalSW.pause();
+		globalSW.resume();
+		
+	} else if (!command.compare("DY")) {
+		linestream >> delayAmount;
+
+		cout << "Delay for " << delayAmount << " seconds." << endl;
+
+	} else {
+		cerr << "Exception: Wrong input command" << endl;
+	}
+}
+
+
+
+void readFile () {
+	inputLines.clear();
+	myPointSet.eraseAllPoints();
+	myTrist.eraseAllTriangles();
+
+	string line;   // each line of the file
 
 	ifstream inputFile("input.txt",ios::in);
 
@@ -200,80 +274,34 @@ void readFile () {
 	}
 
 	while (inputFile.good()) {
-
-		// Busy-waiting delay between commands.
-		ULONGLONG delayStart = globalSW.ms();
-		while(globalSW.ms() < delayStart + delayAmount * 1000){
-			globalSW.pause();
-			globalSW.resume();
-		}
-
 		getline(inputFile,line);
+
 		if(line.empty()) {
-			command = "";
 			continue; 
-		}// in case the line has nothing in it
+		} // in case the line has nothing in it
 
-		stringstream linestream(line);
-
-		linestream >> line_noStr;
-		linestream >> command;         // get the command
-
-		if (!command.compare("AP")) {
-			linestream >> numberStr;
-			LongInt p1 = LongInt::LongInt(numberStr.c_str());
-
-			linestream >> numberStr;
-			LongInt p2 = LongInt::LongInt(numberStr.c_str());
-
-			int output = myPointSet.addPoint(p1, p2);
-			glutPostRedisplay();
-
-			ostringstream convert;
-			convert << output;
-			outputAns = "#POINT = " + convert.str();
-
-			globalSW.pause();
-			cout << line_noStr  << " " << outputAns << " (" << p1.printOut() << ", " << p2.printOut() << ")" << endl;
-			globalSW.resume();
-
-		} else if(!command.compare("OT")) {
-			int p1Idx, p2Idx, p3Idx;
-			linestream >> p1Idx;
-			linestream >> p2Idx;			
-			linestream >> p3Idx;
-			
-			int triIdx = myTrist.makeTri(p1Idx, p2Idx, p3Idx, true);
-			glutPostRedisplay();
-			
-			globalSW.pause();
-			cout << "Triangle #" << triIdx << " pIdx: " << p1Idx << ", " << p2Idx << ", " << p3Idx << endl;
-			globalSW.resume();
-
-		} else if(!command.compare("IP")){
-			linestream >> numberStr;
-			LongInt p1 = LongInt::LongInt(numberStr.c_str());
-
-			linestream >> numberStr;
-			LongInt p2 = LongInt::LongInt(numberStr.c_str());
-
-			tryInsertPoint(p1, p2);
-
-			globalSW.pause();
-			globalSW.resume();
-
-
-			
-		} else if (!command.compare("DY")) {
-			linestream >> delayAmount;
-
-			cout << "Delay for " << delayAmount << " seconds." << endl;
-
-		} else {
-			cerr << "Exception: Wrong input command" << endl;
-		}
+		// Do we need to strcpy?
+		cout << "Read in non-empty line: " << line << endl;
+		inputLines.push_back(line);
 	}
 
+}
+
+
+
+void animate(int t){
+	cout << "Animate func " << t << endl;
+	if(inputLines.size() > 0){
+		cout << "InputLine: " << inputLines[0] << endl;
+
+		handleInputLine(inputLines[0]);
+
+		inputLines.erase(inputLines.begin());
+
+		glutPostRedisplay();
+
+		glutTimerFunc(1000 * delayAmount, animate, 0);
+	}
 }
 
 
@@ -308,6 +336,7 @@ void keyboard (unsigned char key, int x, int y) {
 		case 'R':
 			cout << "Reading input file." << endl;
 			readFile();
+			glutTimerFunc(1000 * delayAmount, animate, 0);
 		break;
 
 		case 'w':
@@ -388,6 +417,8 @@ void mouse(int button, int state, int x, int y) {
 
 	glutPostRedisplay();
 }
+
+
 
 int main (int argc, char **argv) {
 	cout<<"CS5237 Phase II"<< endl<< endl;

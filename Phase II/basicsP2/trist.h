@@ -71,6 +71,8 @@ class Trist {
 		void fmerge(OrTri abc, OrTri abd); // glue two neighbouring triangles, result abd = fnext(abc)
 		void fdetach(OrTri abc); // detach triangle abc with all its neighbours (undo fmerge)
 
+		void eraseAllTriangles();
+
 		void incidentTriangles(int ptIndex,int& noOrTri, OrTri* otList); // A suggested function: you may want this function to return all the OrTri
 		                                                                 // that are incident to this point
 		                                                                 // Ignore this if you don't feel a need

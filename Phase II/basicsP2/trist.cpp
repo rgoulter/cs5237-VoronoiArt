@@ -199,6 +199,12 @@ void Trist::fdetach(OrTri abc){
 
 
 
+void Trist::eraseAllTriangles(){
+	triPoints.clear();
+}
+
+
+
 void Trist::incidentTriangles(int ptIndex, int& noOrTri, OrTri* otList){
 	// A suggested function: you may want this function to return all the OrTri
 	// that are incident to this point
