@@ -42,6 +42,8 @@ class TriRecord {
 
 
 class Trist {
+	private: 
+		void relableRefsToTri(OrTri oldEF, OrTri newEF);
 
 	protected:
 		std::vector<TriRecord> triPoints;

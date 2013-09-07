@@ -15,7 +15,6 @@ Trist::Trist()
 
 
 int Trist::noTri(){
-	// TODO: Account for deleted triangles.
 	return triPoints.size();
 }
 
@@ -44,12 +43,27 @@ int Trist::makeTri(int pIndex1, int pIndex2, int pIndex3, bool autoMerge){
 
 
 
-void Trist::delTri(OrTri oti){
+void Trist::delTri(OrTri ef){
 	// Delete a triangle, but you can assume that this is ONLY used by the IP operation
 	// You may want to make sure all its neighbours are detached (below)
 
-	// TODO: If we delete, then we will have to ensure triangle indices are valid afterwards.
-	// Perhaps better to just ignore? Otherwise quite expensive.
+	// This removes the tri from the triPoints table by swapping it with the last item,
+	//  and then removing it (since that's easier).
+	// Ultimately, doing in this way CHANGES TRIANGLE INDEXES.. which means we can't quite
+	//  keep OrTri values outside of Trist.
+	// An alternative might be to just "mark as deleted", and keep track of num_triangles as
+	//  an additional variable.
+
+	fdetach(ef);
+
+	int last = triPoints.size() - 1;
+	if(ef < last){
+		// If ef isn't the last triangle..
+		relableRefsToTri(last, ef);
+		triPoints[ef] = triPoints[last];
+	}
+
+	triPoints.pop_back();
 }
 
 
@@ -142,12 +156,12 @@ void Trist::fmerge(OrTri abc, OrTri abd){
 
 
 
-void Trist::fdetach(OrTri abc){
-	// detach triangle abc with all its neighbours (undo fmerge)
+void Trist::relableRefsToTri(OrTri oldEF, OrTri newEF){
+	// Slight misnomer; this renames 
 	// ASSUME 2D ONLY
 	// this assumption allows us to just not give a toss.
 
-	OrTri t = abc;
+	OrTri t = oldEF;
 	int tIdx, v;
 
 	tIdx = t >> 3;
@@ -155,18 +169,32 @@ void Trist::fdetach(OrTri abc){
 	
 	TriRecord *r = &(triPoints[tIdx]);
 	
+	// Check all the triangles the tri oldEF is connected to,
+	// and then set their references to oldEF to point to newEF.
 	for(v = 0; v < 6; v++){
 		if(r->fnext_[v] >= 0){
 			int nextTIdx = (r->fnext_[v] >> 3);
 			int nextV = (r->fnext_[v] & 7);
 			TriRecord *nextT = &(triPoints[nextTIdx]);
 
-			// Assumes 2D
-			nextT->fnext_[nextV] = -1;
-
-			r->fnext_[v] = -1;
+			// Assumes 2D. Relabel
+			nextT->fnext_[nextV] = newEF;
 		}
 	}
+}
+
+
+void Trist::fdetach(OrTri abc){
+	// detach triangle abc with all its neighbours (undo fmerge)
+	relableRefsToTri(abc, -1);
+
+	TriRecord *r = &(triPoints[abc >> 3]);
+	r->fnext_[0] = -1;
+	r->fnext_[1] = -1;
+	r->fnext_[2] = -1;
+	r->fnext_[3] = -1;
+	r->fnext_[4] = -1;
+	r->fnext_[5] = -1;
 }
 
 
