@@ -1,0 +1,3 @@
+# Compiled object files.
+*.obj
+**/Debug/*
