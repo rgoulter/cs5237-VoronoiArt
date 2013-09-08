@@ -1,5 +1,5 @@
 
-#include "basicsP2\pointSetArray.h"
+#include "..\basicsP2\pointSetArray.h"
 
 #include "math.h"
 #include <iostream>
@@ -12,16 +12,16 @@
 #include <string>
 #include <sstream>
 
-#include "basics\stopWatch.h"
+#include "..\basics\stopWatch.h"
 
 // Include the PointSet implementation from the folder we used for
 //  Phase I. (Is there a nicer way to do this?)
-#include "basics\li.h"
-#include "basics\lmath.h"
-#include "basics\pointSet.h"
+#include "..\basics\li.h"
+#include "..\basics\lmath.h"
+#include "..\basics\pointSet.h"
 
-#include "basicsP2\pointSetArray.h"
-#include "basicsP2\trist.h"
+#include "..\basicsP2\pointSetArray.h"
+#include "..\basicsP2\trist.h"
 
 using namespace std;
 

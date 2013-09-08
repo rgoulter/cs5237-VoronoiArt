@@ -83,9 +83,11 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="basicsP2\basicsP2.vcxproj">
+    <ProjectReference Include="..\basicsP2\basicsP2.vcxproj">
       <Project>{3ce6be51-b9ce-4a89-86d9-8a9310f0dc72}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\basics\basics.vcxproj">
+      <Project>{5c55d83e-9c8c-43c9-a5fd-079d266abbf1}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
