@@ -29,6 +29,9 @@ using namespace std;
 const int WINDOW_WIDTH_DEFAULT = 1000;
 const int WINDOW_HEIGHT_DEFAULT = 700;
 
+int windowWidth = WINDOW_WIDTH_DEFAULT;
+int windowHeight = WINDOW_HEIGHT_DEFAULT;
+
 
 // For "simple" zooming in/out, and "simple" navigation,
 //  using just integers should be enough.
@@ -132,7 +135,9 @@ void display (void) {
 
 
 void reshape (int w, int h) {
-	// TODO: Need to adjust this so that zooming occurs in the centre.
+	windowWidth = w;
+	windowHeight = h;
+
 	int zoomedWidth = (w * viewScale / VIEW_SCALE_DEFAULT);
 	int zoomedHeight = (h * viewScale / VIEW_SCALE_DEFAULT);
 
@@ -432,8 +437,22 @@ void mouse(int button, int state, int x, int y) {
 		MOUSE_SCROLL_DOWN = 4
 	};
 
-	if ((button == MOUSE_RIGHT_BUTTON) && (state == GLUT_UP)) {
+	if ((button == MOUSE_RIGHT_BUTTON) && (state == GLUT_DOWN)) {
+		// x, y coordinates are between 0-windowWidth and 0-windowHeight.
+		// The window is a view of the world, with the centre of the
+		//  window at viewX, viewY; the entire window covers a width of
+		//  (w * viewScale / VIEW_SCALE_DEFAULT), similarly for height.
 
+		int zoomedWidth = (windowWidth * viewScale / VIEW_SCALE_DEFAULT);
+		int zoomedHeight = (windowHeight * viewScale / VIEW_SCALE_DEFAULT);
+
+		int xRelToCenter = x - (windowWidth / 2);
+		int yRelToCenter = y - (windowHeight / 2);
+
+		int px = xRelToCenter * zoomedWidth / windowWidth;
+		int py = yRelToCenter * zoomedHeight / windowHeight;
+
+		tryInsertPoint(px, py);
 	}
 
 	glutPostRedisplay();
