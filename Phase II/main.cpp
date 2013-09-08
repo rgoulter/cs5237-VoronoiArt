@@ -443,14 +443,11 @@ void mouse(int button, int state, int x, int y) {
 		//  window at viewX, viewY; the entire window covers a width of
 		//  (w * viewScale / VIEW_SCALE_DEFAULT), similarly for height.
 
-		int zoomedWidth = (windowWidth * viewScale / VIEW_SCALE_DEFAULT);
-		int zoomedHeight = (windowHeight * viewScale / VIEW_SCALE_DEFAULT);
-
 		int xRelToCenter = x - (windowWidth / 2);
 		int yRelToCenter = y - (windowHeight / 2);
 
-		int px = xRelToCenter * zoomedWidth / windowWidth;
-		int py = yRelToCenter * zoomedHeight / windowHeight;
+		int px = xRelToCenter * viewScale / VIEW_SCALE_DEFAULT;
+		int py = yRelToCenter * viewScale / VIEW_SCALE_DEFAULT;
 
 		tryInsertPoint(px, py);
 	}
