@@ -1,7 +1,7 @@
 #ifndef POINTSETARRAYH
 #define POINTSETARRAYH
 
-#include "..\basics\pointSet.h"
+#include "pointSet.h"
 
 
 class PointSetArray : public PointSet {
