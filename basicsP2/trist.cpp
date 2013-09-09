@@ -56,11 +56,12 @@ void Trist::delTri(OrTri ef){
 
 	fdetach(ef);
 
+	int tIdx = (ef >> 3);
 	int last = triPoints.size() - 1;
-	if(ef < last){
+	if(tIdx < last){
 		// If ef isn't the last triangle..
-		relableRefsToTri(last, ef);
-		triPoints[ef] = triPoints[last];
+		relableRefsToTri((OrTri) (last << 3), ef);
+		triPoints[tIdx] = triPoints[last];
 	}
 
 	triPoints.pop_back();
