@@ -16,10 +16,11 @@ int PointSet::addPoint(LongInt x1, LongInt y1){
 
 
 int PointSet::inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx) {
-	MyPoint p1 = myPoints[p1Idx];
-	MyPoint p2 = myPoints[p2Idx];
-	MyPoint p3 = myPoints[p3Idx];
-	MyPoint v = myPoints[pIdx]; // the other point.
+	// Indices given are 1-based, but stored as 0-based.
+	MyPoint p1 = myPoints[p1Idx - 1];
+	MyPoint p2 = myPoints[p2Idx - 1];
+	MyPoint p3 = myPoints[p3Idx - 1];
+	MyPoint v = myPoints[pIdx - 1]; // the other point.
 	//if any 2 points are the same, return 0 immediately.
 	if(p1 == p2 || p2 == p3 || p1 == p3)
 		return 0;
@@ -44,16 +45,17 @@ int PointSet::inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx) {
 
 
 //this function gives an incorrect response for 1-2 cases per trial.
-	//The only possiblity is my orientation function or whatever it depends on has a bug.
-	//mainly because this code is stupidly simple.
+//The only possiblity is my orientation function or whatever it depends on has a bug.
+//mainly because this code is stupidly simple.
 int PointSet::inTri(int p1Idx, int p2Idx, int p3Idx, int pIdx) {
 	//If v is in the triangle formed by (p1, p2), (p2, p3), (p3, p1)
 	//then v is consistently on the same side of all of those lines.
 
-	MyPoint p1 = myPoints[p1Idx];
-	MyPoint p2 = myPoints[p2Idx];
-	MyPoint p3 = myPoints[p3Idx];
-	MyPoint v = myPoints[pIdx]; // the other point.
+	// Indices given are 1-based, but stored as 0-based.
+	MyPoint p1 = myPoints[p1Idx - 1];
+	MyPoint p2 = myPoints[p2Idx - 1];
+	MyPoint p3 = myPoints[p3Idx - 1];
+	MyPoint v = myPoints[pIdx - 1]; // the other point.
 
 	//remove cases where any 2 points are equal.
 	if(p1 == p2 || p2 == p3 || p3 == p1)
