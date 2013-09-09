@@ -175,7 +175,10 @@ void tryInsertPoint (LongInt x, LongInt y) {
 
 		myTrist.getVertexIdx((OrTri) (tri << 3), p1Idx, p2Idx, p3Idx);
 
-		if (myPointSet.inTri(p1Idx - 1, p2Idx - 1, p3Idx - 1, ptIndex - 1)) {
+		// inTri returns 1 for in, 0 for degenerate, -1 for outside.
+		// So, the >= or > here is arguable?
+		// -- Leads to a triangle of colinear points.
+		if (myPointSet.inTri(p1Idx, p2Idx, p3Idx, ptIndex) >= 0) {
 			// Our new point is in the triangle.
 			cout << "Insert Point (" << x.printOut() << ", " << y.printOut() << ")" << endl;
 			cout << "Removing Triangle tId=" << tri << ", pts: " << p1Idx << ", " << p2Idx << ", " << p3Idx << endl;
