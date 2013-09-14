@@ -1,5 +1,5 @@
 
-#include "C:\Documents and Settings\Danny\My Documents\Downloads\CS5237\Phase II\basicsP2\pointSetArray.h"
+#include "pointSetArray.h"
 
 #include "math.h"
 #include <iostream>
