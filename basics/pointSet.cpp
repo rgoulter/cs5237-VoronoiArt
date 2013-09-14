@@ -13,7 +13,9 @@ int PointSet::addPoint(LongInt x1, LongInt y1){
 	return (myPoints.size());
 }
 
-
+void PointSet::deleteLastPoint(){
+	myPoints.erase(myPoints.begin()+myPoints.size()-1);
+}
 
 int PointSet::inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx) {
 	// Indices given are 1-based, but stored as 0-based.

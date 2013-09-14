@@ -1,5 +1,5 @@
 
-#include "..\basicsP2\pointSetArray.h"
+#include "pointSetArray.h"
 
 #include "math.h"
 #include <iostream>
@@ -191,6 +191,7 @@ void tryInsertPoint (LongInt x, LongInt y) {
 			return;
 		}
 	}
+	myPointSet.deleteLastPoint();
 }
 
 
