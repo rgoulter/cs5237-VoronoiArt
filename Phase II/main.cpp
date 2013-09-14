@@ -343,7 +343,7 @@ void writeFile () {
 
 
 
-void testSomeScratchShit () {
+void testSomeScratch () {
 	// This kindof thing should really be in a GoogleTest or something.
 
 	PointSetArray psa;
@@ -369,14 +369,15 @@ void keyboard (unsigned char key, int x, int y) {
 			glutTimerFunc(1000 * delayAmount, animate, 0);
 		break;
 
-		case 'w':
+		case 'S':
+		case 's':
 			cout << "Writing output file." << endl;
 			writeFile();
 		break;
 
 		case 't':
-			cout << "Test some scratch shit." << endl;
-			testSomeScratchShit();
+			cout << "Test some scratch." << endl;
+			testSomeScratch();
 		break;
 
 		case 'Q':
@@ -401,21 +402,25 @@ void keyboard (unsigned char key, int x, int y) {
 		break;
 
 		case 'W':
+		case 'w':
 			viewY -= 50;
 			refreshZoom();
 		break;
 
-		case 'S':
+		case 'X':
+		case 'x':
 			viewY += 50;
 			refreshZoom();
 		break;
 
 		case 'A':
+		case 'a':
 			viewX -= 50;
 			refreshZoom();
 		break;
 
 		case 'D':
+		case 'd':
 			viewX += 50;
 			refreshZoom();
 		break;
@@ -467,7 +472,13 @@ int main (int argc, char **argv) {
 	cout << "Right mouse click: OT operation"<<endl;
 	cout << "Q: Quit" <<endl;
 	cout << "R: Read in control points from \"input.txt\"" <<endl;
-	cout << "W: Write control points to \"input.txt\"" <<endl;
+	cout << "S: Write control points to \"savefile.txt\"" <<endl;
+	cout << "I: Zoom in" <<endl;
+	cout << "O: Zoom out" <<endl;
+	cout << "W: Move towards the top of the window" <<endl;
+	cout << "X: Move towards the bottom of the window" <<endl;
+	cout << "A: Move towards the left of the window" <<endl;
+	cout << "D: Move towards the right of the window" <<endl;
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
