@@ -449,8 +449,8 @@ void mouse(int button, int state, int x, int y) {
 		int xRelToCenter = x - (windowWidth / 2);
 		int yRelToCenter = y - (windowHeight / 2);
 
-		int px = xRelToCenter * viewScale / VIEW_SCALE_DEFAULT;
-		int py = yRelToCenter * viewScale / VIEW_SCALE_DEFAULT;
+		int px = (xRelToCenter * viewScale / VIEW_SCALE_DEFAULT) + viewX;
+		int py = (yRelToCenter * viewScale / VIEW_SCALE_DEFAULT) + viewY;
 
 		tryInsertPoint(px, py);
 	}
