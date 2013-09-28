@@ -2,6 +2,8 @@
 #define TRISTH
 
 #include <vector>
+#include <unordered_map>
+#include <tuple>
 
 /*
 
@@ -38,8 +40,40 @@ class TriRecord {
 	friend Trist;
 };
 
+class TriEdge{ //oriented edge, edge is oriented with the lowest indexed point as p1.
+public:
+	int p1, p2;
+	TriEdge(int x, int y)
+	{
+		if(x>y)
+		{
+			p2=x;
+			p1=y;
+		}
+		else
+		{
+			p1=x;
+			p2=y;
+		}
+	};
+	bool operator==(const TriEdge other) const
+	{
+		return p1 == other.p1 && p2 == other.p2;
+	};
+
+	int hash() const
+	{
+		return p1<<5 | p2;
+
+	}
+};
 
 
+
+struct TriEdgeHasher {
+  int operator() ( const TriEdge edge) const
+  {return edge.hash();}
+};
 
 class Trist {
 	private: 
@@ -47,21 +81,22 @@ class Trist {
 
 	protected:
 		std::vector<TriRecord> triPoints;
+		std::unordered_map<TriEdge, OrTri, TriEdgeHasher> triAdj; //triangle adjacency
 		int en_[6];
 
 
 	public:
 		Trist();
 		int noTri(); // return the number of triangles
-		int makeTri(int pIndex1,int pIndex2,int pIndex3,bool autoMerge = false); // Add a triangle into the Trist with the three point indices
+		int makeTri(int pIndex1,int pIndex2,int pIndex3,bool autoMerge = true); // Add a triangle into the Trist with the three point indices
 		// Moreover, automatically establish the fnext pointers to its neigbhours if autoMerge = true
 
 		void delTri(OrTri); // Delete a triangle, but you can assume that this is ONLY used by the IP operation
 		                    // You may want to make sure all its neighbours are detached (below)
 		
-		OrTri enext(OrTri ef);
-		OrTri sym(OrTri ef);
-		OrTri fnext(OrTri ef);
+		OrTri enext(OrTri ef); //next edge in a triangle.
+		OrTri sym(OrTri ef); //changes direction of edge
+		OrTri fnext(OrTri ef); //next edge, _clockwise_ from the orientation of the edge.
 
 		void getVertexIdx(OrTri, int& pIdx1,int& pIdx2,int& pIdx3); // return the three indices of the three vertices by OrTri
 
@@ -76,6 +111,7 @@ class Trist {
 		void incidentTriangles(int ptIndex,int& noOrTri, OrTri* otList); // A suggested function: you may want this function to return all the OrTri
 		                                                                 // that are incident to this point
 		                                                                 // Ignore this if you don't feel a need
+		std::tuple<int, int> ActiveEdge(OrTri tri);
 
 };
 

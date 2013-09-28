@@ -184,9 +184,12 @@ void tryInsertPoint (LongInt x, LongInt y) {
 			cout << "Removing Triangle tId=" << tri << ", pts: " << p1Idx << ", " << p2Idx << ", " << p3Idx << endl;
 			myTrist.delTri((OrTri) (tri << 3));
 
-			myTrist.makeTri(p1Idx, p2Idx, ptIndex);
-			myTrist.makeTri(p2Idx, p3Idx, ptIndex);
-			myTrist.makeTri(p3Idx, p1Idx, ptIndex);
+			int tid = myTrist.makeTri(p1Idx, p2Idx, ptIndex);
+			cout << "Created Triangle tId=" << tid-1 << ", pts: " << p1Idx << ", " << p2Idx << ", " << ptIndex << endl;
+			tid = myTrist.makeTri(p2Idx, p3Idx, ptIndex);
+			cout << "Created Triangle tId=" << tid-1 << ", pts: " << p2Idx << ", " << p3Idx << ", " << ptIndex << endl;
+			tid = myTrist.makeTri(p3Idx, p1Idx, ptIndex);
+			cout << "Created Triangle tId=" << tid-1 << ", pts: " << p3Idx << ", " << p1Idx << ", " << ptIndex << endl;
 
 			return;
 		}
