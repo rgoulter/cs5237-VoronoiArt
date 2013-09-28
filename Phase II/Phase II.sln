@@ -24,6 +24,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "basicsTests", "..\basicsTes
 		{C8F6C172-56F2-4E76-B5FA-C3B423B31BE7} = {C8F6C172-56F2-4E76-B5FA-C3B423B31BE7}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "basicsP3", "..\basicsP3\basicsP3.vcxproj", "{9901FDFF-D990-425C-8164-15301760BF21}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -54,6 +56,10 @@ Global
 		{98319EAF-70A5-477A-9478-2EF7E3E28C4B}.Debug|Win32.Build.0 = Debug|Win32
 		{98319EAF-70A5-477A-9478-2EF7E3E28C4B}.Release|Win32.ActiveCfg = Release|Win32
 		{98319EAF-70A5-477A-9478-2EF7E3E28C4B}.Release|Win32.Build.0 = Release|Win32
+		{9901FDFF-D990-425C-8164-15301760BF21}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9901FDFF-D990-425C-8164-15301760BF21}.Debug|Win32.Build.0 = Debug|Win32
+		{9901FDFF-D990-425C-8164-15301760BF21}.Release|Win32.ActiveCfg = Release|Win32
+		{9901FDFF-D990-425C-8164-15301760BF21}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
