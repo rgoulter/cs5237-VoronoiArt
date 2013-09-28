@@ -51,7 +51,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\basics;..\basicsP2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\basics;..\basicsP2;..\basicsP3</AdditionalIncludeDirectories>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -86,9 +86,15 @@
     <ProjectReference Include="..\basicsP2\basicsP2.vcxproj">
       <Project>{3ce6be51-b9ce-4a89-86d9-8a9310f0dc72}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\basicsP3\basicsP3.vcxproj">
+      <Project>{9901fdff-d990-425c-8164-15301760bf21}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\basics\basics.vcxproj">
       <Project>{5c55d83e-9c8c-43c9-a5fd-079d266abbf1}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="delaunayTri.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
