@@ -26,9 +26,12 @@ class DirectedGraph {
 	public:		
 
 		DirectedGraph(PointSetArray &);
+		
+		// Method to add new children triangles to a parent triangle. Use findLeafNodeforPoint to find parent, and then create child node for this triangle.
+		void addChildrenNodes(int );
 
 		// Method to add new children triangles to a parent triangle. Use findLeafNodeforPoint to find parent, and then create child node for this triangle.
-		void addChildrenNodes(int );			
+		std::vector<TriRecord> getLeafNodes();
 
 		// Method to search the DAG for the triangle containing the point. This triangle will be subdivided into smaller triangles.
 		TriRecord findLeafNodeForPoint(int);

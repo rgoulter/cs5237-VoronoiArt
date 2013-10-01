@@ -126,6 +126,34 @@ void display (void) {
 		drawALine(p3x.doubleValue(), p3y.doubleValue(),
 			      p1x.doubleValue(), p1y.doubleValue());
 	}
+	
+	// Draw all DAG leaf triangles.
+	vector<TriRecord> leafNodes = dag.getLeafNodes();
+	for (i = 0; i < leafNodes.size(); i++){
+		TriRecord leafNode = leafNodes[i];
+
+		int pIndex1 = leafNode.vi_[0];
+		int pIndex2 = leafNode.vi_[1];
+		int pIndex3 = leafNode.vi_[2];
+		
+		// Probably could clean this up..
+		LongInt p1x, p1y, p2x, p2y, p3x, p3y;
+
+		myPointSet.getPoint(pIndex1, p1x, p1y);
+		myPointSet.getPoint(pIndex2, p2x, p2y);
+		myPointSet.getPoint(pIndex3, p3x, p3y);
+
+		/*
+		drawATriangle(p1x.doubleValue(), p1y.doubleValue(),
+					  p2x.doubleValue(), p2y.doubleValue(),
+					  p3x.doubleValue(), p3y.doubleValue());*/
+		drawALine(p1x.doubleValue(), p1y.doubleValue(),
+			      p2x.doubleValue(), p2y.doubleValue());
+		drawALine(p2x.doubleValue(), p2y.doubleValue(),
+			      p3x.doubleValue(), p3y.doubleValue());
+		drawALine(p3x.doubleValue(), p3y.doubleValue(),
+			      p1x.doubleValue(), p1y.doubleValue());
+	}
 
 	// Point indices are 1-based here
 	for (i = 1; i <= myPointSet.noPt(); i++){
@@ -133,9 +161,6 @@ void display (void) {
 		myPointSet.getPoint(i, px, py);
 		drawAPoint(px.doubleValue(), py.doubleValue());
 	}
-	
-	// Draw all DAG leaf triangles.
-
 
 	glPopMatrix();
 	glutSwapBuffers ();
@@ -306,8 +331,9 @@ void tryDelaunayTriangulation() {
 	dag.addChildrenNodes(myPointSet.noPt()-1); //Tells the DAG what the bounding triangle is, but no inserts into DAG take place here.
 
 	// Add points 1 ... n - 3 (inclusive) into the set of points to be tested.
+	// (0 ... < n - 3 since that's what it was)
 	// (TODO: Explain: We don't include the last 3 points because...?).
-	for(int i = 1; i < myPointSet.noPt()-3; i++){
+	for(int i = 1; i <= myPointSet.noPt()-3; i++){
 		delaunayPointsToProcess.push_back(i);
 	}
 
@@ -323,6 +349,8 @@ void tryDelaunayTriangulation() {
 		DelaunayTri::legalizeEdge(pIdx, tri.vi_[0], tri.vi_[1]);
 		DelaunayTri::legalizeEdge(pIdx, tri.vi_[0], tri.vi_[2]);
 		DelaunayTri::legalizeEdge(pIdx, tri.vi_[1], tri.vi_[2]);			
+
+		glutPostRedisplay();
 	}
 }
 

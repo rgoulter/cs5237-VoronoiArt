@@ -12,6 +12,10 @@ DirectedGraph::DirectedGraph(PointSetArray &pSet) {
 	triVertices = &pSet;
 }
 
+std::vector<TriRecord> DirectedGraph::getLeafNodes() {
+	return leafnodeList;
+}
+
 // This method adds children nodes to the specified parent node. This is only for new point additions and not for flipping.
 void DirectedGraph::addChildrenNodes(int pIdX){	
 	
