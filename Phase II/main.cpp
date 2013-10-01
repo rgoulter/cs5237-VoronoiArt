@@ -45,7 +45,7 @@ const int VIEW_SCALE_DEFAULT = 100;
 int viewScale = VIEW_SCALE_DEFAULT; // Use integer to scale out of 100.
 
 
-int delayAmount = 0; // Number of seconds to delay between reading inputs.
+int delayAmount = 1; // Number of seconds to delay between reading inputs.
 std::vector<string> inputLines;
 std::vector<int> delaunayPointsToProcess;
 PointSetArray inputPointSet; // Add the super triangle stuff to this.
@@ -298,6 +298,10 @@ void DelaunayTri::legalizeEdge(int pIdx1, int pIdx2, int pIdx3){
 
 
 void delaunayIterationStep() {
+	if(delaunayPointsToProcess.size() == 0){
+		return;
+	}
+
 	int pIdx = delaunayPointsToProcess[0];
 	delaunayPointsToProcess.erase(delaunayPointsToProcess.begin());
 
@@ -344,11 +348,9 @@ void tryDelaunayTriangulation() {
 	// TODO: Shuffle these points of delaunayPointsToProcess
 
 	// Iterate through the points we need to process.
-	while(delaunayPointsToProcess.size() > 0){
-		delaunayIterationStep();
-	}
 
-	//glutTimerFunc(300, animate, 45);
+	delaunayIterationStep();
+	glutTimerFunc(1000 * delayAmount, animate, 1); // start DT itertion animation
 }
 
 void handleInputLine(string line){
@@ -479,9 +481,12 @@ void animate(int t){
 		delaunayIterationStep();
 
 		glutPostRedisplay();
-		glutTimerFunc(1000 * delayAmount, animate, 1);
+
+		if(delaunayPointsToProcess.size() > 0){
+			glutTimerFunc(1000 * delayAmount, animate, 1);
+		}
 	} else if(t == 2){
-	glutTimerFunc(300, animate, 45);
+		glutTimerFunc(300, animate, 45);
 	}
 }
 
