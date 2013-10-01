@@ -8,6 +8,8 @@
 #include <strstream>
 #include <string>
 #include <sstream>
+#include <stdlib.h>
+#include <time.h>
 
 #include "stopWatch.h"
 
@@ -346,6 +348,15 @@ void tryDelaunayTriangulation() {
 	}
 
 	// TODO: Shuffle these points of delaunayPointsToProcess
+	srand (time(NULL));
+	for(int i = 0; i < delaunayPointsToProcess.size() / 2; i++){
+		int j = rand() % delaunayPointsToProcess.size();
+
+		// swap
+		int tmp = delaunayPointsToProcess[i];
+		delaunayPointsToProcess[i] = delaunayPointsToProcess[j];
+		delaunayPointsToProcess[j] = tmp;
+	}
 
 	// Iterate through the points we need to process.
 
