@@ -57,7 +57,7 @@ int flag = 0; // for knowing if the command 'CD' is called for the first time or
 
 // These three functions are for those who are not familiar with OpenGL, you can change these or even completely ignore them
 
-void drawAPoint (double x, double y) {
+void drawAPoint (double x,double y) {
 		glPointSize(5);
 		glBegin(GL_POINTS);
 		glColor3f(0,0,0);
@@ -130,6 +130,9 @@ void display (void) {
 		myPointSet.getPoint(i, px, py);
 		drawAPoint(px.doubleValue(), py.doubleValue());
 	}
+	
+	// Draw all DAG leaf triangles.
+
 
 	glPopMatrix();
 	glutSwapBuffers ();
@@ -171,33 +174,44 @@ void init (void) {
 
 
 void tryInsertPoint (LongInt x, LongInt y) {
-	int ptIndex = myPointSet.addPoint(x, y);
 	
-	for (int tri = 0; tri < myTrist.noTri(); tri++) {
-		int p1Idx, p2Idx, p3Idx;
-
-		myTrist.getVertexIdx((OrTri) (tri << 3), p1Idx, p2Idx, p3Idx);
-
-		// inTri returns 1 for in, 0 for degenerate, -1 for outside.
-		// So, the >= or > here is arguable?
-		// -- Leads to a triangle of colinear points.
-		if (myPointSet.inTri(p1Idx, p2Idx, p3Idx, ptIndex) > 0) {
-			// Our new point is in the triangle.
-			cout << "Insert Point (" << x.printOut() << ", " << y.printOut() << ")" << endl;
-			cout << "Removing Triangle tId=" << tri << ", pts: " << p1Idx << ", " << p2Idx << ", " << p3Idx << endl;
-			myTrist.delTri((OrTri) (tri << 3));
-
-			int tid = myTrist.makeTri(p1Idx, p2Idx, ptIndex);
-			cout << "Created Triangle tId=" << tid-1 << ", pts: " << p1Idx << ", " << p2Idx << ", " << ptIndex << endl;
-			tid = myTrist.makeTri(p2Idx, p3Idx, ptIndex);
-			cout << "Created Triangle tId=" << tid-1 << ", pts: " << p2Idx << ", " << p3Idx << ", " << ptIndex << endl;
-			tid = myTrist.makeTri(p3Idx, p1Idx, ptIndex);
-			cout << "Created Triangle tId=" << tid-1 << ", pts: " << p3Idx << ", " << p1Idx << ", " << ptIndex << endl;
-
-			return;
+	if(flag == 1){
+			myPointSet.deleteLastPoint();
+			myPointSet.deleteLastPoint();
+			myPointSet.deleteLastPoint();
+			flag = 0;
 		}
-	}
-	myPointSet.deleteLastPoint();
+
+	int ptIndex = myPointSet.addPoint(x, y);
+
+	// The below portion is commented out as IP essentially means AP in Phase 3.
+
+	//
+	//for (int tri = 0; tri < myTrist.noTri(); tri++) {
+	//	int p1Idx, p2Idx, p3Idx;
+
+	//	myTrist.getVertexIdx((OrTri) (tri << 3), p1Idx, p2Idx, p3Idx);
+
+	//	// inTri returns 1 for in, 0 for degenerate, -1 for outside.
+	//	// So, the >= or > here is arguable?
+	//	// -- Leads to a triangle of colinear points.
+	//	if (myPointSet.inTri(p1Idx, p2Idx, p3Idx, ptIndex) > 0) {
+	//		// Our new point is in the triangle.
+	//		cout << "Insert Point (" << x.printOut() << ", " << y.printOut() << ")" << endl;
+	//		cout << "Removing Triangle tId=" << tri << ", pts: " << p1Idx << ", " << p2Idx << ", " << p3Idx << endl;
+	//		myTrist.delTri((OrTri) (tri << 3));
+
+	//		int tid = myTrist.makeTri(p1Idx, p2Idx, ptIndex);
+	//		cout << "Created Triangle tId=" << tid-1 << ", pts: " << p1Idx << ", " << p2Idx << ", " << ptIndex << endl;
+	//		tid = myTrist.makeTri(p2Idx, p3Idx, ptIndex);
+	//		cout << "Created Triangle tId=" << tid-1 << ", pts: " << p2Idx << ", " << p3Idx << ", " << ptIndex << endl;
+	//		tid = myTrist.makeTri(p3Idx, p1Idx, ptIndex);
+	//		cout << "Created Triangle tId=" << tid-1 << ", pts: " << p3Idx << ", " << p1Idx << ", " << ptIndex << endl;
+
+	//		return;
+	//	}
+	//}
+	//myPointSet.deleteLastPoint();
 }
 
 void DelaunayTri::findBoundingTri(PointSetArray &pSet){
@@ -278,6 +292,8 @@ void handleInputLine(string line){
 	string numberStr; // for single LongInt operation
 	string outputAns = "Answer of your computation"; // the answer you computed
 
+	
+
 	// Busy-waiting delay between commands.
 	ULONGLONG delayStart = globalSW.ms();
 	while(globalSW.ms() < delayStart + delayAmount * 1000){
@@ -297,6 +313,8 @@ void handleInputLine(string line){
 		linestream >> numberStr;
 		LongInt p2 = LongInt::LongInt(numberStr.c_str());
 
+		// If a delaunay has already been computed, the 3 points on top of the point stack are the delaunay bounding
+		// triangle vertices. Remove these before inserting any new points.
 		if(flag == 1){
 			myPointSet.deleteLastPoint();
 			myPointSet.deleteLastPoint();
@@ -327,23 +345,13 @@ void handleInputLine(string line){
 		globalSW.pause();
 		cout << "Triangle #" << triIdx << " pIdx: " << p1Idx << ", " << p2Idx << ", " << p3Idx << endl;
 		globalSW.resume();
-
-	/*} else if(!command.compare("IP")){
-		linestream >> numberStr;
-		LongInt p1 = LongInt::LongInt(numberStr.c_str());
-
-		linestream >> numberStr;
-		LongInt p2 = LongInt::LongInt(numberStr.c_str());
-
-		tryInsertPoint(p1, p2);
-
-		globalSW.pause();
-		globalSW.resume();*/
 		
 	} else if (!command.compare("CD")) {
-		flag = 1;
+		flag = 1; // Sets the CD enountered flag. Will be reset when the next IP command is encountered
+		dag.cleardirectedGraph();
 		DelaunayTri::findBoundingTri(myPointSet);
-		dag.addChildrenNodes(myPointSet.noPt()-1); //Tells the DAG what the bounnding triangle is, but no inserts into DAG take place here.
+
+		dag.addChildrenNodes(myPointSet.noPt()-1); //Tells the DAG what the bounding triangle is, but no inserts into DAG take place here.
 		
 		for(int i=0; i<myPointSet.noPt()-3; i++){
 			TriRecord tri = dag.findLeafNodeForPoint(i); // Return the containing triangle for the point i.
@@ -351,8 +359,9 @@ void handleInputLine(string line){
 			
 			DelaunayTri::legalizeEdge(i, tri.vi_[0], tri.vi_[1]);
 			DelaunayTri::legalizeEdge(i, tri.vi_[0], tri.vi_[2]);
-			DelaunayTri::legalizeEdge(i, tri.vi_[1], tri.vi_[2]);
+			DelaunayTri::legalizeEdge(i, tri.vi_[1], tri.vi_[2]);			
 		}
+		int temp =1;
 
 	} else if (!command.compare("DY")) {
 		linestream >> delayAmount;
@@ -416,25 +425,39 @@ void animate(int t){
 void writeFile () {
 	ofstream outfile;
 	outfile.open ("savefile.txt", ios::out | ios::trunc);
-
+	int pointCount;
 	// Let's add all points;
 	// This will include the invalid points we failed to make into triangles.
 	// Otherwise, Trist would need to be restructured.
-	for(int pt = 1; pt <= myPointSet.noPt(); pt++){
+	
+	// If flag is set, the last 3 points are for bounding triangle. Avoid this from being written to output file
+	// else, we write all points into the file.
+	if(flag == 1){
+			pointCount = myPointSet.noPt()-3;
+		}
+	else
+	{
+		pointCount = myPointSet.noPt();
+	}
+
+	for(int pt = 1; pt <= pointCount; pt++){
 		LongInt x, y;
 		myPointSet.getPoint(pt, x, y); // one-based index
 		
 		// Don't care about line numbers atm.
-		outfile << "0000: AP " << x.printOut() << " " << y.printOut() << endl;
+		outfile << "0000: IP " << x.printOut() << " " << y.printOut() << endl;
 	}
 
-	for(int tri = 0; tri < myTrist.noTri(); tri++){
+	outfile << "0000: CD"  << endl;
+
+	// The below code has been commented out as it is not needed as part of Phase 3.
+	/*for(int tri = 0; tri < myTrist.noTri(); tri++){
 		int p1Idx, p2Idx, p3Idx;
 
 		myTrist.getVertexIdx((OrTri) (tri << 3), p1Idx, p2Idx, p3Idx);
 		outfile << "0000: OT " << p1Idx << " " << p2Idx << " " << p3Idx << endl;
 	}
-
+*/
 	outfile.close();
 }
 
@@ -522,6 +545,23 @@ void keyboard (unsigned char key, int x, int y) {
 			refreshZoom();
 		break;
 
+		case 'C': //Compute Delaunay for the new set of points.
+		case 'c':
+			flag = 1; // Sets the CD enountered flag. Will be reset when the next IP command is encountered
+			dag.cleardirectedGraph();
+			DelaunayTri::findBoundingTri(myPointSet);
+			dag.addChildrenNodes(myPointSet.noPt()-1); //Tells the DAG what the bounding triangle is, but no inserts into DAG take place here.
+		
+			for(int i=0; i<myPointSet.noPt()-3; i++){
+				TriRecord tri = dag.findLeafNodeForPoint(i); // Return the containing triangle for the point i.
+				dag.addChildrenNodes(i);
+			
+				DelaunayTri::legalizeEdge(i, tri.vi_[0], tri.vi_[1]);
+				DelaunayTri::legalizeEdge(i, tri.vi_[0], tri.vi_[2]);
+				DelaunayTri::legalizeEdge(i, tri.vi_[1], tri.vi_[2]);			
+			}
+		break;
+
 		default:
 		break;
 	}
@@ -553,7 +593,7 @@ void mouse(int button, int state, int x, int y) {
 		int yRelToCenter = y - (windowHeight / 2);
 
 		int px = (xRelToCenter * viewScale / VIEW_SCALE_DEFAULT) + viewX;
-		int py = (yRelToCenter * viewScale / VIEW_SCALE_DEFAULT) + viewY;
+		int py = -((yRelToCenter * viewScale / VIEW_SCALE_DEFAULT) + viewY);
 
 		tryInsertPoint(px, py);
 	}
@@ -576,6 +616,7 @@ int main (int argc, char **argv) {
 	cout << "X: Move towards the bottom of the window" <<endl;
 	cout << "A: Move towards the left of the window" <<endl;
 	cout << "D: Move towards the right of the window" <<endl;
+	cout << "C: Compute Delaunay triangulation" <<endl;
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);

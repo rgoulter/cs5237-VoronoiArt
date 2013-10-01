@@ -39,6 +39,9 @@ class DirectedGraph {
 		// Create children nodes with 2 parents in case of edge flipping.
 		void addFlipChildrenNodes(int, int, int, int);
 
+		// Resets the graph, removes everything from it.
+		void cleardirectedGraph();
+
 	protected:
 		
 		// Keeps the relationship between a parent node and its children.

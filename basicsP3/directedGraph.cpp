@@ -57,6 +57,7 @@ void DirectedGraph::addChildrenNodes(int pIdX){
 		leafnodeList.push_back(child2);
 		leafnodeList.push_back(child3);
 	}
+	else leafnodeList.push_back(containingTriangle);
 	// Push the parent node into the orderedkeylist. This will preserve the order in which parents have been inserted.
 	// First record will always be the bounding triangle, which we will use in the findLeafNodeforPoint for setting the
 	// initial worklist
@@ -233,7 +234,14 @@ void DirectedGraph::addFlipChildrenNodes(int pIdx1, int pIdx2, int pIdx3, int pI
 			}
 		}	
 
-	}
-	
-	
+	}	
+}
+
+// Removes everything from DAG
+void DirectedGraph::cleardirectedGraph(){
+	dagNode.clear();
+	leafnodeList.clear();
+	orderedkeyList.clear();
+	int temp =1;
+
 }
