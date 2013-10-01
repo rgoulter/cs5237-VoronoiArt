@@ -304,7 +304,7 @@ void DelaunayTri::legalizeEdge(int pIdx1, int pIdx2, int pIdx3){
 		for(int j=0; j<3; j++){
 			if(triangles[i].vi_[j]!=pIdx1 && triangles[i].vi_[j]!=pIdx2 && triangles[i].vi_[j]!=pIdx3){
 				p4 = triangles[i].vi_[j];
-				if(myPointSet.inCircle(pIdx1+1, pIdx2+1, pIdx3+1, p4+1)>0){ // Adding 1 to the indexes for the benefit of inCircle method
+				if(myPointSet.inCircle(pIdx1, pIdx2, pIdx3, p4)>0){ // Adding 1 to the indexes for the benefit of inCircle method
 					dag.addFlipChildrenNodes(pIdx1, pIdx2, pIdx3, p4);
 					legalizeEdge(pIdx1, pIdx2, p4);
 					legalizeEdge(pIdx1, pIdx3, p4);
@@ -328,7 +328,7 @@ void tryDelaunayTriangulation() {
 	delaunayNewTrist.eraseAllTriangles();
 
 	DelaunayTri::findBoundingTri(myPointSet);
-	dag.addChildrenNodes(myPointSet.noPt()-1); //Tells the DAG what the bounding triangle is, but no inserts into DAG take place here.
+	dag.addChildrenNodes(myPointSet.noPt()); //Tells the DAG what the bounding triangle is, but no inserts into DAG take place here.
 
 	// Add points 1 ... n - 3 (inclusive) into the set of points to be tested.
 	// (0 ... < n - 3 since that's what it was)
@@ -340,8 +340,8 @@ void tryDelaunayTriangulation() {
 	// TODO: Shuffle these points of delaunayPointsToProcess
 
 	// Iterate through the points we need to process.
-	for(int i = 0; i < delaunayPointsToProcess.size(); i++){
-		int pIdx = delaunayPointsToProcess[i];
+	for(int i = 1; i <= myPointSet.noPt()-3; i++){
+		int pIdx = i; //delaunayPointsToProcess[i];
 
 		TriRecord tri = dag.findLeafNodeForPoint(pIdx); // Return the containing triangle for the point i.
 		dag.addChildrenNodes(pIdx);
@@ -420,7 +420,7 @@ void handleInputLine(string line){
 		dag.cleardirectedGraph();
 		DelaunayTri::findBoundingTri(myPointSet);
 
-		dag.addChildrenNodes(myPointSet.noPt()-1); //Tells the DAG what the bounding triangle is, but no inserts into DAG take place here.
+		dag.addChildrenNodes(myPointSet.noPt()); //Tells the DAG what the bounding triangle is, but no inserts into DAG take place here.
 		
 		for(int i=0; i<myPointSet.noPt()-3; i++){
 			TriRecord tri = dag.findLeafNodeForPoint(i); // Return the containing triangle for the point i.

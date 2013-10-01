@@ -137,7 +137,7 @@ TriRecord DirectedGraph::findLeafNodeForPoint(int pIdX){
 		pIndex3 = checkTriangle.vi_[2];
 
 		
-		int ret = (*triVertices).inTri(pIndex1+1,pIndex2+1,pIndex3+1,pIdX+1); // If ret is >=0, the point is inside the triangle
+		int ret = (*triVertices).inTri(pIndex1,pIndex2,pIndex3,pIdX); // If ret is >=0, the point is inside the triangle
 		if(ret >=0)
 		{
 			
