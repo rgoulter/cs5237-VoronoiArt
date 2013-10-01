@@ -114,6 +114,13 @@ void display (void) {
 		int pIndex1 = leafNode.vi_[0];
 		int pIndex2 = leafNode.vi_[1];
 		int pIndex3 = leafNode.vi_[2];
+
+		// Ignore if from the super triangle (i.e. index too large for input set)
+		if(pIndex1 > delaunayPointSet.noPt() - 3 ||
+		   pIndex2 > delaunayPointSet.noPt() - 3 || 
+		   pIndex3 > delaunayPointSet.noPt() - 3){
+			   continue;
+		}
 		
 		// Probably could clean this up..
 		LongInt p1x, p1y, p2x, p2y, p3x, p3y;
