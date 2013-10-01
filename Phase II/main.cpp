@@ -403,22 +403,7 @@ void handleInputLine(string line){
 		globalSW.resume();
 		
 	} else if (!command.compare("CD")) {
-		flag = 1; // Sets the CD enountered flag. Will be reset when the next IP command is encountered
-		dag.cleardirectedGraph();
-		DelaunayTri::findBoundingTri(myPointSet);
-
-		dag.addChildrenNodes(myPointSet.noPt()); //Tells the DAG what the bounding triangle is, but no inserts into DAG take place here.
-		
-		for(int i=0; i<myPointSet.noPt()-3; i++){
-			TriRecord tri = dag.findLeafNodeForPoint(i); // Return the containing triangle for the point i.
-			dag.addChildrenNodes(i);
-			
-			DelaunayTri::legalizeEdge(i, tri.vi_[0], tri.vi_[1]);
-			DelaunayTri::legalizeEdge(i, tri.vi_[0], tri.vi_[2]);
-			DelaunayTri::legalizeEdge(i, tri.vi_[1], tri.vi_[2]);			
-		}
-		int temp =1;
-
+		tryDelaunayTriangulation();
 	} else if (!command.compare("DY")) {
 		linestream >> delayAmount;
 
