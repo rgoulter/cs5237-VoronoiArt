@@ -27,6 +27,7 @@
 
 using namespace std;
 
+void animate(int t);
 
 const int WINDOW_WIDTH_DEFAULT = 1000;
 const int WINDOW_HEIGHT_DEFAULT = 700;
@@ -296,6 +297,22 @@ void DelaunayTri::legalizeEdge(int pIdx1, int pIdx2, int pIdx3){
 
 
 
+void delaunayIterationStep() {
+	int pIdx = delaunayPointsToProcess[0];
+	delaunayPointsToProcess.erase(delaunayPointsToProcess.begin());
+
+	TriRecord tri = dag.findLeafNodeForPoint(pIdx); // Return the containing triangle for the point i.
+	dag.addChildrenNodes(pIdx);
+
+	DelaunayTri::legalizeEdge(pIdx, tri.vi_[0], tri.vi_[1]);
+	DelaunayTri::legalizeEdge(pIdx, tri.vi_[0], tri.vi_[2]);
+	DelaunayTri::legalizeEdge(pIdx, tri.vi_[1], tri.vi_[2]);			
+
+	glutPostRedisplay();
+}
+
+
+
 // Call this function when the user pushes the button to do Delaunay Triangulation
 void tryDelaunayTriangulation() {
 	flag = 1; // Sets the CD enountered flag. Will be reset when the next IP command is encountered
@@ -327,18 +344,11 @@ void tryDelaunayTriangulation() {
 	// TODO: Shuffle these points of delaunayPointsToProcess
 
 	// Iterate through the points we need to process.
-	for(int i = 0; i < delaunayPointsToProcess.size(); i++){
-		int pIdx = delaunayPointsToProcess[i];
-
-		TriRecord tri = dag.findLeafNodeForPoint(pIdx); // Return the containing triangle for the point i.
-		dag.addChildrenNodes(pIdx);
-
-		DelaunayTri::legalizeEdge(pIdx, tri.vi_[0], tri.vi_[1]);
-		DelaunayTri::legalizeEdge(pIdx, tri.vi_[0], tri.vi_[2]);
-		DelaunayTri::legalizeEdge(pIdx, tri.vi_[1], tri.vi_[2]);			
-
-		glutPostRedisplay();
+	while(delaunayPointsToProcess.size() > 0){
+		delaunayIterationStep();
 	}
+
+	//glutTimerFunc(300, animate, 45);
 }
 
 void handleInputLine(string line){
@@ -448,16 +458,30 @@ void readFile () {
 
 
 void animate(int t){
-	if(inputLines.size() > 0){
-		cout << "InputLine: " << inputLines[0] << endl;
+	// 0 = do next command,
+	// 1 = do next Delaunay step
+	// 2 = draw next animation tick
 
-		handleInputLine(inputLines[0]);
+	cout << "Animate t::" << t << endl;
+	if(t == 0){ 
+		if(inputLines.size() > 0){
+			cout << "InputLine: " << inputLines[0] << endl;
 
-		inputLines.erase(inputLines.begin());
+			handleInputLine(inputLines[0]);
+
+			inputLines.erase(inputLines.begin());
+
+			glutPostRedisplay();
+
+			glutTimerFunc(1000 * delayAmount, animate, 0);
+		}
+	} else if(t == 1){
+		delaunayIterationStep();
 
 		glutPostRedisplay();
-
-		glutTimerFunc(1000 * delayAmount, animate, 0);
+		glutTimerFunc(1000 * delayAmount, animate, 1);
+	} else if(t == 2){
+	glutTimerFunc(300, animate, 45);
 	}
 }
 
