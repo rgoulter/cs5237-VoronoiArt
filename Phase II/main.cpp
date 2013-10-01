@@ -295,17 +295,34 @@ void DelaunayTri::legalizeEdge(int pIdx1, int pIdx2, int pIdx3){
 // Call this function when the user pushes the button to do Delaunay Triangulation
 void tryDelaunayTriangulation() {
 	flag = 1; // Sets the CD enountered flag. Will be reset when the next IP command is encountered
+
+	// Erase relevant data structures
 	dag.cleardirectedGraph();
+	delaunayPointsToProcess.clear();
+	delaunayOldTrist.eraseAllTriangles();
+	delaunayNewTrist.eraseAllTriangles();
+
 	DelaunayTri::findBoundingTri(myPointSet);
 	dag.addChildrenNodes(myPointSet.noPt()-1); //Tells the DAG what the bounding triangle is, but no inserts into DAG take place here.
-		
-	for(int i=0; i<myPointSet.noPt()-3; i++){
-		TriRecord tri = dag.findLeafNodeForPoint(i); // Return the containing triangle for the point i.
-		dag.addChildrenNodes(i);
-			
-		DelaunayTri::legalizeEdge(i, tri.vi_[0], tri.vi_[1]);
-		DelaunayTri::legalizeEdge(i, tri.vi_[0], tri.vi_[2]);
-		DelaunayTri::legalizeEdge(i, tri.vi_[1], tri.vi_[2]);			
+
+	// Add points 1 ... n - 3 (inclusive) into the set of points to be tested.
+	// (TODO: Explain: We don't include the last 3 points because...?).
+	for(int i = 1; i < myPointSet.noPt()-3; i++){
+		delaunayPointsToProcess.push_back(i);
+	}
+
+	// TODO: Shuffle these points of delaunayPointsToProcess
+
+	// Iterate through the points we need to process.
+	for(int i = 0; i < delaunayPointsToProcess.size(); i++){
+		int pIdx = delaunayPointsToProcess[i];
+
+		TriRecord tri = dag.findLeafNodeForPoint(pIdx); // Return the containing triangle for the point i.
+		dag.addChildrenNodes(pIdx);
+
+		DelaunayTri::legalizeEdge(pIdx, tri.vi_[0], tri.vi_[1]);
+		DelaunayTri::legalizeEdge(pIdx, tri.vi_[0], tri.vi_[2]);
+		DelaunayTri::legalizeEdge(pIdx, tri.vi_[1], tri.vi_[2]);			
 	}
 }
 
