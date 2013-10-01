@@ -47,13 +47,15 @@ int viewScale = VIEW_SCALE_DEFAULT; // Use integer to scale out of 100.
 int delayAmount = 0; // Number of seconds to delay between reading inputs.
 std::vector<string> inputLines;
 std::vector<int> delaunayPointsToProcess;
+PointSetArray inputPointSet; // Add the super triangle stuff to this.
+PointSetArray delaunayPointSet; // Add the super triangle stuff to this.
 Trist delaunayOldTrist;
 Trist delaunayNewTrist;
 
 static StopWatch globalSW;
 PointSetArray myPointSet;
 Trist myTrist;
-DirectedGraph dag(myPointSet);
+DirectedGraph dag(delaunayPointSet);
 LongInt delta = 5;
 LongInt one = 1;
 int flag = 0; // for knowing if the command 'CD' is called for the first time or not
@@ -103,29 +105,6 @@ void display (void) {
 	drawATriangle(400,400,400,500,500,500);*/
 
 	int i;
-	for (i = 0; i < myTrist.noTri(); i++) {
-		// We want to be able to iterate through triangles.
-		int pIndex1, pIndex2, pIndex3;
-		
-		myTrist.getVertexIdx((OrTri) (i << 3), pIndex1, pIndex2, pIndex3);
-
-		// Probably could clean this up..
-		LongInt p1x, p1y, p2x, p2y, p3x, p3y;
-
-		myPointSet.getPoint(pIndex1, p1x, p1y);
-		myPointSet.getPoint(pIndex2, p2x, p2y);
-		myPointSet.getPoint(pIndex3, p3x, p3y);
-
-		drawATriangle(p1x.doubleValue(), p1y.doubleValue(),
-					  p2x.doubleValue(), p2y.doubleValue(),
-					  p3x.doubleValue(), p3y.doubleValue());
-		drawALine(p1x.doubleValue(), p1y.doubleValue(),
-			      p2x.doubleValue(), p2y.doubleValue());
-		drawALine(p2x.doubleValue(), p2y.doubleValue(),
-			      p3x.doubleValue(), p3y.doubleValue());
-		drawALine(p3x.doubleValue(), p3y.doubleValue(),
-			      p1x.doubleValue(), p1y.doubleValue());
-	}
 	
 	// Draw all DAG leaf triangles.
 	vector<TriRecord> leafNodes = dag.getLeafNodes();
@@ -139,14 +118,14 @@ void display (void) {
 		// Probably could clean this up..
 		LongInt p1x, p1y, p2x, p2y, p3x, p3y;
 
-		myPointSet.getPoint(pIndex1, p1x, p1y);
-		myPointSet.getPoint(pIndex2, p2x, p2y);
-		myPointSet.getPoint(pIndex3, p3x, p3y);
+		delaunayPointSet.getPoint(pIndex1, p1x, p1y);
+		delaunayPointSet.getPoint(pIndex2, p2x, p2y);
+		delaunayPointSet.getPoint(pIndex3, p3x, p3y);
 
-		/*
+		
 		drawATriangle(p1x.doubleValue(), p1y.doubleValue(),
 					  p2x.doubleValue(), p2y.doubleValue(),
-					  p3x.doubleValue(), p3y.doubleValue());*/
+					  p3x.doubleValue(), p3y.doubleValue());
 		drawALine(p1x.doubleValue(), p1y.doubleValue(),
 			      p2x.doubleValue(), p2y.doubleValue());
 		drawALine(p2x.doubleValue(), p2y.doubleValue(),
@@ -156,9 +135,10 @@ void display (void) {
 	}
 
 	// Point indices are 1-based here
-	for (i = 1; i <= myPointSet.noPt(); i++){
+	// Draw input points
+	for (i = 1; i <= inputPointSet.noPt(); i++){
 		LongInt px, py;
-		myPointSet.getPoint(i, px, py);
+		inputPointSet.getPoint(i, px, py);
 		drawAPoint(px.doubleValue(), py.doubleValue());
 	}
 
@@ -202,15 +182,7 @@ void init (void) {
 
 
 void tryInsertPoint (LongInt x, LongInt y) {
-	
-	if(flag == 1){
-			myPointSet.deleteLastPoint();
-			myPointSet.deleteLastPoint();
-			myPointSet.deleteLastPoint();
-			flag = 0;
-		}
-
-	int ptIndex = myPointSet.addPoint(x, y);
+	int ptIndex = inputPointSet.addPoint(x, y);
 
 	// The below portion is commented out as IP essentially means AP in Phase 3.
 
@@ -304,7 +276,7 @@ void DelaunayTri::legalizeEdge(int pIdx1, int pIdx2, int pIdx3){
 		for(int j=0; j<3; j++){
 			if(triangles[i].vi_[j]!=pIdx1 && triangles[i].vi_[j]!=pIdx2 && triangles[i].vi_[j]!=pIdx3){
 				p4 = triangles[i].vi_[j];
-				if(myPointSet.inCircle(pIdx1, pIdx2, pIdx3, p4)>0){ // Adding 1 to the indexes for the benefit of inCircle method
+				if(delaunayPointSet.inCircle(pIdx1, pIdx2, pIdx3, p4)>0){ // Adding 1 to the indexes for the benefit of inCircle method
 					dag.addFlipChildrenNodes(pIdx1, pIdx2, pIdx3, p4);
 					legalizeEdge(pIdx1, pIdx2, p4);
 					legalizeEdge(pIdx1, pIdx3, p4);
@@ -324,23 +296,31 @@ void tryDelaunayTriangulation() {
 	// Erase relevant data structures
 	dag.cleardirectedGraph();
 	delaunayPointsToProcess.clear();
+	delaunayPointSet.eraseAllPoints();
 	delaunayOldTrist.eraseAllTriangles();
 	delaunayNewTrist.eraseAllTriangles();
 
-	DelaunayTri::findBoundingTri(myPointSet);
-	dag.addChildrenNodes(myPointSet.noPt()); //Tells the DAG what the bounding triangle is, but no inserts into DAG take place here.
+	// Copy points from the input set to Delaunay point set
+	for(int i = 1; i <= inputPointSet.noPt(); i++){
+		LongInt x, y;
+		inputPointSet.getPoint(i, x, y);
+		delaunayPointSet.addPoint(x, y);
+	}
+
+	DelaunayTri::findBoundingTri(delaunayPointSet);
+	dag.addChildrenNodes(delaunayPointSet.noPt()); //Tells the DAG what the bounding triangle is, but no inserts into DAG take place here.
 
 	// Add points 1 ... n - 3 (inclusive) into the set of points to be tested.
 	// (0 ... < n - 3 since that's what it was)
 	// (TODO: Explain: We don't include the last 3 points because...?).
-	for(int i = 1; i <= myPointSet.noPt()-3; i++){
+	for(int i = 1; i <= delaunayPointSet.noPt()-3; i++){
 		delaunayPointsToProcess.push_back(i);
 	}
 
 	// TODO: Shuffle these points of delaunayPointsToProcess
 
 	// Iterate through the points we need to process.
-	for(int i = 1; i <= myPointSet.noPt()-3; i++){
+	for(int i = 1; i <= delaunayPointSet.noPt()-3; i++){
 		int pIdx = i; //delaunayPointsToProcess[i];
 
 		TriRecord tri = dag.findLeafNodeForPoint(pIdx); // Return the containing triangle for the point i.
