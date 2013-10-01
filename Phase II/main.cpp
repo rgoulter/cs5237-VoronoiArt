@@ -46,6 +46,9 @@ int viewScale = VIEW_SCALE_DEFAULT; // Use integer to scale out of 100.
 
 int delayAmount = 0; // Number of seconds to delay between reading inputs.
 std::vector<string> inputLines;
+std::vector<int> delaunayPointsToProcess;
+Trist delaunayOldTrist;
+Trist delaunayNewTrist;
 
 static StopWatch globalSW;
 PointSetArray myPointSet;
@@ -266,6 +269,8 @@ void DelaunayTri::findBoundingTri(PointSetArray &pSet){
 	else return false;
 }*/
 
+
+
 void DelaunayTri::legalizeEdge(int pIdx1, int pIdx2, int pIdx3){
 	vector<TriRecord> triangles = dag.findNodesForEdge(pIdx2, pIdx3);
 
@@ -282,6 +287,25 @@ void DelaunayTri::legalizeEdge(int pIdx1, int pIdx2, int pIdx3){
 				return;
 			}
 		}
+	}
+}
+
+
+
+// Call this function when the user pushes the button to do Delaunay Triangulation
+void tryDelaunayTriangulation() {
+	flag = 1; // Sets the CD enountered flag. Will be reset when the next IP command is encountered
+	dag.cleardirectedGraph();
+	DelaunayTri::findBoundingTri(myPointSet);
+	dag.addChildrenNodes(myPointSet.noPt()-1); //Tells the DAG what the bounding triangle is, but no inserts into DAG take place here.
+		
+	for(int i=0; i<myPointSet.noPt()-3; i++){
+		TriRecord tri = dag.findLeafNodeForPoint(i); // Return the containing triangle for the point i.
+		dag.addChildrenNodes(i);
+			
+		DelaunayTri::legalizeEdge(i, tri.vi_[0], tri.vi_[1]);
+		DelaunayTri::legalizeEdge(i, tri.vi_[0], tri.vi_[2]);
+		DelaunayTri::legalizeEdge(i, tri.vi_[1], tri.vi_[2]);			
 	}
 }
 
@@ -547,19 +571,7 @@ void keyboard (unsigned char key, int x, int y) {
 
 		case 'C': //Compute Delaunay for the new set of points.
 		case 'c':
-			flag = 1; // Sets the CD enountered flag. Will be reset when the next IP command is encountered
-			dag.cleardirectedGraph();
-			DelaunayTri::findBoundingTri(myPointSet);
-			dag.addChildrenNodes(myPointSet.noPt()-1); //Tells the DAG what the bounding triangle is, but no inserts into DAG take place here.
-		
-			for(int i=0; i<myPointSet.noPt()-3; i++){
-				TriRecord tri = dag.findLeafNodeForPoint(i); // Return the containing triangle for the point i.
-				dag.addChildrenNodes(i);
-			
-				DelaunayTri::legalizeEdge(i, tri.vi_[0], tri.vi_[1]);
-				DelaunayTri::legalizeEdge(i, tri.vi_[0], tri.vi_[2]);
-				DelaunayTri::legalizeEdge(i, tri.vi_[1], tri.vi_[2]);			
-			}
+			tryDelaunayTriangulation();
 		break;
 
 		default:
