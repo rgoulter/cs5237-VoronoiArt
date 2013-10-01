@@ -1,6 +1,3 @@
-
-#include "pointSetArray.h"
-
 #include "math.h"
 #include <iostream>
 #include <fstream>
@@ -16,12 +13,17 @@
 
 // Include the PointSet implementation from the folder we used for
 //  Phase I. (Is there a nicer way to do this?)
+
+
 #include "li.h"
 #include "lmath.h"
 #include "pointSet.h"
 
 #include "pointSetArray.h"
 #include "trist.h"
+
+#include "delaunayTri.h"
+#include "directedGraph.h"
 
 using namespace std;
 
@@ -45,16 +47,17 @@ int viewScale = VIEW_SCALE_DEFAULT; // Use integer to scale out of 100.
 int delayAmount = 0; // Number of seconds to delay between reading inputs.
 std::vector<string> inputLines;
 
-
 static StopWatch globalSW;
 PointSetArray myPointSet;
 Trist myTrist;
-
-
+DirectedGraph dag(myPointSet);
+LongInt delta = 5;
+LongInt one = 1;
+int flag = 0; // for knowing if the command 'CD' is called for the first time or not
 
 // These three functions are for those who are not familiar with OpenGL, you can change these or even completely ignore them
 
-void drawAPoint (double x,double y) {
+void drawAPoint (double x, double y) {
 		glPointSize(5);
 		glBegin(GL_POINTS);
 		glColor3f(0,0,0);
@@ -90,7 +93,7 @@ void drawATriangle (double x1,double y1, double x2, double y2, double x3, double
 void display (void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glPushMatrix();
-
+	glRotatef(180,1,0,0);
 	// draw your output here (erase the following 3 lines)
 	/*drawAPoint(100,100);
 	drawALine(200,200,300,300);
@@ -197,7 +200,76 @@ void tryInsertPoint (LongInt x, LongInt y) {
 	myPointSet.deleteLastPoint();
 }
 
+void DelaunayTri::findBoundingTri(PointSetArray &pSet){
+	LongInt minX = pSet.myPoints[0].x;
+	LongInt maxX = pSet.myPoints[0].x;
+	LongInt minY = pSet.myPoints[0].y;
+	LongInt maxY = pSet.myPoints[0].y;
+	LongInt tempmaxX, tempminX;
 
+	for(int i = 1; i < pSet.myPoints.size(); i++){
+		if(minX > pSet.myPoints[i].x) minX = pSet.myPoints[i].x;
+		else if(maxX < pSet.myPoints[i].x) maxX = pSet.myPoints[i].x;
+
+		if(minY > pSet.myPoints[i].y) minY = pSet.myPoints[i].y;
+		else if(maxY < pSet.myPoints[i].y) maxY = pSet.myPoints[i].y;
+	}
+
+	minX = minX-delta;
+	tempminX = minX;
+	maxX = maxX+delta;
+	tempmaxX = maxX;
+	minY = minY-delta;
+	maxY = maxY+delta;
+
+	pSet.addPoint(maxX+(maxY-minY),minY);
+	pSet.addPoint(minX-(maxY-minY),minY);
+
+	while( !(maxX == minX + one || maxX == minX - one || maxX == minX) )
+	{
+		maxX = maxX - one;
+		minX = minX + one ;
+	}
+	
+	pSet.addPoint(maxX,maxY+((tempmaxX-tempminX))); // some rounding may occur if LongInt is odd
+	int temp =1;
+}
+
+/*bool DelaunayTri::isLocallyDelaunay(int pIdx1, int pIdx2){// PointSet pSet is redundant?
+	vector<TriRecord> triangles = dag.findNodesforEdge(pIdx1, pIdx2);
+
+	int p1, p2; // indexes of third points of triangles
+	for(int i=0; i<triangles.size(); i++){
+		for(int j=0; j<3; j++){
+			if(i==0 && triangles[i].vi_[j]!=pIdx1 && triangles[i].vi_[j]!=pIdx2)
+				p1 = triangles[i].vi_[j];
+			if(i==1 && triangles[i].vi_[j]!=pIdx1 && triangles[i].vi_[j]!=pIdx2)
+				p2 = triangles[i].vi_[j];
+		}
+	}
+
+	if(myPointSet.inCircle(p1, pIdx1, pIdx2, p2)>0) return true;
+	else return false;
+}*/
+
+void DelaunayTri::legalizeEdge(int pIdx1, int pIdx2, int pIdx3){
+	vector<TriRecord> triangles = dag.findNodesForEdge(pIdx2, pIdx3);
+
+	int p4;
+	for(int i=0; i<triangles.size(); i++){
+		for(int j=0; j<3; j++){
+			if(triangles[i].vi_[j]!=pIdx1 && triangles[i].vi_[j]!=pIdx2 && triangles[i].vi_[j]!=pIdx3){
+				p4 = triangles[i].vi_[j];
+				if(myPointSet.inCircle(pIdx1+1, pIdx2+1, pIdx3+1, p4+1)>0){ // Adding 1 to the indexes for the benefit of inCircle method
+					dag.addFlipChildrenNodes(pIdx1, pIdx2, pIdx3, p4);
+					legalizeEdge(pIdx1, pIdx2, p4);
+					legalizeEdge(pIdx1, pIdx3, p4);
+				}
+				return;
+			}
+		}
+	}
+}
 
 void handleInputLine(string line){
 	string line_noStr;
@@ -218,14 +290,22 @@ void handleInputLine(string line){
 	linestream >> line_noStr;
 	linestream >> command;         // get the command
 
-	if (!command.compare("AP")) {
+	if (!command.compare("IP")) { // it was previously 'AP', but we don't have it anymore
 		linestream >> numberStr;
 		LongInt p1 = LongInt::LongInt(numberStr.c_str());
 
 		linestream >> numberStr;
 		LongInt p2 = LongInt::LongInt(numberStr.c_str());
 
+		if(flag == 1){
+			myPointSet.deleteLastPoint();
+			myPointSet.deleteLastPoint();
+			myPointSet.deleteLastPoint();
+			flag = 0;
+		}
+
 		int output = myPointSet.addPoint(p1, p2);
+
 		glutPostRedisplay();
 
 		ostringstream convert;
@@ -248,7 +328,7 @@ void handleInputLine(string line){
 		cout << "Triangle #" << triIdx << " pIdx: " << p1Idx << ", " << p2Idx << ", " << p3Idx << endl;
 		globalSW.resume();
 
-	} else if(!command.compare("IP")){
+	/*} else if(!command.compare("IP")){
 		linestream >> numberStr;
 		LongInt p1 = LongInt::LongInt(numberStr.c_str());
 
@@ -258,8 +338,22 @@ void handleInputLine(string line){
 		tryInsertPoint(p1, p2);
 
 		globalSW.pause();
-		globalSW.resume();
+		globalSW.resume();*/
 		
+	} else if (!command.compare("CD")) {
+		flag = 1;
+		DelaunayTri::findBoundingTri(myPointSet);
+		dag.addChildrenNodes(myPointSet.noPt()-1); //Tells the DAG what the bounnding triangle is, but no inserts into DAG take place here.
+		
+		for(int i=0; i<myPointSet.noPt()-3; i++){
+			TriRecord tri = dag.findLeafNodeForPoint(i); // Return the containing triangle for the point i.
+			dag.addChildrenNodes(i);
+			
+			DelaunayTri::legalizeEdge(i, tri.vi_[0], tri.vi_[1]);
+			DelaunayTri::legalizeEdge(i, tri.vi_[0], tri.vi_[2]);
+			DelaunayTri::legalizeEdge(i, tri.vi_[1], tri.vi_[2]);
+		}
+
 	} else if (!command.compare("DY")) {
 		linestream >> delayAmount;
 
