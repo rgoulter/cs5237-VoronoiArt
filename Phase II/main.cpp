@@ -327,8 +327,8 @@ void tryDelaunayTriangulation() {
 	// TODO: Shuffle these points of delaunayPointsToProcess
 
 	// Iterate through the points we need to process.
-	for(int i = 1; i <= delaunayPointSet.noPt()-3; i++){
-		int pIdx = i; //delaunayPointsToProcess[i];
+	for(int i = 0; i < delaunayPointsToProcess.size(); i++){
+		int pIdx = delaunayPointsToProcess[i];
 
 		TriRecord tri = dag.findLeafNodeForPoint(pIdx); // Return the containing triangle for the point i.
 		dag.addChildrenNodes(pIdx);
