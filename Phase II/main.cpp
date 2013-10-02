@@ -54,7 +54,7 @@ Trist delaunayOldTrist;
 Trist delaunayNewTrist;
 
 static StopWatch globalSW;
-PointSetArray myPointSet;
+//PointSetArray myPointSet;
 Trist myTrist;
 DirectedGraph dag(delaunayPointSet);
 LongInt delta = 5;
@@ -319,7 +319,7 @@ void delaunayIterationStep() {
 
 // Call this function when the user pushes the button to do Delaunay Triangulation
 void tryDelaunayTriangulation() {
-	flag = 1; // Sets the CD enountered flag. Will be reset when the next IP command is encountered
+	//flag = 1; // Sets the CD enountered flag. Will be reset when the next IP command is encountered
 
 	// Erase relevant data structures
 	dag.cleardirectedGraph();
@@ -383,14 +383,14 @@ void handleInputLine(string line){
 
 		// If a delaunay has already been computed, the 3 points on top of the point stack are the delaunay bounding
 		// triangle vertices. Remove these before inserting any new points.
-		if(flag == 1){
-			myPointSet.deleteLastPoint();
-			myPointSet.deleteLastPoint();
-			myPointSet.deleteLastPoint();
+		/*if(flag == 1){
+			inputPointSet.deleteLastPoint();
+			inputPointSet.deleteLastPoint();
+			inputPointSet.deleteLastPoint();
 			flag = 0;
-		}
+		}*/
 
-		int output = myPointSet.addPoint(p1, p2);
+		int output = inputPointSet.addPoint(p1, p2);
 
 		glutPostRedisplay();
 
@@ -430,7 +430,7 @@ void handleInputLine(string line){
 
 void readFile () {
 	inputLines.clear();
-	myPointSet.eraseAllPoints();
+	inputPointSet.eraseAllPoints();
 	myTrist.eraseAllTriangles();
 
 	string line;   // each line of the file
@@ -502,17 +502,16 @@ void writeFile () {
 	
 	// If flag is set, the last 3 points are for bounding triangle. Avoid this from being written to output file
 	// else, we write all points into the file.
-	if(flag == 1){
-			pointCount = myPointSet.noPt()-3;
+	/*if(flag == 1){
+			pointCount = inputPointSet.noPt();
 		}
-	else
-	{
-		pointCount = myPointSet.noPt();
-	}
+	else*/
+	
+	pointCount = inputPointSet.noPt();
 
 	for(int pt = 1; pt <= pointCount; pt++){
 		LongInt x, y;
-		myPointSet.getPoint(pt, x, y); // one-based index
+		inputPointSet.getPoint(pt, x, y); // one-based index
 		
 		// Don't care about line numbers atm.
 		outfile << "0000: IP " << x.printOut() << " " << y.printOut() << endl;
