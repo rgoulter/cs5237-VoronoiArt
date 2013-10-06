@@ -23,5 +23,8 @@
     <ClInclude Include="..\..\..\include\delaunayTri.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\include\win32\platform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

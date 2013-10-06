@@ -41,7 +41,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\include\basics;..\..\..\include\basicsP2;..\..\..\include\basicsP3;..\..\..\include;..\..\..\include\win32\basics</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\include\basics;..\..\..\include\basicsP2;..\..\..\include\basicsP3;..\..\..\include;..\..\..\include\win32;..\..\..\include\win32\basics</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\include\delaunayTri.h" />
+    <ClInclude Include="..\..\..\include\win32\platform.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\basics_libs\basics_libs.vcxproj">
