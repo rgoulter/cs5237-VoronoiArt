@@ -1,6 +1,8 @@
 #ifndef TRISTH
 #define TRISTH
 
+#include <stdlib.h>
+
 #include <vector>
 
 /*

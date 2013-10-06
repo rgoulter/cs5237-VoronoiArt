@@ -1,6 +1,7 @@
 #ifndef LIH
 #define LIH
 
+#include <cstdio>
 #include <string>
 #include <vector>
 

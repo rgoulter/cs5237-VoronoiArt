@@ -55,7 +55,7 @@ void DirectedGraph::addChildrenNodes(int pIdX){
 	// Insert the parent-child relationship into the DAG, only if the containing triangle itself is not the bounding triangle.
 	if(pIdX != pIndex1 && pIdX != pIndex2 && pIdX != pIndex3)
 	{
-		dagNode.insert(std::map<TriRecord, std::vector<TriRecord>>::value_type(containingTriangle, existingChildren));
+		dagNode.insert(std::map<TriRecord, std::vector<TriRecord> >::value_type(containingTriangle, existingChildren));
 		leafnodeList.push_back(child1);
 		leafnodeList.push_back(child2);
 		leafnodeList.push_back(child3);
@@ -218,7 +218,7 @@ void DirectedGraph::addFlipChildrenNodes(int pIdx1, int pIdx2, int pIdx3, int pI
 	for(iter = parentTriangles.begin(); iter != parentTriangles.end(); )
 	{
 		TriRecord triangle = *iter;
-		dagNode.insert(std::map<TriRecord, std::vector<TriRecord>>::value_type(triangle, children));
+		dagNode.insert(std::map<TriRecord, std::vector<TriRecord> >::value_type(triangle, children));
 		++iter;
 
 		//Remove the new parents from leafnodeList

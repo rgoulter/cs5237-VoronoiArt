@@ -1,8 +1,8 @@
 #include "math.h"
 #include <iostream>
 #include <fstream>
-#include "GL\glut.h"
-#include <windows.h>
+#include "GL/glu.h"
+#include "GL/glut.h"
 #include <cstdio>
 #include <fstream>
 #include <strstream>
@@ -374,10 +374,11 @@ void handleInputLine(string line){
 	
 
 	// Busy-waiting delay between commands.
-	ULONGLONG delayStart = globalSW.ms();
-	while(globalSW.ms() < delayStart + delayAmount * 1000){
-		globalSW.pause();
-		globalSW.resume();
+	StopWatch tmpSW;
+	tmpSW.resume();
+	while(tmpSW.ms() < delayAmount * 1000){
+		tmpSW.pause();
+		tmpSW.resume();
 	}
 
 	stringstream linestream(line);
@@ -387,10 +388,10 @@ void handleInputLine(string line){
 
 	if (!command.compare("IP")) { // it was previously 'AP', but we don't have it anymore
 		linestream >> numberStr;
-		LongInt p1 = LongInt::LongInt(numberStr.c_str());
+		LongInt p1(numberStr.c_str());
 
 		linestream >> numberStr;
-		LongInt p2 = LongInt::LongInt(numberStr.c_str());
+		LongInt p2(numberStr.c_str());
 
 		// If a delaunay has already been computed, the 3 points on top of the point stack are the delaunay bounding
 		// triangle vertices. Remove these before inserting any new points.
