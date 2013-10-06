@@ -41,7 +41,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\include\basics;..\..\..\include\basicsP2;..\..\..\include\basicsP3;..\..\..\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\include\basics;..\..\..\include\basicsP2;..\..\..\include\basicsP3;..\..\..\include;..\..\..\include\win32\basics</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -67,7 +67,7 @@
     <ClCompile Include="..\..\..\src\basics\li.cpp" />
     <ClCompile Include="..\..\..\src\basics\lmath.cpp" />
     <ClCompile Include="..\..\..\src\basics\pointSet.cpp" />
-    <ClCompile Include="..\..\..\src\basics\stopWatch.cpp" />
+    <ClCompile Include="..\..\..\src\win32\basics\stopWatch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\include\basicsP2\pointSetArray.h" />
@@ -76,7 +76,7 @@
     <ClInclude Include="..\..\..\include\basics\li.h" />
     <ClInclude Include="..\..\..\include\basics\lmath.h" />
     <ClInclude Include="..\..\..\include\basics\pointSet.h" />
-    <ClInclude Include="..\..\..\include\basics\stopWatch.h" />
+    <ClInclude Include="..\..\..\include\win32\basics\stopWatch.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
