@@ -1,7 +1,7 @@
 #include "math.h"
 #include <iostream>
 #include <fstream>
-#include "GL/glu.h"
+#include "platform.h"
 #include "GL/glut.h"
 #include <cstdio>
 #include <fstream>
