@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdlib>
 #include <sstream>
 #include "li.h"
 
@@ -65,7 +66,7 @@ LongInt::LongInt(std::string x){
 }
 
 /*********************************************************PRIVATE METHODS*********************************************************/
-LongInt LongInt::plusHelper(LongInt& newNumber){
+LongInt LongInt::plusHelper(const LongInt& newNumber) const {
 	long carryover = 0L;
 	LongInt theAnswer;	
 	
@@ -122,7 +123,7 @@ LongInt LongInt::plusHelper(LongInt& newNumber){
 	return theAnswer;
 }
 
-LongInt LongInt::minusHelper(LongInt& newNumber) {
+LongInt LongInt::minusHelper(const LongInt& newNumber) const {
 	long carryover = 0L;
 	
 	LongInt theAnswer;
@@ -233,7 +234,7 @@ void LongInt::assignWithCheck(LongInt otherLongInt, int start, int end) {
 	else this->signType = type_positive;
 }
 
-LongInt LongInt::longMult(LongInt& otherLongInt) {
+LongInt LongInt::longMult(const LongInt& otherLongInt) const {
 
 	LongInt theAnswer = LongInt(0);
 
@@ -279,7 +280,7 @@ LongInt LongInt::longMult(LongInt& otherLongInt) {
 // Karatsuba Multiplication
 // The number of 'digits' we're looking at here is the number of elements in the array.
 // Base 10.
-LongInt LongInt::karatsuba(LongInt& otherLongInt) {
+LongInt LongInt::karatsuba(const LongInt& otherLongInt) const {
 
 	LongInt theAnswer;
 
@@ -412,13 +413,13 @@ LongInt& LongInt::operator=(int x) {
 }
 */
 
-LongInt& LongInt::operator=(LongInt& x) {	
+LongInt& LongInt::operator=(const LongInt& x) {	
 	myLongInt = x.myLongInt;
 	signType = x.signType;
-	return x;
+	return *this;
 }
 
-LongInt LongInt::operator+(LongInt& newNumber) { // currentValue + newNumber
+LongInt LongInt::operator+(const LongInt& newNumber) const { // currentValue + newNumber
 
 	if (this->sign() == 0) {
 		return newNumber;
@@ -438,7 +439,7 @@ LongInt LongInt::operator+(LongInt& newNumber) { // currentValue + newNumber
 	return plusHelper(newNumber);	
 }
 
-LongInt LongInt::operator-(LongInt& newNumber) { // currentValue - newNumber
+LongInt LongInt::operator-(const LongInt& newNumber) const { // currentValue - newNumber
 
 	if (this->sign() == 0) {
 		LongInt theAnswer = newNumber;
@@ -466,7 +467,7 @@ LongInt LongInt::operator-(LongInt& newNumber) { // currentValue - newNumber
 	return minusHelper(newNumber);
 }
 
-LongInt LongInt::operator*(LongInt& otherLongInt) {
+LongInt LongInt::operator*(const LongInt& otherLongInt) const {
 
 	LongInt theAnswer;
 
@@ -486,7 +487,7 @@ LongInt LongInt::operator*(LongInt& otherLongInt) {
 	
 }
 
-bool LongInt::operator>(LongInt& otherLongInt){
+bool LongInt::operator>(const LongInt& otherLongInt) const {
 	int thisSign = this->sign();
 	int otherSign = otherLongInt.sign();
 
@@ -521,11 +522,11 @@ bool LongInt::operator>(LongInt& otherLongInt){
 	return false;
 }
 
-bool LongInt::operator<(LongInt& otherLongInt){
+bool LongInt::operator<(const LongInt& otherLongInt) const {
 	return otherLongInt.operator>(*this);
 }
 
-bool LongInt::operator==(LongInt& otherLongInt){
+bool LongInt::operator==(const LongInt& otherLongInt) const {
 	int thisSign = this->sign();
 	int otherSign = otherLongInt.sign();
 
@@ -560,7 +561,7 @@ int LongInt::sign() const{
 	}
 }
 
-double LongInt::doubleValue(){
+double LongInt::doubleValue() const {
 	if (this->eqZero())
 		return 0;
 

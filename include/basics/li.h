@@ -1,6 +1,7 @@
 #ifndef LIH
 #define LIH
 
+#include <string>
 #include <vector>
 
 //Const definitions
@@ -14,11 +15,11 @@ class LongInt {
 		std::vector<long> myLongInt;
 
 		//Helper functions		
-		LongInt plusHelper(LongInt& currentLongInt);		
-		LongInt minusHelper(LongInt& currentLongInt);	
+		LongInt plusHelper(const LongInt& currentLongInt) const;		
+		LongInt minusHelper(const LongInt& currentLongInt) const;	
 		void assignWithCheck(LongInt, int, int);
-		LongInt longMult(LongInt&);
-		LongInt karatsuba(LongInt&);
+		LongInt longMult(const LongInt&) const;
+		LongInt karatsuba(const LongInt&) const;
 		void changeSign();
 
 	protected:
@@ -33,29 +34,29 @@ class LongInt {
 		std::string printOut();			// convert number to a string
 		
 		LongInt& operator=(int i) {return (*this) = LongInt(i);}; 
-		LongInt& operator=(LongInt&);  
-		LongInt operator+(LongInt&); 
-		LongInt operator+(int i) {return (*this) + LongInt(i);};
-		LongInt operator-(LongInt&);
-		LongInt operator-(int i) {return (*this) + LongInt(i);};
-		LongInt operator*(LongInt&);
-		LongInt operator*(int i) {return (*this) * LongInt(i);};
+		LongInt& operator=(const LongInt&);  
+		LongInt operator+(const LongInt&) const; 
+		LongInt operator+(int i) const {return (*this) + LongInt(i);};
+		LongInt operator-(const LongInt&) const;
+		LongInt operator-(int i) const {return (*this) + LongInt(i);};
+		LongInt operator*(const LongInt&) const;
+		LongInt operator*(int i) const {return (*this) * LongInt(i);};
 		
-		bool operator>(LongInt&);
-		bool operator>(int i) {return ((*this) > LongInt(i));};
-		bool operator<(LongInt&);
-		bool operator<(int i) {return ((*this) < LongInt(i));};
-		bool operator==(LongInt&);
+		bool operator>(const LongInt&) const;
+		bool operator>(int i) const {return ((*this) > LongInt(i));};
+		bool operator<(const LongInt&) const;
+		bool operator<(int i) const {return ((*this) < LongInt(i));};
+		bool operator==(const LongInt&) const;
 
-		bool operator>=(LongInt& oLT) {return ((*this) == oLT) || ((*this) > oLT);};
-		bool operator>=(int i) {return ((*this) >= LongInt(i));};
-		bool operator<=(LongInt& oLT) {return ((*this) == oLT) || ((*this) < oLT);};
-		bool operator<=(int i) {return ((*this) <= LongInt(i));};
+		bool operator>=(const LongInt& oLT) const {return ((*this) == oLT) || ((*this) > oLT);};
+		bool operator>=(int i) const {return ((*this) >= LongInt(i));};
+		bool operator<=(const LongInt& oLT) const {return ((*this) == oLT) || ((*this) < oLT);};
+		bool operator<=(int i) const {return ((*this) <= LongInt(i));};
 
 		bool eqZero() const;  // return true if it is zero
 		int sign() const;     // return +1 if it's positive, -1 if it's negative, 0 if it's zero
 		
-		double doubleValue(); // return a double approximation (you can assume that it will not be out of bound)
+		double doubleValue() const; // return a double approximation (you can assume that it will not be out of bound)
 
 	friend LongInt operator-(LongInt&); 
 
