@@ -465,7 +465,7 @@ void MyPanelOpenGL::paintGL(){
 
 
 void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
-    qDebug("%d, %d\n", event->x(), event->y());
+    //qDebug("%d, %d\n", event->x(), event->y());
 
 	// x, y coordinates are between 0-windowWidth and 0-windowHeight.
 	// The window is a view of the world, with the centre of the
@@ -480,6 +480,12 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 
 	tryInsertPoint(px, py);
 
+	updateGL();
+}
+
+void MyPanelOpenGL::doDelaunayTriangulation(){
+    //qDebug("Do Delaunay Triangulation\n");
+	tryDelaunayTriangulation();
 	updateGL();
 }
 

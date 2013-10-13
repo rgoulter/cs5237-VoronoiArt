@@ -8,6 +8,9 @@ class MyPanelOpenGL : public QGLWidget
     Q_OBJECT
 public:
     explicit MyPanelOpenGL(QWidget *parent = 0);
+	
+public slots:
+	void doDelaunayTriangulation();
 
 protected:
     void initializeGL();

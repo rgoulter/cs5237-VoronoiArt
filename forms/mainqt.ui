@@ -27,7 +27,7 @@
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>0</x>
       <y>430</y>
       <width>151</width>
       <height>23</height>
@@ -46,10 +46,30 @@
    <extends>QWidget</extends>
    <header>mypanelopengl.h</header>
    <container>1</container>
+   <slots>
+    <slot>doDelaunayTriangulation()</slot>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources>
   <include location="../resource/mainqt.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>glWidget</receiver>
+   <slot>doDelaunayTriangulation()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>94</x>
+     <y>445</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>97</x>
+     <y>393</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

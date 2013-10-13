@@ -9,7 +9,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unittests", "unittests\unit
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cs5237_main", "cs5237_main\cs5237_main.vcxproj", "{C06E20CF-F04E-4F34-B6B7-DFDD09E8E4BC}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cs5237_qt", "..\cs5237_qt\cs5237_qt.vcxproj", "{CB63F6D1-E6D3-4554-93E9-CC4FDF3E506C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cs5237_qt", "cs5237_qt\cs5237_qt.vcxproj", "{CB63F6D1-E6D3-4554-93E9-CC4FDF3E506C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
