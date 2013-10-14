@@ -1,7 +1,7 @@
 #ifndef MYPANELOPENGL_H
 #define MYPANELOPENGL_H
 
-#include <QGLWidget >
+#include <QGLWidget>
 
 class MyPanelOpenGL : public QGLWidget
 {

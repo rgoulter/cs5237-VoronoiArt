@@ -166,10 +166,12 @@ void reshape (int w, int h) {
 	glViewport (0, 0, (GLsizei) w, (GLsizei) h);
 	glMatrixMode (GL_PROJECTION);
 	glLoadIdentity();
-	gluOrtho2D(viewX - zoomedWidth / 2,
-			   viewX + zoomedWidth / 2,
-			   viewY + zoomedHeight / 2,
-			   viewY - zoomedHeight / 2);  
+    glOrtho(viewX - zoomedWidth / 2,
+            viewX + zoomedWidth / 2,
+            viewY + zoomedHeight / 2,
+            viewY - zoomedHeight / 2,
+            -1,
+            1); //gluOrtho2D complained ??
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
