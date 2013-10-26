@@ -133,7 +133,6 @@ void drawLoadedTextureImage() {
 
 
 void display (void) {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glPushMatrix();
 	glRotatef(180,1,0,0);
 	// draw your output here (erase the following 3 lines)
@@ -191,25 +190,66 @@ void display (void) {
 
 
 
+void refreshProjection() {
+	glViewport (0, 0, (GLsizei) windowWidth, (GLsizei) windowHeight);
+	glMatrixMode (GL_PROJECTION);
+	glLoadIdentity();
+
+	// If we haven't loaded an image,
+	// we don't particularly care what the coord system is.
+	if (loadedImageWidth < 0) {
+		// Just some boring thing.
+		glOrtho(-1, 1, -1, 1, -1, 1);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+
+		return;
+	}
+
+	double imageRatio = ((double) loadedImageWidth) / loadedImageHeight;
+	double windowRatio = ((double) windowWidth) / windowHeight;
+
+	if (imageRatio > windowRatio) {
+		double ratio = ((double) windowWidth) / windowHeight;
+
+		int renderWidth = loadedImageWidth;
+		int renderHeight = (int) (loadedImageWidth / ratio);
+
+		int delta = (renderHeight - loadedImageHeight) / 2;
+
+		glOrtho(0,
+                renderWidth,
+                loadedImageHeight + delta,
+                -delta,
+                -1,
+                1);
+	} else {
+		double ratio = ((double) windowWidth) / windowHeight;
+		
+		int renderWidth = (int) (loadedImageHeight * ratio);
+		int renderHeight = loadedImageHeight;
+
+		int delta = (renderWidth - loadedImageWidth) / 2;
+
+		glOrtho(-delta,
+                loadedImageWidth + delta,
+                renderHeight,
+                0,
+                -1,
+                1);
+	}
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+}
+
+
+
 void reshape (int w, int h) {
 	windowWidth = w;
 	windowHeight = h;
 
-	int zoomedWidth = (w * viewScale / VIEW_SCALE_DEFAULT);
-	int zoomedHeight = (h * viewScale / VIEW_SCALE_DEFAULT);
-
-	glViewport (0, 0, (GLsizei) w, (GLsizei) h);
-	glMatrixMode (GL_PROJECTION);
-	glLoadIdentity();
-    glOrtho(viewX - zoomedWidth / 2,
-            viewX + zoomedWidth / 2,
-            viewY + zoomedHeight / 2,
-            viewY - zoomedHeight / 2,
-            -1,
-            1); //gluOrtho2D complained ??
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
+	refreshProjection();
 }
 
 
@@ -534,8 +574,9 @@ void MyPanelOpenGL::resizeGL(int width, int height){
 }
 
 void MyPanelOpenGL::paintGL(){
-    display();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	drawLoadedTextureImage();
+    display();
 }
 
 
@@ -575,9 +616,9 @@ void MyPanelOpenGL::doOpenImage(){
  
 	qDebug(filenameStr.c_str());
 
-	updateFilename(qStr_fileName);
-
+	updateFilename(qStr_fileName); // to Qt textbox
 	loadOpenGLTextureFromFilename(filenameStr);
+	refreshProjection();
 }
 
 void MyPanelOpenGL::doDrawImage(){
