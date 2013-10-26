@@ -104,21 +104,23 @@ void drawLoadedTextureImage() {
 	if (loadedImageWidth < 0) { return; }
 
 	qDebug("Draw the texture");
+	glEnable(GL_TEXTURE_2D);
 	glBindTexture (GL_TEXTURE_2D, loadedImageTexture);
 
 	glBegin (GL_QUADS);
 		glTexCoord2f (0.0, 0.0);
-		glVertex3f (0.0, 0.0, 0.0);
+		glVertex3f (0.0, 0.0, -1.0);
 
 		glTexCoord2f (1.0, 0.0);
-		glVertex3f (loadedImageWidth, 0.0, 0.0);
+		glVertex3f (loadedImageWidth, 0.0, -1.0);
 
 		glTexCoord2f (1.0, 1.0);
-		glVertex3f (loadedImageWidth, loadedImageHeight, 0.0);
+		glVertex3f (loadedImageWidth, loadedImageHeight, -1.0);
 
 		glTexCoord2f (0.0, 1.0);
-		glVertex3f (0.0, loadedImageHeight, 0.0);
+		glVertex3f (0.0, loadedImageHeight, -1.0);
 	glEnd ();
+	glDisable(GL_TEXTURE_2D);
 }
 
 
@@ -190,7 +192,7 @@ void refreshProjection() {
 	// we don't particularly care what the coord system is.
 	if (loadedImageWidth < 0) {
 		// Just some boring thing.
-		glOrtho(-1, 1, -1, 1, -1, 1);
+		glOrtho(-1, 1, 1, -1, -1, 1);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
@@ -397,8 +399,7 @@ void loadOpenGLTextureFromFilename(string imgFilename) {
 
 	glEnable(GL_TEXTURE_2D);
 
-	//glGenTextures(1, &loadedImageTexture);
-	loadedImageTexture = 17;
+	glGenTextures(1, &loadedImageTexture);
 	glBindTexture(GL_TEXTURE_2D, loadedImageTexture);
 
 	unsigned char* image =
@@ -554,6 +555,7 @@ void MyPanelOpenGL::initializeGL() {
     glClearDepth(1.0f);
 
 	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
 
@@ -577,29 +579,31 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 	double imageRatio = ((double) loadedImageWidth) / loadedImageHeight;
 	double windowRatio = ((double) windowWidth) / windowHeight;
 
-	int renderWidth;
-	int renderHeight;
+	int renderWidth = 2;
+	int renderHeight = 2;
 
-	int deltaX = 0;
-	int deltaY = 0;
+	int deltaX = 1;
+	int deltaY = 1;
 
-	if (imageRatio > windowRatio) {
-		double ratio = ((double) windowWidth) / windowHeight;
+	if(loadedImageWidth > 0) {
+		if (imageRatio > windowRatio) {
+			double ratio = ((double) windowWidth) / windowHeight;
 
-		renderWidth = loadedImageWidth;
-		renderHeight = (int) (loadedImageWidth / ratio);
+			renderWidth = loadedImageWidth;
+			renderHeight = (int) (loadedImageWidth / ratio);
 
-		deltaY = (renderHeight - loadedImageHeight) / 2;
+			deltaY = (renderHeight - loadedImageHeight) / 2;
 
 		
-	} else {
-		double ratio = ((double) windowWidth) / windowHeight;
+		} else {
+			double ratio = ((double) windowWidth) / windowHeight;
 		
-		renderWidth = (int) (loadedImageHeight * ratio);
-		renderHeight = loadedImageHeight;
+			renderWidth = (int) (loadedImageHeight * ratio);
+			renderHeight = loadedImageHeight;
 
-		deltaX = (renderWidth - loadedImageWidth) / 2;
+			deltaX = (renderWidth - loadedImageWidth) / 2;
 
+		}
 	}
 
 	double viewScale = (double) renderWidth / windowWidth;
