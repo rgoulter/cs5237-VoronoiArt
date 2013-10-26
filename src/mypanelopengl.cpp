@@ -41,15 +41,6 @@ int windowWidth = WINDOW_WIDTH_DEFAULT;
 int windowHeight = WINDOW_HEIGHT_DEFAULT;
 
 
-// For "simple" zooming in/out, and "simple" navigation,
-//  using just integers should be enough.
-// Could be improved, of course.
-int viewX = 0;
-int viewY = 0;
-const int VIEW_SCALE_DEFAULT = 100;
-int viewScale = VIEW_SCALE_DEFAULT; // Use integer to scale out of 100.
-
-
 int delayAmount = 1; // Number of seconds to delay between reading inputs.
 std::vector<string> inputLines;
 std::vector<int> delaunayPointsToProcess;
@@ -583,16 +574,38 @@ void MyPanelOpenGL::paintGL(){
 void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
     //qDebug("Window: %d, %d\n", event->x(), event->y());
 
-	// x, y coordinates are between 0-windowWidth and 0-windowHeight.
-	// The window is a view of the world, with the centre of the
-	//  window at viewX, viewY; the entire window covers a width of
-	//  (w * viewScale / VIEW_SCALE_DEFAULT), similarly for height.
+	double imageRatio = ((double) loadedImageWidth) / loadedImageHeight;
+	double windowRatio = ((double) windowWidth) / windowHeight;
 
-	int xRelToCenter = event->x() - (windowWidth / 2);
-	int yRelToCenter = event->y() - (windowHeight / 2);
+	int renderWidth;
+	int renderHeight;
 
-	int px = (xRelToCenter * viewScale / VIEW_SCALE_DEFAULT) + viewX;
-	int py = -((yRelToCenter * viewScale / VIEW_SCALE_DEFAULT) + viewY);
+	int deltaX = 0;
+	int deltaY = 0;
+
+	if (imageRatio > windowRatio) {
+		double ratio = ((double) windowWidth) / windowHeight;
+
+		renderWidth = loadedImageWidth;
+		renderHeight = (int) (loadedImageWidth / ratio);
+
+		deltaY = (renderHeight - loadedImageHeight) / 2;
+
+		
+	} else {
+		double ratio = ((double) windowWidth) / windowHeight;
+		
+		renderWidth = (int) (loadedImageHeight * ratio);
+		renderHeight = loadedImageHeight;
+
+		deltaX = (renderWidth - loadedImageWidth) / 2;
+
+	}
+
+	double viewScale = (double) renderWidth / windowWidth;
+
+	int px = (event->x() * viewScale) - deltaX;
+	int py = -((event->y() * viewScale) - deltaY);
 
 	tryInsertPoint(px, py);
 
