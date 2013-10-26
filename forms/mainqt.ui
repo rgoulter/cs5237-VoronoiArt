@@ -281,6 +281,7 @@
     <signal>updateFilename(QString)</signal>
     <slot>doDelaunayTriangulation()</slot>
     <slot>doOpenImage()</slot>
+    <slot>doDrawImage()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -333,6 +334,22 @@
     <hint type="destinationlabel">
      <x>441</x>
      <y>50</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnDrawImage</sender>
+   <signal>clicked()</signal>
+   <receiver>glWidget</receiver>
+   <slot>doDrawImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>533</x>
+     <y>76</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>355</x>
+     <y>80</y>
     </hint>
    </hints>
   </connection>

@@ -16,6 +16,7 @@ signals:
 public slots:
 	void doDelaunayTriangulation();
 	void doOpenImage();
+	void doDrawImage();
 
 protected:
     void initializeGL();

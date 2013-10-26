@@ -5,6 +5,8 @@
 #include <QFileDialog>
 #include <QString>
 
+#include "SOIL.h"
+
 #include "math.h"
 #include <iostream>
 #include <fstream>
@@ -64,6 +66,14 @@ LongInt delta = 5;
 LongInt one = 1;
 int flag = 0; // for knowing if the command 'CD' is called for the first time or not
 
+// Variables for Image Logic.
+string loadedImageFilename = "";
+int loadedImageWidth = -1;
+int loadedImageHeight = -1;
+GLuint loadedImageTexture;
+
+
+
 // These three functions are for those who are not familiar with OpenGL, you can change these or even completely ignore them
 
 void drawAPoint (double x,double y) {
@@ -95,6 +105,29 @@ void drawATriangle (double x1,double y1, double x2, double y2, double x3, double
 			glVertex2d(x3,y3);
 		glEnd();
 
+}
+
+
+
+void drawLoadedTextureImage() {
+	if (loadedImageWidth < 0) { return; }
+
+	qDebug("Draw the texture");
+	glBindTexture (GL_TEXTURE_2D, loadedImageTexture);
+
+	glBegin (GL_QUADS);
+		glTexCoord2f (0.0, 0.0);
+		glVertex3f (0.0, 0.0, 0.0);
+
+		glTexCoord2f (1.0, 0.0);
+		glVertex3f (loadedImageWidth, 0.0, 0.0);
+
+		glTexCoord2f (1.0, 1.0);
+		glVertex3f (loadedImageWidth, loadedImageHeight, 0.0);
+
+		glTexCoord2f (0.0, 1.0);
+		glVertex3f (0.0, loadedImageHeight, 0.0);
+	glEnd ();
 }
 
 
@@ -323,6 +356,42 @@ void tryDelaunayTriangulation() {
 	}
 }
 
+void loadOpenGLTextureFromFilename(string imgFilename) {
+	//string loadedImageFilename = "";
+	//int loadedImageWidth = -1;
+	//int loadedImageHeight = -1;
+	//GLuint loadedImageTexture;
+
+	// See http://open.gl/textures for more information.
+
+	glEnable(GL_TEXTURE_2D);
+
+	//glGenTextures(1, &loadedImageTexture);
+	loadedImageTexture = 17;
+	glBindTexture(GL_TEXTURE_2D, loadedImageTexture);
+
+	unsigned char* image =
+		SOIL_load_image(imgFilename.c_str(), &loadedImageWidth, &loadedImageHeight, 0, SOIL_LOAD_RGB);
+	glTexImage2D(GL_TEXTURE_2D,
+		         0,
+				 GL_RGB,
+				 loadedImageWidth,
+				 loadedImageHeight,
+				 0,
+				 GL_RGB,
+				 GL_UNSIGNED_BYTE,
+				 image);
+	SOIL_free_image_data(image);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+}
+
 void handleInputLine(string line){
 	string line_noStr;
 
@@ -453,6 +522,7 @@ void MyPanelOpenGL::initializeGL() {
     glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
     glClearDepth(1.0f);
 
+	glEnable(GL_TEXTURE_2D);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
 
@@ -465,11 +535,12 @@ void MyPanelOpenGL::resizeGL(int width, int height){
 
 void MyPanelOpenGL::paintGL(){
     display();
+	drawLoadedTextureImage();
 }
 
 
 void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
-    //qDebug("%d, %d\n", event->x(), event->y());
+    //qDebug("Window: %d, %d\n", event->x(), event->y());
 
 	// x, y coordinates are between 0-windowWidth and 0-windowHeight.
 	// The window is a view of the world, with the centre of the
@@ -502,10 +573,20 @@ void MyPanelOpenGL::doOpenImage(){
 									 tr("Image Files (*.png *.jpg *.bmp)"));
 	string filenameStr = qStr_fileName.toStdString();
  
-	std::cout << "Got filename: " << filenameStr << std::endl;
 	qDebug(filenameStr.c_str());
 
 	updateFilename(qStr_fileName);
+
+	loadOpenGLTextureFromFilename(filenameStr);
+}
+
+void MyPanelOpenGL::doDrawImage(){
+	qDebug("Draw OpenGL Image");
+
+	// Set some state so as to draw the image.
+	// All drawing must be done from paintGL.
+
+	updateGL();
 }
 
 void MyPanelOpenGL::mouseMoveEvent(QMouseEvent *event) {
