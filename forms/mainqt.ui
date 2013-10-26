@@ -278,7 +278,9 @@
    <header>mypanelopengl.h</header>
    <container>1</container>
    <slots>
+    <signal>updateFilename(QString)</signal>
     <slot>doDelaunayTriangulation()</slot>
+    <slot>doOpenImage()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -299,6 +301,38 @@
     <hint type="destinationlabel">
      <x>258</x>
      <y>280</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnLoadImage</sender>
+   <signal>clicked()</signal>
+   <receiver>glWidget</receiver>
+   <slot>doOpenImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>585</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>367</x>
+     <y>39</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>glWidget</sender>
+   <signal>updateFilename(QString)</signal>
+   <receiver>txtImageName</receiver>
+   <slot>setText(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>408</x>
+     <y>54</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>441</x>
+     <y>50</y>
     </hint>
    </hints>
   </connection>

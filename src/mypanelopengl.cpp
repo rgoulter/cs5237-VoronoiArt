@@ -2,6 +2,8 @@
 #include "mypanelopengl.h"
 #include <cmath>
 #include <QDebug>
+#include <QFileDialog>
+#include <QString>
 
 #include "math.h"
 #include <iostream>
@@ -489,6 +491,21 @@ void MyPanelOpenGL::doDelaunayTriangulation(){
     //qDebug("Do Delaunay Triangulation\n");
 	tryDelaunayTriangulation();
 	updateGL();
+}
+
+void MyPanelOpenGL::doOpenImage(){
+	//get a filename to open
+	QString qStr_fileName =
+		QFileDialog::getOpenFileName(this,
+	                                 tr("Open Image"),
+									 ".",
+									 tr("Image Files (*.png *.jpg *.bmp)"));
+	string filenameStr = qStr_fileName.toStdString();
+ 
+	std::cout << "Got filename: " << filenameStr << std::endl;
+	qDebug(filenameStr.c_str());
+
+	updateFilename(qStr_fileName);
 }
 
 void MyPanelOpenGL::mouseMoveEvent(QMouseEvent *event) {
