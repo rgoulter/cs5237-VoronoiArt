@@ -4,33 +4,7 @@
 #include <vector>
 #include "li.h"
 #include "lmath.h"
-
-class MyPoint {
-public:
-	LongInt x;
-	LongInt y;
-	LongInt z;
-
-	bool operator==(MyPoint& otherPoint){
-		return x==otherPoint.x && y==otherPoint.y && z==otherPoint.z;
-
-	}
-	/*MyPoint operator+(MyPoint& otherPoint) {
-		MyPoint result;
-		result.x = x + otherPoint.x;
-		result.y = y + otherPoint.y;
-		result.z = z + otherPoint.z;
-		return result;
-	}
-
-	MyPoint operator-(MyPoint& otherPoint) {
-		MyPoint result;
-		result.x = x - otherPoint.x;
-		result.y = y - otherPoint.y;
-		result.z = z - otherPoint.z;
-		return result;
-	}*/
-};
+#include "polygon.h"
 
 class PointSet {
 protected:
@@ -51,5 +25,4 @@ public:
 	// return 1 if the point p is inside the circumcircle of p1p2p3, -1 if outside, 0 if degenerate
 
 };
-
 #endif

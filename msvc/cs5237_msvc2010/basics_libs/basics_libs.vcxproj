@@ -67,6 +67,7 @@
     <ClCompile Include="..\..\..\src\basics\li.cpp" />
     <ClCompile Include="..\..\..\src\basics\lmath.cpp" />
     <ClCompile Include="..\..\..\src\basics\pointSet.cpp" />
+    <ClCompile Include="..\..\..\src\basics\polygon.cpp" />
     <ClCompile Include="..\..\..\src\win32\basics\stopWatch.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -76,6 +77,7 @@
     <ClInclude Include="..\..\..\include\basics\li.h" />
     <ClInclude Include="..\..\..\include\basics\lmath.h" />
     <ClInclude Include="..\..\..\include\basics\pointSet.h" />
+    <ClInclude Include="..\..\..\include\basics\polygon.h" />
     <ClInclude Include="..\..\..\include\win32\basics\stopWatch.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

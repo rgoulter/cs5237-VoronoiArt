@@ -1,13 +1,8 @@
 #include "pointSet.h"
 #include <iostream>
-int orientation(MyPoint p1, MyPoint p2, MyPoint p3);
-bool intersects(MyPoint a, MyPoint b, MyPoint c, MyPoint d);
 
 int PointSet::addPoint(LongInt x1, LongInt y1){
-	MyPoint thisPoint;
-	thisPoint.x = x1;
-	thisPoint.y = y1;
-	thisPoint.z = 0;
+	MyPoint thisPoint(x1, y1);
 
 	myPoints.push_back(thisPoint);
 	return (myPoints.size());
@@ -16,6 +11,7 @@ int PointSet::addPoint(LongInt x1, LongInt y1){
 void PointSet::deleteLastPoint(){
 	myPoints.erase(myPoints.begin()+myPoints.size()-1);
 }
+
 
 int PointSet::inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx) {
 	// Indices given are 1-based, but stored as 0-based.
@@ -79,10 +75,3 @@ int PointSet::inTri(int p1Idx, int p2Idx, int p3Idx, int pIdx) {
 		return -1;
 }
 
-int orientation(MyPoint p1, MyPoint p2, MyPoint p3)
-{
-	return signDet(p1.x, p1.y, LongInt(1),
-				   p2.x, p2.y, LongInt(1),
-				   p3.x, p3.y, LongInt(1));
-
-}
