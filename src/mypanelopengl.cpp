@@ -29,6 +29,8 @@
 #include "delaunayTri.h"
 #include "directedGraph.h"
 
+#include "polypixel.h"
+
 using namespace std;
 
 void animate(int t);
@@ -61,7 +63,11 @@ int flag = 0; // for knowing if the command 'CD' is called for the first time or
 string loadedImageFilename = "";
 int loadedImageWidth = -1;
 int loadedImageHeight = -1;
+unsigned char *loadedImageData;
 GLuint loadedImageTexture;
+
+bool hasCalculatedColoredPolygons = 0;
+vector<ColoredPolygon> renderedPolygons;
 
 
 
@@ -125,19 +131,10 @@ void drawLoadedTextureImage() {
 
 
 
-void display (void) {
-	glPushMatrix();
-	glRotatef(180,1,0,0);
-	// draw your output here (erase the following 3 lines)
-	/*drawAPoint(100,100);
-	drawALine(200,200,300,300);
-	drawATriangle(400,400,400,500,500,500);*/
-
-	int i;
-	
+void drawDelaunayStuff() {
 	// Draw all DAG leaf triangles.
 	vector<TriRecord> leafNodes = dag.getLeafNodes();
-	for (i = 0; i < leafNodes.size(); i++){
+	for (int i = 0; i < leafNodes.size(); i++){
 		TriRecord leafNode = leafNodes[i];
 
 		int pIndex1 = leafNode.vi_[0];
@@ -169,6 +166,19 @@ void display (void) {
 		drawALine(p3x.doubleValue(), p3y.doubleValue(),
 			      p1x.doubleValue(), p1y.doubleValue());
 	}
+}
+
+
+
+void display (void) {
+	// draw your output here (erase the following 3 lines)
+	/*drawAPoint(100,100);
+	drawALine(200,200,300,300);
+	drawATriangle(400,400,400,500,500,500);*/
+
+	int i;
+	
+	// drawDelaunayStuff();
 
 	// Point indices are 1-based here
 	// Draw input points
@@ -177,8 +187,102 @@ void display (void) {
 		inputPointSet.getPoint(i, px, py);
 		drawAPoint(px.doubleValue(), py.doubleValue());
 	}
+}
 
-	glPopMatrix();
+
+
+void drawColoredPolygons() {
+	if (!hasCalculatedColoredPolygons) {
+		glPopMatrix();
+		return;
+	}
+	
+	glEnable(GL_COLOR_MATERIAL);
+	for (int i = 0; i < renderedPolygons.size(); i++) {
+		ColoredPolygon coloredPoly = renderedPolygons[i];
+
+		glBegin(GL_POLYGON);
+		glColor3fv(coloredPoly.rgb); // rgb?
+
+		for(int j = 0; j < coloredPoly.poly.size(); j++) {
+			double x = coloredPoly.poly[j].x.doubleValue();
+			double y = coloredPoly.poly[j].y.doubleValue();
+			
+			glVertex2d(x, y);
+		}
+		glEnd();
+	}
+}
+
+
+
+void generateColoredPolygons(vector<vector<MyPoint>>& polys){
+	hasCalculatedColoredPolygons = 0;
+	renderedPolygons.clear();
+
+	for (int i = 0; i < polys.size(); i++) {
+		vector<MyPoint> poly = polys[i];
+
+		int colorIv[3];
+		findAverageColor3iv(loadedImageTexture, poly, colorIv);
+
+		ColoredPolygon coloredPoly;
+
+		coloredPoly.poly = poly;
+		coloredPoly.rgb[0] = (float) colorIv[0] / 255;
+		coloredPoly.rgb[1] = (float) colorIv[1] / 255;
+		coloredPoly.rgb[2] = (float) colorIv[2] / 255;
+
+		renderedPolygons.push_back(coloredPoly);
+	}
+
+	hasCalculatedColoredPolygons = 1;
+}
+
+
+
+void generateDelaunayColoredPolygons() {
+	qDebug("Calculate colored");
+
+	// Pre-condition: 'dag' generated.
+
+	vector<vector<MyPoint>> polys;
+
+	// Create vector of vector of points, from delaunay.
+	// Draw all DAG leaf triangles.
+	vector<TriRecord> leafNodes = dag.getLeafNodes();
+	for (int i = 0; i < leafNodes.size(); i++){
+		TriRecord leafNode = leafNodes[i];
+
+		int pIndex1 = leafNode.vi_[0];
+		int pIndex2 = leafNode.vi_[1];
+		int pIndex3 = leafNode.vi_[2];
+
+		// Ignore if from the super triangle (i.e. index too large for input set)
+		if(pIndex1 > delaunayPointSet.noPt() - 3 ||
+		   pIndex2 > delaunayPointSet.noPt() - 3 || 
+		   pIndex3 > delaunayPointSet.noPt() - 3){
+			   continue;
+		}
+		
+		// Probably could clean this up..
+		// Since MyPoint is now exposed.
+		LongInt p1x, p1y, p2x, p2y, p3x, p3y;
+
+		delaunayPointSet.getPoint(pIndex1, p1x, p1y);
+		delaunayPointSet.getPoint(pIndex2, p2x, p2y);
+		delaunayPointSet.getPoint(pIndex3, p3x, p3y);
+
+		// Add a polygon for the triangle.
+		vector<MyPoint> poly;
+		poly.push_back(MyPoint(p1x, p1y));
+		poly.push_back(MyPoint(p2x, p2y));
+		poly.push_back(MyPoint(p3x, p3y));
+
+		polys.push_back(poly);
+	}
+
+	generateColoredPolygons(polys);
 }
 
 
@@ -402,7 +506,9 @@ void loadOpenGLTextureFromFilename(string imgFilename) {
 	glGenTextures(1, &loadedImageTexture);
 	glBindTexture(GL_TEXTURE_2D, loadedImageTexture);
 
-	unsigned char* image =
+
+	SOIL_free_image_data(loadedImageData);
+	loadedImageData =
 		SOIL_load_image(imgFilename.c_str(), &loadedImageWidth, &loadedImageHeight, 0, SOIL_LOAD_RGB);
 	glTexImage2D(GL_TEXTURE_2D,
 		         0,
@@ -412,8 +518,8 @@ void loadOpenGLTextureFromFilename(string imgFilename) {
 				 0,
 				 GL_RGB,
 				 GL_UNSIGNED_BYTE,
-				 image);
-	SOIL_free_image_data(image);
+				 loadedImageData);
+	//SOIL_free_image_data(loadedImageData);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -569,7 +675,17 @@ void MyPanelOpenGL::resizeGL(int width, int height){
 void MyPanelOpenGL::paintGL(){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	drawLoadedTextureImage();
-    display();
+	
+	glPushMatrix();
+	
+	display();
+
+	if (hasCalculatedColoredPolygons) {
+		qDebug("Draw Colored Polygons");
+		drawColoredPolygons();
+	}
+
+	glPopMatrix();
 }
 
 
@@ -609,7 +725,7 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 	double viewScale = (double) renderWidth / windowWidth;
 
 	int px = (event->x() * viewScale) - deltaX;
-	int py = -((event->y() * viewScale) - deltaY);
+	int py = (event->y() * viewScale) - deltaY;
 
 	tryInsertPoint(px, py);
 
@@ -617,8 +733,10 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 }
 
 void MyPanelOpenGL::doDelaunayTriangulation(){
-    //qDebug("Do Delaunay Triangulation\n");
+    qDebug("Do Delaunay Triangulation\n");
 	tryDelaunayTriangulation();
+	generateDelaunayColoredPolygons();
+
 	updateGL();
 }
 
