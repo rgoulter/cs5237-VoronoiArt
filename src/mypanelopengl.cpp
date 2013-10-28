@@ -727,6 +727,8 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 	int px = (event->x() * viewScale) - deltaX;
 	int py = (event->y() * viewScale) - deltaY;
 
+	qDebug("Insert Point: %d, %d\n", px, py);
+
 	tryInsertPoint(px, py);
 
 	updateGL();

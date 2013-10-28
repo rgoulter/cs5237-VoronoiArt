@@ -11,7 +11,9 @@ public:
 	float rgb[3];
 };
 
-PointSetArray enumeratePixelsInPolygon(const std::vector<MyPoint>& poly);
+
+
+// std::vector<int> enumeratePixelsInPolygon(const std::vector<int>& poly);
 
 void findAverageColor3iv(GLuint glTex, const std::vector<MyPoint>& poly, int* colorIv);
 

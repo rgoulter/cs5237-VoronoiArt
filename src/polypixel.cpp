@@ -5,6 +5,22 @@ extern int loadedImageWidth;
 extern int loadedImageHeight;
 extern unsigned char *loadedImageData;
 
+void boundingBox(const std::vector<int>& poly, int& minX, int& maxX, int& minY, int& maxY) {
+	minX = loadedImageWidth;
+	maxX = 0;
+	minY = loadedImageHeight;
+	maxY = 0;
+	
+	for (int i = 0; i < poly.size() - 1; i += 2) {
+		int x = i;
+		int y = i + 1;
+		if(poly[x] < minX){ minX = poly[x]; }
+		if(poly[x] > maxX){ maxX = poly[x]; }
+		if(poly[y] < minY){ minY = poly[y]; }
+		if(poly[y] > maxY){ maxY = poly[y]; }
+	}
+}
+
 void boundingBox(const std::vector<MyPoint>& poly, LongInt& minX, LongInt& maxX, LongInt& minY, LongInt& maxY) {
 	minX = loadedImageWidth;
 	maxX = 0;
@@ -19,44 +35,64 @@ void boundingBox(const std::vector<MyPoint>& poly, LongInt& minX, LongInt& maxX,
 	}
 }
 
-PointSetArray enumeratePixelsInPolygon(const std::vector<MyPoint>& poly) {
-	PointSetArray psa;
+
+
+std::vector<int> enumerateLeftRightOfSimplePolygon(const std::vector<int>& poly) {
+	std::vector<int> result;
 
 	// Find bounding box of polygon
-	LongInt minX, maxX, minY, maxY;
+	int minX, maxX, minY, maxY;
 	boundingBox(poly, minX, maxX, minY, maxY);
 
 
 	// Within this bounding box, search for all the points.
-	int left   = (int) minX.doubleValue();
-	int right  = (int) maxX.doubleValue();
-	int top    = (int) minY.doubleValue();
-	int bottom = (int) maxY.doubleValue();
-
-	for (int x = left; x <= right; x++) {
-		for (int y = top; y <= bottom; y++) {
-			// Can improve this? e.g. we construct two MyPoints here.
-			if (inPoly(poly, MyPoint(x, y))) {
-				psa.addPoint(x, y);
+	int left   = minX;
+	int right  = maxX;
+	int top    = minY;
+	int bottom = maxY;
+	
+	for (int y = top; y <= bottom; y++) {
+		int leftmost = -1, rightmost = -1;
+		
+		// Find leftmost point which is in the polygon
+		for (int x = left; x <= right && leftmost < 0; x++) {
+			if (inPoly(poly, x, y)) {
+				leftmost = x;
 			}
 		}
+
+		// Find rightmost point which is in polygon
+		for (int x = right; x >= leftmost && rightmost < 0; x--) {
+			if (inPoly(poly, x, y)) {
+				rightmost = x;
+			}
+		}
+
+		result.push_back(leftmost);
+		result.push_back(rightmost);
 	}
 	
 	// If we declare as a (const) ref, can we save ourselves
 	// memory copying here?
-	return psa;
+	return result;
 }
 
-void findAverageColor3iv(GLuint glTex, const std::vector<MyPoint>& poly, int* colorIv) {
+void findAverageColor3iv(GLuint glTex, const std::vector<MyPoint>& mpPoly, int* colorIv) {
+	std::vector<int> poly;
+	for (int i = 0; i < mpPoly.size(); i++) {
+		poly.push_back((int) mpPoly[i].x.doubleValue());
+		poly.push_back((int) mpPoly[i].y.doubleValue());
+	}
+
 	// Find bounding box of polygon
-	LongInt minX, maxX, minY, maxY;
+	int minX, maxX, minY, maxY;
 	boundingBox(poly, minX, maxX, minY, maxY);
 
 	// Within this bounding box, search for all the points.
-	int left   = (int) minX.doubleValue();
-	int right  = (int) maxX.doubleValue();
-	int top    = (int) minY.doubleValue();
-	int bottom = (int) maxY.doubleValue();
+	int left   = minX;
+	int right  = maxX;
+	int top    = minY;
+	int bottom = maxY;
 
 
 
@@ -72,37 +108,61 @@ void findAverageColor3iv(GLuint glTex, const std::vector<MyPoint>& poly, int* co
 	
 	// TODO: Read values from texture itself, so we can save memory
 	
-
-	// TODO: At the moment, the following is SLOW.
-	// PointSetArray pointsInPoly = enumeratePixelsInPolygon(poly);
+	
+	// Get points in polygon.
+	std::vector<int> rowsOfPoly = enumerateLeftRightOfSimplePolygon(poly);
 
 
 	// For each point, find the average rgb.
 	int accR, accG, accB;
-	int n = poly.size();
+	int acc = 0;
+	int n = rowsOfPoly.size() / 2;
 
 	// i = 0;
-	MyPoint p = poly[0];
-	int u = ((int) p.x.doubleValue()) - offsetX;
-	int v = ((int) p.y.doubleValue()) - offsetY;
+	int u, v;
+	int rowLeft, rowRight;
+	rowLeft = rowsOfPoly[0], rowRight = rowsOfPoly[1];
+	u = rowLeft - offsetX;
+	v = minY - offsetY;
 	int pos = (v * width + u) * 3;
 	accR = loadedImageData[pos], accG = loadedImageData[pos + 1], accB = loadedImageData[pos + 2];
+	acc = 1;
 
-	for (int i = 1; i < n; i++) {
-		MyPoint p = poly[i];
-		int u = ((int) p.x.doubleValue()) - offsetX;
-		int v = ((int) p.y.doubleValue()) - offsetY;
+	for(int j = rowLeft + 1; j <= rowRight; j++) {
+		u = j - offsetX;
+		v = minY - offsetY;
 
-		// Get pixel from the data
 		int pos = (v * width + u) * 3;
 		GLubyte rb = loadedImageData[pos + 0];
 		GLubyte gb = loadedImageData[pos + 1];
 		GLubyte bb = loadedImageData[pos + 2];
 		
 		// Accumulative average
-		accR = (i - 1) * accR / i + rb / i;
-		accG = (i - 1) * accG / i + gb / i;
-		accB = (i - 1) * accB / i + bb / i;
+		acc++;
+		accR = ((acc - 1) * accR + rb) / acc;
+		accG = ((acc - 1) * accG + gb) / acc;
+		accB = ((acc - 1) * accB + bb) / acc;
+	}
+
+	for (int row = 1; row < n; row++) {
+		rowLeft =  rowsOfPoly[row * 2];
+		rowRight = rowsOfPoly[row * 2 + 1];
+		
+		for(int j = rowLeft + 1; j <= rowRight; j++) {
+			u = j - offsetX;
+			v = minY + row - offsetY;
+
+			int pos = (v * width + u) * 3;
+			GLubyte rb = loadedImageData[pos + 0];
+			GLubyte gb = loadedImageData[pos + 1];
+			GLubyte bb = loadedImageData[pos + 2];
+		
+			// Accumulative average
+			acc++;
+			accR = ((acc - 1) * accR + rb) / acc;
+			accG = ((acc - 1) * accG + gb) / acc;
+			accB = ((acc - 1) * accB + bb) / acc;
+		}
 	}
 
 	colorIv[0] = accR;

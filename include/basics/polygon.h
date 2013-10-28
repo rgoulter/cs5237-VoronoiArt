@@ -34,6 +34,7 @@ int orientation(const MyPoint& p1, const MyPoint& p2, const MyPoint& p3);
 
 bool intersects(const MyPoint& a, const MyPoint& b, const MyPoint& c, const MyPoint& d);
 
+int inPoly(const std::vector<int>& poly, int x, int y);
 int inPoly(const std::vector<MyPoint>& poly, const MyPoint & p);
 
 

@@ -48,6 +48,26 @@ TEST(BasicsTest, PolyPointInPolygon) {
 	EXPECT_EQ(0, inPoly(poly, p6));
 }
 
+TEST(BasicsTest, PolyPointInIntPolygon) {
+	PointSet ps;
+	
+	int p1x =  0, p1y =  0;
+	int p2x =  0, p2y = 10;
+	int p3x = 10, p3y = 10;
+	int p4x = 10, p4y =  0;
+	int p5x =  5, p5y =  5;
+	int p6x = 15, p6y = 15;
+
+	std::vector<int> poly;
+	poly.push_back(p1x); poly.push_back(p1y);
+	poly.push_back(p2x); poly.push_back(p2y);
+	poly.push_back(p3x); poly.push_back(p3y);
+	poly.push_back(p4x); poly.push_back(p4y);
+
+	EXPECT_EQ(1, inPoly(poly, p5x, p5y));
+	EXPECT_EQ(0, inPoly(poly, p6x, p6y));
+}
+
 
 
 int main(int argc, char* argv[]) {
