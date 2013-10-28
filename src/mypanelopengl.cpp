@@ -54,6 +54,8 @@ PointSetArray delaunayPointSet; // Add the super triangle stuff to this.
 Trist delaunayOldTrist;
 Trist delaunayNewTrist;
 
+std::vector<PointSetArray> voronoiEdges;
+
 static StopWatch globalSW;
 //PointSetArray myPointSet;
 Trist myTrist;
@@ -140,7 +142,10 @@ void display (void) {
 		drawALine(p2x.doubleValue(), p2y.doubleValue(),
 			      p3x.doubleValue(), p3y.doubleValue());
 		drawALine(p3x.doubleValue(), p3y.doubleValue(),
-			      p1x.doubleValue(), p1y.doubleValue());
+			      p1x.doubleValue(), p1y.doubleValue()); 
+
+		
+		
 	}
 
 	// Point indices are 1-based here
@@ -150,6 +155,25 @@ void display (void) {
 		inputPointSet.getPoint(i, px, py);
 		drawAPoint(px.doubleValue(), py.doubleValue());
 	}
+
+	//Test Code
+	std::vector<PointSetArray>::iterator it;
+	for (it = voronoiEdges.begin(); it != voronoiEdges.end();++it)
+	{
+		PointSetArray ptSet = *it;
+		LongInt ptx1, pty1, ptx2, pty2;
+		ptx1 = ptSet.myPoints[0].x;
+		pty1 = ptSet.myPoints[0].y;
+
+		ptx2 = ptSet.myPoints[1].x;
+		pty2 = ptSet.myPoints[1].y;
+
+		drawALine(ptx1.doubleValue(), pty1.doubleValue(),
+			      ptx2.doubleValue(), pty2.doubleValue());
+
+
+	}
+
 
 	glPopMatrix();
 }
@@ -202,6 +226,7 @@ void DelaunayTri::findBoundingTri(PointSetArray &pSet){
 	LongInt minY = pSet.myPoints[0].y;
 	LongInt maxY = pSet.myPoints[0].y;
 	LongInt tempmaxX, tempminX;
+	LongInt thousand=1000;
 
 	for(int i = 1; i < pSet.myPoints.size(); i++){
 		if(minX > pSet.myPoints[i].x) minX = pSet.myPoints[i].x;
@@ -211,15 +236,15 @@ void DelaunayTri::findBoundingTri(PointSetArray &pSet){
 		else if(maxY < pSet.myPoints[i].y) maxY = pSet.myPoints[i].y;
 	}
 
-	minX = minX-delta;
+	minX = minX-delta - thousand;
 	tempminX = minX;
-	maxX = maxX+delta;
+	maxX = maxX+delta + thousand;
 	tempmaxX = maxX;
-	minY = minY-delta;
-	maxY = maxY+delta;
+	minY = minY-delta - thousand;
+	maxY = maxY+delta + thousand;
 
-	pSet.addPoint(maxX+(maxY-minY),minY);
-	pSet.addPoint(minX-(maxY-minY),minY);
+	pSet.addPoint((maxX+(maxY-minY)),minY);
+	pSet.addPoint((minX-(maxY-minY)),minY);
 
 	while( !(maxX == minX + one || maxX == minX - one || maxX == minX) )
 	{
@@ -227,7 +252,7 @@ void DelaunayTri::findBoundingTri(PointSetArray &pSet){
 		minX = minX + one ;
 	}
 	
-	pSet.addPoint(maxX,maxY+((tempmaxX-tempminX))); // some rounding may occur if LongInt is odd
+	pSet.addPoint(maxX,(maxY+((tempmaxX-tempminX)))); // some rounding may occur if LongInt is odd
 	int temp =1;
 }
 
@@ -273,7 +298,94 @@ void delaunayIterationStep() {
     //updateGL(); // updateGL is a method of the QGLWidget..
 }
 
+// This method checks whether the vornoi edge identified already exists in the existing voronoi edge set.
+bool checkedgeExists(PointSetArray voronoiEdge){
+	MyPoint dA, dB;
+	std::vector<PointSetArray>::iterator iter1;
+	for(iter1 = voronoiEdges.begin(); iter1 != voronoiEdges.end();)
+	{
+		PointSetArray vEdge = *iter1;
+		LongInt x1, y1, x2, y2, vx1, vy1, vx2, vy2;
+		x1 = vEdge.myPoints[0].x;
+		y1 = vEdge.myPoints[0].y;
+		x2 = vEdge.myPoints[1].x;
+		y2 = vEdge.myPoints[1].y;
+		vx1 = voronoiEdge.myPoints[0].x;
+		vy1 = voronoiEdge.myPoints[0].y;
+		vx2 = voronoiEdge.myPoints[1].x;
+		vy2 = voronoiEdge.myPoints[1].y;
+		
+		if((x1==vx1 && y1==vy1 && x2==vx2 && y2==vy2) || (x1==vx2 && y1==vy2 && x2==vx1 && y2==vy1))
+			return true;
+		++iter1;
+	}
 
+	return false;
+}
+
+// This method creates the voronoi edges for a given delaunay triangulation. The voronoi data structure
+// consists of a vector of point pairs.
+void createVoronoi(){
+	
+	// Get the current leaf nodes of the DAG, and for each triangle, find the circumcenter and 
+	// join it to the circumcenter of the neighbouring triangles.
+	vector<TriRecord> dtTriangles = dag.getLeafNodes();
+	std::vector<TriRecord>::iterator it;
+	
+	for (it = dtTriangles.begin(); it != dtTriangles.end();)
+	{
+		TriRecord tri = *it;
+		// FInd neighboring triangle for each edge of the given triangle
+		std::vector<TriRecord> tripair1 = dag.findNodesForEdge(tri.vi_[0],tri.vi_[1]);
+		std::vector<TriRecord> tripair2 = dag.findNodesForEdge(tri.vi_[1],tri.vi_[2]);
+		std::vector<TriRecord> tripair3 = dag.findNodesForEdge(tri.vi_[2],tri.vi_[0]);
+		std::vector<TriRecord>::iterator iter1, iter2, iter3;
+
+		// For each of the 3 triangle pairs obtained, get the voronoi edges.
+		PointSetArray voronoiEdge1;
+		for(iter1 = tripair1.begin(); iter1 != tripair1.end()  && tripair1.size()>1;)
+		{
+			TriRecord tripair1_element = *iter1;
+			MyPoint circum;
+			delaunayPointSet.circumCircle(tripair1_element.vi_[0], tripair1_element.vi_[1],tripair1_element.vi_[2], circum);
+			voronoiEdge1.addPoint(circum.x,circum.y);
+			++iter1;
+		}
+		
+		PointSetArray voronoiEdge2;
+		for(iter2 = tripair2.begin(); iter2 != tripair2.end()  && tripair2.size()>1;)
+		{
+			TriRecord tripair2_element = *iter2;
+			MyPoint circum;
+			delaunayPointSet.circumCircle(tripair2_element.vi_[0], tripair2_element.vi_[1],tripair2_element.vi_[2], circum);
+			voronoiEdge2.addPoint(circum.x,circum.y);
+			++iter2;
+		}
+
+		PointSetArray voronoiEdge3;
+		for(iter3 = tripair3.begin(); iter3 != tripair3.end()  && tripair3.size()>1;)
+		{
+			TriRecord tripair3_element = *iter3;
+			MyPoint circum;
+			delaunayPointSet.circumCircle(tripair3_element.vi_[0], tripair3_element.vi_[1],tripair3_element.vi_[2], circum);
+			voronoiEdge3.addPoint(circum.x,circum.y);
+			++iter3;
+		}
+		
+		// Add voronoi edges to the voronoi data structure, after checking if it already exists.
+		if(voronoiEdge1.myPoints.size()!=0 && !checkedgeExists(voronoiEdge1))
+		voronoiEdges.push_back(voronoiEdge1);
+		if(voronoiEdge2.myPoints.size()!=0 && !checkedgeExists(voronoiEdge2))
+		voronoiEdges.push_back(voronoiEdge2);
+		if(voronoiEdge3.myPoints.size()!=0 && !checkedgeExists(voronoiEdge3))
+		voronoiEdges.push_back(voronoiEdge3);
+
+		++it;
+	}
+	
+	 
+
+}
 
 // Call this function when the user pushes the button to do Delaunay Triangulation
 void tryDelaunayTriangulation() {
@@ -319,7 +431,13 @@ void tryDelaunayTriangulation() {
 	while(delaunayPointsToProcess.size() > 0) {
 		delaunayIterationStep();
 	}
+	//Temp Code
+	
+	
+	
 }
+
+
 
 void handleInputLine(string line){
 	string line_noStr;
@@ -373,6 +491,8 @@ void handleInputLine(string line){
 		globalSW.resume();
 	} else if (!command.compare("CD")) {
 		tryDelaunayTriangulation();
+		
+		
 	} else if (!command.compare("DY")) {
 		linestream >> delayAmount;
 
@@ -487,7 +607,14 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 
 void MyPanelOpenGL::doDelaunayTriangulation(){
     //qDebug("Do Delaunay Triangulation\n");
-	tryDelaunayTriangulation();
+	tryDelaunayTriangulation();		
+	updateGL();
+}
+
+void MyPanelOpenGL::doVoronoiDiagram(){
+    //qDebug("Do Voronoi creation\n");
+	if (delaunayPointSet.myPoints.size() > 0)
+		createVoronoi();	
 	updateGL();
 }
 

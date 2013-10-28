@@ -44,6 +44,52 @@ int PointSet::inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx) {
 					t3x, t3y, t3x*(p3.x+v.x) + t3y*(p3.y+v.y))*orient>=0;
 }
 
+// This method returns the circumcircle center for the three input points.
+bool PointSet::circumCircle(int p1Idx, int p2Idx, int p3Idx, MyPoint& center){
+    LongInt dA, dB, dC, aux1, aux2, div;
+	int quo1, quo2, aux1Sign, aux2Sign;
+	LongInt two = 2;
+	MyPoint p1 = myPoints[p1Idx - 1];
+	MyPoint p2 = myPoints[p2Idx - 1];
+	MyPoint p3 = myPoints[p3Idx - 1];
+	//p1.x = 0;p1.y=0,p2.x=0,p2.y=2;p3.x=1,p3.y=1;
+    
+	dA = p1.x * p1.x + p1.y * p1.y;
+    dB = p2.x * p2.x + p2.y * p2.y;
+    dC = p3.x * p3.x + p3.y * p3.y;
+ 
+    aux1 = (dA*(p3.y - p2.y) + dB*(p1.y - p3.y) + dC*(p2.y - p1.y));	
+    aux2 = -(dA*(p3.x - p2.x) + dB*(p1.x - p3.x) + dC*(p2.x - p1.x));	
+    div = (two*(p1.x*(p3.y - p2.y) + p2.x*(p1.y-p3.y) + p3.x*(p2.y - p1.y)));
+	
+ 
+    if(div == 0){ 
+        return false;
+    }
+
+	LongInt aux1sign = aux1.sign();
+	LongInt aux2sign = aux2.sign();
+	LongInt divsign = div.sign();
+	LongInt aux1modval = aux1*aux1sign;
+	LongInt aux2modval = aux2*aux2sign;
+	LongInt divmodval = div*divsign;
+
+	// Repeated subtraction for division
+	for ( quo1 = 0; aux1modval - divmodval >= 0; quo1++ )
+	{
+		aux1modval = aux1modval - divmodval;
+	}
+	for ( quo2 = 0; aux2modval - divmodval >= 0; quo2++ )
+	{
+		aux2modval = aux2modval - divmodval;
+	}
+    
+	center.x = ((LongInt)quo1)*aux1sign*divsign;
+	center.y = ((LongInt)quo2)*aux2sign*divsign;
+	center.z = 0;
+ 
+    return true;
+}
 
 
 //this function gives an incorrect response for 1-2 cases per trial.

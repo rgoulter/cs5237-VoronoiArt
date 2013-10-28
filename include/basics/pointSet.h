@@ -50,6 +50,9 @@ public:
 	int inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx);
 	// return 1 if the point p is inside the circumcircle of p1p2p3, -1 if outside, 0 if degenerate
 
+	bool PointSet::circumCircle(int p1Idx, int p2Idx, int p3Idx, MyPoint& center);
+	// returns true if the 3 input points are not collinear.
+
 };
 
 #endif

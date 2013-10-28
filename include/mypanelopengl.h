@@ -11,6 +11,7 @@ public:
 	
 public slots:
 	void doDelaunayTriangulation();
+	void doVoronoiDiagram();
 
 protected:
     void initializeGL();

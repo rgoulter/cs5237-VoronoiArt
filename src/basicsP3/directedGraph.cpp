@@ -73,10 +73,14 @@ void DirectedGraph::addChildrenNodes(int pIdX){
 	for(it = leafnodeList.begin(); it != leafnodeList.end();)
 	{
 		TriRecord tri = *it;
+		MyPoint circumCntr1;
 		if(tri.vi_[0]==containingTriangle.vi_[0] && tri.vi_[1]==containingTriangle.vi_[1] 
 		&& tri.vi_[2]==containingTriangle.vi_[2])
 		{
 			it = leafnodeList.erase(it);
+			
+			// Find the circumcenter of this triangle
+			
 		}
 		else
 		{
