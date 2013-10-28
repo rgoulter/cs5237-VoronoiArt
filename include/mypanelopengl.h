@@ -2,6 +2,7 @@
 #define MYPANELOPENGL_H
 
 #include <QGLWidget>
+#include <QString>
 
 class MyPanelOpenGL : public QGLWidget
 {
@@ -9,9 +10,13 @@ class MyPanelOpenGL : public QGLWidget
 public:
     explicit MyPanelOpenGL(QWidget *parent = 0);
 	
+signals:
+	void updateFilename(QString);
+
 public slots:
 	void doDelaunayTriangulation();
-	void doVoronoiDiagram();
+	void doOpenImage();
+	void doDrawImage();
 
 protected:
     void initializeGL();
@@ -22,10 +27,6 @@ protected:
     void keyPressEvent(QKeyEvent *event);
 
 private:
-
-signals:
-
-public slots:
 
 };
 

@@ -2,9 +2,6 @@
 <ui version="4.0">
  <class>mainqtClass</class>
  <widget class="QMainWindow" name="mainqtClass">
-  <property name="enabled">
-   <bool>true</bool>
-  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -22,7 +19,9 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="MyPanelOpenGL" name="glWidget" native="true"/>
+     <widget class="MyPanelOpenGL" name="glWidget" native="true">
+      <zorder>widget_3</zorder>
+     </widget>
     </item>
     <item>
      <widget class="QWidget" name="widget_3" native="true">
@@ -224,7 +223,7 @@
       </widget>
       <widget class="QPushButton" name="btnDoVoronoi">
        <property name="enabled">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="geometry">
         <rect>
@@ -279,8 +278,10 @@
    <header>mypanelopengl.h</header>
    <container>1</container>
    <slots>
+    <signal>updateFilename(QString)</signal>
     <slot>doDelaunayTriangulation()</slot>
-    <slot>doVoronoiDiagram()</slot>
+    <slot>doOpenImage()</slot>
+    <slot>doDrawImage()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -305,18 +306,50 @@
    </hints>
   </connection>
   <connection>
-   <sender>btnDoVoronoi</sender>
+   <sender>btnLoadImage</sender>
    <signal>clicked()</signal>
    <receiver>glWidget</receiver>
-   <slot>doVoronoiDiagram()</slot>
+   <slot>doOpenImage()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>540</x>
-     <y>339</y>
+     <x>585</x>
+     <y>47</y>
     </hint>
     <hint type="destinationlabel">
-     <x>394</x>
-     <y>331</y>
+     <x>367</x>
+     <y>39</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>glWidget</sender>
+   <signal>updateFilename(QString)</signal>
+   <receiver>txtImageName</receiver>
+   <slot>setText(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>408</x>
+     <y>54</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>441</x>
+     <y>50</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnDrawImage</sender>
+   <signal>clicked()</signal>
+   <receiver>glWidget</receiver>
+   <slot>doDrawImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>533</x>
+     <y>76</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>355</x>
+     <y>80</y>
     </hint>
    </hints>
   </connection>

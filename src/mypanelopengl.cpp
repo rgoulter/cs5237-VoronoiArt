@@ -2,6 +2,10 @@
 #include "mypanelopengl.h"
 #include <cmath>
 #include <QDebug>
+#include <QFileDialog>
+#include <QString>
+
+#include "SOIL.h"
 
 #include "math.h"
 #include <iostream>
@@ -25,6 +29,8 @@
 #include "delaunayTri.h"
 #include "directedGraph.h"
 
+#include "polypixel.h"
+
 using namespace std;
 
 void animate(int t);
@@ -37,15 +43,6 @@ int windowWidth = WINDOW_WIDTH_DEFAULT;
 int windowHeight = WINDOW_HEIGHT_DEFAULT;
 
 
-// For "simple" zooming in/out, and "simple" navigation,
-//  using just integers should be enough.
-// Could be improved, of course.
-int viewX = 0;
-int viewY = 0;
-const int VIEW_SCALE_DEFAULT = 100;
-int viewScale = VIEW_SCALE_DEFAULT; // Use integer to scale out of 100.
-
-
 int delayAmount = 1; // Number of seconds to delay between reading inputs.
 std::vector<string> inputLines;
 std::vector<int> delaunayPointsToProcess;
@@ -54,8 +51,6 @@ PointSetArray delaunayPointSet; // Add the super triangle stuff to this.
 Trist delaunayOldTrist;
 Trist delaunayNewTrist;
 
-std::vector<PointSetArray> voronoiEdges;
-
 static StopWatch globalSW;
 //PointSetArray myPointSet;
 Trist myTrist;
@@ -63,6 +58,18 @@ DirectedGraph dag(delaunayPointSet);
 LongInt delta = 5;
 LongInt one = 1;
 int flag = 0; // for knowing if the command 'CD' is called for the first time or not
+
+// Variables for Image Logic.
+string loadedImageFilename = "";
+int loadedImageWidth = -1;
+int loadedImageHeight = -1;
+unsigned char *loadedImageData;
+GLuint loadedImageTexture;
+
+bool hasCalculatedColoredPolygons = 0;
+vector<ColoredPolygon> renderedPolygons;
+
+
 
 // These three functions are for those who are not familiar with OpenGL, you can change these or even completely ignore them
 
@@ -99,20 +106,35 @@ void drawATriangle (double x1,double y1, double x2, double y2, double x3, double
 
 
 
-void display (void) {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glPushMatrix();
-	glRotatef(180,1,0,0);
-	// draw your output here (erase the following 3 lines)
-	/*drawAPoint(100,100);
-	drawALine(200,200,300,300);
-	drawATriangle(400,400,400,500,500,500);*/
+void drawLoadedTextureImage() {
+	if (loadedImageWidth < 0) { return; }
 
-	int i;
-	
+	qDebug("Draw the texture");
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture (GL_TEXTURE_2D, loadedImageTexture);
+
+	glBegin (GL_QUADS);
+		glTexCoord2f (0.0, 0.0);
+		glVertex3f (0.0, 0.0, -1.0);
+
+		glTexCoord2f (1.0, 0.0);
+		glVertex3f (loadedImageWidth, 0.0, -1.0);
+
+		glTexCoord2f (1.0, 1.0);
+		glVertex3f (loadedImageWidth, loadedImageHeight, -1.0);
+
+		glTexCoord2f (0.0, 1.0);
+		glVertex3f (0.0, loadedImageHeight, -1.0);
+	glEnd ();
+	glDisable(GL_TEXTURE_2D);
+}
+
+
+
+void drawDelaunayStuff() {
 	// Draw all DAG leaf triangles.
 	vector<TriRecord> leafNodes = dag.getLeafNodes();
-	for (i = 0; i < leafNodes.size(); i++){
+	for (int i = 0; i < leafNodes.size(); i++){
 		TriRecord leafNode = leafNodes[i];
 
 		int pIndex1 = leafNode.vi_[0];
@@ -142,11 +164,21 @@ void display (void) {
 		drawALine(p2x.doubleValue(), p2y.doubleValue(),
 			      p3x.doubleValue(), p3y.doubleValue());
 		drawALine(p3x.doubleValue(), p3y.doubleValue(),
-			      p1x.doubleValue(), p1y.doubleValue()); 
-
-		
-		
+			      p1x.doubleValue(), p1y.doubleValue());
 	}
+}
+
+
+
+void display (void) {
+	// draw your output here (erase the following 3 lines)
+	/*drawAPoint(100,100);
+	drawALine(200,200,300,300);
+	drawATriangle(400,400,400,500,500,500);*/
+
+	int i;
+	
+	// drawDelaunayStuff();
 
 	// Point indices are 1-based here
 	// Draw input points
@@ -155,27 +187,157 @@ void display (void) {
 		inputPointSet.getPoint(i, px, py);
 		drawAPoint(px.doubleValue(), py.doubleValue());
 	}
-
-	//Test Code
-	std::vector<PointSetArray>::iterator it;
-	for (it = voronoiEdges.begin(); it != voronoiEdges.end();++it)
-	{
-		PointSetArray ptSet = *it;
-		LongInt ptx1, pty1, ptx2, pty2;
-		ptx1 = ptSet.myPoints[0].x;
-		pty1 = ptSet.myPoints[0].y;
-
-		ptx2 = ptSet.myPoints[1].x;
-		pty2 = ptSet.myPoints[1].y;
-
-		drawALine(ptx1.doubleValue(), pty1.doubleValue(),
-			      ptx2.doubleValue(), pty2.doubleValue());
+}
 
 
+
+void drawColoredPolygons() {
+	if (!hasCalculatedColoredPolygons) {
+		glPopMatrix();
+		return;
+	}
+	
+	glEnable(GL_COLOR_MATERIAL);
+	for (int i = 0; i < renderedPolygons.size(); i++) {
+		ColoredPolygon coloredPoly = renderedPolygons[i];
+
+		glBegin(GL_POLYGON);
+		glColor3fv(coloredPoly.rgb); // rgb?
+
+		for(int j = 0; j < coloredPoly.poly.size(); j++) {
+			double x = coloredPoly.poly[j].x.doubleValue();
+			double y = coloredPoly.poly[j].y.doubleValue();
+			
+			glVertex2d(x, y);
+		}
+		glEnd();
+	}
+}
+
+
+
+void generateColoredPolygons(vector<vector<MyPoint>>& polys){
+	hasCalculatedColoredPolygons = 0;
+	renderedPolygons.clear();
+
+	for (int i = 0; i < polys.size(); i++) {
+		vector<MyPoint> poly = polys[i];
+
+		int colorIv[3];
+		findAverageColor3iv(loadedImageTexture, poly, colorIv);
+
+		ColoredPolygon coloredPoly;
+
+		coloredPoly.poly = poly;
+		coloredPoly.rgb[0] = (float) colorIv[0] / 255;
+		coloredPoly.rgb[1] = (float) colorIv[1] / 255;
+		coloredPoly.rgb[2] = (float) colorIv[2] / 255;
+
+		renderedPolygons.push_back(coloredPoly);
 	}
 
+	hasCalculatedColoredPolygons = 1;
+}
 
-	glPopMatrix();
+
+
+void generateDelaunayColoredPolygons() {
+	qDebug("Calculate colored");
+
+	// Pre-condition: 'dag' generated.
+
+	vector<vector<MyPoint>> polys;
+
+	// Create vector of vector of points, from delaunay.
+	// Draw all DAG leaf triangles.
+	vector<TriRecord> leafNodes = dag.getLeafNodes();
+	for (int i = 0; i < leafNodes.size(); i++){
+		TriRecord leafNode = leafNodes[i];
+
+		int pIndex1 = leafNode.vi_[0];
+		int pIndex2 = leafNode.vi_[1];
+		int pIndex3 = leafNode.vi_[2];
+
+		// Ignore if from the super triangle (i.e. index too large for input set)
+		if(pIndex1 > delaunayPointSet.noPt() - 3 ||
+		   pIndex2 > delaunayPointSet.noPt() - 3 || 
+		   pIndex3 > delaunayPointSet.noPt() - 3){
+			   continue;
+		}
+		
+		// Probably could clean this up..
+		// Since MyPoint is now exposed.
+		LongInt p1x, p1y, p2x, p2y, p3x, p3y;
+
+		delaunayPointSet.getPoint(pIndex1, p1x, p1y);
+		delaunayPointSet.getPoint(pIndex2, p2x, p2y);
+		delaunayPointSet.getPoint(pIndex3, p3x, p3y);
+
+		// Add a polygon for the triangle.
+		vector<MyPoint> poly;
+		poly.push_back(MyPoint(p1x, p1y));
+		poly.push_back(MyPoint(p2x, p2y));
+		poly.push_back(MyPoint(p3x, p3y));
+
+		polys.push_back(poly);
+	}
+
+	generateColoredPolygons(polys);
+}
+
+
+
+void refreshProjection() {
+	glViewport (0, 0, (GLsizei) windowWidth, (GLsizei) windowHeight);
+	glMatrixMode (GL_PROJECTION);
+	glLoadIdentity();
+
+	// If we haven't loaded an image,
+	// we don't particularly care what the coord system is.
+	if (loadedImageWidth < 0) {
+		// Just some boring thing.
+		glOrtho(-1, 1, 1, -1, -1, 1);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+
+		return;
+	}
+
+	double imageRatio = ((double) loadedImageWidth) / loadedImageHeight;
+	double windowRatio = ((double) windowWidth) / windowHeight;
+
+	if (imageRatio > windowRatio) {
+		double ratio = ((double) windowWidth) / windowHeight;
+
+		int renderWidth = loadedImageWidth;
+		int renderHeight = (int) (loadedImageWidth / ratio);
+
+		int delta = (renderHeight - loadedImageHeight) / 2;
+
+		glOrtho(0,
+                renderWidth,
+                loadedImageHeight + delta,
+                -delta,
+                -1,
+                1);
+	} else {
+		double ratio = ((double) windowWidth) / windowHeight;
+		
+		int renderWidth = (int) (loadedImageHeight * ratio);
+		int renderHeight = loadedImageHeight;
+
+		int delta = (renderWidth - loadedImageWidth) / 2;
+
+		glOrtho(-delta,
+                loadedImageWidth + delta,
+                renderHeight,
+                0,
+                -1,
+                1);
+	}
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 }
 
 
@@ -184,21 +346,7 @@ void reshape (int w, int h) {
 	windowWidth = w;
 	windowHeight = h;
 
-	int zoomedWidth = (w * viewScale / VIEW_SCALE_DEFAULT);
-	int zoomedHeight = (h * viewScale / VIEW_SCALE_DEFAULT);
-
-	glViewport (0, 0, (GLsizei) w, (GLsizei) h);
-	glMatrixMode (GL_PROJECTION);
-	glLoadIdentity();
-    glOrtho(viewX - zoomedWidth / 2,
-            viewX + zoomedWidth / 2,
-            viewY + zoomedHeight / 2,
-            viewY - zoomedHeight / 2,
-            -1,
-            1); //gluOrtho2D complained ??
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
+	refreshProjection();
 }
 
 
@@ -226,7 +374,6 @@ void DelaunayTri::findBoundingTri(PointSetArray &pSet){
 	LongInt minY = pSet.myPoints[0].y;
 	LongInt maxY = pSet.myPoints[0].y;
 	LongInt tempmaxX, tempminX;
-	LongInt thousand=1000;
 
 	for(int i = 1; i < pSet.myPoints.size(); i++){
 		if(minX > pSet.myPoints[i].x) minX = pSet.myPoints[i].x;
@@ -236,15 +383,15 @@ void DelaunayTri::findBoundingTri(PointSetArray &pSet){
 		else if(maxY < pSet.myPoints[i].y) maxY = pSet.myPoints[i].y;
 	}
 
-	minX = minX-delta - thousand;
+	minX = minX-delta;
 	tempminX = minX;
-	maxX = maxX+delta + thousand;
+	maxX = maxX+delta;
 	tempmaxX = maxX;
-	minY = minY-delta - thousand;
-	maxY = maxY+delta + thousand;
+	minY = minY-delta;
+	maxY = maxY+delta;
 
-	pSet.addPoint((maxX+(maxY-minY)),minY);
-	pSet.addPoint((minX-(maxY-minY)),minY);
+	pSet.addPoint(maxX+(maxY-minY),minY);
+	pSet.addPoint(minX-(maxY-minY),minY);
 
 	while( !(maxX == minX + one || maxX == minX - one || maxX == minX) )
 	{
@@ -252,7 +399,7 @@ void DelaunayTri::findBoundingTri(PointSetArray &pSet){
 		minX = minX + one ;
 	}
 	
-	pSet.addPoint(maxX,(maxY+((tempmaxX-tempminX)))); // some rounding may occur if LongInt is odd
+	pSet.addPoint(maxX,maxY+((tempmaxX-tempminX))); // some rounding may occur if LongInt is odd
 	int temp =1;
 }
 
@@ -298,94 +445,7 @@ void delaunayIterationStep() {
     //updateGL(); // updateGL is a method of the QGLWidget..
 }
 
-// This method checks whether the vornoi edge identified already exists in the existing voronoi edge set.
-bool checkedgeExists(PointSetArray voronoiEdge){
-	MyPoint dA, dB;
-	std::vector<PointSetArray>::iterator iter1;
-	for(iter1 = voronoiEdges.begin(); iter1 != voronoiEdges.end();)
-	{
-		PointSetArray vEdge = *iter1;
-		LongInt x1, y1, x2, y2, vx1, vy1, vx2, vy2;
-		x1 = vEdge.myPoints[0].x;
-		y1 = vEdge.myPoints[0].y;
-		x2 = vEdge.myPoints[1].x;
-		y2 = vEdge.myPoints[1].y;
-		vx1 = voronoiEdge.myPoints[0].x;
-		vy1 = voronoiEdge.myPoints[0].y;
-		vx2 = voronoiEdge.myPoints[1].x;
-		vy2 = voronoiEdge.myPoints[1].y;
-		
-		if((x1==vx1 && y1==vy1 && x2==vx2 && y2==vy2) || (x1==vx2 && y1==vy2 && x2==vx1 && y2==vy1))
-			return true;
-		++iter1;
-	}
 
-	return false;
-}
-
-// This method creates the voronoi edges for a given delaunay triangulation. The voronoi data structure
-// consists of a vector of point pairs.
-void createVoronoi(){
-	
-	// Get the current leaf nodes of the DAG, and for each triangle, find the circumcenter and 
-	// join it to the circumcenter of the neighbouring triangles.
-	vector<TriRecord> dtTriangles = dag.getLeafNodes();
-	std::vector<TriRecord>::iterator it;
-	
-	for (it = dtTriangles.begin(); it != dtTriangles.end();)
-	{
-		TriRecord tri = *it;
-		// FInd neighboring triangle for each edge of the given triangle
-		std::vector<TriRecord> tripair1 = dag.findNodesForEdge(tri.vi_[0],tri.vi_[1]);
-		std::vector<TriRecord> tripair2 = dag.findNodesForEdge(tri.vi_[1],tri.vi_[2]);
-		std::vector<TriRecord> tripair3 = dag.findNodesForEdge(tri.vi_[2],tri.vi_[0]);
-		std::vector<TriRecord>::iterator iter1, iter2, iter3;
-
-		// For each of the 3 triangle pairs obtained, get the voronoi edges.
-		PointSetArray voronoiEdge1;
-		for(iter1 = tripair1.begin(); iter1 != tripair1.end()  && tripair1.size()>1;)
-		{
-			TriRecord tripair1_element = *iter1;
-			MyPoint circum;
-			delaunayPointSet.circumCircle(tripair1_element.vi_[0], tripair1_element.vi_[1],tripair1_element.vi_[2], circum);
-			voronoiEdge1.addPoint(circum.x,circum.y);
-			++iter1;
-		}
-		
-		PointSetArray voronoiEdge2;
-		for(iter2 = tripair2.begin(); iter2 != tripair2.end()  && tripair2.size()>1;)
-		{
-			TriRecord tripair2_element = *iter2;
-			MyPoint circum;
-			delaunayPointSet.circumCircle(tripair2_element.vi_[0], tripair2_element.vi_[1],tripair2_element.vi_[2], circum);
-			voronoiEdge2.addPoint(circum.x,circum.y);
-			++iter2;
-		}
-
-		PointSetArray voronoiEdge3;
-		for(iter3 = tripair3.begin(); iter3 != tripair3.end()  && tripair3.size()>1;)
-		{
-			TriRecord tripair3_element = *iter3;
-			MyPoint circum;
-			delaunayPointSet.circumCircle(tripair3_element.vi_[0], tripair3_element.vi_[1],tripair3_element.vi_[2], circum);
-			voronoiEdge3.addPoint(circum.x,circum.y);
-			++iter3;
-		}
-		
-		// Add voronoi edges to the voronoi data structure, after checking if it already exists.
-		if(voronoiEdge1.myPoints.size()!=0 && !checkedgeExists(voronoiEdge1))
-		voronoiEdges.push_back(voronoiEdge1);
-		if(voronoiEdge2.myPoints.size()!=0 && !checkedgeExists(voronoiEdge2))
-		voronoiEdges.push_back(voronoiEdge2);
-		if(voronoiEdge3.myPoints.size()!=0 && !checkedgeExists(voronoiEdge3))
-		voronoiEdges.push_back(voronoiEdge3);
-
-		++it;
-	}
-	
-	 
-
-}
 
 // Call this function when the user pushes the button to do Delaunay Triangulation
 void tryDelaunayTriangulation() {
@@ -431,13 +491,44 @@ void tryDelaunayTriangulation() {
 	while(delaunayPointsToProcess.size() > 0) {
 		delaunayIterationStep();
 	}
-	//Temp Code
-	
-	
-	
 }
 
+void loadOpenGLTextureFromFilename(string imgFilename) {
+	//string loadedImageFilename = "";
+	//int loadedImageWidth = -1;
+	//int loadedImageHeight = -1;
+	//GLuint loadedImageTexture;
 
+	// See http://open.gl/textures for more information.
+
+	glEnable(GL_TEXTURE_2D);
+
+	glGenTextures(1, &loadedImageTexture);
+	glBindTexture(GL_TEXTURE_2D, loadedImageTexture);
+
+
+	SOIL_free_image_data(loadedImageData);
+	loadedImageData =
+		SOIL_load_image(imgFilename.c_str(), &loadedImageWidth, &loadedImageHeight, 0, SOIL_LOAD_RGB);
+	glTexImage2D(GL_TEXTURE_2D,
+		         0,
+				 GL_RGB,
+				 loadedImageWidth,
+				 loadedImageHeight,
+				 0,
+				 GL_RGB,
+				 GL_UNSIGNED_BYTE,
+				 loadedImageData);
+	//SOIL_free_image_data(loadedImageData);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+}
 
 void handleInputLine(string line){
 	string line_noStr;
@@ -491,8 +582,6 @@ void handleInputLine(string line){
 		globalSW.resume();
 	} else if (!command.compare("CD")) {
 		tryDelaunayTriangulation();
-		
-		
 	} else if (!command.compare("DY")) {
 		linestream >> delayAmount;
 
@@ -571,6 +660,8 @@ void MyPanelOpenGL::initializeGL() {
     glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
     glClearDepth(1.0f);
 
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
 
@@ -582,23 +673,61 @@ void MyPanelOpenGL::resizeGL(int width, int height){
 }
 
 void MyPanelOpenGL::paintGL(){
-    display();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	drawLoadedTextureImage();
+	
+	glPushMatrix();
+	
+	display();
+
+	if (hasCalculatedColoredPolygons) {
+		qDebug("Draw Colored Polygons");
+		drawColoredPolygons();
+	}
+
+	glPopMatrix();
 }
 
 
 void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
-    //qDebug("%d, %d\n", event->x(), event->y());
+    //qDebug("Window: %d, %d\n", event->x(), event->y());
 
-	// x, y coordinates are between 0-windowWidth and 0-windowHeight.
-	// The window is a view of the world, with the centre of the
-	//  window at viewX, viewY; the entire window covers a width of
-	//  (w * viewScale / VIEW_SCALE_DEFAULT), similarly for height.
+	double imageRatio = ((double) loadedImageWidth) / loadedImageHeight;
+	double windowRatio = ((double) windowWidth) / windowHeight;
 
-	int xRelToCenter = event->x() - (windowWidth / 2);
-	int yRelToCenter = event->y() - (windowHeight / 2);
+	int renderWidth = 2;
+	int renderHeight = 2;
 
-	int px = (xRelToCenter * viewScale / VIEW_SCALE_DEFAULT) + viewX;
-	int py = -((yRelToCenter * viewScale / VIEW_SCALE_DEFAULT) + viewY);
+	int deltaX = 1;
+	int deltaY = 1;
+
+	if(loadedImageWidth > 0) {
+		if (imageRatio > windowRatio) {
+			double ratio = ((double) windowWidth) / windowHeight;
+
+			renderWidth = loadedImageWidth;
+			renderHeight = (int) (loadedImageWidth / ratio);
+
+			deltaY = (renderHeight - loadedImageHeight) / 2;
+
+		
+		} else {
+			double ratio = ((double) windowWidth) / windowHeight;
+		
+			renderWidth = (int) (loadedImageHeight * ratio);
+			renderHeight = loadedImageHeight;
+
+			deltaX = (renderWidth - loadedImageWidth) / 2;
+
+		}
+	}
+
+	double viewScale = (double) renderWidth / windowWidth;
+
+	int px = (event->x() * viewScale) - deltaX;
+	int py = (event->y() * viewScale) - deltaY;
+
+	qDebug("Insert Point: %d, %d\n", px, py);
 
 	tryInsertPoint(px, py);
 
@@ -606,15 +735,35 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 }
 
 void MyPanelOpenGL::doDelaunayTriangulation(){
-    //qDebug("Do Delaunay Triangulation\n");
-	tryDelaunayTriangulation();		
+    qDebug("Do Delaunay Triangulation\n");
+	tryDelaunayTriangulation();
+	generateDelaunayColoredPolygons();
+
 	updateGL();
 }
 
-void MyPanelOpenGL::doVoronoiDiagram(){
-    //qDebug("Do Voronoi creation\n");
-	if (delaunayPointSet.myPoints.size() > 0)
-		createVoronoi();	
+void MyPanelOpenGL::doOpenImage(){
+	//get a filename to open
+	QString qStr_fileName =
+		QFileDialog::getOpenFileName(this,
+	                                 tr("Open Image"),
+									 ".",
+									 tr("Image Files (*.png *.jpg *.bmp)"));
+	string filenameStr = qStr_fileName.toStdString();
+ 
+	qDebug(filenameStr.c_str());
+
+	updateFilename(qStr_fileName); // to Qt textbox
+	loadOpenGLTextureFromFilename(filenameStr);
+	refreshProjection();
+}
+
+void MyPanelOpenGL::doDrawImage(){
+	qDebug("Draw OpenGL Image");
+
+	// Set some state so as to draw the image.
+	// All drawing must be done from paintGL.
+
 	updateGL();
 }
 
