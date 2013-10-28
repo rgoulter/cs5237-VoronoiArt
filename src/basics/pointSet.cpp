@@ -82,7 +82,6 @@ bool PointSet::circumCircle(int p1Idx, int p2Idx, int p3Idx, MyPoint& center){
     
 	center.x = ((LongInt)quo1)*aux1sign*divsign;
 	center.y = ((LongInt)quo2)*aux2sign*divsign;
-	center.z = 0;
  
     return true;
 }

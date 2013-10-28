@@ -17,6 +17,7 @@ public slots:
 	void doDelaunayTriangulation();
 	void doOpenImage();
 	void doDrawImage();
+	void doVoronoiDiagram();
 
 protected:
     void initializeGL();

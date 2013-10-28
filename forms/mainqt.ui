@@ -19,9 +19,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="MyPanelOpenGL" name="glWidget" native="true">
-      <zorder>widget_3</zorder>
-     </widget>
+     <widget class="MyPanelOpenGL" name="glWidget" native="true"/>
     </item>
     <item>
      <widget class="QWidget" name="widget_3" native="true">
@@ -223,7 +221,7 @@
       </widget>
       <widget class="QPushButton" name="btnDoVoronoi">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="geometry">
         <rect>
@@ -282,6 +280,7 @@
     <slot>doDelaunayTriangulation()</slot>
     <slot>doOpenImage()</slot>
     <slot>doDrawImage()</slot>
+    <slot>doVoronoiDiagram()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -350,6 +349,22 @@
     <hint type="destinationlabel">
      <x>355</x>
      <y>80</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnDoVoronoi</sender>
+   <signal>clicked()</signal>
+   <receiver>glWidget</receiver>
+   <slot>doVoronoiDiagram()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>433</x>
+     <y>329</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>377</x>
+     <y>328</y>
     </hint>
    </hints>
   </connection>
