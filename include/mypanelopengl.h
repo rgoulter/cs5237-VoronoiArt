@@ -1,6 +1,7 @@
 #ifndef MYPANELOPENGL_H
 #define MYPANELOPENGL_H
 
+#include <string>
 #include <QGLWidget>
 #include <QString>
 
@@ -18,6 +19,7 @@ public slots:
 	void doOpenImage();
 	void doDrawImage();
 	void doVoronoiDiagram();
+	void doPDF();
 
 protected:
     void initializeGL();

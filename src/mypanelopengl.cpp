@@ -31,6 +31,12 @@
 
 #include "polypixel.h"
 
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include <stdlib.h>
+#include <stdio.h>
+
+using namespace cv;
 using namespace std;
 
 void animate(int t);
@@ -69,8 +75,19 @@ GLuint loadedImageTexture;
 
 bool hasCalculatedColoredPolygons = 0;
 vector<ColoredPolygon> renderedPolygons;
+string imageName;
 
+Mat src, src_gray;
+Mat dst, dst2, dst3, detected_edges, detected_edges2, detected_edges3;
 
+int edgeThresh = 1;
+int lowThreshold;
+int const max_lowThreshold = 100;
+int ratio = 3;
+int kernel_size = 3;
+const char* window_name = "Edge Map";
+const char* window_name2 = "Edge Map2";
+const char* window_name3 = "Edge Map3";
 
 // These three functions are for those who are not familiar with OpenGL, you can change these or even completely ignore them
 
@@ -857,6 +874,73 @@ void MyPanelOpenGL::doVoronoiDiagram(){
 	updateGL();
 }
 
+void CannyThreshold(int, void*)
+{
+    /// Reduce noise with a kernel 3x3
+    blur( src_gray, detected_edges, Size(3,3) );
+	//GaussianBlur( src_gray, detected_edges, Size(3,3), 0, 0);
+
+    /// Canny detector
+    Canny( src_gray, detected_edges, 100, 100*ratio, kernel_size );
+
+	GaussianBlur( detected_edges, detected_edges2, Size(7,7), 0, 0);
+	GaussianBlur( detected_edges, detected_edges3, Size(9,9), 0, 0);
+
+    /// Using Canny's output as a mask, we display our result
+    dst = Scalar::all(0);
+	dst2 = Scalar::all(0);
+	dst3 = Scalar::all(0);
+    src_gray.copyTo( dst, detected_edges);
+	src_gray.copyTo( dst2, detected_edges2);
+	src_gray.copyTo( dst3, detected_edges3);
+	GaussianBlur( dst3, dst3, Size(11,11), 3, 3);
+	subtract( dst3, dst2, dst);
+	uchar val;
+    val = dst.at<uchar>(0,0);
+
+	ofstream fout("output.txt");
+	unsigned char *input = (unsigned char*)(dst.data);
+
+	int i,j,r,g,b;
+	for(int i = 0;i < dst.cols;i++){
+		for(int j = 0;j < dst.rows;j++){
+			fout << (int)input[dst.cols * j + i] << endl;
+		}
+	}
+	fout.close();
+	//uchar* temp = dst.data;
+	//imwrite("C:\upload\edge.jpg",dst);
+    //imshow( window_name, dst );
+	//imshow( window_name2, dst2);
+	//imshow( window_name3, dst3);
+}
+
+void generatePDF(string imageName) {
+	src = imread(imageName);
+
+	if( !src.data )
+    { return; }
+
+	/// Create a matrix of the same type and size as src (for dst)
+	dst.create( src.size(), src.type() );
+
+	/// Convert the image to grayscale
+	cvtColor( src, src_gray, COLOR_BGR2GRAY );
+
+	/// Create a window
+	//namedWindow( window_name, WINDOW_AUTOSIZE );
+	//namedWindow( window_name2, WINDOW_AUTOSIZE );
+	//namedWindow( window_name3, WINDOW_AUTOSIZE );
+
+	/// Create a Trackbar for user to enter threshold
+	//createTrackbar( "Min Threshold:", window_name, &lowThreshold, max_lowThreshold, CannyThreshold );
+	//createTrackbar( "Min Threshold:", window_name2, &lowThreshold, max_lowThreshold, CannyThreshold );
+	//createTrackbar( "Min Threshold:", window_name3, &lowThreshold, max_lowThreshold, CannyThreshold );
+
+	/// Show the image
+	CannyThreshold(0, 0);
+}
+
 void MyPanelOpenGL::doOpenImage(){
 	//get a filename to open
 	QString qStr_fileName =
@@ -865,7 +949,8 @@ void MyPanelOpenGL::doOpenImage(){
 									 ".",
 									 tr("Image Files (*.png *.jpg *.bmp)"));
 	string filenameStr = qStr_fileName.toStdString();
- 
+	imageName = filenameStr;
+
 	qDebug(filenameStr.c_str());
 
 	updateFilename(qStr_fileName); // to Qt textbox
@@ -882,6 +967,10 @@ void MyPanelOpenGL::doDrawImage(){
 	updateGL();
 }
 
+void MyPanelOpenGL::doPDF(){
+	generatePDF(imageName);
+}
+
 void MyPanelOpenGL::mouseMoveEvent(QMouseEvent *event) {
 }
 
@@ -895,3 +984,4 @@ void MyPanelOpenGL::keyPressEvent(QKeyEvent* event) {
         break;
     }
 }
+

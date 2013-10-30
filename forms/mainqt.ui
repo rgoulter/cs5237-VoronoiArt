@@ -281,6 +281,7 @@
     <slot>doOpenImage()</slot>
     <slot>doDrawImage()</slot>
     <slot>doVoronoiDiagram()</slot>
+    <slot>doPDF()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -365,6 +366,22 @@
     <hint type="destinationlabel">
      <x>377</x>
      <y>328</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnGenPDF</sender>
+   <signal>clicked()</signal>
+   <receiver>glWidget</receiver>
+   <slot>doPDF()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>440</x>
+     <y>249</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>407</x>
+     <y>249</y>
     </hint>
    </hints>
   </connection>
