@@ -221,7 +221,7 @@ void display (void) {
 
 	int i;
 	
-	 drawDelaunayStuff();
+	//drawDelaunayStuff();
 
 	// Point indices are 1-based here
 	// Draw input points
@@ -916,87 +916,52 @@ void CannyThreshold(int, void*)
 {
     /// Reduce noise with a kernel 3x3
     blur( src_gray, detected_edges, Size(3,3) );
-	//GaussianBlur( src_gray, detected_edges, Size(3,3), 0, 0);
 
     /// Canny detector
-    Canny( src_gray, detected_edges, 100, 100*ratio, kernel_size );
+    Canny( detected_edges, detected_edges, 100, 100*ratio, kernel_size );
 
 	GaussianBlur( detected_edges, detected_edges2, Size(7,7), 0, 0);
-	GaussianBlur( detected_edges, detected_edges3, Size(9,9), 0, 0);
+	//GaussianBlur( detected_edges, detected_edges3, Size(9,9), 0, 0);
 
     /// Using Canny's output as a mask, we display our result
     dst = Scalar::all(0);
 	dst2 = Scalar::all(0);
 	dst3 = Scalar::all(0);
-    src_gray.copyTo( dst, detected_edges);
+    //src_gray.copyTo( dst, detected_edges);
 	src_gray.copyTo( dst2, detected_edges2);
-	src_gray.copyTo( dst3, detected_edges3);
-	GaussianBlur( dst3, dst3, Size(11,11), 3, 3);
+	src_gray.copyTo( dst, detected_edges);
+	GaussianBlur( dst2, dst3, Size(15,15), 0, 0);
+	dst3.convertTo(dst3,-1,2,0);
 	subtract( dst3, dst2, dst);
-	uchar val;
-    val = dst.at<uchar>(0,0);
 
 	ofstream fout("output.txt");
 	unsigned char *input = (unsigned char*)(dst.data);
-
-	int i,j,r,g,b;
-	int totalval = 0; // Sum of all values in the image matrix
-	std::vector<int> cumulval; // Cumulative sum
-	std::vector<double> cumulpdf; // Has the cumulative distribution
-
-	// Section to calculate the cumulative PDF
-	for(int i = 0;i < dst.cols;i++){
-		for(int j = 0;j < dst.rows;j++){
-			//fout << (int)input[dst.cols * j + i] << endl;
-			totalval = totalval + (int)input[dst.cols * j + i];
-			cumulval.push_back(totalval);
-		}
-	}
-	
-	std::vector<int>::iterator it;	
-	for (it = cumulval.begin(); it != cumulval.end();)
-	{
-		double cumulint = (double)*it;
-		cumulpdf.push_back(cumulint/(double)totalval);
-		++it;
-	}
-
-	
-	for(int genpoint = 0; genpoint < 5; genpoint++)
-	{
-		double randval = rand() / double(RAND_MAX);
-		LongInt xax = 0, yax = 0;
-
-		std::vector<double>::iterator it2;
-		for (it2 = cumulpdf.begin(); it2 != cumulpdf.end();)
-		{
-			double prb = *it2;		
-			if (yax == dst.cols-1) yax = 0;
-			if (xax == dst.rows-1) xax = 0;
-			
-			if(randval <= prb)
-			{
-				tryInsertPoint(xax, yax);
-				break;
+	vector<MyPoint> goodPoints;
+	for(int i = 0; i < dst.cols; i++){
+		for(int j = 0; j < dst.rows; j++){
+			fout << (int)input[dst.cols * j + i] << endl;
+			if((int)input[dst.cols * j + i] > 150){
+				MyPoint point((LongInt)(i), (LongInt)(j));
+				goodPoints.push_back(point);
 			}
-
-			xax=xax+1; yax=yax+1;
-			++it2;
 		}
-
 	}
-
-	
-	
-
-	
-
 	fout.close();
+
+	srand((unsigned)time(0));
+    int random_point;
+	int lowest=0, highest=goodPoints.size()-1;
+    int range=(highest-lowest)+1;
+    for(int index=0; index<200; index++){
+        random_point = lowest+int(range*rand()/(RAND_MAX + 1.0));
+		tryInsertPoint(goodPoints[random_point].x, goodPoints[random_point].y);
+    } 
+
 	//uchar* temp = dst.data;
 	//imwrite("C:\upload\edge.jpg",dst);
-    //imshow( window_name, dst );
-	//imshow( window_name2, dst2);
-	//imshow( window_name3, dst3);
+    imshow( window_name, dst );
+	imshow( window_name2, dst2);
+	imshow( window_name3, dst3);
 }
 
 void generatePDF(string imageName) {
