@@ -44,6 +44,9 @@ class DirectedGraph {
 		// Resets the graph, removes everything from it.
 		void cleardirectedGraph();
 
+		// Finds the linked delaunay triangles for the input point id
+		std::vector<TriRecord> DirectedGraph::findlinkedNodes(int );
+
 	protected:
 		
 		// Keeps the relationship between a parent node and its children.

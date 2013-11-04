@@ -58,6 +58,7 @@ Trist delaunayOldTrist;
 Trist delaunayNewTrist;
 std::vector<PointSetArray> voronoiEdges; // Data structure to hold voronoi edges.
 
+
 static StopWatch globalSW;
 //PointSetArray myPointSet;
 Trist myTrist;
@@ -186,6 +187,30 @@ void drawDelaunayStuff() {
 	}
 }
 
+void drawVoronoiStuff(){
+	
+	std::vector<PointSetArray>::iterator iter1;
+	for (iter1 = voronoiEdges.begin(); iter1 != voronoiEdges.end(); ++iter1)
+	{
+		PointSetArray polygon = *iter1;
+		for (int i = 1; i <= polygon.noPt(); i++)
+		{
+			int indexval;
+			LongInt x1, y1, x2, y2;
+			if(i+1 > polygon.noPt()) indexval = 1;
+			else indexval = i+1;
+
+			polygon.getPoint(i,x1, y1);
+			polygon.getPoint(indexval, x2, y2);
+			drawALine(x1.doubleValue(), y1.doubleValue(),
+			      x2.doubleValue(), y2.doubleValue());
+			
+		}
+
+
+	}
+}
+
 
 
 void display (void) {
@@ -196,7 +221,7 @@ void display (void) {
 
 	int i;
 	
-	// drawDelaunayStuff();
+	 drawDelaunayStuff();
 
 	// Point indices are 1-based here
 	// Draw input points
@@ -207,22 +232,7 @@ void display (void) {
 	}
 
 	//Test Code
-	std::vector<PointSetArray>::iterator it;
-	for (it = voronoiEdges.begin(); it != voronoiEdges.end();++it)
-	{
-		PointSetArray ptSet = *it;
-		LongInt ptx1, pty1, ptx2, pty2;
-		ptx1 = ptSet.myPoints[0].x;
-		pty1 = ptSet.myPoints[0].y;
-
-		ptx2 = ptSet.myPoints[1].x;
-		pty2 = ptSet.myPoints[1].y;
-
-		drawALine(ptx1.doubleValue(), pty1.doubleValue(),
-			      ptx2.doubleValue(), pty2.doubleValue());
-
-
-	}
+	drawVoronoiStuff();
 }
 
 
@@ -409,7 +419,7 @@ void DelaunayTri::findBoundingTri(PointSetArray &pSet){
 	LongInt maxX = pSet.myPoints[0].x;
 	LongInt minY = pSet.myPoints[0].y;
 	LongInt maxY = pSet.myPoints[0].y;
-	LongInt tempmaxX, tempminX;
+	LongInt tempmaxX, tempminX, thousand = 2000;
 
 	for(int i = 1; i < pSet.myPoints.size(); i++){
 		if(minX > pSet.myPoints[i].x) minX = pSet.myPoints[i].x;
@@ -419,23 +429,19 @@ void DelaunayTri::findBoundingTri(PointSetArray &pSet){
 		else if(maxY < pSet.myPoints[i].y) maxY = pSet.myPoints[i].y;
 	}
 
-	minX = minX-delta;
-	tempminX = minX;
-	maxX = maxX+delta;
-	tempmaxX = maxX;
-	minY = minY-delta;
-	maxY = maxY+delta;
+	minX = minX-delta-thousand;
+	//tempminX = minX;
+	maxX = maxX+delta+thousand;
+	//tempmaxX = maxX;
+	minY = minY-delta-thousand;
+	maxY = maxY+delta+thousand;
 
 	pSet.addPoint(maxX+(maxY-minY),minY);
 	pSet.addPoint(minX-(maxY-minY),minY);
 
-	while( !(maxX == minX + one || maxX == minX - one || maxX == minX) )
-	{
-		maxX = maxX - one;
-		minX = minX + one ;
-	}
+	maxX = (maxX.doubleValue() - minX.doubleValue())/2;
 	
-	pSet.addPoint(maxX,maxY+((tempmaxX-tempminX))); // some rounding may occur if LongInt is odd
+	pSet.addPoint((LongInt)((maxX.doubleValue() + minX.doubleValue())/2), maxY+((maxX-minX))); // some rounding may occur if LongInt is odd
 	int temp =1;
 }
 
@@ -508,7 +514,7 @@ bool checkedgeExists(PointSetArray voronoiEdge){
 
 // This method creates the voronoi edges for a given delaunay triangulation. The voronoi data structure
 // consists of a vector of point pairs.
-void createVoronoi(){
+/*void createVoronoi(){
 	
 	// Get the current leaf nodes of the DAG, and for each triangle, find the circumcenter and 
 	// join it to the circumcenter of the neighbouring triangles.
@@ -568,8 +574,35 @@ void createVoronoi(){
 	
 	 
 
-}
+} */
 
+
+void createVoronoi(){
+	
+	for (int dppIdx = 1; dppIdx <= delaunayPointSet.noPt()-3; dppIdx++)
+	{
+		
+		// Find delaunay triangles to which this point is linked
+		std::vector<TriRecord> linkedTriangles = dag.findlinkedNodes(dppIdx);
+		PointSetArray polygon;
+
+		// findlinkedNodes method gives an ordered list of triangles. Iterate through and find circumcenters.
+		std::vector<TriRecord>::iterator iter1;
+		for (iter1 = linkedTriangles.begin(); iter1 != linkedTriangles.end();)
+		{
+			TriRecord tri = *iter1;
+			MyPoint circum;
+			delaunayPointSet.circumCircle(tri.vi_[0], tri.vi_[1],tri.vi_[2], circum);
+			polygon.addPoint(circum.x,circum.y);
+			++iter1;
+		}
+
+		voronoiEdges.push_back(polygon);
+	}
+
+
+
+}
 
 // Call this function when the user pushes the button to do Delaunay Triangulation
 void tryDelaunayTriangulation() {
@@ -870,7 +903,12 @@ void MyPanelOpenGL::doVoronoiDiagram(){
     //qDebug("Do Voronoi creation\n");
 	voronoiEdges.clear();
 	if (delaunayPointSet.myPoints.size() > 0)
-		createVoronoi();	
+		createVoronoi();
+	else
+	{
+		doDelaunayTriangulation();
+		createVoronoi();
+	}
 	updateGL();
 }
 
@@ -902,11 +940,57 @@ void CannyThreshold(int, void*)
 	unsigned char *input = (unsigned char*)(dst.data);
 
 	int i,j,r,g,b;
+	int totalval = 0; // Sum of all values in the image matrix
+	std::vector<int> cumulval; // Cumulative sum
+	std::vector<double> cumulpdf; // Has the cumulative distribution
+
+	// Section to calculate the cumulative PDF
 	for(int i = 0;i < dst.cols;i++){
 		for(int j = 0;j < dst.rows;j++){
-			fout << (int)input[dst.cols * j + i] << endl;
+			//fout << (int)input[dst.cols * j + i] << endl;
+			totalval = totalval + (int)input[dst.cols * j + i];
+			cumulval.push_back(totalval);
 		}
 	}
+	
+	std::vector<int>::iterator it;	
+	for (it = cumulval.begin(); it != cumulval.end();)
+	{
+		double cumulint = (double)*it;
+		cumulpdf.push_back(cumulint/(double)totalval);
+		++it;
+	}
+
+	
+	for(int genpoint = 0; genpoint < 5; genpoint++)
+	{
+		double randval = rand() / double(RAND_MAX);
+		LongInt xax = 0, yax = 0;
+
+		std::vector<double>::iterator it2;
+		for (it2 = cumulpdf.begin(); it2 != cumulpdf.end();)
+		{
+			double prb = *it2;		
+			if (yax == dst.cols-1) yax = 0;
+			if (xax == dst.rows-1) xax = 0;
+			
+			if(randval <= prb)
+			{
+				tryInsertPoint(xax, yax);
+				break;
+			}
+
+			xax=xax+1; yax=yax+1;
+			++it2;
+		}
+
+	}
+
+	
+	
+
+	
+
 	fout.close();
 	//uchar* temp = dst.data;
 	//imwrite("C:\upload\edge.jpg",dst);

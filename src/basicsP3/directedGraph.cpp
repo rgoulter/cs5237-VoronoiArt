@@ -194,6 +194,77 @@ std::vector<TriRecord> DirectedGraph::findNodesForEdge(int pIdx1, int pIdx2 )
 
 }
 
+// This method returns the set of triangles the input point belongs to.
+std::vector<TriRecord> DirectedGraph::findlinkedNodes(int pIdx1)
+{
+	std::vector<TriRecord> ::iterator iter;
+	std::vector<TriRecord> templist, outputlist;
+	int pIndex1,pIndex2, pIndex3;
+
+	for(iter=leafnodeList.begin(); iter != leafnodeList.end(); )
+	{
+		TriRecord checkTriangle = *iter;
+		pIndex1 = checkTriangle.vi_[0];
+		pIndex2 = checkTriangle.vi_[1];
+		pIndex3 = checkTriangle.vi_[2];
+
+		if(pIndex1 == pIdx1 || pIndex2 == pIdx1 || pIndex3 == pIdx1)
+		{
+			templist.push_back(checkTriangle);
+		}
+
+		++iter;
+	}
+
+	// 
+	TriRecord pickedTri = templist.front(), nextTri, prevTri = templist.front();
+	outputlist.push_back(pickedTri);
+	int commonvert, nextvert;
+	if(pIdx1 == pickedTri.vi_[0]) { commonvert = 0; nextvert = 1;}
+	else if(pIdx1 == pickedTri.vi_[1]) { commonvert = 1; nextvert = 2;}
+	else if(pIdx1 == pickedTri.vi_[2]) { commonvert = 2; nextvert = 0;}
+
+	while (true)
+	{
+		std::vector<TriRecord> fnextlist= findNodesForEdge(prevTri.vi_[commonvert],prevTri.vi_[nextvert] );
+		if(fnextlist.front().vi_[0]==prevTri.vi_[0] && fnextlist.front().vi_[1]==prevTri.vi_[1] && 
+			fnextlist.front().vi_[2]==prevTri.vi_[2])
+			{nextTri = fnextlist.back();}
+		else {nextTri = fnextlist.front();}
+
+		//If the newly found triangle is the same as the very first triangle picked, then a full cycle of sort has been completed.
+		if (nextTri.vi_[0]==pickedTri.vi_[0] && nextTri.vi_[1]==pickedTri.vi_[1] && nextTri.vi_[2]==pickedTri.vi_[2] )
+			break;
+
+		outputlist.push_back(nextTri);
+		//Find an edge in nextTri that has the common vertex but not shared with prevTri
+		if(nextTri.vi_[0]==prevTri.vi_[commonvert] && nextTri.vi_[1]!=prevTri.vi_[nextvert] ||
+			nextTri.vi_[0]!=prevTri.vi_[nextvert] && nextTri.vi_[1]==prevTri.vi_[commonvert] )
+			{
+				if(nextTri.vi_[0]==prevTri.vi_[commonvert] && nextTri.vi_[1]!=prevTri.vi_[nextvert]) {nextvert = 1; commonvert = 0;}
+				else {nextvert = 0; commonvert=1;}
+			}
+
+		else if (nextTri.vi_[1]==prevTri.vi_[commonvert] && nextTri.vi_[2]!=prevTri.vi_[nextvert] ||
+		nextTri.vi_[1]!=prevTri.vi_[nextvert] && nextTri.vi_[2]==prevTri.vi_[commonvert] )
+		{
+			if(nextTri.vi_[1]==prevTri.vi_[commonvert] && nextTri.vi_[2]!=prevTri.vi_[nextvert]) {nextvert = 2;  commonvert = 1;}
+			else {nextvert = 1; commonvert = 2;}
+		}
+		else if (nextTri.vi_[2]==prevTri.vi_[commonvert] && nextTri.vi_[0]!=prevTri.vi_[nextvert] ||
+		nextTri.vi_[2]!=prevTri.vi_[nextvert] && nextTri.vi_[0]==prevTri.vi_[commonvert] )
+		{
+			if(nextTri.vi_[2]==prevTri.vi_[commonvert] && nextTri.vi_[0]!=prevTri.vi_[nextvert]) {nextvert = 0;  commonvert = 2;}
+			else {nextvert = 2; commonvert=0;}
+		}
+
+		prevTri.vi_[0] = nextTri.vi_[0]; prevTri.vi_[1] = nextTri.vi_[1]; prevTri.vi_[2] = nextTri.vi_[2];
+
+	}
+
+	return outputlist;
+}
+
 // Please note that the edge to be flipped here is the 2nd and 3rd parameters.
 void DirectedGraph::addFlipChildrenNodes(int pIdx1, int pIdx2, int pIdx3, int pIdx4)
 {
@@ -201,6 +272,7 @@ void DirectedGraph::addFlipChildrenNodes(int pIdx1, int pIdx2, int pIdx3, int pI
 	std::vector<TriRecord> parentTriangles;
 	std::vector<TriRecord>::iterator iter;
 	parentTriangles = findNodesForEdge(pIdx2, pIdx3);
+	
 
 	TriRecord newTri1, newTri2;
 	newTri1.vi_[0] = pIdx1;
