@@ -11,14 +11,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cs5237_main", "cs5237_main\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cs5237_qt", "cs5237_qt\cs5237_qt.vcxproj", "{CB63F6D1-E6D3-4554-93E9-CC4FDF3E506C}"
 EndProject
-<<<<<<< HEAD
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D305A22A-E0FB-41BA-90BF-FAC04C68E782}"
 	ProjectSection(SolutionItems) = preProject
 		Performance1.psess = Performance1.psess
 	EndProjectSection
-=======
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SOIL", "..\..\soil\projects\VC9\SOIL.vcxproj", "{C32FB2B4-500C-43CD-A099-EECCE079D3F1}"
->>>>>>> 49b6a45bcf7ad912d2b70b989c377a3faf80d03e
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
