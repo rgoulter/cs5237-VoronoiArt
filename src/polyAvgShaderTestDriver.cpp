@@ -66,6 +66,51 @@ void loadImageData(string imgFilename) {
 // Compute on the CPU.
 /////////////////////////////////////////////////////////////////////////////
 
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Check framebuffer status.
+// Modified from the sample code provided in the 
+// GL_EXT_framebuffer_object extension sepcifications.
+/////////////////////////////////////////////////////////////////////////////
+bool CheckFramebufferStatus() {
+    GLenum status = (GLenum) glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+
+    switch (status) {
+        case GL_FRAMEBUFFER_COMPLETE_EXT:
+            return true;
+        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+            fprintf(stderr, "Framebuffer incomplete, incomplete attachment\n");
+            return false;
+        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
+            fprintf(stderr, "Framebuffer incomplete, missing attachment\n");
+            return false;
+        case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+            fprintf(stderr, "Framebuffer incomplete, attached images must have same dimensions\n");
+            return false;
+        case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
+            fprintf(stderr, "Framebuffer incomplete, attached images must have same format\n");
+            return false;
+        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
+            fprintf(stderr, "Framebuffer incomplete, missing draw buffer\n");
+            return false;
+        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
+            fprintf(stderr, "Framebuffer incomplete, missing read buffer\n");
+            return false;
+        case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
+            fprintf(stderr, "Unsupported framebuffer format\n");
+            return false;
+    }
+
+    return false;
+}
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Compute on the GPU.
+/////////////////////////////////////////////////////////////////////////////
+
 // Same params as CPU function
 float GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	//-----------------------------------------------------------------------------
@@ -232,51 +277,6 @@ float GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 
     return sum;
 }
-
-
-
-/////////////////////////////////////////////////////////////////////////////
-// Check framebuffer status.
-// Modified from the sample code provided in the 
-// GL_EXT_framebuffer_object extension sepcifications.
-/////////////////////////////////////////////////////////////////////////////
-bool CheckFramebufferStatus() {
-    GLenum status = (GLenum) glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-
-    switch (status) {
-        case GL_FRAMEBUFFER_COMPLETE_EXT:
-            return true;
-        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
-            fprintf(stderr, "Framebuffer incomplete, incomplete attachment\n");
-            return false;
-        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
-            fprintf(stderr, "Framebuffer incomplete, missing attachment\n");
-            return false;
-        case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-            fprintf(stderr, "Framebuffer incomplete, attached images must have same dimensions\n");
-            return false;
-        case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-            fprintf(stderr, "Framebuffer incomplete, attached images must have same format\n");
-            return false;
-        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-            fprintf(stderr, "Framebuffer incomplete, missing draw buffer\n");
-            return false;
-        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
-            fprintf(stderr, "Framebuffer incomplete, missing read buffer\n");
-            return false;
-        case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
-            fprintf(stderr, "Unsupported framebuffer format\n");
-            return false;
-    }
-
-    return false;
-}
-
-
-
-/////////////////////////////////////////////////////////////////////////////
-// Compute on the GPU.
-/////////////////////////////////////////////////////////////////////////////
 
 
 
