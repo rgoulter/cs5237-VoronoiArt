@@ -82,7 +82,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\src\mainqt.cpp" />
     <ClCompile Include="..\..\..\src\mypanelopengl.cpp" />
-    <ClCompile Include="..\..\..\src\polypixel.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_mainqt.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -151,9 +150,6 @@
     <ProjectReference Include="..\basics_libs\basics_libs.vcxproj">
       <Project>{e4ef5af8-0240-4d9d-b964-f51f385d9d3b}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\include\polypixel.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

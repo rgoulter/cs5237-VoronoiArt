@@ -53,9 +53,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_mainqt.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\polypixel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\..\forms\mainqt.ui">
@@ -70,10 +67,5 @@
     <CustomBuild Include="..\..\..\resource\mainqt.qrc">
       <Filter>Resource Files</Filter>
     </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\include\polypixel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>
