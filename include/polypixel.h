@@ -17,7 +17,8 @@ public:
 
 // std::vector<int> enumeratePixelsInPolygon(const std::vector<int>& poly);
 
-void findAverageColor3iv(GLuint glTex, const std::vector<MyPoint>& poly, int* colorIv);
+void findAverageColor3iv(const std::vector<int>& poly, int* colorIv);
+void findAverageColor3iv(const std::vector<MyPoint>& poly, int* colorIv);
 
 
 bool findShaderDirectory(std::string& path, std::string shaderFilename);

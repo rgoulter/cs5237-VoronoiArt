@@ -80,12 +80,17 @@ std::vector<int> enumerateLeftRightOfSimplePolygon(const std::vector<int>& poly)
 	return result;
 }
 
-void findAverageColor3iv(GLuint glTex, const std::vector<MyPoint>& mpPoly, int* colorIv) {
+void findAverageColor3iv(const std::vector<MyPoint>& mpPoly, int* colorIv) {
 	std::vector<int> poly;
 	for (int i = 0; i < mpPoly.size(); i++) {
 		poly.push_back((int) mpPoly[i].x.doubleValue());
 		poly.push_back((int) mpPoly[i].y.doubleValue());
 	}
+
+	findAverageColor3iv(poly, colorIv);
+}
+
+void findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 
 	// Find bounding box of polygon
 	int minX, maxX, minY, maxY;
