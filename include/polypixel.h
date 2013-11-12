@@ -3,7 +3,9 @@
 
 #include "pointSetArray.h"
 #include "platform.h"
+#include "tinydir.h"
 #include <vector>
+#include <string>
 
 class ColoredPolygon {
 public:
@@ -17,5 +19,7 @@ public:
 
 void findAverageColor3iv(GLuint glTex, const std::vector<MyPoint>& poly, int* colorIv);
 
+
+bool findShaderDirectory(std::string& path, std::string shaderFilename);
 
 #endif
