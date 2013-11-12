@@ -3,7 +3,7 @@
 #include <string.h>
 #include <fcntl.h>
 
-#ifdef WIN32 /*[*/
+#ifdef _WIN32 /*[*/
 #include <io.h>
 #endif /*]*/
 
@@ -109,21 +109,21 @@ static int fileSize( const char *fileName )
 
     // Open the file, seek to the end to find its length.
 
-#ifdef WIN32 /*[*/
+#ifdef _WIN32
     fd = _open(fileName, _O_RDONLY);
     if (fd != -1)
     {
         count = _lseek(fd, 0, SEEK_END);
         _close(fd);
     }
-#else /*][*/
+#else
     fd = open(name, O_RDONLY);
     if (fd != -1)
     {
         count = lseek(fd, 0, SEEK_END);
         close(fd);
     }
-#endif /*]*/
+#endif
 
     return count;
 }

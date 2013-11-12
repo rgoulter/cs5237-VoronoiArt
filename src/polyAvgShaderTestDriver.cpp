@@ -5,10 +5,12 @@
 #include <string>
 #include <stdlib.h>
 #include <math.h>
+#include <vector>
 
 #include <GL/glew.h>
 #include <GL/glut.h>
 
+#include "SOIL.h"
 #include "polypixel.h"
 
 #include "shader_util.h"
@@ -51,6 +53,10 @@ GLuint glutWindowHandle;
 // Initialize the data.
 /////////////////////////////////////////////////////////////////////////////
 
+void loadImageData(string imgFilename) {
+	loadedImageData =
+		SOIL_load_image(imgFilename.c_str(), &loadedImageWidth, &loadedImageHeight, 0, SOIL_LOAD_RGB);
+}
 
 
 
@@ -176,27 +182,43 @@ void PrepareGPUExecution(int argc, char** argv) {
 /////////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv) {
     double starttime, endtime;
+	StopWatch stopwatch;
 
     srand(927); // To use same set of random numbers every run.
 
 //-----------------------------------------------------------------------------
 // Initialise data
 //-----------------------------------------------------------------------------
-    
+	string shaderDir;
+	findShaderDirectory(shaderDir, fragShaderFilename);
+	string imgDir = shaderDir + "/../images/";
+    string imgFilename = "sampleImage1.jpg";
+
+	loadImageData(imgDir + imgFilename);
+
+	// Now pick some points for a polygon..
+	// (667, 110)
+	// (645, 150)
+	// (640, 105)
+	vector<int> poly;
+	poly.push_back(667); poly.push_back(110);
+	poly.push_back(645); poly.push_back(150);
+	poly.push_back(640); poly.push_back(105);
 
 //-----------------------------------------------------------------------------
 // Perform computation on GPU.
 //-----------------------------------------------------------------------------
     printf("GPU COMPUTATION:\n");
 
-	PrepareGPUExecution(argc, argv);
+	//PrepareGPUExecution(argc, argv);
 	
-    starttime = 0; // TODO: Stopwatch
+	stopwatch.reset();
+	stopwatch.resume();
 
     // GPU Calculation here.
 
-    endtime = -1; // TODO: Stopwatch
-    printf("Time elapsed = %.4f sec\n", endtime - starttime);
+	stopwatch.pause();
+	printf("Time elapsed = %.4f msec\n", stopwatch.ms());
 
     // Print some results.
     printf("Result = ????\n");
@@ -206,15 +228,19 @@ int main(int argc, char** argv) {
 // Perform computation on CPU.
 //-----------------------------------------------------------------------------
     printf("CPU COMPUTATION:\n");
-    starttime = 0; // TODO: Stopwatch
+	StopWatch cpuComputationSW;
+	cpuComputationSW.resume();
 
     // CPU Calculation here.
-
-    endtime = -1;
-    printf("Time elapsed = %.4f sec\n", endtime - starttime);
+	int cpuResult[3];
+	findAverageColor3iv(poly, cpuResult);
+	
+	cpuComputationSW.pause();
+	double time = cpuComputationSW.ms();
+	printf("Time elapsed = %.4f msec\n", time);
 
     // Print some results.
-    printf("Result = ????\n");
+    printf("Result = (%3d, %3d, %3d)\n", cpuResult[0], cpuResult[1], cpuResult[2]);
     printf("\n\n");
 
 //-----------------------------------------------------------------------------

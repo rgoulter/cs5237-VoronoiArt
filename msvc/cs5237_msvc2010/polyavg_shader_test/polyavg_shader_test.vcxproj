@@ -41,10 +41,11 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\include\basics;..\..\..\include\basicsP2;..\..\..\include\basicsP3;..\..\..\include;..\..\..\include\win32;..\..\..\include\win32\basics</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\include\basics;..\..\..\include\basicsP2;..\..\..\include\basicsP3;..\..\..\include;..\..\..\include\win32;..\..\..\include\win32\basics;..\..\..\soil\src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -53,6 +54,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>..\..\..\include\basics;..\..\..\include\basicsP2;..\..\..\include\basicsP3;..\..\..\include;..\..\..\include\win32;..\..\..\include\win32\basics;..\..\..\soil\src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -64,6 +66,9 @@
     <ClCompile Include="..\..\..\src\polyAvgShaderTestDriver.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\soil\projects\VC9\SOIL.vcxproj">
+      <Project>{c32fb2b4-500c-43cd-a099-eecce079d3f1}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\basics_libs\basics_libs.vcxproj">
       <Project>{e4ef5af8-0240-4d9d-b964-f51f385d9d3b}</Project>
     </ProjectReference>

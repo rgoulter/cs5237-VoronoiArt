@@ -69,6 +69,7 @@
     <ClCompile Include="..\..\..\src\basics\pointSet.cpp" />
     <ClCompile Include="..\..\..\src\basics\polygon.cpp" />
     <ClCompile Include="..\..\..\src\polypixel.cpp" />
+    <ClCompile Include="..\..\..\src\shader_util.cpp" />
     <ClCompile Include="..\..\..\src\win32\basics\stopWatch.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -80,6 +81,7 @@
     <ClInclude Include="..\..\..\include\basics\pointSet.h" />
     <ClInclude Include="..\..\..\include\basics\polygon.h" />
     <ClInclude Include="..\..\..\include\polypixel.h" />
+    <ClInclude Include="..\..\..\include\shader_util.h" />
     <ClInclude Include="..\..\..\include\tinydir.h" />
     <ClInclude Include="..\..\..\include\win32\basics\stopWatch.h" />
   </ItemGroup>
