@@ -27,15 +27,10 @@ int loadedImageWidth;
 int loadedImageHeight;
 unsigned char *loadedImageData;
 
-
-// Size of input matrix.
-const int matRows = 2047;
-const int matCols = 257;
-
 // Reduction factor.
 // During the reduction operation, reduceFact x reduceFactor elements
 // in the input texture are reduced to 1 element for the output.
-const int reduceFact = 3;
+const int reduceFact = 2; // Only works for = 2, at the moment.
 
 // Shaders' filenames.
 const char vertShaderFilename[] = "reduce.vert";
@@ -71,6 +66,172 @@ void loadImageData(string imgFilename) {
 // Compute on the CPU.
 /////////////////////////////////////////////////////////////////////////////
 
+// Same params as CPU function
+float GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
+	//-----------------------------------------------------------------------------
+	// Create two floating-point textures. 
+	// Use texture rectangle and texture internal format GL_ALPHA32F_ARB.
+	//-----------------------------------------------------------------------------
+
+	// Texture A.
+    glActiveTexture(GL_TEXTURE0);
+    GLuint texA;
+    glGenTextures(1, &texA);
+    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, texA);
+    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGB,
+                 loadedImageWidth, loadedImageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    printOpenGLError();
+
+	// Texture B.
+    glActiveTexture(GL_TEXTURE1);
+    GLuint texB;
+    glGenTextures(1, &texB);
+    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, texB );
+    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGB,
+                 loadedImageWidth, loadedImageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    printOpenGLError();
+
+	//-----------------------------------------------------------------------------
+	// Attach the two textures to a FBO.
+	//-----------------------------------------------------------------------------
+    GLuint fbo;
+    glGenFramebuffersEXT(1, &fbo); 
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+
+    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
+                              GL_TEXTURE_RECTANGLE_ARB, texA, 0);
+	CheckFramebufferStatus();
+    printOpenGLError();
+
+    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT1_EXT, 
+                              GL_TEXTURE_RECTANGLE_ARB, texB, 0);
+    CheckFramebufferStatus();
+    printOpenGLError();
+
+	//-----------------------------------------------------------------------------
+	// Deploy user-defined shaders.
+	//-----------------------------------------------------------------------------
+    glUseProgram(shaderProg);
+
+	GLint inputTexLoc = glGetUniformLocation(shaderProg, "InputTex");
+	GLint inputColsLoc = glGetUniformLocation(shaderProg, "InputCols");
+	GLint inputRowsLoc = glGetUniformLocation(shaderProg, "InputRows");
+	GLint reduceFactLoc = glGetUniformLocation(shaderProg, "ReduceFact");
+	GLint passCountLoc = glGetUniformLocation(shaderProg, "PassCount");
+
+	glUniform1f(reduceFactLoc, reduceFact);
+
+	//-----------------------------------------------------------------------------
+	// Set some OpenGL states and projection.
+	//-----------------------------------------------------------------------------
+    glDisable(GL_DITHER);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
+    glDisable(GL_ALPHA_TEST);
+    glDisable(GL_COLOR_LOGIC_OP);
+    glDisable(GL_SCISSOR_TEST);
+    glDisable(GL_STENCIL_TEST);
+    glPolygonMode(GL_FRONT, GL_FILL);
+
+	// Set up projection.
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0, loadedImageWidth, 0, loadedImageHeight);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glViewport(0, 0, loadedImageWidth, loadedImageHeight);
+    
+	//-----------------------------------------------------------------------------
+	// Perform the rendering passes.
+	// Use the ping-pong technique.
+	//-----------------------------------------------------------------------------
+
+	GLint inputTextureUnit = 0;
+	GLenum outputFBOAttachement = GL_COLOR_ATTACHMENT1_EXT;
+
+	int inputRows = loadedImageHeight;
+	int inputCols = loadedImageWidth;
+	int outputRows = loadedImageHeight;
+	int outputCols = loadedImageWidth;
+	int passCount = 0;
+
+	while (true) {
+		//---------------------------------------------------------
+		// Perform a rendering pass.
+		//---------------------------------------------------------
+		glDrawBuffer(outputFBOAttachement);
+
+		glUniform1i(inputTexLoc, inputTextureUnit);
+		glUniform1f(inputColsLoc, inputCols);
+		glUniform1f(inputRowsLoc, inputRows);
+		glUniform1i(passCountLoc, passCount);
+
+		// Draw a filled quad with size equal to the output size.
+		glBegin(GL_QUADS);
+			glVertex2f(0, 0);
+			glVertex2f(outputCols, 0);
+			glVertex2f(outputCols, outputRows);
+			glVertex2f(0, outputRows);
+		glEnd();
+		CheckFramebufferStatus();
+		printOpenGLError();
+
+		//---------------------------------------------------------
+		// Stop looping when result has become one single scalar.
+		//---------------------------------------------------------
+		if (outputRows == 1 && outputCols == 1) { break; }
+
+		//---------------------------------------------------------
+		// Prepare for next rendering pass.
+		//---------------------------------------------------------
+		// Swap input and output textures. 
+		if (inputTextureUnit == 0) {
+			inputTextureUnit = 1;
+		} else {
+			inputTextureUnit = 0;
+		}
+
+		if (outputFBOAttachement == GL_COLOR_ATTACHMENT1_EXT) {
+			outputFBOAttachement = GL_COLOR_ATTACHMENT0_EXT;
+		} else {
+			outputFBOAttachement = GL_COLOR_ATTACHMENT1_EXT;
+		}
+
+		// Update the input & output sizes.
+		inputRows = outputRows;
+		inputCols = outputCols;
+		outputRows = (outputRows + (reduceFact - 1)) / reduceFact; // Round up the number of output rows.
+		outputCols = (outputCols + (reduceFact - 1)) / reduceFact; // Round up the number of output cols.
+
+		passCount++;
+	}
+
+	//-----------------------------------------------------------------------------
+	// Read output buffer/texture to CPU memory.
+	//-----------------------------------------------------------------------------
+	float sum;
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glReadBuffer(outputFBOAttachement);
+    glReadPixels(0, 0, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, &sum);
+    printOpenGLError();
+
+	//-----------------------------------------------------------------------------
+	// Clean up.
+	//-----------------------------------------------------------------------------
+    glDeleteFramebuffersEXT(1, &fbo);
+    glDeleteTextures(1, &texA);
+    glDeleteTextures(1, &texB);
+
+    return sum;
+}
 
 
 
@@ -167,7 +328,13 @@ void PrepareGPUExecution(int argc, char** argv) {
     }
 
 	// Create shader program object.
-    shaderProg = makeShaderProgramFromFiles(vertShaderFilename, fragShaderFilename, NULL);
+	string shaderPath;
+	bool found = findShaderDirectory(shaderPath, fragShaderFilename); // just assume found.
+	string vertShader = shaderPath + "/" + string(vertShaderFilename);
+	string fragShader = shaderPath + "/" + string(fragShaderFilename);
+
+	shaderProg = makeShaderProgramFromFiles(vertShader.c_str(), fragShader.c_str(), NULL);
+
     if (shaderProg == 0) {
         fprintf(stderr, "Error: Cannot create shader program object.\n");
         char ch; scanf("%c", &ch); // Prevents the console window from closing.
@@ -210,7 +377,7 @@ int main(int argc, char** argv) {
 //-----------------------------------------------------------------------------
     printf("GPU COMPUTATION:\n");
 
-	//PrepareGPUExecution(argc, argv);
+	PrepareGPUExecution(argc, argv);
 	
 	stopwatch.reset();
 	stopwatch.resume();
