@@ -31,12 +31,12 @@ void boundingBox(const std::vector<int>& poly, int& minX, int& maxX, int& minY, 
 	maxY = 0;
 	
 	for (int i = 0; i < poly.size() - 1; i += 2) {
-		int x = i;
-		int y = i + 1;
-		if(poly[x] < minX){ minX = poly[x]; }
-		if(poly[x] > maxX){ maxX = poly[x]; }
-		if(poly[y] < minY){ minY = poly[y]; }
-		if(poly[y] > maxY){ maxY = poly[y]; }
+		int xIdx = i;
+		int yIdx = i + 1;
+		if(poly[xIdx] < minX){ minX = poly[xIdx]; }
+		if(poly[xIdx] > maxX){ maxX = poly[xIdx]; }
+		if(poly[yIdx] < minY){ minY = poly[yIdx]; }
+		if(poly[yIdx] > maxY){ maxY = poly[yIdx]; }
 	}
 }
 
