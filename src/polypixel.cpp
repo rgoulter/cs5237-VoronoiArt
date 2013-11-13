@@ -260,81 +260,12 @@ void findSomeColor3iv(const std::vector<int>& poly, int* colorIv) {
 
 
 bool isFileOrFolderInDir(string path, string filename) {
-	// Look for a file or folder with the given name in the dir.
-	bool result = false;
-
-	tinydir_dir dir;
-	tinydir_open(&dir, path.data());
-
-	while (dir.has_next) {
-		tinydir_file file;
-		tinydir_readfile(&dir, &file);
-
-		if (strcmp(file.name, filename.data()) == 0) {
-			result = true;
-			break;
-		}
-
-		tinydir_next(&dir);
-	}
-
-	tinydir_close(&dir);
-
-	return result;
+	return false;
 }
 
 
 
 bool findShaderDirectory(string& path, string shaderFilename) {
-	// Check the current dir for shader,
-	// If not found, look for the shader in
-	// ./shaders
-	// ../shaders
-	// ../../shaders
-	// etc.
-	
-	// Look for file: shaderFilename in current directory
-	if (isFileOrFolderInDir(".", shaderFilename)) {
-		path = ".";
-		return true;
-	}
-
-	// Look for a "shaders" directory which has the given shader filename.
-	string currentPath = ".";
-	string nextPath = ".";
-	bool hasParentDir = false;
-	bool foundShaderDir = false;
-
-	do {
-		tinydir_dir dir;
-		tinydir_open(&dir, currentPath.data());
-		hasParentDir = false;
-
-		while (dir.has_next) {
-			tinydir_file file;
-			tinydir_readfile(&dir, &file);
-
-			if (strcmp(file.name, "..") == 0 &&
-				strcmp(file.path, currentPath.data()) != 0) {
-				hasParentDir = true;
-				nextPath = string(file.path);
-			}
-
-			if (file.is_dir &&
-				strcmp(file.name, "shaders") == 0 &&
-				isFileOrFolderInDir(currentPath + "/shaders", shaderFilename)) {
-				//We've found the folder with shaders.
-				path = currentPath + "/shaders";
-				return true;
-			}
-
-			tinydir_next(&dir);
-		}
-
-		tinydir_close(&dir);
-
-		currentPath = nextPath;
-	} while (hasParentDir);
-
-	return foundShaderDir;
+	path = "don't use this for now";
+	return false;
 }

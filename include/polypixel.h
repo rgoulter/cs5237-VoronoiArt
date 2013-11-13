@@ -3,7 +3,6 @@
 
 #include "pointSetArray.h"
 #include "platform.h"
-#include "tinydir.h"
 #include <vector>
 #include <string>
 
