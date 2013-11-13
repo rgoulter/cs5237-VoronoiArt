@@ -356,9 +356,15 @@ int main(int argc, char** argv) {
 //-----------------------------------------------------------------------------
 // Initialise data
 //-----------------------------------------------------------------------------
-    string imgFilename = "sampleImage1.jpg";
+    string imgFilename = "./sampleImage1.jpg";
 
 	loadImageData(imgFilename);
+
+	if (loadedImageData == NULL) {
+		cout << "Failed to load image " << imgFilename << endl;
+		getchar();
+		return 1;
+	}
 
 	// Now pick some points for a polygon..
 	// (667, 110)
