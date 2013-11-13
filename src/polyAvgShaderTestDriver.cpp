@@ -328,10 +328,10 @@ void PrepareGPUExecution(int argc, char** argv) {
     }
 
 	// Create shader program object.
-	string shaderPath;
-	bool found = findShaderDirectory(shaderPath, fragShaderFilename); // just assume found.
-	string vertShader = shaderPath + "/" + string(vertShaderFilename);
-	string fragShader = shaderPath + "/" + string(fragShaderFilename);
+	//string shaderPath;
+	//bool found = findShaderDirectory(shaderPath, fragShaderFilename); // just assume found.
+	string vertShader = string(vertShaderFilename);
+	string fragShader = string(fragShaderFilename);
 
 	shaderProg = makeShaderProgramFromFiles(vertShader.c_str(), fragShader.c_str(), NULL);
 
@@ -356,12 +356,9 @@ int main(int argc, char** argv) {
 //-----------------------------------------------------------------------------
 // Initialise data
 //-----------------------------------------------------------------------------
-	string shaderDir;
-	findShaderDirectory(shaderDir, fragShaderFilename);
-	string imgDir = shaderDir + "/../images/";
     string imgFilename = "sampleImage1.jpg";
 
-	loadImageData(imgDir + imgFilename);
+	loadImageData(imgFilename);
 
 	// Now pick some points for a polygon..
 	// (667, 110)
@@ -377,7 +374,7 @@ int main(int argc, char** argv) {
 //-----------------------------------------------------------------------------
     printf("GPU COMPUTATION:\n");
 
-	PrepareGPUExecution(argc, argv);
+	//PrepareGPUExecution(argc, argv);
 	
 	stopwatch.reset();
 	stopwatch.resume();
