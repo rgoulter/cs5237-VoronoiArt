@@ -8,6 +8,22 @@ extern int loadedImageWidth;
 extern int loadedImageHeight;
 extern unsigned char *loadedImageData;
 
+
+
+vector<int> coercePSAPolyToIVecPoly(PointSetArray& psa){
+	vector<int> poly;
+
+	// Coerce psa to poly<int>
+	for (int ptIdx = 1; ptIdx <= psa.noPt(); ptIdx++) {
+		LongInt x, y;
+		psa.getPoint(ptIdx, x, y);
+		poly.push_back((int) x.doubleValue());
+		poly.push_back((int) y.doubleValue()); 
+	}
+
+	return poly;
+}
+
 void boundingBox(const std::vector<int>& poly, int& minX, int& maxX, int& minY, int& maxY) {
 	minX = loadedImageWidth;
 	maxX = 0;
@@ -178,6 +194,12 @@ void findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	colorIv[2] = accB;
 }
 
+
+
+void findSomeColor3iv(PointSetArray& psa, int* colorIv) {
+	std::vector<int> poly = coercePSAPolyToIVecPoly(psa);
+	findSomeColor3iv(poly, colorIv);
+};
 
 
 

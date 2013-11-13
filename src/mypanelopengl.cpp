@@ -250,9 +250,9 @@ void drawColoredPolygons() {
 		glBegin(GL_POLYGON);
 		glColor3fv(coloredPoly.rgb); // rgb?
 
-		for(int j = 0; j < coloredPoly.poly.size(); j++) {
-			double x = coloredPoly.poly[j].x.doubleValue();
-			double y = coloredPoly.poly[j].y.doubleValue();
+		for(int j = 0; j < coloredPoly.poly.size() / 2; j++) {
+			double x = coloredPoly.poly[2 * j];
+			double y = coloredPoly.poly[2 * j + 1];
 			
 			glVertex2d(x, y);
 		}
@@ -262,15 +262,15 @@ void drawColoredPolygons() {
 
 
 
-void generateColoredPolygons(vector<vector<MyPoint>>& polys){
+void generateColoredPolygons(vector<vector<int>>& polys){
 	hasCalculatedColoredPolygons = 0;
 	renderedPolygons.clear();
 
-	for (int i = 0; i < polys.size(); i++) {
-		vector<MyPoint> poly = polys[i];
+	for (int i = 0; i < polys.size() / 2; i++) {
+		vector<int> poly = polys[i];
 
 		int colorIv[3];
-		findAverageColor3iv(loadedImageTexture, poly, colorIv);
+		findAverageColor3iv(poly, colorIv);
 
 		ColoredPolygon coloredPoly;
 
@@ -283,6 +283,41 @@ void generateColoredPolygons(vector<vector<MyPoint>>& polys){
 	}
 
 	hasCalculatedColoredPolygons = 1;
+}
+
+
+
+void generateColoredPolygons(vector<vector<MyPoint>>& myPointPolys){
+	// Coerce the PSAs to vec<int> poly representation
+	vector<vector<int>> ivPolys;
+
+	for (int i = 0; i < myPointPolys.size(); i++) {
+		vector<MyPoint> mpPoly = myPointPolys[i];
+		vector<int> poly;
+
+		for (int j = 0; j < mpPoly.size(); j++) {
+			MyPoint pt = mpPoly[i];
+			poly.push_back((int) pt.x.doubleValue());
+			poly.push_back((int) pt.y.doubleValue());
+		}
+
+		ivPolys.push_back(poly);
+	}
+
+	generateColoredPolygons(ivPolys);
+}
+
+
+
+void generateColoredPolygons(vector<PointSetArray>& psas){
+	// Coerce the PSAs to vec<int> poly representation
+	vector<vector<int>> ivPolys;
+
+	for (int i = 0; i < psas.size(); i++) {
+		ivPolys.push_back(coercePSAPolyToIVecPoly(psas[i]));
+	}
+
+	generateColoredPolygons(ivPolys);
 }
 
 
