@@ -112,7 +112,7 @@ bool CheckFramebufferStatus() {
 /////////////////////////////////////////////////////////////////////////////
 
 // Same params as CPU function
-float GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
+void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	//-----------------------------------------------------------------------------
 	// Calculate bounding box and stuff.
 	//-----------------------------------------------------------------------------
@@ -136,8 +136,8 @@ float GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
     glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP);
     glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGB,
-                 loadedImageWidth, loadedImageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA,
+                 loadedImageWidth, loadedImageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     printOpenGLError();
 
 	// Texture B.
@@ -149,8 +149,8 @@ float GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
     glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP);
     glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGB,
-                 loadedImageWidth, loadedImageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA,
+                 loadedImageWidth, loadedImageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     printOpenGLError();
 
 	//-----------------------------------------------------------------------------
@@ -339,10 +339,10 @@ float GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	//-----------------------------------------------------------------------------
 	// Read output buffer/texture to CPU memory.
 	//-----------------------------------------------------------------------------
-	float sum;
+	GLubyte result[4];
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
     glReadBuffer(outputFBOAttachement);
-    glReadPixels(0, 0, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, &sum);
+    glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &result);
     printOpenGLError();
 
 	//-----------------------------------------------------------------------------
@@ -351,8 +351,11 @@ float GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
     glDeleteFramebuffersEXT(1, &fbo);
     glDeleteTextures(1, &texA);
     glDeleteTextures(1, &texB);
-
-    return sum;
+	
+	// Output results
+	colorIv[0] = result[0]; // r
+	colorIv[1] = result[1]; // g
+	colorIv[2] = result[2]; // b
 }
 
 
@@ -463,12 +466,14 @@ int main(int argc, char** argv) {
 	stopwatch.resume();
 
     // GPU Calculation here.
+	int gpuResult[3];
+	GPU_findAverageColor3iv(poly, gpuResult);
 
 	stopwatch.pause();
 	printf("Time elapsed = %.4f msec\n", stopwatch.ms());
 
     // Print some results.
-    printf("Result = ????\n");
+    printf("Result = (%3d, %3d, %3d)\n", gpuResult[0], gpuResult[1], gpuResult[2]);
     printf("\n\n");
 
 //-----------------------------------------------------------------------------
