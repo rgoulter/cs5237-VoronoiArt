@@ -17,6 +17,8 @@ public:
 
 // std::vector<int> enumeratePixelsInPolygon(const std::vector<int>& poly);
 
+void findSomeColor3iv(const std::vector<int>& poly, int* colorIv);
+
 void findAverageColor3iv(const std::vector<int>& poly, int* colorIv);
 void findAverageColor3iv(const std::vector<MyPoint>& poly, int* colorIv);
 

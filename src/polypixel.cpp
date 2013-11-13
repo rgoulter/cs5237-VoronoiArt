@@ -180,6 +180,63 @@ void findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 
 
 
+
+void findSomeColor3iv(const std::vector<int>& poly, int* colorIv) {
+
+	// Find bounding box of polygon
+	int minX, maxX, minY, maxY;
+	boundingBox(poly, minX, maxX, minY, maxY);
+
+	// Within this bounding box, search for all the points.
+	int left   = minX;
+	int right  = maxX;
+	int top    = minY;
+	int bottom = maxY;
+
+
+	// Read the pixels from the relevant section
+	int offsetX = 0;
+	int offsetY = 0;
+	int width  = loadedImageWidth; //right - left + 1;
+	int height = loadedImageHeight; //bottom - top + 1;
+	
+
+	// For each point, find the average rgb.
+	int accR, accG, accB;
+	int acc = 0;
+	int n = poly.size() / 2;
+
+	// i = 0;
+	int u, v;
+	u = poly[0];
+	v = poly[1];
+	int pos = (v * width + u) * 3;
+	accR = loadedImageData[pos], accG = loadedImageData[pos + 1], accB = loadedImageData[pos + 2];
+	acc = 1;
+
+	for (int ptIdx = 1; ptIdx < n; ptIdx++) {
+		u = poly[2 * ptIdx];
+		v = poly[2 * ptIdx + 1];
+
+		int pos = (v * width + u) * 3;
+		GLubyte rb = loadedImageData[pos + 0];
+		GLubyte gb = loadedImageData[pos + 1];
+		GLubyte bb = loadedImageData[pos + 2];
+		
+		// Accumulative average
+		acc++;
+		accR = ((acc - 1) * accR + rb) / acc;
+		accG = ((acc - 1) * accG + gb) / acc;
+		accB = ((acc - 1) * accB + bb) / acc;
+	}
+
+	colorIv[0] = accR;
+	colorIv[1] = accG;
+	colorIv[2] = accB;
+}
+
+
+
 bool isFileOrFolderInDir(string path, string filename) {
 	// Look for a file or folder with the given name in the dir.
 	bool result = false;
