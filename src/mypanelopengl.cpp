@@ -266,7 +266,7 @@ void generateColoredPolygons(vector<vector<int>>& polys){
 	hasCalculatedColoredPolygons = 0;
 	renderedPolygons.clear();
 
-	for (int i = 0; i < polys.size() / 2; i++) {
+	for (int i = 0; i < polys.size(); i++) {
 		vector<int> poly = polys[i];
 
 		int colorIv[3];
