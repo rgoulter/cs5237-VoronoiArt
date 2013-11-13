@@ -295,8 +295,8 @@ void generateColoredPolygons(vector<vector<MyPoint>>& myPointPolys){
 		vector<MyPoint> mpPoly = myPointPolys[i];
 		vector<int> poly;
 
-		for (int j = 0; j < mpPoly.size(); j++) {
-			MyPoint pt = mpPoly[i];
+		for (int ptIdx = 0; ptIdx < mpPoly.size(); ptIdx++) {
+			MyPoint pt = mpPoly[ptIdx];
 			poly.push_back((int) pt.x.doubleValue());
 			poly.push_back((int) pt.y.doubleValue());
 		}
