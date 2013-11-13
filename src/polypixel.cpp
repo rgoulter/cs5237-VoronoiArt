@@ -232,6 +232,16 @@ void findSomeColor3iv(const std::vector<int>& poly, int* colorIv) {
 	int u, v;
 	u = poly[0];
 	v = poly[1];
+	
+	if (u < 0 || u > loadedImageWidth ||
+		v < 0 || v > loadedImageHeight) {
+		// This only happens in the POLYGON WASN'T TRIMMED.
+		colorIv[0] = 0;
+		colorIv[1] = 0;
+		colorIv[2] = 0;
+		return;
+	}
+
 	int pos = (v * width + u) * 3;
 	accR = loadedImageData[pos], accG = loadedImageData[pos + 1], accB = loadedImageData[pos + 2];
 	acc = 1;
@@ -239,6 +249,16 @@ void findSomeColor3iv(const std::vector<int>& poly, int* colorIv) {
 	for (int ptIdx = 1; ptIdx < n; ptIdx++) {
 		u = poly[2 * ptIdx];
 		v = poly[2 * ptIdx + 1];
+
+		if (u < 0 || u > loadedImageWidth ||
+			v < 0 || v > loadedImageHeight) {
+			// This only happens in the POLYGON WASN'T TRIMMED.
+			colorIv[0] = 0;
+			colorIv[1] = 0;
+			colorIv[2] = 0;
+			return;
+		}
+
 
 		int pos = (v * width + u) * 3;
 		GLubyte rb = loadedImageData[pos + 0];

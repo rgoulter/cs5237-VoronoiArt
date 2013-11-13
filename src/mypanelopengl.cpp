@@ -213,33 +213,8 @@ void drawVoronoiStuff(){
 
 
 
-void display (void) {
-	// draw your output here (erase the following 3 lines)
-	/*drawAPoint(100,100);
-	drawALine(200,200,300,300);
-	drawATriangle(400,400,400,500,500,500);*/
-
-	int i;
-	
-	//drawDelaunayStuff();
-
-	// Point indices are 1-based here
-	// Draw input points
-	for (i = 1; i <= inputPointSet.noPt(); i++){
-		LongInt px, py;
-		inputPointSet.getPoint(i, px, py);
-		drawAPoint(px.doubleValue(), py.doubleValue());
-	}
-
-	//Test Code
-	drawVoronoiStuff();
-}
-
-
-
 void drawColoredPolygons() {
 	if (!hasCalculatedColoredPolygons) {
-		glPopMatrix();
 		return;
 	}
 	
@@ -262,6 +237,31 @@ void drawColoredPolygons() {
 
 
 
+void display (void) {
+	// draw your output here (erase the following 3 lines)
+	/*drawAPoint(100,100);
+	drawALine(200,200,300,300);
+	drawATriangle(400,400,400,500,500,500);*/
+
+	int i;
+	
+	//drawDelaunayStuff();
+
+	// Point indices are 1-based here
+	// Draw input points
+	for (i = 1; i <= inputPointSet.noPt(); i++){
+		LongInt px, py;
+		inputPointSet.getPoint(i, px, py);
+		drawAPoint(px.doubleValue(), py.doubleValue());
+	}
+
+	//Test Code
+	drawVoronoiStuff();
+	drawColoredPolygons();
+}
+
+
+
 void generateColoredPolygons(vector<vector<int>>& polys){
 	hasCalculatedColoredPolygons = 0;
 	renderedPolygons.clear();
@@ -270,7 +270,7 @@ void generateColoredPolygons(vector<vector<int>>& polys){
 		vector<int> poly = polys[i];
 
 		int colorIv[3];
-		findAverageColor3iv(poly, colorIv);
+		findSomeColor3iv(poly, colorIv);
 
 		ColoredPolygon coloredPoly;
 
@@ -613,7 +613,7 @@ bool checkedgeExists(PointSetArray voronoiEdge){
 
 
 void createVoronoi(){
-	
+
 	for (int dppIdx = 1; dppIdx <= delaunayPointSet.noPt()-3; dppIdx++)
 	{
 		
@@ -944,6 +944,10 @@ void MyPanelOpenGL::doVoronoiDiagram(){
 		doDelaunayTriangulation();
 		createVoronoi();
 	}
+
+	// Make the colored polygons from Voronoi.
+	generateColoredPolygons(voronoiEdges);
+
 	updateGL();
 }
 
