@@ -114,6 +114,15 @@ bool CheckFramebufferStatus() {
 // Same params as CPU function
 float GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	//-----------------------------------------------------------------------------
+	// Calculate bounding box and stuff.
+	//-----------------------------------------------------------------------------
+	int minX, maxX, minY, maxY;
+	boundingBox(poly, minX, maxX, minY, maxY);
+	
+	int boundingBoxWidth = maxX - minX + 1;
+	int boundingBoxHeight = maxY - minY + 1;
+
+	//-----------------------------------------------------------------------------
 	// Create two floating-point textures. 
 	// Use texture rectangle and texture internal format GL_ALPHA32F_ARB.
 	//-----------------------------------------------------------------------------
@@ -160,6 +169,63 @@ float GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
                               GL_TEXTURE_RECTANGLE_ARB, texB, 0);
     CheckFramebufferStatus();
     printOpenGLError();
+	
+	//-----------------------------------------------------------------------------
+	// Generate a texture which is a "mask" of the given polygon.
+	// (Black background, white for the polygon).
+	//-----------------------------------------------------------------------------
+    glActiveTexture(GL_TEXTURE2);
+	GLuint texPolyMask;
+	glGenTextures(1, &texPolyMask);
+
+    glBindTexture(GL_TEXTURE_2D, texPolyMask);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	// Clear mask texture to all black
+	glClearColor(0, 0, 0, 0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// Draw a polygon
+	glBegin(GL_POLYGON);
+		glColor3f(1, 1, 1); // rgb?
+
+		for(int ptIdx = 0; ptIdx < poly.size() / 2; ptIdx++) {
+			int x = poly[2 * ptIdx];
+			int y = poly[2 * ptIdx + 1];
+			glVertex2d(x, y);
+		}
+	glEnd();
+
+	int uniform_PolyMaskTex = 2;
+
+	//-----------------------------------------------------------------------------
+	// Attach loadedImageData to a texture, which we pass to
+	// the fragment shader.
+	//-----------------------------------------------------------------------------
+    glActiveTexture(GL_TEXTURE3);
+	GLuint texImg;
+	glGenTextures(1, &texImg);
+
+    glBindTexture(GL_TEXTURE_2D, texImg);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D,
+		         0,
+				 GL_RGB,
+				 loadedImageWidth,
+				 loadedImageHeight,
+				 0,
+				 GL_RGB,
+				 GL_UNSIGNED_BYTE,
+				 loadedImageData);
+	
+	int uniform_ImageTex = 3;
+
 
 	//-----------------------------------------------------------------------------
 	// Deploy user-defined shaders.
@@ -171,6 +237,11 @@ float GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	GLint inputRowsLoc = glGetUniformLocation(shaderProg, "InputRows");
 	GLint reduceFactLoc = glGetUniformLocation(shaderProg, "ReduceFact");
 	GLint passCountLoc = glGetUniformLocation(shaderProg, "PassCount");
+	GLint offsetXLoc = glGetUniformLocation(shaderProg, "OffsetX");
+	GLint offsetYLoc = glGetUniformLocation(shaderProg, "OffsetY");
+
+	GLint polyMaskTexLoc = getUniLoc(shaderProg, "PolyMaskTex");
+	GLint imageTexLoc = getUniLoc(shaderProg, "ImageTex");
 
 	glUniform1f(reduceFactLoc, reduceFact);
 
@@ -192,7 +263,7 @@ float GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
     gluOrtho2D(0, loadedImageWidth, 0, loadedImageHeight);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    glViewport(0, 0, loadedImageWidth, loadedImageHeight);
+	glViewport(minX, minY, boundingBoxWidth, boundingBoxHeight);
     
 	//-----------------------------------------------------------------------------
 	// Perform the rendering passes.
@@ -202,10 +273,10 @@ float GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	GLint inputTextureUnit = 0;
 	GLenum outputFBOAttachement = GL_COLOR_ATTACHMENT1_EXT;
 
-	int inputRows = loadedImageHeight;
-	int inputCols = loadedImageWidth;
-	int outputRows = loadedImageHeight;
-	int outputCols = loadedImageWidth;
+	int inputRows = boundingBoxHeight;
+	int inputCols = boundingBoxWidth;
+	int outputRows = boundingBoxHeight;
+	int outputCols = boundingBoxWidth;
 	int passCount = 0;
 
 	while (true) {
@@ -218,6 +289,12 @@ float GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 		glUniform1f(inputColsLoc, inputCols);
 		glUniform1f(inputRowsLoc, inputRows);
 		glUniform1i(passCountLoc, passCount);
+
+		glUniform1i(offsetXLoc, minX);
+		glUniform1i(offsetYLoc, minY); 
+
+		glUniform1i(polyMaskTexLoc, uniform_PolyMaskTex);
+		glUniform1i(imageTexLoc, uniform_ImageTex);
 
 		// Draw a filled quad with size equal to the output size.
 		glBegin(GL_QUADS);
@@ -380,7 +457,7 @@ int main(int argc, char** argv) {
 //-----------------------------------------------------------------------------
     printf("GPU COMPUTATION:\n");
 
-	//PrepareGPUExecution(argc, argv);
+	PrepareGPUExecution(argc, argv);
 	
 	stopwatch.reset();
 	stopwatch.resume();

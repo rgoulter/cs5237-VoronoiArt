@@ -6,6 +6,12 @@ uniform float InputRows;
 uniform float ReduceFact;
 uniform int PassCount;
 
+uniform int OffsetX;
+uniform int OffsetY;
+
+uniform sampler2D PolyMaskTex;
+uniform sampler2D ImageTex;
+
 
 void main()
 {
