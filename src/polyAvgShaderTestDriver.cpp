@@ -121,6 +121,102 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	
 	int boundingBoxWidth = maxX - minX + 1;
 	int boundingBoxHeight = maxY - minY + 1;
+	
+	//-----------------------------------------------------------------------------
+	// Generate a texture which is a "mask" of the given polygon.
+	// (Black background, white for the polygon).
+	//-----------------------------------------------------------------------------
+    glActiveTexture(GL_TEXTURE2);
+	GLuint texPolyMask;
+	glGenTextures(1, &texPolyMask);
+
+    glBindTexture(GL_TEXTURE_2D, texPolyMask);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D,
+            0,
+            GL_RGB,
+            loadedImageWidth,
+            loadedImageHeight,
+            0,
+            GL_RGB,
+            GL_UNSIGNED_BYTE,
+            NULL);
+
+    GLuint fboName;
+    glGenFramebuffers(1, &fboName);
+    glBindFramebuffer(GL_FRAMEBUFFER, fboName);
+
+    GLuint depthrenderbuffer;
+    glGenRenderbuffers(1, &depthrenderbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, loadedImageWidth, loadedImageHeight);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    
+    // Set "renderedTexture" as our colour attachment #0
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texPolyMask, 0);
+     
+    // Set the list of draw buffers.
+    GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+    glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
+
+	CheckFramebufferStatus();
+
+    // Render to our framebuffer
+    glBindFramebuffer(GL_FRAMEBUFFER, fboName);
+
+	// Clear mask texture to all black
+	glClearColor(0, 0, 0, 0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+    // Set up projection.
+    glViewport(0, 0, loadedImageWidth, loadedImageHeight);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0, loadedImageWidth, 0, loadedImageHeight);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+	// Draw a polygon
+	glBegin(GL_POLYGON);
+		glColor3f(1, 1, 1); // rgb?
+
+		for(int ptIdx = 0; ptIdx < poly.size() / 2; ptIdx++) {
+			int x = poly[2 * ptIdx];
+			int y = poly[2 * ptIdx + 1];
+			glVertex2d(x, y);
+		}
+	glEnd();
+
+	int uniform_PolyMaskTex = 2;
+
+	//-----------------------------------------------------------------------------
+	// Attach loadedImageData to a texture, which we pass to
+	// the fragment shader.
+	//-----------------------------------------------------------------------------
+    glActiveTexture(GL_TEXTURE3);
+	GLuint texImg;
+	glGenTextures(1, &texImg);
+
+    glBindTexture(GL_TEXTURE_2D, texImg);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D,
+		         0,
+				 GL_RGB,
+				 loadedImageWidth,
+				 loadedImageHeight,
+				 0,
+				 GL_RGB,
+				 GL_UNSIGNED_BYTE,
+				 loadedImageData);
+	
+	int uniform_ImageTex = 3;
 
 	//-----------------------------------------------------------------------------
 	// Create two floating-point textures. 
@@ -169,62 +265,6 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
                               GL_TEXTURE_RECTANGLE_ARB, texB, 0);
     CheckFramebufferStatus();
     printOpenGLError();
-	
-	//-----------------------------------------------------------------------------
-	// Generate a texture which is a "mask" of the given polygon.
-	// (Black background, white for the polygon).
-	//-----------------------------------------------------------------------------
-    glActiveTexture(GL_TEXTURE2);
-	GLuint texPolyMask;
-	glGenTextures(1, &texPolyMask);
-
-    glBindTexture(GL_TEXTURE_2D, texPolyMask);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-	// Clear mask texture to all black
-	glClearColor(0, 0, 0, 0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// Draw a polygon
-	glBegin(GL_POLYGON);
-		glColor3f(1, 1, 1); // rgb?
-
-		for(int ptIdx = 0; ptIdx < poly.size() / 2; ptIdx++) {
-			int x = poly[2 * ptIdx];
-			int y = poly[2 * ptIdx + 1];
-			glVertex2d(x, y);
-		}
-	glEnd();
-
-	int uniform_PolyMaskTex = 2;
-
-	//-----------------------------------------------------------------------------
-	// Attach loadedImageData to a texture, which we pass to
-	// the fragment shader.
-	//-----------------------------------------------------------------------------
-    glActiveTexture(GL_TEXTURE3);
-	GLuint texImg;
-	glGenTextures(1, &texImg);
-
-    glBindTexture(GL_TEXTURE_2D, texImg);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D,
-		         0,
-				 GL_RGB,
-				 loadedImageWidth,
-				 loadedImageHeight,
-				 0,
-				 GL_RGB,
-				 GL_UNSIGNED_BYTE,
-				 loadedImageData);
-	
-	int uniform_ImageTex = 3;
 
 
 	//-----------------------------------------------------------------------------
@@ -258,12 +298,12 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
     glPolygonMode(GL_FRONT, GL_FILL);
 
 	// Set up projection.
+	glViewport(0, 0, boundingBoxWidth, boundingBoxHeight);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluOrtho2D(0, loadedImageWidth, 0, loadedImageHeight);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-	glViewport(minX, minY, boundingBoxWidth, boundingBoxHeight);
     
 	//-----------------------------------------------------------------------------
 	// Perform the rendering passes.
@@ -279,7 +319,7 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	int outputCols = boundingBoxWidth;
 	int passCount = 0;
 
-	while (true) {
+	while (passCount <= 2) {
 		//---------------------------------------------------------
 		// Perform a rendering pass.
 		//---------------------------------------------------------
@@ -342,8 +382,10 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	GLubyte result[4];
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
     glReadBuffer(outputFBOAttachement);
-    glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &result);
+    glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, result);
     printOpenGLError();
+
+	cout << "Just checking: " << result[0] << "," << result[1] << "," << result[2] << "," << result[3] << "," << endl;
 
 	//-----------------------------------------------------------------------------
 	// Clean up.
