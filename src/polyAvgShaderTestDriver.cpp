@@ -133,12 +133,12 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	GLuint texPolyMask;
 	glGenTextures(1, &texPolyMask);
 
-    glBindTexture(GL_TEXTURE_2D, texPolyMask);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D,
+    glBindTexture(GL_TEXTURE_RECTANGLE, texPolyMask);
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_RECTANGLE,
             0,
             GL_RGB,
             loadedImageWidth,
@@ -205,12 +205,12 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	GLuint texImg;
 	glGenTextures(1, &texImg);
 
-    glBindTexture(GL_TEXTURE_2D, texImg);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D,
+    glBindTexture(GL_TEXTURE_RECTANGLE, texImg);
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_RECTANGLE,
 		         0,
 				 GL_RGB,
 				 loadedImageWidth,
@@ -236,7 +236,7 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
     glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
     glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA,
+    glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA32F,
                  loadedImageWidth, loadedImageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     printOpenGLError();
 
@@ -249,7 +249,7 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
     glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
     glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA,
+    glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA32F,
                  loadedImageWidth, loadedImageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     printOpenGLError();
 
@@ -389,7 +389,7 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
     glReadPixels(0, 0, 1, 1, GL_RGBA, GL_FLOAT, result);
     printOpenGLError();
 
-	cout << "Just checking: " << result[0] << endl;
+	cout << "Just checking: " << result[0] << "," << result[1] << "," << result[2] << "," << result[3] << "," << endl;
 
 	//-----------------------------------------------------------------------------
 	// Clean up.
@@ -398,10 +398,10 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
     glDeleteTextures(1, &texA);
     glDeleteTextures(1, &texB);
 	
-	// Output results
-	colorIv[0] = result[0]; // r
-	colorIv[1] = result[1]; // g
-	colorIv[2] = result[2]; // b
+	// Output results.. floats are between [0,1)
+	colorIv[0] = (int) (256 * result[0]); // r
+	colorIv[1] = (int) (256 * result[1]); // g
+	colorIv[2] = (int) (256 * result[2]); // b
 }
 
 
@@ -497,7 +497,8 @@ int main(int argc, char** argv) {
 	// (645, 150)
 	// (640, 105)
 	vector<int> poly;
-	poly.push_back(667); poly.push_back(110);
+	//poly.push_back(667); poly.push_back(110);
+	poly.push_back(580); poly.push_back(90);
 	poly.push_back(645); poly.push_back(150);
 	poly.push_back(640); poly.push_back(105);
 
