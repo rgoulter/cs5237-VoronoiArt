@@ -113,6 +113,8 @@ bool CheckFramebufferStatus() {
 
 // Same params as CPU function
 void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
+	glEnable(GL_TEXTURE_2D);
+
 	//-----------------------------------------------------------------------------
 	// Calculate bounding box and stuff.
 	//-----------------------------------------------------------------------------
@@ -126,7 +128,8 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	// Generate a texture which is a "mask" of the given polygon.
 	// (Black background, white for the polygon).
 	//-----------------------------------------------------------------------------
-    glActiveTexture(GL_TEXTURE2);
+    //*
+	glActiveTexture(GL_TEXTURE2);
 	GLuint texPolyMask;
 	glGenTextures(1, &texPolyMask);
 
@@ -190,6 +193,7 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 			glVertex2d(x, y);
 		}
 	glEnd();
+	// */
 
 	int uniform_PolyMaskTex = 2;
 
@@ -227,12 +231,12 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
     glActiveTexture(GL_TEXTURE0);
     GLuint texA;
     glGenTextures(1, &texA);
-    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, texA);
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA,
+    glBindTexture(GL_TEXTURE_RECTANGLE, texA);
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA,
                  loadedImageWidth, loadedImageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     printOpenGLError();
 
@@ -240,12 +244,12 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
     glActiveTexture(GL_TEXTURE1);
     GLuint texB;
     glGenTextures(1, &texB);
-    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, texB );
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA,
+    glBindTexture( GL_TEXTURE_RECTANGLE, texB );
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA,
                  loadedImageWidth, loadedImageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     printOpenGLError();
 
@@ -253,16 +257,16 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	// Attach the two textures to a FBO.
 	//-----------------------------------------------------------------------------
     GLuint fbo;
-    glGenFramebuffersEXT(1, &fbo); 
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+    glGenFramebuffers(1, &fbo); 
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
-                              GL_TEXTURE_RECTANGLE_ARB, texA, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 
+                           GL_TEXTURE_RECTANGLE, texA, 0);
 	CheckFramebufferStatus();
     printOpenGLError();
 
-    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT1_EXT, 
-                              GL_TEXTURE_RECTANGLE_ARB, texB, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, 
+                           GL_TEXTURE_RECTANGLE, texB, 0);
     CheckFramebufferStatus();
     printOpenGLError();
 
@@ -301,7 +305,7 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	glViewport(0, 0, boundingBoxWidth, boundingBoxHeight);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluOrtho2D(0, loadedImageWidth, 0, loadedImageHeight);
+    gluOrtho2D(0, boundingBoxWidth, 0, boundingBoxHeight);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     
@@ -311,7 +315,7 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	//-----------------------------------------------------------------------------
 
 	GLint inputTextureUnit = 0;
-	GLenum outputFBOAttachement = GL_COLOR_ATTACHMENT1_EXT;
+	GLenum outputFBOAttachement = GL_COLOR_ATTACHMENT1;
 
 	int inputRows = boundingBoxHeight;
 	int inputCols = boundingBoxWidth;
@@ -361,10 +365,10 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 			inputTextureUnit = 0;
 		}
 
-		if (outputFBOAttachement == GL_COLOR_ATTACHMENT1_EXT) {
-			outputFBOAttachement = GL_COLOR_ATTACHMENT0_EXT;
+		if (outputFBOAttachement == GL_COLOR_ATTACHMENT1) {
+			outputFBOAttachement = GL_COLOR_ATTACHMENT0;
 		} else {
-			outputFBOAttachement = GL_COLOR_ATTACHMENT1_EXT;
+			outputFBOAttachement = GL_COLOR_ATTACHMENT1;
 		}
 
 		// Update the input & output sizes.
@@ -379,13 +383,13 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	//-----------------------------------------------------------------------------
 	// Read output buffer/texture to CPU memory.
 	//-----------------------------------------------------------------------------
-	GLubyte result[4];
+	float result[4];
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
     glReadBuffer(outputFBOAttachement);
-    glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, result);
+    glReadPixels(0, 0, 1, 1, GL_RGBA, GL_FLOAT, result);
     printOpenGLError();
 
-	cout << "Just checking: " << result[0] << "," << result[1] << "," << result[2] << "," << result[3] << "," << endl;
+	cout << "Just checking: " << result[0] << endl;
 
 	//-----------------------------------------------------------------------------
 	// Clean up.
