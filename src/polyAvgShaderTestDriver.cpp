@@ -389,8 +389,6 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
     glReadPixels(0, 0, 1, 1, GL_RGBA, GL_FLOAT, result);
     printOpenGLError();
 
-	cout << "Just checking: " << result[0] << "," << result[1] << "," << result[2] << "," << result[3] << "," << endl;
-
 	//-----------------------------------------------------------------------------
 	// Clean up.
 	//-----------------------------------------------------------------------------
