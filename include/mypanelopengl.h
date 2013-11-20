@@ -20,6 +20,7 @@ public slots:
 	void doDrawImage();
 	void doVoronoiDiagram();
 	void doPDF();
+	void clearAll();
 
 protected:
     void initializeGL();

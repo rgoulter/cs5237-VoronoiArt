@@ -705,6 +705,25 @@ void MyPanelOpenGL::doPDF(){
 	generatePDF(imageName);
 }
 
+void MyPanelOpenGL::clearAll(){
+	// Clear all our points, and such data.
+
+	// Clear all the colored polygons.
+	bool hasCalculatedColoredPolygons = false;
+	renderedPolygons.clear();
+
+	// Clear all the Voronoi computations
+	voronoiEdges.clear();
+
+	// Clear all the points.
+    delaunayPointsToProcess.clear();
+	inputPointSet.eraseAllPoints();
+	delaunayPointSet.eraseAllPoints();
+	delaunayOldTrist.eraseAllTriangles();
+	delaunayNewTrist.eraseAllTriangles();
+	dag.cleardirectedGraph();
+}
+
 void MyPanelOpenGL::mouseMoveEvent(QMouseEvent *event) {
 }
 

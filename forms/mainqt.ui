@@ -404,6 +404,7 @@
     <slot>doDrawImage()</slot>
     <slot>doVoronoiDiagram()</slot>
     <slot>doPDF()</slot>
+    <slot>clearAll()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -418,8 +419,8 @@
    <slot>doOpenImage()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>585</x>
-     <y>47</y>
+     <x>640</x>
+     <y>49</y>
     </hint>
     <hint type="destinationlabel">
      <x>367</x>
@@ -438,8 +439,8 @@
      <y>54</y>
     </hint>
     <hint type="destinationlabel">
-     <x>441</x>
-     <y>50</y>
+     <x>602</x>
+     <y>48</y>
     </hint>
    </hints>
   </connection>
@@ -466,8 +467,8 @@
    <slot>doVoronoiDiagram()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>433</x>
-     <y>329</y>
+     <x>650</x>
+     <y>459</y>
     </hint>
     <hint type="destinationlabel">
      <x>377</x>
@@ -482,12 +483,28 @@
    <slot>doPDF()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>440</x>
-     <y>249</y>
+     <x>640</x>
+     <y>409</y>
     </hint>
     <hint type="destinationlabel">
      <x>407</x>
      <y>249</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnClearAll</sender>
+   <signal>clicked()</signal>
+   <receiver>glWidget</receiver>
+   <slot>clearAll()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>530</x>
+     <y>533</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>368</x>
+     <y>531</y>
     </hint>
    </hints>
   </connection>
