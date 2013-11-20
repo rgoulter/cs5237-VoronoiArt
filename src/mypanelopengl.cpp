@@ -615,36 +615,18 @@ void MyPanelOpenGL::doVoronoiDiagram(){
 	updateGL();
 }
 
-void CannyThreshold(int, void*) {
-	StopWatch cannySW;
-	cannySW.resume();
-
+void CannyThreshold() {
     /// Reduce noise with a kernel 3x3
-    blur( src_gray, detected_edges, Size(3,3) );
-
-	cannySW.pause();
-	double timingBlur1 = cannySW.ms();
-	cannySW.reset();
-	cannySW.resume();
+    blur(src_gray, detected_edges, Size(3,3));
 
     /// Canny detector
-    Canny( detected_edges, detected_edges, 100, 100*ratio, kernel_size );
-
-	cannySW.pause();
-	double timingDetectEdges = cannySW.ms();
-	cannySW.reset();
-	cannySW.resume();
+    Canny(detected_edges, detected_edges, 100, 100*ratio, kernel_size);
 
 	GaussianBlur( detected_edges, detected_edges2, Size(7,7), 0, 0);
 
-	cannySW.pause();
-	double timingGaussBlur1 = cannySW.ms();
-	cannySW.reset();
-	cannySW.resume();
-
 	//GaussianBlur( detected_edges, detected_edges3, Size(9,9), 0, 0);
 
-    /// Using Canny's output as a mask, we display our result
+    // Using Canny's output as a mask, we display our result
     dst = Scalar::all(0);
 	dst2 = Scalar::all(0);
 	dst3 = Scalar::all(0);
@@ -652,105 +634,61 @@ void CannyThreshold(int, void*) {
 	src_gray.copyTo( dst2, detected_edges2);
 	src_gray.copyTo( dst, detected_edges);
 
-	cannySW.pause();
-	double timingPreGaussBlur2 = cannySW.ms();
-	cannySW.reset();
-	cannySW.resume();
-
-
 
 	GaussianBlur( dst2, dst3, Size(15,15), 0, 0);
 
-	cannySW.pause();
-	double timingGaussBlur2 = cannySW.ms();
-	cannySW.reset();
-	cannySW.resume();
 
-
-	dst3.convertTo(dst3,-1,2,0);
-	subtract( dst3, dst2, dst);
-
-	cannySW.pause();
-	double timingPostGaussBlur2 = cannySW.ms();
-	cannySW.reset();
-	cannySW.resume();
+	dst3.convertTo(dst3, -1, 2, 0);
+	subtract(dst3, dst2, dst);
 
 
 	// The following is kindof a mis-interpretation, I feel?
 	// Doesn't look like what should be happening (e.g. magic 150??).
 
-	ofstream fout("output.txt");
-	unsigned char *input = (unsigned char*)(dst.data);
+	unsigned char *input = (unsigned char*) (dst.data);
 	vector<MyPoint> goodPoints;
+
 	for(int i = 0; i < dst.cols; i++){
 		for(int j = 0; j < dst.rows; j++){
-			fout << (int)input[dst.cols * j + i] << endl;
 			if((int)input[dst.cols * j + i] > 150){
 				MyPoint point((LongInt)(i), (LongInt)(j));
 				goodPoints.push_back(point);
 			}
 		}
 	}
-	fout.close();
 
-	srand((unsigned)time(0));
+	srand((unsigned) time(0));
+
     int random_point;
-	int lowest=0, highest=goodPoints.size()-1;
-    int range=(highest-lowest)+1;
-    for(int index=0; index< numPDFPoints; index++){
-        random_point = lowest+int(range*rand()/(RAND_MAX + 1.0));
+	int lowest = 0, highest = goodPoints.size()-1;
+    int range = (highest - lowest) + 1;
+    for(int index = 0; index < numPDFPoints; index++){
+        random_point = lowest + int(range * rand() / (RAND_MAX + 1.0));
 		tryInsertPoint(goodPoints[random_point].x, goodPoints[random_point].y);
     }
-	
-	cannySW.pause();
-	double timingRemainingStuff = cannySW.ms();
-	cannySW.reset();
-	cannySW.resume();
-	
-	qDebug("TIMING: Time to Blur #1: %f", timingBlur1);                       //     ~10 ms
-	qDebug("TIMING: Time to Detect Edges: %f", timingDetectEdges);            //     ~31 ms
-	qDebug("TIMING: Time to Gauss Blur 1: %f", timingGaussBlur1);             //     ~24 ms
-	qDebug("TIMING: Time to pre gauss blur 2: %f", timingPreGaussBlur2);      //      ~3 ms
-	qDebug("TIMING: Time to Gauss Blur 2: %f", timingGaussBlur2);             //     ~48 ms
-	qDebug("TIMING: Time to post gauss blur 2: %f", timingPostGaussBlur2);    //     ~18 ms
-	qDebug("TIMING: Time to remaining stuff (??): %f", timingRemainingStuff); // ~59,712 ms
 
 	//uchar* temp = dst.data;
 	//imwrite("C:\upload\edge.jpg",dst);
-    imshow( window_name, dst );
-	imshow( window_name2, dst2);
-	imshow( window_name3, dst3);
+    imshow(window_name, dst);
+	imshow(window_name2, dst2);
+	imshow(window_name3, dst3);
 }
 
 void generatePDF(string imageName) {
-	StopWatch sw;
-
-	sw.resume();
 	src = imread(imageName);
 
-	if( !src.data )
-    { return; }
-	
-	sw.pause();
-	double timeToLoadImage = sw.ms();
-	sw.reset();
-	sw.resume();
+	if (!src.data) {
+		return;
+	}
 
 	/// Create a matrix of the same type and size as src (for dst)
-	dst.create( src.size(), src.type() );
+	dst.create(src.size(), src.type());
 
 	/// Convert the image to grayscale
-	cvtColor( src, src_gray, COLOR_BGR2GRAY );
-
-	sw.pause();
-	double timeToPreCannyStuff = sw.ms();
-	sw.reset();
-	
-	qDebug("TIMING: Time to load image: %f", timeToLoadImage);             // ~64 ms
-	qDebug("TIMING: For other pre-Canny things: %f", timeToPreCannyStuff); // ~10 ms
+	cvtColor(src, src_gray, COLOR_BGR2GRAY);
 
 	/// Show the image
-	CannyThreshold(0, 0);
+	CannyThreshold();
 }
 
 void MyPanelOpenGL::doOpenImage(){
