@@ -341,6 +341,9 @@
        <property name="text">
         <string>Show Voronoi sites</string>
        </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
       </widget>
       <widget class="QCheckBox" name="chkShowEdges">
        <property name="geometry">
@@ -405,6 +408,8 @@
     <slot>doVoronoiDiagram()</slot>
     <slot>doPDF()</slot>
     <slot>clearAll()</slot>
+    <slot>setShowVoronoiSites(bool)</slot>
+    <slot>setShowVoronoiEdges(bool)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -505,6 +510,38 @@
     <hint type="destinationlabel">
      <x>368</x>
      <y>531</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chkShowPoints</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>glWidget</receiver>
+   <slot>setShowVoronoiSites(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>517</x>
+     <y>246</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>353</x>
+     <y>234</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chkShowEdges</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>glWidget</receiver>
+   <slot>setShowVoronoiEdges(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>540</x>
+     <y>263</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>415</x>
+     <y>269</y>
     </hint>
    </hints>
   </connection>

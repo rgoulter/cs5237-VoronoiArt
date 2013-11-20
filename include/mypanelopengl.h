@@ -21,6 +21,9 @@ public slots:
 	void doVoronoiDiagram();
 	void doPDF();
 	void clearAll();
+	
+	void setShowVoronoiSites(bool b);
+	void setShowVoronoiEdges(bool b);
 
 protected:
     void initializeGL();

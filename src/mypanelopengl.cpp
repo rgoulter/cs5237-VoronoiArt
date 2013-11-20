@@ -70,11 +70,17 @@ int loadedImageHeight = -1;
 unsigned char *loadedImageData;
 GLuint loadedImageTexture;
 
-int numPDFPoints = 75;
-
+// Variables for colored polygons
 bool hasCalculatedColoredPolygons = 0;
 vector<ColoredPolygon> renderedPolygons;
 string imageName;
+
+// Variables for render state stuff.
+bool showVoronoiSites = true;
+bool showVoronoiEdges = false;
+
+// Variables for point generation.
+int numPDFPoints = 75;
 
 Mat src, src_gray;
 Mat dst, dst2, dst3, detected_edges, detected_edges2, detected_edges3;
@@ -236,26 +242,22 @@ void drawColoredPolygons() {
 
 
 void display (void) {
-	// draw your output here (erase the following 3 lines)
-	/*drawAPoint(100,100);
-	drawALine(200,200,300,300);
-	drawATriangle(400,400,400,500,500,500);*/
+	drawColoredPolygons();
 
-	int i;
-	
-	//drawDelaunayStuff();
-
-	// Point indices are 1-based here
-	// Draw input points
-	for (i = 1; i <= inputPointSet.noPt(); i++){
-		LongInt px, py;
-		inputPointSet.getPoint(i, px, py);
-		drawAPoint(px.doubleValue(), py.doubleValue());
+	if (showVoronoiEdges) {
+		drawVoronoiStuff();
 	}
 
-	//Test Code
-	drawColoredPolygons();
-	drawVoronoiStuff();
+	
+	if (showVoronoiSites) {
+		// Point indices are 1-based here
+		// Draw input points
+		for (int i = 1; i <= inputPointSet.noPt(); i++){
+			LongInt px, py;
+			inputPointSet.getPoint(i, px, py);
+			drawAPoint(px.doubleValue(), py.doubleValue());
+		}
+	}
 }
 
 
@@ -518,11 +520,6 @@ void MyPanelOpenGL::paintGL(){
 	
 	display();
 
-	if (hasCalculatedColoredPolygons) {
-		qDebug("Draw Colored Polygons");
-		drawColoredPolygons();
-	}
-
 	glPopMatrix();
 }
 
@@ -727,6 +724,18 @@ void MyPanelOpenGL::clearAll(){
 }
 
 void MyPanelOpenGL::mouseMoveEvent(QMouseEvent *event) {
+}
+
+void MyPanelOpenGL::setShowVoronoiSites(bool b) {
+	showVoronoiSites = b;
+
+	updateGL();
+}
+
+void MyPanelOpenGL::setShowVoronoiEdges(bool b) {
+	showVoronoiEdges = b;
+
+	updateGL();
 }
 
 void MyPanelOpenGL::keyPressEvent(QKeyEvent* event) {
