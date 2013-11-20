@@ -29,6 +29,7 @@
 #include "delaunayTri.h"
 #include "directedGraph.h"
 
+#include "delaunay.h"
 #include "polypixel.h"
 
 #include "opencv2/imgproc/imgproc.hpp"
@@ -73,6 +74,8 @@ int loadedImageWidth = -1;
 int loadedImageHeight = -1;
 unsigned char *loadedImageData;
 GLuint loadedImageTexture;
+
+int numPDFPoints = 75;
 
 bool hasCalculatedColoredPolygons = 0;
 vector<ColoredPolygon> renderedPolygons;
@@ -256,8 +259,8 @@ void display (void) {
 	}
 
 	//Test Code
-	drawVoronoiStuff();
 	drawColoredPolygons();
+	drawVoronoiStuff();
 }
 
 
@@ -448,243 +451,6 @@ void tryInsertPoint (LongInt x, LongInt y) {
 	int ptIndex = inputPointSet.addPoint(x, y);
 }
 
-
-void DelaunayTri::findBoundingTri(PointSetArray &pSet){
-	LongInt minX = pSet.myPoints[0].x;
-	LongInt maxX = pSet.myPoints[0].x;
-	LongInt minY = pSet.myPoints[0].y;
-	LongInt maxY = pSet.myPoints[0].y;
-	LongInt tempmaxX, tempminX, thousand = 2000;
-
-	for(int i = 1; i < pSet.myPoints.size(); i++){
-		if(minX > pSet.myPoints[i].x) minX = pSet.myPoints[i].x;
-		else if(maxX < pSet.myPoints[i].x) maxX = pSet.myPoints[i].x;
-
-		if(minY > pSet.myPoints[i].y) minY = pSet.myPoints[i].y;
-		else if(maxY < pSet.myPoints[i].y) maxY = pSet.myPoints[i].y;
-	}
-
-	minX = minX-delta-thousand;
-	//tempminX = minX;
-	maxX = maxX+delta+thousand;
-	//tempmaxX = maxX;
-	minY = minY-delta-thousand;
-	maxY = maxY+delta+thousand;
-
-	pSet.addPoint(maxX+(maxY-minY),minY);
-	pSet.addPoint(minX-(maxY-minY),minY);
-
-	maxX = (maxX.doubleValue() - minX.doubleValue())/2;
-	
-	pSet.addPoint((LongInt)((maxX.doubleValue() + minX.doubleValue())/2), maxY+((maxX-minX))); // some rounding may occur if LongInt is odd
-	int temp =1;
-}
-
-
-
-void DelaunayTri::legalizeEdge(int pIdx1, int pIdx2, int pIdx3){
-	vector<TriRecord> triangles = dag.findNodesForEdge(pIdx2, pIdx3);
-
-	int p4;
-	for(int i=0; i<triangles.size(); i++){
-		for(int j=0; j<3; j++){
-			if(triangles[i].vi_[j]!=pIdx1 && triangles[i].vi_[j]!=pIdx2 && triangles[i].vi_[j]!=pIdx3){
-				p4 = triangles[i].vi_[j];
-				if(delaunayPointSet.inCircle(pIdx1, pIdx2, pIdx3, p4)>0){ // Adding 1 to the indexes for the benefit of inCircle method
-					dag.addFlipChildrenNodes(pIdx1, pIdx2, pIdx3, p4);
-					legalizeEdge(pIdx1, pIdx2, p4);
-					legalizeEdge(pIdx1, pIdx3, p4);
-				}
-				return;
-			}
-		}
-	}
-}
-
-
-
-void delaunayIterationStep() {
-	if(delaunayPointsToProcess.size() == 0){
-		return;
-	}
-
-	int pIdx = delaunayPointsToProcess[0];
-	delaunayPointsToProcess.erase(delaunayPointsToProcess.begin());
-
-	TriRecord tri = dag.findLeafNodeForPoint(pIdx); // Return the containing triangle for the point i.
-	dag.addChildrenNodes(pIdx);
-
-	DelaunayTri::legalizeEdge(pIdx, tri.vi_[0], tri.vi_[1]);
-	DelaunayTri::legalizeEdge(pIdx, tri.vi_[0], tri.vi_[2]);
-	DelaunayTri::legalizeEdge(pIdx, tri.vi_[1], tri.vi_[2]);
-
-	// Redisplay
-    //updateGL(); // updateGL is a method of the QGLWidget..
-}
-
-// This method checks whether the voronoi edge identified already exists in the existing voronoi edge set.
-bool checkedgeExists(PointSetArray voronoiEdge){
-	MyPoint dA, dB;
-	std::vector<PointSetArray>::iterator iter1;
-	for(iter1 = voronoiEdges.begin(); iter1 != voronoiEdges.end();)
-	{
-		PointSetArray vEdge = *iter1;
-		LongInt x1, y1, x2, y2, vx1, vy1, vx2, vy2;
-		x1 = vEdge.myPoints[0].x;
-		y1 = vEdge.myPoints[0].y;
-		x2 = vEdge.myPoints[1].x;
-		y2 = vEdge.myPoints[1].y;
-		vx1 = voronoiEdge.myPoints[0].x;
-		vy1 = voronoiEdge.myPoints[0].y;
-		vx2 = voronoiEdge.myPoints[1].x;
-		vy2 = voronoiEdge.myPoints[1].y;
-		
-		if((x1==vx1 && y1==vy1 && x2==vx2 && y2==vy2) || (x1==vx2 && y1==vy2 && x2==vx1 && y2==vy1))
-			return true;
-		++iter1;
-	}
-
-	return false;
-}
-
-// This method creates the voronoi edges for a given delaunay triangulation. The voronoi data structure
-// consists of a vector of point pairs.
-/*void createVoronoi(){
-	
-	// Get the current leaf nodes of the DAG, and for each triangle, find the circumcenter and 
-	// join it to the circumcenter of the neighbouring triangles.
-	vector<TriRecord> dtTriangles = dag.getLeafNodes();
-	std::vector<TriRecord>::iterator it;
-	
-	for (it = dtTriangles.begin(); it != dtTriangles.end();)
-	{
-		TriRecord tri = *it;
-		// FInd neighboring triangle for each edge of the given triangle
-		std::vector<TriRecord> tripair1 = dag.findNodesForEdge(tri.vi_[0],tri.vi_[1]);
-		std::vector<TriRecord> tripair2 = dag.findNodesForEdge(tri.vi_[1],tri.vi_[2]);
-		std::vector<TriRecord> tripair3 = dag.findNodesForEdge(tri.vi_[2],tri.vi_[0]);
-		std::vector<TriRecord>::iterator iter1, iter2, iter3;
-
-		// For each of the 3 triangle pairs obtained, get the voronoi edges.
-		PointSetArray voronoiEdge1;
-		for(iter1 = tripair1.begin(); iter1 != tripair1.end()  && tripair1.size()>1;)
-		{
-			TriRecord tripair1_element = *iter1;
-			MyPoint circum;
-			delaunayPointSet.circumCircle(tripair1_element.vi_[0], tripair1_element.vi_[1],tripair1_element.vi_[2], circum);
-			voronoiEdge1.addPoint(circum.x,circum.y);
-			++iter1;
-		}
-		
-		PointSetArray voronoiEdge2;
-		for(iter2 = tripair2.begin(); iter2 != tripair2.end()  && tripair2.size()>1;)
-		{
-			TriRecord tripair2_element = *iter2;
-			MyPoint circum;
-			delaunayPointSet.circumCircle(tripair2_element.vi_[0], tripair2_element.vi_[1],tripair2_element.vi_[2], circum);
-			voronoiEdge2.addPoint(circum.x,circum.y);
-			++iter2;
-		}
-
-		PointSetArray voronoiEdge3;
-		for(iter3 = tripair3.begin(); iter3 != tripair3.end()  && tripair3.size()>1;)
-		{
-			TriRecord tripair3_element = *iter3;
-			MyPoint circum;
-			delaunayPointSet.circumCircle(tripair3_element.vi_[0], tripair3_element.vi_[1],tripair3_element.vi_[2], circum);
-			voronoiEdge3.addPoint(circum.x,circum.y);
-			++iter3;
-		}
-		
-		// Add voronoi edges to the voronoi data structure, after checking if it already exists.
-		if(voronoiEdge1.myPoints.size()!=0 && !checkedgeExists(voronoiEdge1))
-		voronoiEdges.push_back(voronoiEdge1);
-		if(voronoiEdge2.myPoints.size()!=0 && !checkedgeExists(voronoiEdge2))
-		voronoiEdges.push_back(voronoiEdge2);
-		if(voronoiEdge3.myPoints.size()!=0 && !checkedgeExists(voronoiEdge3))
-		voronoiEdges.push_back(voronoiEdge3);
-
-		++it;
-	}
-	
-	 
-
-} */
-
-
-void createVoronoi(){
-
-	for (int dppIdx = 1; dppIdx <= delaunayPointSet.noPt()-3; dppIdx++)
-	{
-		
-		// Find delaunay triangles to which this point is linked
-		std::vector<TriRecord> linkedTriangles = dag.findlinkedNodes(dppIdx);
-		PointSetArray polygon;
-
-		// findlinkedNodes method gives an ordered list of triangles. Iterate through and find circumcenters.
-		std::vector<TriRecord>::iterator iter1;
-		for (iter1 = linkedTriangles.begin(); iter1 != linkedTriangles.end();)
-		{
-			TriRecord tri = *iter1;
-			MyPoint circum;
-			delaunayPointSet.circumCircle(tri.vi_[0], tri.vi_[1],tri.vi_[2], circum);
-			polygon.addPoint(circum.x,circum.y);
-			++iter1;
-		}
-
-		voronoiEdges.push_back(polygon);
-	}
-
-
-
-}
-
-// Call this function when the user pushes the button to do Delaunay Triangulation
-void tryDelaunayTriangulation() {
-	//flag = 1; // Sets the CD enountered flag. Will be reset when the next IP command is encountered
-
-	// Erase relevant data structures
-	dag.cleardirectedGraph();
-	delaunayPointsToProcess.clear();
-	delaunayPointSet.eraseAllPoints();
-	delaunayOldTrist.eraseAllTriangles();
-	delaunayNewTrist.eraseAllTriangles();
-
-	// Copy points from the input set to Delaunay point set
-	for(int i = 1; i <= inputPointSet.noPt(); i++){
-		LongInt x, y;
-		inputPointSet.getPoint(i, x, y);
-		delaunayPointSet.addPoint(x, y);
-	}
-
-	DelaunayTri::findBoundingTri(delaunayPointSet);
-	dag.addChildrenNodes(delaunayPointSet.noPt()); //Tells the DAG what the bounding triangle is, but no inserts into DAG take place here.
-
-	// Add points 1 ... n - 3 (inclusive) into the set of points to be tested.
-	// (0 ... < n - 3 since that's what it was)
-	// (TODO: Explain: We don't include the last 3 points because...?).
-	for(int i = 1; i <= delaunayPointSet.noPt()-3; i++){
-		delaunayPointsToProcess.push_back(i);
-	}
-
-	// TODO: Shuffle these points of delaunayPointsToProcess
-	srand (time(NULL));
-	for(int i = 0; i < delaunayPointsToProcess.size() / 2; i++){
-		int j = rand() % delaunayPointsToProcess.size();
-
-		// swap
-		int tmp = delaunayPointsToProcess[i];
-		delaunayPointsToProcess[i] = delaunayPointsToProcess[j];
-		delaunayPointsToProcess[j] = tmp;
-	}
-
-	// Iterate through the points we need to process.
-	// NO ANIMATION, just run each step immediately.
-	while(delaunayPointsToProcess.size() > 0) {
-		delaunayIterationStep();
-	}
-}
-
 void loadOpenGLTextureFromFilename(string imgFilename) {
 	//string loadedImageFilename = "";
 	//int loadedImageWidth = -1;
@@ -720,124 +486,6 @@ void loadOpenGLTextureFromFilename(string imgFilename) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-}
-
-void handleInputLine(string line){
-	string line_noStr;
-
-	string command;// the command of each line
-	string numberStr; // for single LongInt operation
-	string outputAns = "Answer of your computation"; // the answer you computed
-
-	// Busy-waiting delay between commands.
-	StopWatch tmpSW;
-	tmpSW.resume();
-	while(tmpSW.ms() < delayAmount * 1000){
-		tmpSW.pause();
-		tmpSW.resume();
-	}
-
-	stringstream linestream(line);
-
-	linestream >> line_noStr;
-	linestream >> command;         // get the command
-
-	if (!command.compare("IP")) { // it was previously 'AP', but we don't have it anymore
-		linestream >> numberStr;
-		LongInt p1(numberStr.c_str());
-
-		linestream >> numberStr;
-		LongInt p2(numberStr.c_str());
-
-		int output = inputPointSet.addPoint(p1, p2);
-		
-		// updateGL(); // updateGL() is a method of QGLWidget
-
-		ostringstream convert;
-		convert << output;
-		outputAns = "#POINT = " + convert.str();
-
-		globalSW.pause();
-		cout << line_noStr  << " " << outputAns << " (" << p1.printOut() << ", " << p2.printOut() << ")" << endl;
-		globalSW.resume();
-
-	} else if(!command.compare("OT")) {
-		int p1Idx, p2Idx, p3Idx;
-		linestream >> p1Idx;
-		linestream >> p2Idx;			
-		linestream >> p3Idx;
-			
-		int triIdx = myTrist.makeTri(p1Idx, p2Idx, p3Idx, true);
-			
-		globalSW.pause();
-		cout << "Triangle #" << triIdx << " pIdx: " << p1Idx << ", " << p2Idx << ", " << p3Idx << endl;
-		globalSW.resume();
-	} else if (!command.compare("CD")) {
-		tryDelaunayTriangulation();
-	} else if (!command.compare("DY")) {
-		linestream >> delayAmount;
-
-		cout << "Delay for " << delayAmount << " seconds." << endl;
-	} else {
-		cerr << "Exception: Wrong input command" << endl;
-	}
-}
-
-
-
-void readFile () {
-	inputLines.clear();
-	inputPointSet.eraseAllPoints();
-	myTrist.eraseAllTriangles();
-
-	string line; // each line of the file
-
-	ifstream inputFile("input.txt",ios::in);
-
-
-	if (inputFile.fail()) {
-		qDebug() << "Error: Cannot read input file \"" << "input.txt" << "\"";
-		return;
-	}
-
-	while (inputFile.good()) {
-		getline(inputFile,line);
-
-		if(line.empty()) {
-			continue; 
-		} // in case the line has nothing in it
-
-		// Do we need to strcpy?
-		cout << "Read in non-empty line: " << line << endl;
-		inputLines.push_back(line);
-	}
-
-}
-
-
-
-void writeFile () {
-	ofstream outfile;
-	outfile.open ("savefile.txt", ios::out | ios::trunc);
-	int pointCount;
-
-	// Let's add all points;
-	// This will include the invalid points we failed to make into triangles.
-	// Otherwise, Trist would need to be restructured.
-	
-	pointCount = inputPointSet.noPt();
-
-	for(int pt = 1; pt <= pointCount; pt++){
-		LongInt x, y;
-		inputPointSet.getPoint(pt, x, y); // one-based index
-		
-		// Don't care about line numbers atm.
-		outfile << "0000: IP " << x.printOut() << " " << y.printOut() << endl;
-	}
-
-	outfile << "0000: CD"  << endl;
-
-	outfile.close();
 }
 
 
@@ -991,7 +639,7 @@ void CannyThreshold(int, void*)
     int random_point;
 	int lowest=0, highest=goodPoints.size()-1;
     int range=(highest-lowest)+1;
-    for(int index=0; index<200; index++){
+    for(int index=0; index< numPDFPoints; index++){
         random_point = lowest+int(range*rand()/(RAND_MAX + 1.0));
 		tryInsertPoint(goodPoints[random_point].x, goodPoints[random_point].y);
     } 
