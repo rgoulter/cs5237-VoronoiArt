@@ -50,8 +50,6 @@ int windowWidth = WINDOW_WIDTH_DEFAULT;
 int windowHeight = WINDOW_HEIGHT_DEFAULT;
 
 
-int delayAmount = 1; // Number of seconds to delay between reading inputs.
-std::vector<string> inputLines;
 std::vector<int> delaunayPointsToProcess;
 PointSetArray inputPointSet; // Add the super triangle stuff to this.
 PointSetArray delaunayPointSet; // Add the super triangle stuff to this.
@@ -61,12 +59,9 @@ std::vector<PointSetArray> voronoiEdges; // Data structure to hold voronoi edges
 
 
 static StopWatch globalSW;
-//PointSetArray myPointSet;
-Trist myTrist;
 DirectedGraph dag(delaunayPointSet);
 LongInt delta = 5;
 LongInt one = 1;
-int flag = 0; // for knowing if the command 'CD' is called for the first time or not
 
 // Variables for Image Logic.
 string loadedImageFilename = "";

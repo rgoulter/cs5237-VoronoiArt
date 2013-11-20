@@ -14,8 +14,6 @@
 
 using namespace std;
 
-extern int delayAmount; // Number of seconds to delay between reading inputs.
-extern vector<string> inputLines;
 extern vector<int> delaunayPointsToProcess;
 extern PointSetArray inputPointSet; // Add the super triangle stuff to this.
 extern PointSetArray delaunayPointSet; // Add the super triangle stuff to this.
@@ -24,7 +22,6 @@ extern Trist delaunayNewTrist;
 extern vector<PointSetArray> voronoiEdges; // Data structure to hold voronoi edges.
 
 
-extern Trist myTrist;
 extern DirectedGraph dag;
 extern LongInt delta;
 extern LongInt one;
@@ -164,8 +161,6 @@ void createVoronoi(){
 
 // Call this function when the user pushes the button to do Delaunay Triangulation
 void tryDelaunayTriangulation() {
-	//flag = 1; // Sets the CD enountered flag. Will be reset when the next IP command is encountered
-
 	// Erase relevant data structures
 	dag.cleardirectedGraph();
 	delaunayPointsToProcess.clear();
