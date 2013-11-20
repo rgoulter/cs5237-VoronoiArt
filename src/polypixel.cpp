@@ -163,7 +163,7 @@ void findSomeColor3iv(PointSetArray& psa, int* colorIv) {
 
 void findSomeColor3iv(const std::vector<int>& unclippedPoly, int* colorIv) {
 	// Clip polygon to ensure we have nothing out of bounds
-	vector<int> poly = clipPolygonToRectangle(unclippedPoly, 0, 0, loadedImageWidth, loadedImageHeight);
+	vector<int> poly = clipPolygonToRectangle(unclippedPoly, 0, 0, loadedImageWidth - 1, loadedImageHeight - 1);
 
 	// Find bounding box of polygon
 	int minX, maxX, minY, maxY;
