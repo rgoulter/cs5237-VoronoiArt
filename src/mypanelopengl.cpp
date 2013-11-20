@@ -661,22 +661,20 @@ void CannyThreshold() {
     /// Reduce noise with a kernel 3x3
     blur(src_gray, detected_edges, Size(3,3));
 
-    /// Canny detector
+    /// Detect edges with Canny edge detector
     Canny(detected_edges, detected_edges, 100, 100*ratio, kernel_size);
-
+	
+	// This is to get P_sharp?
 	GaussianBlur(detected_edges, detected_edges2, Size(7,7), 0, 0);
 
-	//GaussianBlur( detected_edges, detected_edges3, Size(9,9), 0, 0);
-
-    // Using Canny's output as a mask, we display our result
     dst = Scalar::all(0);
 	dst2 = Scalar::all(0);
 	dst3 = Scalar::all(0);
 
 	src_gray.copyTo(dst2, detected_edges2);
 	src_gray.copyTo(dst, detected_edges);
-
-
+	
+	// This is to get P_blur?
 	GaussianBlur(dst2, dst3, Size(15,15), 0, 0);
 	dst3.convertTo(dst3, -1, 2, 0);
 
@@ -686,7 +684,7 @@ void CannyThreshold() {
 	// Make OpenGL Textures for the following:
 	// (I'm not 100% certain about these mappings?).
 	generateOGLTextureForOpenCVMat(edgesTexture, detected_edges);
-	generateOGLTextureForOpenCVMat(edgesSharpTexture, dst2);
+	generateOGLTextureForOpenCVMat(edgesSharpTexture, detected_edges2);
 	generateOGLTextureForOpenCVMat(edgesBlurTexture, dst3);
 	generateOGLTextureForOpenCVMat(pdfTexture, dst);
 
@@ -717,12 +715,6 @@ void CannyThreshold() {
 		tryInsertPoint(goodPoints[random_point].x, goodPoints[random_point].y);
     }
 	// */
-
-	//uchar* temp = dst.data;
-	//imwrite("C:\upload\edge.jpg",dst);
-    //imshow(window_name, dst);
-	//imshow(window_name2, dst2);
-	//imshow(window_name3, dst3);
 }
 
 void generatePDF(string imageName) {
