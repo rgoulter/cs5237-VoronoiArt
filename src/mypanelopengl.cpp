@@ -722,6 +722,8 @@ void MyPanelOpenGL::clearAll(){
 	delaunayOldTrist.eraseAllTriangles();
 	delaunayNewTrist.eraseAllTriangles();
 	dag.cleardirectedGraph();
+
+	updateGL();
 }
 
 void MyPanelOpenGL::mouseMoveEvent(QMouseEvent *event) {
