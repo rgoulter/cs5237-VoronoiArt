@@ -615,15 +615,33 @@ void MyPanelOpenGL::doVoronoiDiagram(){
 	updateGL();
 }
 
-void CannyThreshold(int, void*)
-{
+void CannyThreshold(int, void*) {
+	StopWatch cannySW;
+	cannySW.resume();
+
     /// Reduce noise with a kernel 3x3
     blur( src_gray, detected_edges, Size(3,3) );
+
+	cannySW.pause();
+	double timingBlur1 = cannySW.ms();
+	cannySW.reset();
+	cannySW.resume();
 
     /// Canny detector
     Canny( detected_edges, detected_edges, 100, 100*ratio, kernel_size );
 
+	cannySW.pause();
+	double timingDetectEdges = cannySW.ms();
+	cannySW.reset();
+	cannySW.resume();
+
 	GaussianBlur( detected_edges, detected_edges2, Size(7,7), 0, 0);
+
+	cannySW.pause();
+	double timingGaussBlur1 = cannySW.ms();
+	cannySW.reset();
+	cannySW.resume();
+
 	//GaussianBlur( detected_edges, detected_edges3, Size(9,9), 0, 0);
 
     /// Using Canny's output as a mask, we display our result
@@ -633,9 +651,33 @@ void CannyThreshold(int, void*)
     //src_gray.copyTo( dst, detected_edges);
 	src_gray.copyTo( dst2, detected_edges2);
 	src_gray.copyTo( dst, detected_edges);
+
+	cannySW.pause();
+	double timingPreGaussBlur2 = cannySW.ms();
+	cannySW.reset();
+	cannySW.resume();
+
+
+
 	GaussianBlur( dst2, dst3, Size(15,15), 0, 0);
+
+	cannySW.pause();
+	double timingGaussBlur2 = cannySW.ms();
+	cannySW.reset();
+	cannySW.resume();
+
+
 	dst3.convertTo(dst3,-1,2,0);
 	subtract( dst3, dst2, dst);
+
+	cannySW.pause();
+	double timingPostGaussBlur2 = cannySW.ms();
+	cannySW.reset();
+	cannySW.resume();
+
+
+	// The following is kindof a mis-interpretation, I feel?
+	// Doesn't look like what should be happening (e.g. magic 150??).
 
 	ofstream fout("output.txt");
 	unsigned char *input = (unsigned char*)(dst.data);
@@ -659,6 +701,19 @@ void CannyThreshold(int, void*)
         random_point = lowest+int(range*rand()/(RAND_MAX + 1.0));
 		tryInsertPoint(goodPoints[random_point].x, goodPoints[random_point].y);
     }
+	
+	cannySW.pause();
+	double timingRemainingStuff = cannySW.ms();
+	cannySW.reset();
+	cannySW.resume();
+	
+	qDebug("TIMING: Time to Blur #1: %f", timingBlur1);                       //     ~10 ms
+	qDebug("TIMING: Time to Detect Edges: %f", timingDetectEdges);            //     ~31 ms
+	qDebug("TIMING: Time to Gauss Blur 1: %f", timingGaussBlur1);             //     ~24 ms
+	qDebug("TIMING: Time to pre gauss blur 2: %f", timingPreGaussBlur2);      //      ~3 ms
+	qDebug("TIMING: Time to Gauss Blur 2: %f", timingGaussBlur2);             //     ~48 ms
+	qDebug("TIMING: Time to post gauss blur 2: %f", timingPostGaussBlur2);    //     ~18 ms
+	qDebug("TIMING: Time to remaining stuff (??): %f", timingRemainingStuff); // ~59,712 ms
 
 	//uchar* temp = dst.data;
 	//imwrite("C:\upload\edge.jpg",dst);
@@ -668,10 +723,18 @@ void CannyThreshold(int, void*)
 }
 
 void generatePDF(string imageName) {
+	StopWatch sw;
+
+	sw.resume();
 	src = imread(imageName);
 
 	if( !src.data )
     { return; }
+	
+	sw.pause();
+	double timeToLoadImage = sw.ms();
+	sw.reset();
+	sw.resume();
 
 	/// Create a matrix of the same type and size as src (for dst)
 	dst.create( src.size(), src.type() );
@@ -679,15 +742,12 @@ void generatePDF(string imageName) {
 	/// Convert the image to grayscale
 	cvtColor( src, src_gray, COLOR_BGR2GRAY );
 
-	/// Create a window
-	//namedWindow( window_name, WINDOW_AUTOSIZE );
-	//namedWindow( window_name2, WINDOW_AUTOSIZE );
-	//namedWindow( window_name3, WINDOW_AUTOSIZE );
-
-	/// Create a Trackbar for user to enter threshold
-	//createTrackbar( "Min Threshold:", window_name, &lowThreshold, max_lowThreshold, CannyThreshold );
-	//createTrackbar( "Min Threshold:", window_name2, &lowThreshold, max_lowThreshold, CannyThreshold );
-	//createTrackbar( "Min Threshold:", window_name3, &lowThreshold, max_lowThreshold, CannyThreshold );
+	sw.pause();
+	double timeToPreCannyStuff = sw.ms();
+	sw.reset();
+	
+	qDebug("TIMING: Time to load image: %f", timeToLoadImage);             // ~64 ms
+	qDebug("TIMING: For other pre-Canny things: %f", timeToPreCannyStuff); // ~10 ms
 
 	/// Show the image
 	CannyThreshold(0, 0);
