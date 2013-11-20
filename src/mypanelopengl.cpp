@@ -555,18 +555,18 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 			deltaX = (renderWidth - loadedImageWidth) / 2;
 
 		}
+
+		double viewScale = (double) renderWidth / windowWidth;
+
+		int px = (event->x() * viewScale) - deltaX;
+		int py = (event->y() * viewScale) - deltaY;
+
+		qDebug("Insert Point: %d, %d\n", px, py);
+
+		tryInsertPoint(px, py);
+
+		updateGL();
 	}
-
-	double viewScale = (double) renderWidth / windowWidth;
-
-	int px = (event->x() * viewScale) - deltaX;
-	int py = (event->y() * viewScale) - deltaY;
-
-	qDebug("Insert Point: %d, %d\n", px, py);
-
-	tryInsertPoint(px, py);
-
-	updateGL();
 }
 
 void MyPanelOpenGL::doDelaunayTriangulation(){
