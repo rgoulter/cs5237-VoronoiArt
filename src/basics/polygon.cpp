@@ -1,6 +1,9 @@
 #include "lmath.h"
 #include "polygon.h"
+#include "pointSetArray.h"
 #include <vector>
+
+using namespace std;
 
 MyPoint::MyPoint() {
 	this->x = 0;
@@ -40,6 +43,42 @@ bool intersects(int ax, int ay, int bx, int by, int cx, int cy, int dx, int dy) 
 	return (orientation(ax, ay, bx, by, cx, cy) * orientation(ax, ay, bx, by, dx, dy) <= 0) &&
 		   (orientation(cx, cy, dx, dy, ax, ay) * orientation(cx, cy, dx, dy, bx, by) <= 0);
 }
+
+
+
+void boundingBox(const std::vector<int>& poly, int& minX, int& maxX, int& minY, int& maxY) {
+	minX = poly[0];
+	maxX = poly[0];
+	minY = poly[1];
+	maxY = poly[1];
+	
+	for (int i = 2; i < poly.size() - 1; i += 2) {
+		int xIdx = i;
+		int yIdx = i + 1;
+		if(poly[xIdx] < minX){ minX = poly[xIdx]; }
+		if(poly[xIdx] > maxX){ maxX = poly[xIdx]; }
+		if(poly[yIdx] < minY){ minY = poly[yIdx]; }
+		if(poly[yIdx] > maxY){ maxY = poly[yIdx]; }
+	}
+}
+
+
+
+void boundingBox(const std::vector<MyPoint>& poly, LongInt& minX, LongInt& maxX, LongInt& minY, LongInt& maxY) {
+	minX = poly[i].x;
+	maxX = poly[i].x;
+	minY = poly[i].y;
+	maxY = poly[i].y;
+	
+	for (int i = 1; i < poly.size(); i++) {
+		if(poly[i].x < minX){ minX = poly[i].x; }
+		if(poly[i].x > maxX){ maxX = poly[i].x; }
+		if(poly[i].y < minY){ minY = poly[i].y; }
+		if(poly[i].y > maxY){ maxY = poly[i].y; }
+	}
+}
+
+
 
 int inPoly(const std::vector<MyPoint>& poly, const MyPoint & pt) {
 	int n = poly.size();

@@ -13,11 +13,6 @@ public:
 };
 
 
-std::vector<int> coercePSAPolyToIVecPoly(PointSetArray& psa);
-void boundingBox(const std::vector<int>& poly, int& minX, int& maxX, int& minY, int& maxY);
-
-
-// std::vector<int> enumeratePixelsInPolygon(const std::vector<int>& poly);
 
 void findSomeColor3iv(const std::vector<int>& poly, int* colorIv);
 void findSomeColor3iv(PointSetArray& psa, int* colorIv);

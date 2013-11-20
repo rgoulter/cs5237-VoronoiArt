@@ -14,4 +14,6 @@ public:
 
 };
 
+std::vector<int> coercePSAPolyToIVecPoly(PointSetArray& psa);
+
 #endif

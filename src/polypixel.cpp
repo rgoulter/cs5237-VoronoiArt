@@ -10,52 +10,6 @@ extern unsigned char *loadedImageData;
 
 
 
-vector<int> coercePSAPolyToIVecPoly(PointSetArray& psa){
-	vector<int> poly;
-
-	// Coerce psa to poly<int>
-	for (int ptIdx = 1; ptIdx <= psa.noPt(); ptIdx++) {
-		LongInt x, y;
-		psa.getPoint(ptIdx, x, y);
-		poly.push_back((int) x.doubleValue());
-		poly.push_back((int) y.doubleValue()); 
-	}
-
-	return poly;
-}
-
-void boundingBox(const std::vector<int>& poly, int& minX, int& maxX, int& minY, int& maxY) {
-	minX = loadedImageWidth;
-	maxX = 0;
-	minY = loadedImageHeight;
-	maxY = 0;
-	
-	for (int i = 0; i < poly.size() - 1; i += 2) {
-		int xIdx = i;
-		int yIdx = i + 1;
-		if(poly[xIdx] < minX){ minX = poly[xIdx]; }
-		if(poly[xIdx] > maxX){ maxX = poly[xIdx]; }
-		if(poly[yIdx] < minY){ minY = poly[yIdx]; }
-		if(poly[yIdx] > maxY){ maxY = poly[yIdx]; }
-	}
-}
-
-void boundingBox(const std::vector<MyPoint>& poly, LongInt& minX, LongInt& maxX, LongInt& minY, LongInt& maxY) {
-	minX = loadedImageWidth;
-	maxX = 0;
-	minY = loadedImageHeight;
-	maxY = 0;
-	
-	for (int i = 0; i < poly.size(); i++) {
-		if(poly[i].x < minX){ minX = poly[i].x; }
-		if(poly[i].x > maxX){ maxX = poly[i].x; }
-		if(poly[i].y < minY){ minY = poly[i].y; }
-		if(poly[i].y > maxY){ maxY = poly[i].y; }
-	}
-}
-
-
-
 std::vector<int> enumerateLeftRightOfSimplePolygon(const std::vector<int>& poly) {
 	std::vector<int> result;
 
@@ -96,6 +50,8 @@ std::vector<int> enumerateLeftRightOfSimplePolygon(const std::vector<int>& poly)
 	return result;
 }
 
+
+
 void findAverageColor3iv(const std::vector<MyPoint>& mpPoly, int* colorIv) {
 	std::vector<int> poly;
 	for (int i = 0; i < mpPoly.size(); i++) {
@@ -105,6 +61,8 @@ void findAverageColor3iv(const std::vector<MyPoint>& mpPoly, int* colorIv) {
 
 	findAverageColor3iv(poly, colorIv);
 }
+
+
 
 void findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 
