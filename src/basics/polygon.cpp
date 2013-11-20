@@ -156,7 +156,7 @@ vector<int> clipPolygonToRectangle(const vector<int>& poly, int x1, int y1, int 
 
 	vector<PolygonClippingIntersection*> intersections;
 
-	const int N = poly.size();
+	const int N = poly.size() / 2;
 
 	// Find intersections
 	for (int i = 0; i < N; i++) {

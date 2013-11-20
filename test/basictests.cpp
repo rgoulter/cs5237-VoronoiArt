@@ -4,6 +4,8 @@
 #include "polygon.h"
 #include <vector>
 
+using namespace std;
+
 TEST(BasicsTest, PointSetInTriSimple) {
 	PointSet ps;
 	
@@ -83,6 +85,27 @@ TEST(BasicsTest, LineSegIsectIntPointBasic) {
 	
 	EXPECT_EQ(eix, ix);
 	EXPECT_EQ(eiy, iy);
+}
+
+TEST(BasicsTest, ClipPolyRectCaseNoIsect) {
+	int x1 =   0, x2 = 100;
+	int y1 =   0, y2 = 100;
+
+	// Test polygon (clearly within the outer rect).
+	vector<int> testPoly;
+	testPoly.push_back(10); testPoly.push_back(10);
+	testPoly.push_back(20); testPoly.push_back(10);
+	testPoly.push_back(20); testPoly.push_back(20);
+	testPoly.push_back(10); testPoly.push_back(20);
+
+	vector<int> output = clipPolygonToRectangle(testPoly, x1, y1, x2, y2);
+	
+	EXPECT_EQ(testPoly.size(), output.size());
+
+	for (int i = 0; i < testPoly.size(); i += 2) {
+		EXPECT_EQ(testPoly[i], output[i]);
+		EXPECT_EQ(testPoly[i + 1], output[i + 1]);
+	}
 }
 
 
