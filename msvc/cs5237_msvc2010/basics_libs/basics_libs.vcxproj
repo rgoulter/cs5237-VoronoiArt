@@ -41,7 +41,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\include\basics;..\..\..\include\basicsP2;..\..\..\include\basicsP3;..\..\..\include;..\..\..\include\win32\basics;..\..\..\include\win32</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\include\basics;..\..\..\include\basicsP2;..\..\..\include\basicsP3;..\..\..\include;..\..\..\include\win32\basics;..\..\..\include\win32;$(OPENCV_DIR)\..\..\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -69,6 +69,7 @@
     <ClCompile Include="..\..\..\src\basics\pointSet.cpp" />
     <ClCompile Include="..\..\..\src\basics\polygon.cpp" />
     <ClCompile Include="..\..\..\src\delaunay.cpp" />
+    <ClCompile Include="..\..\..\src\generateProbabilityDistribution.cpp" />
     <ClCompile Include="..\..\..\src\polypixel.cpp" />
     <ClCompile Include="..\..\..\src\shader_util.cpp" />
     <ClCompile Include="..\..\..\src\win32\basics\stopWatch.cpp" />
@@ -82,6 +83,7 @@
     <ClInclude Include="..\..\..\include\basics\pointSet.h" />
     <ClInclude Include="..\..\..\include\basics\polygon.h" />
     <ClInclude Include="..\..\..\include\delaunay.h" />
+    <ClInclude Include="..\..\..\include\generateProbabilityDistribution.h" />
     <ClInclude Include="..\..\..\include\polypixel.h" />
     <ClInclude Include="..\..\..\include\shader_util.h" />
     <ClInclude Include="..\..\..\include\tinydir.h" />
