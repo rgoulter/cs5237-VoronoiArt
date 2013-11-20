@@ -3,6 +3,11 @@
 
 #include "platform.h"
 
+#include <vector>
+#include <time.h>
+#include <stdlib.h>
+
+using namespace std;
 using namespace cv;
 
 
@@ -59,11 +64,11 @@ void generateOGLTextureForOpenCVMat(GLuint& tex, const Mat& M){
 
 
 
-void generatePointsWithPDF() {
+vector<int> generatePointsWithPDF(int numPDFPoints) {
 	src = imread(loadedImageFilename);
 
 	if (!src.data) {
-		return;
+		return vector<int>();
 	}
 
 	// Create a matrix of the same type and size as src (for dst)
@@ -103,6 +108,48 @@ void generatePointsWithPDF() {
 	generateOGLTextureForOpenCVMat(edgesBlurTexture, dst3);
 	generateOGLTextureForOpenCVMat(pdfTexture, dst);
 
+	// So, let's build up a 1-D array of the CDF from the 2D PDF.
+	//  idx -> (row, col) : row = idx / width, col = idx % width
+	//  (row, col) -> idx : idx = row * width + col
+
+
+	// use float or uchar?
+	vector<float> cdf; //loadedImageWidth * loadedImageHeight
+	float sum = 0;
+
+	for (int r = 0; r < dst.rows; r++){
+		for(int c = 0; c < dst.cols; c++){
+			unsigned char val = dst.at<unsigned char> (r, c);
+			
+			cdf.push_back(sum);
+			sum += (float) val / 255;
+		}
+	}
+	cdf.push_back(sum); // don't forget the last value.
+
+	vector<int> outputPts;
+
+	// Now generate random points
+	srand((unsigned) time(0));
+	double maxVal = cdf[cdf.size() - 1];
+
+    for(int i = 0; i < numPDFPoints; i++){
+		double rnd = float(rand()) / RAND_MAX;
+		double threshold = rnd * maxVal;
+
+		// We can speed this up with a binary search ...
+		int idx = -1;
+		double acc = 0;
+		for (idx = 0; idx < cdf.size() && cdf[idx] < threshold; idx++) { }
+
+		int x = idx % loadedImageWidth;
+		int y = idx / loadedImageWidth;
+		
+		outputPts.push_back(x);
+		outputPts.push_back(y);
+    }
+
+	return outputPts;
 
 	// The following is kindof a mis-interpretation, I feel?
 	// Doesn't look like what should be happening (e.g. magic 150??).
@@ -120,14 +167,5 @@ void generatePointsWithPDF() {
 		}
 	}
 
-	srand((unsigned) time(0));
-
-    int random_point;
-	int lowest = 0, highest = goodPoints.size()-1;
-    int range = (highest - lowest) + 1;
-    for(int index = 0; index < numPDFPoints; index++){
-        random_point = lowest + int(range * rand() / (RAND_MAX + 1.0));
-		tryInsertPoint(goodPoints[random_point].x, goodPoints[random_point].y);
-    }
 	// */
 }

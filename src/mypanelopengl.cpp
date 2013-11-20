@@ -16,7 +16,6 @@
 #include <string>
 #include <sstream>
 #include <stdlib.h>
-#include <time.h>
 
 #include "stopWatch.h"
 #include "li.h"
@@ -675,10 +674,20 @@ void MyPanelOpenGL::doDrawEffect() {
 }
 
 void MyPanelOpenGL::doPDF(){
-	generatePointsWithPDF();
+	// Returns {x0, y0, x1, y1,...}
+	vector<int> points = generatePointsWithPDF(numPDFPoints);
+
+	for (int i = 0; i < points.size() / 2; i++) {
+		int x = points[i * 2];
+		int y = points[i * 2 + 1];
+
+		tryInsertPoint(x, y);
+	}
 
 	updateNumPoints(inputPointSet.noPt());
 	setUsePDF(true);
+
+	updateGL();
 }
 
 void MyPanelOpenGL::clearAll(){
