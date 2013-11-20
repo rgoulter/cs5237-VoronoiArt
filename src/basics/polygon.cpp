@@ -46,6 +46,41 @@ bool intersects(int ax, int ay, int bx, int by, int cx, int cy, int dx, int dy) 
 
 
 
+int crossProduct2D(int x0, int y0, int x1, int y1) {
+	// cross-product of 2D V,W is vx*wy - vy*wx
+	return (x0 * y1) - (y0 * x1);
+}
+
+
+
+void findIntersectionPoint(int ax, int ay, int bx, int by, int cx, int cy, int dx, int dy, int& ix, int& iy) {
+	// Assumes the points actually intersect.
+	
+	// Logic from StackOverflow, Gareth Rees's answer.
+	// See: http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
+	
+	// t = cp((C-A), S) / cp(R, S)
+	// where R = (B - A),
+	//       S = (D - C)
+
+	int rx = bx - ax;
+	int ry = by - ay;
+	int sx = dx - cx;
+	int sy = dy - cy;
+
+	float t = float(crossProduct2D(cx - ax, cy - ay, sx, sy)) /
+		      crossProduct2D(rx, ry, sx, sy);
+
+	// with our definitions, we want to use (1 - t), actually.
+	t = 1 - t;
+
+	// A * t + (1 - t) * B
+	ix = (int) (ax * t + (1 - t) * bx);
+	iy = (int) (ay * t + (1 - t) * by);
+}
+
+
+
 void boundingBox(const std::vector<int>& poly, int& minX, int& maxX, int& minY, int& maxY) {
 	minX = poly[0];
 	maxX = poly[0];
@@ -65,10 +100,10 @@ void boundingBox(const std::vector<int>& poly, int& minX, int& maxX, int& minY, 
 
 
 void boundingBox(const std::vector<MyPoint>& poly, LongInt& minX, LongInt& maxX, LongInt& minY, LongInt& maxY) {
-	minX = poly[i].x;
-	maxX = poly[i].x;
-	minY = poly[i].y;
-	maxY = poly[i].y;
+	minX = poly[0].x;
+	maxX = poly[0].x;
+	minY = poly[0].y;
+	maxY = poly[0].y;
 	
 	for (int i = 1; i < poly.size(); i++) {
 		if(poly[i].x < minX){ minX = poly[i].x; }

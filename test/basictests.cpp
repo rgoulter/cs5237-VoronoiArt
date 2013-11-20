@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "li.h"
 #include "pointSet.h"
+#include "polygon.h"
 #include <vector>
 
 TEST(BasicsTest, PointSetInTriSimple) {
@@ -66,6 +67,22 @@ TEST(BasicsTest, PolyPointInIntPolygon) {
 
 	EXPECT_EQ(1, inPoly(poly, p5x, p5y));
 	EXPECT_EQ(0, inPoly(poly, p6x, p6y));
+}
+
+TEST(BasicsTest, LineSegIsectIntPointBasic) {
+	int ax =   0, ay =  0;
+	int bx =  10, by = 10;
+	int cx =   0, cy =  2;
+	int dx =   2, dy =  0;
+	int ix, iy;
+
+	// Should be this
+	int eix =  1, eiy =  1;
+
+	findIntersectionPoint(ax, ay, bx, by, cx, cy, dx, dy, ix, iy);
+	
+	EXPECT_EQ(eix, ix);
+	EXPECT_EQ(eiy, iy);
 }
 
 
