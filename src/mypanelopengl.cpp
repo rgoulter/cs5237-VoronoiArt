@@ -270,6 +270,9 @@ void generateColoredPolygons(vector<vector<int>>& polys){
 	renderedPolygons.clear();
 
 	for (int i = 0; i < polys.size(); i++) {
+		// Clip polygon to ensure we have nothing out of bounds
+		// vector<int> unclippedPoly = polys[i];
+		// vector<int> poly = clipPolygonToRectangle(unclippedPoly, 0, 0, loadedImageWidth, loadedImageHeight);
 		vector<int> poly = polys[i];
 
 		int colorIv[3];
