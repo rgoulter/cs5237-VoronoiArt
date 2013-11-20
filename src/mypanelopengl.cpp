@@ -76,6 +76,8 @@ vector<ColoredPolygon> renderedPolygons;
 string imageName;
 
 // Variables for render state stuff.
+enum ShowImageType { IMAGE, EDGE_RAW, EDGE_SHARP, EDGE_BLUR, PDF, EFFECT };
+ShowImageType currentRenderType = IMAGE;
 bool showVoronoiSites = true;
 bool showVoronoiEdges = false;
 
@@ -242,7 +244,23 @@ void drawColoredPolygons() {
 
 
 void display (void) {
-	drawColoredPolygons();
+	switch (currentRenderType) {
+		case EFFECT:
+			drawColoredPolygons();
+			break;
+		
+		case EDGE_RAW:
+		case EDGE_BLUR:
+		case EDGE_SHARP:
+		case PDF:
+			// ???
+			// Just fall through, since we don't have at the moment.
+
+		case IMAGE:
+		default:
+			drawLoadedTextureImage();
+			break;
+	}
 
 	if (showVoronoiEdges) {
 		drawVoronoiStuff();
@@ -514,7 +532,6 @@ void MyPanelOpenGL::resizeGL(int width, int height){
 
 void MyPanelOpenGL::paintGL(){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	drawLoadedTextureImage();
 	
 	glPushMatrix();
 	
@@ -591,6 +608,7 @@ void MyPanelOpenGL::doVoronoiDiagram(){
 
 	// Make the colored polygons from Voronoi.
 	generateColoredPolygons(voronoiEdges);
+	currentRenderType = EFFECT;
 
 	setVoronoiComputed(true);
 
@@ -695,9 +713,42 @@ void MyPanelOpenGL::doOpenImage(){
 
 void MyPanelOpenGL::doDrawImage(){
 	qDebug("Draw OpenGL Image");
+	currentRenderType = IMAGE;
 
-	// Set some state so as to draw the image.
-	// All drawing must be done from paintGL.
+	updateGL();
+}
+
+void MyPanelOpenGL::doDrawEdge() {
+	qDebug("Draw Edge");
+	currentRenderType = EDGE_RAW;
+
+	updateGL();
+}
+
+void MyPanelOpenGL::doDrawEdgeSharp() {
+	qDebug("Draw Edge (Sharp)");
+	currentRenderType = EDGE_SHARP;
+
+	updateGL();
+}
+
+void MyPanelOpenGL::doDrawEdgeBlur() {
+	qDebug("Draw Edge (Blur)");
+	currentRenderType = EDGE_BLUR;
+
+	updateGL();
+}
+
+void MyPanelOpenGL::doDrawPDF() {
+	qDebug("Draw PDF");
+	currentRenderType = PDF;
+
+	updateGL();
+}
+
+void MyPanelOpenGL::doDrawEffect() {
+	qDebug("Draw Effect");
+	currentRenderType = EFFECT;
 
 	updateGL();
 }
@@ -731,6 +782,8 @@ void MyPanelOpenGL::clearAll(){
 	updateNumPoints(inputPointSet.noPt());
 	setUsePDF(false);
 	setVoronoiComputed(false);
+
+	currentRenderType = IMAGE;
 
 	updateGL();
 }

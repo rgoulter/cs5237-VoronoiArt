@@ -23,7 +23,14 @@ signals:
 public slots:
 	void doDelaunayTriangulation();
 	void doOpenImage();
+
 	void doDrawImage();
+	void doDrawEdge();
+	void doDrawEdgeSharp();
+	void doDrawEdgeBlur();
+	void doDrawPDF();
+	void doDrawEffect();
+
 	void doVoronoiDiagram();
 	void doPDF();
 	

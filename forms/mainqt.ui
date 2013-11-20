@@ -457,6 +457,11 @@
     <slot>setNumPoints1k()</slot>
     <slot>setNumPoints5k()</slot>
     <slot>setNumPoints(int)</slot>
+    <slot>doDrawEdge()</slot>
+    <slot>doDrawEdgeSharp()</slot>
+    <slot>doDrawEdgeBlur()</slot>
+    <slot>doDrawPDF()</slot>
+    <slot>doDrawEffect()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -717,6 +722,86 @@
     <hint type="destinationlabel">
      <x>192</x>
      <y>554</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnDrawEdges</sender>
+   <signal>clicked()</signal>
+   <receiver>glWidget</receiver>
+   <slot>doDrawEdge()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>528</x>
+     <y>124</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>415</x>
+     <y>114</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnDrawBlurredEdges</sender>
+   <signal>clicked()</signal>
+   <receiver>glWidget</receiver>
+   <slot>doDrawEdgeBlur()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>579</x>
+     <y>151</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>435</x>
+     <y>163</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnDrawSharpEdges</sender>
+   <signal>clicked()</signal>
+   <receiver>glWidget</receiver>
+   <slot>doDrawEdgeBlur()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>497</x>
+     <y>150</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>403</x>
+     <y>142</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnDrawPDF</sender>
+   <signal>clicked()</signal>
+   <receiver>glWidget</receiver>
+   <slot>doDrawPDF()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>545</x>
+     <y>185</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>404</x>
+     <y>182</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnDrawEffect</sender>
+   <signal>clicked()</signal>
+   <receiver>glWidget</receiver>
+   <slot>doDrawEffect()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>518</x>
+     <y>223</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>409</x>
+     <y>210</y>
     </hint>
    </hints>
   </connection>
