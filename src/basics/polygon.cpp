@@ -115,6 +115,205 @@ void boundingBox(const std::vector<MyPoint>& poly, LongInt& minX, LongInt& maxX,
 
 
 
+class PolygonClippingIntersection {
+private:
+	int rectNextIdx;
+	int polyNextIdx;
+	int polySize;
+	int x;
+	int y;
+	PolygonClippingIntersection *nextIsect; // Use a pointer in case we need to "reseat". (?)
+
+public:
+	PolygonClippingIntersection(int ix, int iy, int rNext, int pNext, int polyN) {
+		x = ix;
+		y = iy;
+		rectNextIdx = rNext;
+		polyNextIdx = pNext;
+		polySize = polyN;
+	}
+
+	void setNextIntersection(PolygonClippingIntersection& next) { nextIsect = &next; }
+	PolygonClippingIntersection& intersectionNext() { return *nextIsect; }
+	
+	int getX() { return x; }
+	int getY() { return y; }
+	
+	int polyPrev() { return (polySize + polyNextIdx - 1) % polySize; }
+	int polyNext() { return (polySize + polyNextIdx + 1) % polySize; }
+	
+	int rectPrev() { return (4 + rectNextIdx - 1) % 4; }
+	int rectNext() { return (4 + rectNextIdx + 1) % 4; }
+};
+
+
+
+vector<int> clipPolygonToRectangle(const vector<int>& poly, int x1, int y1, int x2, int y2) {
+	// Algorithm:
+	// 1) Find intersection points, "split" the line sections at these points.
+	// 2) From some "inside" the polygon point (e.g. the first intersection),
+	//     follow the "inside" path to build up our output.
+
+	vector<PolygonClippingIntersection*> intersections;
+
+	const int N = poly.size();
+
+	// Find intersections
+	for (int i = 0; i < N; i++) {
+		int axIdx = 2 * i;
+		int ayIdx = axIdx + 1;
+		int bxIdx = 2 * ((i + 1) % N);
+		int byIdx = bxIdx + 1;
+
+		int ax = poly[axIdx];
+		int ay = poly[ayIdx];
+		int bx = poly[bxIdx];
+		int by = poly[byIdx];
+
+		int ix, iy;
+
+		if (intersects(ax, ay, bx, by,
+					   x1, y1, x2, y1)) { // 0->1
+			findIntersectionPoint(ax, ay, bx, by,
+								  x1, y1, x2, y1,
+								  ix, iy);
+			int rNext = 1;
+			PolygonClippingIntersection * isect =
+				new PolygonClippingIntersection(ix, iy, rNext, i+1 % N, N);
+			intersections.push_back(isect);
+
+			continue;
+		}
+
+		if (intersects(ax, ay, bx, by,
+					   x2, y1, x2, y2)) { // 1->2
+			findIntersectionPoint(ax, ay, bx, by,
+								  x2, y1, x2, y2,
+								  ix, iy);
+			int rNext = 2;
+			PolygonClippingIntersection * isect =
+				new PolygonClippingIntersection(ix, iy, rNext, i+1 % N, N);
+			intersections.push_back(isect);
+
+			continue;
+		}
+
+		if (intersects(ax, ay, bx, by,
+					   x2, y2, x1, y2)) { // 2->3
+			findIntersectionPoint(ax, ay, bx, by,
+								  x2, y2, x1, y2,
+								  ix, iy);
+			int rNext = 3;
+			PolygonClippingIntersection * isect =
+				new PolygonClippingIntersection(ix, iy, rNext, i+1 % N, N);
+			intersections.push_back(isect);
+
+			continue;
+		}
+
+		if (intersects(ax, ay, bx, by,
+					   x1, y2, x1, y1)) { // 3->0
+			findIntersectionPoint(ax, ay, bx, by,
+								  x1, y2, x1, y1,
+								  ix, iy);
+			int rNext = 4;
+			PolygonClippingIntersection * isect =
+				new PolygonClippingIntersection(ix, iy, rNext, i+1 % N, N);
+			intersections.push_back(isect);
+
+			continue;
+		}
+	}
+
+
+	// If no intersections, then nothing to clip?
+	// (Assuming the poly is wholly inside, rather than outside...).
+	if (intersections.empty()) {
+		bool isPolyInsideRect = true;
+		
+		if (isPolyInsideRect) {
+			return poly;
+		} else {
+			return vector<int>();
+		}
+	}
+
+
+	// Set links within I'sects.
+	for (int i = 0; i < intersections.size(); i++) {
+		PolygonClippingIntersection *next = intersections[(i + 1) % intersections.size()];
+		intersections[i]->setNextIntersection(*next);
+	}
+
+
+	vector<int> rectPoly;
+	rectPoly.push_back(x1); rectPoly.push_back(y1); // 0
+	rectPoly.push_back(x2); rectPoly.push_back(y1); // 1
+	rectPoly.push_back(x2); rectPoly.push_back(y2); // 2
+	rectPoly.push_back(x1); rectPoly.push_back(y2); // 3
+
+
+	vector<int> output;
+
+	// Go through, adding points to output.
+	for (int i = 0; i < intersections.size(); i++) {
+		PolygonClippingIntersection& isect = *intersections[i + 1];
+		PolygonClippingIntersection& nextIsect = isect.intersectionNext();
+
+		int ipx = isect.getX();
+		int ipy = isect.getY();
+
+		// Add the intersection point itself
+		output.push_back(ipx);
+		output.push_back(ipy);
+		
+		int rnx = rectPoly[2 * isect.rectNext()];
+		int rny = rectPoly[2 * isect.rectNext() + 1];
+		
+		int pnx = poly[2 * isect.polyNext()];
+		int pny = poly[2 * isect.polyNext() + 1];
+
+		// Orientation of polyNext from 
+		int ori = orientation(ipx, ipy,
+			                  rnx, rny,
+							  pnx, pny);
+
+		if (ori > 0) {
+			// Next point is 'INSIDE'.
+			// Take polygon points until next i'sect.
+
+			for (int pIdx = isect.polyNext(); pIdx != nextIsect.polyNext(); pIdx = (pIdx + 1) % N) {
+				int px = poly[2 * pIdx];
+				int py = poly[2 * pIdx + 1];
+				
+				output.push_back(px);
+				output.push_back(py);
+			}
+		} else {
+			// Next point is 'OUTSIDE'.
+			// Take rectangle points until next i'sect.
+
+			for (int rIdx = isect.rectNext(); rIdx != nextIsect.rectNext(); rIdx = (rIdx + 1) % 4) {
+				int rx = rectPoly[2 * rIdx];
+				int ry = rectPoly[2 * rIdx + 1];
+				
+				output.push_back(rx);
+				output.push_back(ry);
+			}
+		}
+	}
+
+
+	// Tidy up, delete all isects.
+	for (int i = 0; i < intersections.size(); i++) {
+		delete intersections[i];
+	}
+
+	return output;
+}
+
+
+
 int inPoly(const std::vector<MyPoint>& poly, const MyPoint & pt) {
 	int n = poly.size();
 
