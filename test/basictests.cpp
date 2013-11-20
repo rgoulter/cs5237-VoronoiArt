@@ -108,6 +108,44 @@ TEST(BasicsTest, ClipPolyRectCaseNoIsect) {
 	}
 }
 
+TEST(BasicsTest, ClipPolyRectCaseSimpleIsect) {
+	int x1 =   0, x2 = 100;
+	int y1 =   0, y2 = 100;
+
+	// Test polygon (clearly outside of rect).
+	vector<int> testPoly;
+	testPoly.push_back(50); testPoly.push_back(50);
+	testPoly.push_back(50); testPoly.push_back(-250);
+	testPoly.push_back(250); testPoly.push_back(50);
+
+	// Expected polygon
+	vector<int> expectedPoly;
+	expectedPoly.push_back(50);  expectedPoly.push_back(0);
+	expectedPoly.push_back(100); expectedPoly.push_back(0);
+	expectedPoly.push_back(100); expectedPoly.push_back(50);
+	expectedPoly.push_back(50);  expectedPoly.push_back(50);
+
+	vector<int> output = clipPolygonToRectangle(testPoly, x1, y1, x2, y2);
+	
+	if (expectedPoly.size() != output.size()) {
+		cout << "Expected poly has " << (expectedPoly.size() / 2) << "points," << endl;
+		cout << "Output poly different than expected:" << endl;
+	}
+
+	cout << "Output poly has " << (output.size() / 2) << "points," << endl;
+	for (int i = 0; i < output.size() / 2; i++) {
+		cout << output[2 * i] << ","  << output[2 * i + 1]<< endl;
+	}
+
+	// MUST be eq.
+	ASSERT_EQ(expectedPoly.size(), output.size());
+
+	for (int i = 0; i < expectedPoly.size(); i += 2) {
+		EXPECT_EQ(expectedPoly[i], output[i]);
+		EXPECT_EQ(expectedPoly[i + 1], output[i + 1]);
+	}
+}
+
 
 
 int main(int argc, char* argv[]) {

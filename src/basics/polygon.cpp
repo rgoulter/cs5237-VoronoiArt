@@ -140,10 +140,10 @@ public:
 	int getY() { return y; }
 	
 	int polyPrev() { return (polySize + polyNextIdx - 1) % polySize; }
-	int polyNext() { return (polySize + polyNextIdx + 1) % polySize; }
+	int polyNext() { return (polySize + polyNextIdx) % polySize; }
 	
 	int rectPrev() { return (4 + rectNextIdx - 1) % 4; }
-	int rectNext() { return (4 + rectNextIdx + 1) % 4; }
+	int rectNext() { return (4 + rectNextIdx) % 4; }
 };
 
 
@@ -257,7 +257,7 @@ vector<int> clipPolygonToRectangle(const vector<int>& poly, int x1, int y1, int 
 
 	// Go through, adding points to output.
 	for (int i = 0; i < intersections.size(); i++) {
-		PolygonClippingIntersection& isect = *intersections[i + 1];
+		PolygonClippingIntersection& isect = *intersections[i];
 		PolygonClippingIntersection& nextIsect = isect.intersectionNext();
 
 		int ipx = isect.getX();
@@ -305,7 +305,7 @@ vector<int> clipPolygonToRectangle(const vector<int>& poly, int x1, int y1, int 
 
 
 	// Tidy up, delete all isects.
-	for (int i = 0; i < intersections.size(); i++) {
+	for (int i = intersections.size() - 1; i >= 0; i--) {
 		delete intersections[i];
 	}
 
