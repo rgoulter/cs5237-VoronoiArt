@@ -68,7 +68,12 @@ string loadedImageFilename = "";
 int loadedImageWidth = -1;
 int loadedImageHeight = -1;
 unsigned char *loadedImageData;
+
 GLuint loadedImageTexture;
+GLuint edgesTexture;
+GLuint edgesSharpTexture;
+GLuint edgesBlurTexture;
+GLuint pdfTexture;
 
 // Variables for colored polygons
 bool hasCalculatedColoredPolygons = 0;
@@ -131,12 +136,12 @@ void drawATriangle (double x1,double y1, double x2, double y2, double x3, double
 
 
 
-void drawLoadedTextureImage() {
+void drawPlaneUsingTexture(GLuint tex) {
 	if (loadedImageWidth < 0) { return; }
 
 	qDebug("Draw the texture");
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture (GL_TEXTURE_2D, loadedImageTexture);
+	glBindTexture (GL_TEXTURE_2D, tex);
 
 	glBegin (GL_QUADS);
 		glTexCoord2f (0.0, 0.0);
@@ -151,6 +156,7 @@ void drawLoadedTextureImage() {
 		glTexCoord2f (0.0, 1.0);
 		glVertex3f (0.0, loadedImageHeight, -1.0);
 	glEnd ();
+
 	glDisable(GL_TEXTURE_2D);
 }
 
@@ -193,14 +199,12 @@ void drawDelaunayStuff() {
 	}
 }
 
-void drawVoronoiStuff(){
-	
+void drawVoronoiStuff() {
 	std::vector<PointSetArray>::iterator iter1;
-	for (iter1 = voronoiEdges.begin(); iter1 != voronoiEdges.end(); ++iter1)
-	{
+
+	for (iter1 = voronoiEdges.begin(); iter1 != voronoiEdges.end(); ++iter1) {
 		PointSetArray polygon = *iter1;
-		for (int i = 1; i <= polygon.noPt(); i++)
-		{
+		for (int i = 1; i <= polygon.noPt(); i++) {
 			int indexval;
 			LongInt x1, y1, x2, y2;
 			if(i+1 > polygon.noPt()) indexval = 1;
@@ -209,11 +213,8 @@ void drawVoronoiStuff(){
 			polygon.getPoint(i,x1, y1);
 			polygon.getPoint(indexval, x2, y2);
 			drawALine(x1.doubleValue(), y1.doubleValue(),
-			      x2.doubleValue(), y2.doubleValue());
-			
+			      x2.doubleValue(), y2.doubleValue());\
 		}
-
-
 	}
 }
 
@@ -250,15 +251,24 @@ void display (void) {
 			break;
 		
 		case EDGE_RAW:
-		case EDGE_BLUR:
+			drawPlaneUsingTexture(edgesTexture);
+			break;
+
 		case EDGE_SHARP:
+			drawPlaneUsingTexture(edgesSharpTexture);
+			break;
+
+		case EDGE_BLUR:
+			drawPlaneUsingTexture(edgesBlurTexture);
+			break;
+
 		case PDF:
-			// ???
-			// Just fall through, since we don't have at the moment.
+			drawPlaneUsingTexture(pdfTexture);
+			break;
 
 		case IMAGE:
 		default:
-			drawLoadedTextureImage();
+			drawPlaneUsingTexture(loadedImageTexture);
 			break;
 	}
 
@@ -615,6 +625,38 @@ void MyPanelOpenGL::doVoronoiDiagram(){
 	updateGL();
 }
 
+
+
+void generateOGLTextureForOpenCVMat(GLuint& tex, const Mat& M){
+	// copy the data to a new matrix
+	Mat mat = M.clone();
+	cvtColor(mat, mat, CV_GRAY2RGB);
+	unsigned char *matData = (unsigned char*)(mat.data);
+
+	// Now load the data into some opengl texture.
+	glEnable(GL_TEXTURE_2D);
+
+	glGenTextures(1, &tex);
+	glBindTexture(GL_TEXTURE_2D, tex);
+
+	glTexImage2D(GL_TEXTURE_2D,
+		         0,
+				 GL_RGB,
+				 loadedImageWidth,
+				 loadedImageHeight,
+				 0,
+				 GL_RGB,
+				 GL_UNSIGNED_BYTE,
+				 matData);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
+
+
+
 void CannyThreshold() {
     /// Reduce noise with a kernel 3x3
     blur(src_gray, detected_edges, Size(3,3));
@@ -622,7 +664,7 @@ void CannyThreshold() {
     /// Canny detector
     Canny(detected_edges, detected_edges, 100, 100*ratio, kernel_size);
 
-	GaussianBlur( detected_edges, detected_edges2, Size(7,7), 0, 0);
+	GaussianBlur(detected_edges, detected_edges2, Size(7,7), 0, 0);
 
 	//GaussianBlur( detected_edges, detected_edges3, Size(9,9), 0, 0);
 
@@ -630,21 +672,29 @@ void CannyThreshold() {
     dst = Scalar::all(0);
 	dst2 = Scalar::all(0);
 	dst3 = Scalar::all(0);
-    //src_gray.copyTo( dst, detected_edges);
-	src_gray.copyTo( dst2, detected_edges2);
-	src_gray.copyTo( dst, detected_edges);
+
+	src_gray.copyTo(dst2, detected_edges2);
+	src_gray.copyTo(dst, detected_edges);
 
 
-	GaussianBlur( dst2, dst3, Size(15,15), 0, 0);
-
-
+	GaussianBlur(dst2, dst3, Size(15,15), 0, 0);
 	dst3.convertTo(dst3, -1, 2, 0);
+
+	// Ps = Pblur - Psharp
 	subtract(dst3, dst2, dst);
+
+	// Make OpenGL Textures for the following:
+	// (I'm not 100% certain about these mappings?).
+	generateOGLTextureForOpenCVMat(edgesTexture, detected_edges);
+	generateOGLTextureForOpenCVMat(edgesSharpTexture, dst2);
+	generateOGLTextureForOpenCVMat(edgesBlurTexture, dst3);
+	generateOGLTextureForOpenCVMat(pdfTexture, dst);
 
 
 	// The following is kindof a mis-interpretation, I feel?
 	// Doesn't look like what should be happening (e.g. magic 150??).
 
+	/*
 	unsigned char *input = (unsigned char*) (dst.data);
 	vector<MyPoint> goodPoints;
 
@@ -666,12 +716,13 @@ void CannyThreshold() {
         random_point = lowest + int(range * rand() / (RAND_MAX + 1.0));
 		tryInsertPoint(goodPoints[random_point].x, goodPoints[random_point].y);
     }
+	// */
 
 	//uchar* temp = dst.data;
 	//imwrite("C:\upload\edge.jpg",dst);
-    imshow(window_name, dst);
-	imshow(window_name2, dst2);
-	imshow(window_name3, dst3);
+    //imshow(window_name, dst);
+	//imshow(window_name2, dst2);
+	//imshow(window_name3, dst3);
 }
 
 void generatePDF(string imageName) {
