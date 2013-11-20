@@ -564,6 +564,7 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 		qDebug("Insert Point: %d, %d\n", px, py);
 
 		tryInsertPoint(px, py);
+		updateNumPoints(inputPointSet.noPt());
 
 		updateGL();
 	}
@@ -590,6 +591,8 @@ void MyPanelOpenGL::doVoronoiDiagram(){
 
 	// Make the colored polygons from Voronoi.
 	generateColoredPolygons(voronoiEdges);
+
+	setVoronoiComputed(true);
 
 	updateGL();
 }
@@ -637,7 +640,7 @@ void CannyThreshold(int, void*)
     for(int index=0; index< numPDFPoints; index++){
         random_point = lowest+int(range*rand()/(RAND_MAX + 1.0));
 		tryInsertPoint(goodPoints[random_point].x, goodPoints[random_point].y);
-    } 
+    }
 
 	//uchar* temp = dst.data;
 	//imwrite("C:\upload\edge.jpg",dst);
@@ -687,6 +690,7 @@ void MyPanelOpenGL::doOpenImage(){
 	updateFilename(qStr_fileName); // to Qt textbox
 	loadOpenGLTextureFromFilename(filenameStr);
 	refreshProjection();
+	imageLoaded();
 }
 
 void MyPanelOpenGL::doDrawImage(){
@@ -700,6 +704,9 @@ void MyPanelOpenGL::doDrawImage(){
 
 void MyPanelOpenGL::doPDF(){
 	generatePDF(imageName);
+
+	updateNumPoints(inputPointSet.noPt());
+	setUsePDF(true);
 }
 
 void MyPanelOpenGL::clearAll(){
@@ -719,6 +726,11 @@ void MyPanelOpenGL::clearAll(){
 	delaunayOldTrist.eraseAllTriangles();
 	delaunayNewTrist.eraseAllTriangles();
 	dag.cleardirectedGraph();
+
+	// Signals and stuff
+	updateNumPoints(inputPointSet.noPt());
+	setUsePDF(false);
+	setVoronoiComputed(false);
 
 	updateGL();
 }
@@ -740,17 +752,17 @@ void MyPanelOpenGL::setShowVoronoiEdges(bool b) {
 
 void MyPanelOpenGL::setNumPoints1k() {
 	numPDFPoints = 1000;
-	updateNumPoints(1000);
+	updateNumPointsToGenerate(1000);
 }
 
 void MyPanelOpenGL::setNumPoints5k() {
 	numPDFPoints = 5000;
-	updateNumPoints(5000);
+	updateNumPointsToGenerate(5000);
 }
 
 void MyPanelOpenGL::setNumPoints(int n) {
 	numPDFPoints = n;
-	updateNumPoints(n);
+	updateNumPointsToGenerate(n);
 }
 
 void MyPanelOpenGL::keyPressEvent(QKeyEvent* event) {

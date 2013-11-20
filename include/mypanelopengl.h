@@ -14,6 +14,11 @@ public:
 signals:
 	void updateFilename(QString);
 	void updateNumPoints(int);
+	void updateNumPointsToGenerate(int);
+
+	void imageLoaded();
+	void setUsePDF(bool);
+	void setVoronoiComputed(bool);
 
 public slots:
 	void doDelaunayTriangulation();

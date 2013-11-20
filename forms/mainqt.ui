@@ -81,6 +81,9 @@
        </property>
       </widget>
       <widget class="QPushButton" name="btnDrawImage">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -121,7 +124,7 @@
       </widget>
       <widget class="QPushButton" name="btnDoVoronoi">
        <property name="enabled">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="geometry">
         <rect>
@@ -136,6 +139,9 @@
        </property>
       </widget>
       <widget class="QPushButton" name="btnClearAll">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -251,6 +257,9 @@
         </property>
        </widget>
        <widget class="QSpinBox" name="spinBoxNumPoints">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="geometry">
          <rect>
           <x>110</x>
@@ -273,6 +282,9 @@
         </property>
        </widget>
        <widget class="QPushButton" name="btnGenUniform">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -286,6 +298,9 @@
         </property>
        </widget>
        <widget class="QPushButton" name="btnGenPDF">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -299,6 +314,9 @@
         </property>
        </widget>
        <widget class="QPushButton" name="btn1kPoints">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -312,6 +330,9 @@
         </property>
        </widget>
        <widget class="QPushButton" name="btn5kPoints">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="geometry">
          <rect>
           <x>100</x>
@@ -326,6 +347,9 @@
        </widget>
       </widget>
       <widget class="QPushButton" name="btnDrawEffect">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -339,6 +363,9 @@
        </property>
       </widget>
       <widget class="QCheckBox" name="chkShowPoints">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -355,6 +382,9 @@
        </property>
       </widget>
       <widget class="QCheckBox" name="chkShowEdges">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -412,6 +442,10 @@
    <slots>
     <signal>updateFilename(QString)</signal>
     <signal>updateNumPoints(int)</signal>
+    <signal>imageLoaded()</signal>
+    <signal>setUsePDF(bool)</signal>
+    <signal>setVoronoiComputed(bool)</signal>
+    <signal>updateNumPointsToGenerate(int)</signal>
     <slot>doDelaunayTriangulation()</slot>
     <slot>doOpenImage()</slot>
     <slot>doDrawImage()</slot>
@@ -560,7 +594,7 @@
   </connection>
   <connection>
    <sender>glWidget</sender>
-   <signal>updateNumPoints(int)</signal>
+   <signal>updateNumPointsToGenerate(int)</signal>
    <receiver>spinBoxNumPoints</receiver>
    <slot>setValue(int)</slot>
    <hints>
@@ -622,5 +656,75 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>glWidget</sender>
+   <signal>setVoronoiComputed(bool)</signal>
+   <receiver>mainqtClass</receiver>
+   <slot>setVoronoiComputed(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>294</x>
+     <y>43</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>411</x>
+     <y>5</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>glWidget</sender>
+   <signal>imageLoaded()</signal>
+   <receiver>mainqtClass</receiver>
+   <slot>imageLoaded()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>217</x>
+     <y>76</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>258</x>
+     <y>4</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>glWidget</sender>
+   <signal>setUsePDF(bool)</signal>
+   <receiver>mainqtClass</receiver>
+   <slot>setUsePDF(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>277</x>
+     <y>517</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>553</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>glWidget</sender>
+   <signal>updateNumPoints(int)</signal>
+   <receiver>mainqtClass</receiver>
+   <slot>updateNumPoints(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>205</x>
+     <y>440</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>192</x>
+     <y>554</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>updateNumPoints(int)</slot>
+  <slot>imageLoaded()</slot>
+  <slot>setUsePDF(bool)</slot>
+  <slot>setVoronoiComputed(bool)</slot>
+ </slots>
 </ui>
