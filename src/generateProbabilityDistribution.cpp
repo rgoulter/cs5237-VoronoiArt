@@ -139,8 +139,23 @@ vector<int> generatePointsWithPDF(int numPDFPoints) {
 
 		// We can speed this up with a binary search ...
 		int idx = -1;
-		double acc = 0;
-		for (idx = 0; idx < cdf.size() && cdf[idx] < threshold; idx++) { }
+
+		int left = 0; int right = cdf.size();
+
+		while(left < right) {
+			int mid = (right - left) / 2 + left;
+			double midVal = cdf[mid];
+
+			if (midVal < threshold) { // Go right.
+				left = mid + 1;
+			} else {
+				right = mid;
+			}
+		}
+
+		// idx = left or right? I forget which?
+		// (The difference is only 1 px).
+		idx = left;
 
 		int x = idx % loadedImageWidth;
 		int y = idx / loadedImageWidth;
