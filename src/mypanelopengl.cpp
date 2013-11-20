@@ -738,6 +738,21 @@ void MyPanelOpenGL::setShowVoronoiEdges(bool b) {
 	updateGL();
 }
 
+void MyPanelOpenGL::setNumPoints1k() {
+	numPDFPoints = 1000;
+	updateNumPoints(1000);
+}
+
+void MyPanelOpenGL::setNumPoints5k() {
+	numPDFPoints = 5000;
+	updateNumPoints(5000);
+}
+
+void MyPanelOpenGL::setNumPoints(int n) {
+	numPDFPoints = n;
+	updateNumPoints(n);
+}
+
 void MyPanelOpenGL::keyPressEvent(QKeyEvent* event) {
     switch(event->key()) {
     case Qt::Key_Escape:

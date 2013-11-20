@@ -13,6 +13,7 @@ public:
 	
 signals:
 	void updateFilename(QString);
+	void updateNumPoints(int);
 
 public slots:
 	void doDelaunayTriangulation();
@@ -20,6 +21,11 @@ public slots:
 	void doDrawImage();
 	void doVoronoiDiagram();
 	void doPDF();
+	
+	void setNumPoints1k();
+	void setNumPoints5k();
+	void setNumPoints(int);
+
 	void clearAll();
 	
 	void setShowVoronoiSites(bool b);

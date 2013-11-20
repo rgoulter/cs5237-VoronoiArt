@@ -262,6 +262,15 @@
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
+        <property name="maximum">
+         <number>99999</number>
+        </property>
+        <property name="singleStep">
+         <number>50</number>
+        </property>
+        <property name="value">
+         <number>75</number>
+        </property>
        </widget>
        <widget class="QPushButton" name="btnGenUniform">
         <property name="geometry">
@@ -305,7 +314,7 @@
        <widget class="QPushButton" name="btn5kPoints">
         <property name="geometry">
          <rect>
-          <x>104</x>
+          <x>100</x>
           <y>50</y>
           <width>81</width>
           <height>23</height>
@@ -402,6 +411,7 @@
    <container>1</container>
    <slots>
     <signal>updateFilename(QString)</signal>
+    <signal>updateNumPoints(int)</signal>
     <slot>doDelaunayTriangulation()</slot>
     <slot>doOpenImage()</slot>
     <slot>doDrawImage()</slot>
@@ -410,6 +420,9 @@
     <slot>clearAll()</slot>
     <slot>setShowVoronoiSites(bool)</slot>
     <slot>setShowVoronoiEdges(bool)</slot>
+    <slot>setNumPoints1k()</slot>
+    <slot>setNumPoints5k()</slot>
+    <slot>setNumPoints(int)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -542,6 +555,70 @@
     <hint type="destinationlabel">
      <x>415</x>
      <y>269</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>glWidget</sender>
+   <signal>updateNumPoints(int)</signal>
+   <receiver>spinBoxNumPoints</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>309</x>
+     <y>315</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>619</x>
+     <y>330</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBoxNumPoints</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>glWidget</receiver>
+   <slot>setNumPoints(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>579</x>
+     <y>335</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>334</x>
+     <y>344</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn1kPoints</sender>
+   <signal>clicked()</signal>
+   <receiver>glWidget</receiver>
+   <slot>setNumPoints1k()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>507</x>
+     <y>365</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>419</x>
+     <y>363</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn5kPoints</sender>
+   <signal>clicked()</signal>
+   <receiver>glWidget</receiver>
+   <slot>setNumPoints5k()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>578</x>
+     <y>363</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>383</x>
+     <y>376</y>
     </hint>
    </hints>
   </connection>
