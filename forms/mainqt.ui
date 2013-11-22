@@ -397,7 +397,7 @@
         <string>Show Voronoi edges</string>
        </property>
       </widget>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="btnSaveImage">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -426,7 +426,7 @@
       <zorder>btnDrawEffect</zorder>
       <zorder>chkShowPoints</zorder>
       <zorder>chkShowEdges</zorder>
-      <zorder>pushButton</zorder>
+      <zorder>btnSaveImage</zorder>
      </widget>
     </item>
    </layout>
@@ -463,6 +463,7 @@
     <slot>doDrawPDF()</slot>
     <slot>doDrawEffect()</slot>
     <slot>doGenerateUniformRandomPoints()</slot>
+    <slot>doSaveImage()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -819,6 +820,22 @@
     <hint type="destinationlabel">
      <x>427</x>
      <y>395</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnSaveImage</sender>
+   <signal>clicked()</signal>
+   <receiver>glWidget</receiver>
+   <slot>doSaveImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>536</x>
+     <y>503</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>419</x>
+     <y>500</y>
     </hint>
    </hints>
   </connection>

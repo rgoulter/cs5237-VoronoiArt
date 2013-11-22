@@ -32,6 +32,7 @@ void mainqt::imageLoaded() {
 	ui.btnGenUniform->setEnabled(true);
 	ui.btnGenPDF->setEnabled(true);
 
+	ui.btnSaveImage->setEnabled(true);
 	ui.btnClearAll->setEnabled(true);
 }
 

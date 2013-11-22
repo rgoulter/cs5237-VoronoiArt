@@ -38,7 +38,8 @@ public slots:
 	void setNumPoints1k();
 	void setNumPoints5k();
 	void setNumPoints(int);
-
+	
+	void doSaveImage();
 	void clearAll();
 	
 	void setShowVoronoiSites(bool b);

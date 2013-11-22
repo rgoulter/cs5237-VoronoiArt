@@ -50,6 +50,10 @@ const int WINDOW_HEIGHT_DEFAULT = 700;
 int windowWidth = WINDOW_WIDTH_DEFAULT;
 int windowHeight = WINDOW_HEIGHT_DEFAULT;
 
+// Position of the image, in canvas space..
+int canvas_offsetX = 0;
+int canvas_offsetY = 0;
+
 
 std::vector<int> delaunayPointsToProcess;
 PointSetArray inputPointSet; // Add the super triangle stuff to this.
@@ -411,6 +415,9 @@ void refreshProjection() {
 	glMatrixMode (GL_PROJECTION);
 	glLoadIdentity();
 
+	canvas_offsetX = 0;
+	canvas_offsetY = 0;
+
 	// If we haven't loaded an image,
 	// we don't particularly care what the coord system is.
 	if (loadedImageWidth < 0) {
@@ -443,6 +450,7 @@ void refreshProjection() {
 		// Scissor test to draw stuff only within the image
 		// (Use this for the voronoi-diagram-colors
 		int scissorDelta = delta * windowHeight / renderHeight;
+		canvas_offsetY = scissorDelta;
 		glScissor(0, scissorDelta, windowWidth, windowHeight - (2 * scissorDelta));
 	} else {
 		double ratio = ((double) windowWidth) / windowHeight;
@@ -462,6 +470,7 @@ void refreshProjection() {
 		// Scissor test to draw stuff only within the image
 		// (Use this for the voronoi-diagram-colors
 		int scissorDelta = delta * windowWidth / renderWidth;
+		canvas_offsetX = scissorDelta;
 		glScissor(scissorDelta, 0, windowWidth - (2 * scissorDelta), windowHeight);
 	}
 
@@ -853,6 +862,35 @@ void MyPanelOpenGL::doOpenImage(){
 	loadOpenGLTextureFromFilename(filenameStr);
 	refreshProjection();
 	imageLoaded();
+}
+
+void MyPanelOpenGL::doSaveImage() {
+	char* outputImageFilename = "output.bmp";
+
+	int x = canvas_offsetX;
+	int y = canvas_offsetY;
+
+	int copyWidth = (windowWidth - (2 * canvas_offsetX));
+	int copyHeight = (windowHeight - (2 * canvas_offsetY));
+
+	int numComponents = 3; // RGB
+
+	// Memory for width * height * RGB pixel values.
+	unsigned char *data;
+	data = (unsigned char *) malloc(numComponents * copyWidth * copyHeight * sizeof(unsigned char));
+	
+    glPixelStorei(GL_PACK_ALIGNMENT, 1); // align to the byte..
+	glReadPixels(x, y, copyWidth, copyHeight, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+	int save_result =
+		SOIL_save_image(outputImageFilename,
+		                SOIL_SAVE_TYPE_BMP,
+		                copyWidth,
+		                copyHeight,
+		                numComponents,
+		                data);
+
+	free(data);
 }
 
 void MyPanelOpenGL::doDrawImage(){
