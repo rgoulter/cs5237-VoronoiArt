@@ -220,6 +220,8 @@ void drawColoredPolygons() {
 	}
 	
 	glEnable(GL_COLOR_MATERIAL);
+	glEnable(GL_SCISSOR_TEST);
+
 	for (int i = 0; i < renderedPolygons.size(); i++) {
 		ColoredPolygon coloredPoly = renderedPolygons[i];
 
@@ -234,6 +236,8 @@ void drawColoredPolygons() {
 		}
 		glEnd();
 	}
+	
+	glDisable(GL_SCISSOR_TEST);
 }
 
 
@@ -443,6 +447,11 @@ void refreshProjection() {
                 -delta,
                 -1,
                 1);
+
+		// Scissor test to draw stuff only within the image
+		// (Use this for the voronoi-diagram-colors
+		int scissorDelta = delta * windowHeight / renderHeight;
+		glScissor(0, scissorDelta, windowWidth, windowHeight - (2 * scissorDelta));
 	} else {
 		double ratio = ((double) windowWidth) / windowHeight;
 		
@@ -457,6 +466,11 @@ void refreshProjection() {
                 0,
                 -1,
                 1);
+
+		// Scissor test to draw stuff only within the image
+		// (Use this for the voronoi-diagram-colors
+		int scissorDelta = delta * windowWidth / renderWidth;
+		glScissor(scissorDelta, 0, windowWidth - (2 * scissorDelta), windowHeight);
 	}
 
 	glMatrixMode(GL_MODELVIEW);
