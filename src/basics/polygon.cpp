@@ -154,6 +154,17 @@ vector<int> clipPolygonToRectangle(const vector<int>& poly, int x1, int y1, int 
 	// 2) From some "inside" the polygon point (e.g. the first intersection),
 	//     follow the "inside" path to build up our output.
 
+	int minX, maxX, minY, maxY;
+	boundingBox(poly, minX, maxX, minY, maxY);
+
+	if (x1 < minX && maxX < x2 &&
+		y1 < minY && maxY < y2) {
+		// The polygon's bounding box is entirely within the rectangle,
+		//  ergo nothing to clip.
+
+		return poly;
+	}
+
 	vector<PolygonClippingIntersection*> intersections;
 
 	const int N = poly.size() / 2;

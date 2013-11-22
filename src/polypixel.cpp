@@ -165,16 +165,6 @@ void findSomeColor3iv(const std::vector<int>& unclippedPoly, int* colorIv) {
 	// Clip polygon to ensure we have nothing out of bounds
 	vector<int> poly = clipPolygonToRectangle(unclippedPoly, 0, 0, loadedImageWidth - 1, loadedImageHeight - 1);
 
-	// Find bounding box of polygon
-	int minX, maxX, minY, maxY;
-	boundingBox(poly, minX, maxX, minY, maxY);
-
-	// Within this bounding box, search for all the points.
-	int left   = minX;
-	int right  = maxX;
-	int top    = minY;
-	int bottom = maxY;
-
 
 	// Read the pixels from the relevant section
 	int offsetX = 0;
