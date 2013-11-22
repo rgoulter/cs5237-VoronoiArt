@@ -1,6 +1,7 @@
 # CS5237 Project.
 
 Our group project for Computational Geometry.
+
 Create a "stain-glass" effect using the Voronoi diagram of an image, with randomly generated points.
 
 ## Known Limitations and Future Improvements
@@ -16,6 +17,7 @@ Solution and Project files are provided for MSVC++ 2010.
 ## Project Dependencies
 
 Various libraries used in this project include:
+
 * OpenGL
 * OpenCV version 2.4.6
 * Qt version 5.1.1
@@ -26,6 +28,7 @@ Various libraries used in this project include:
 ## General Project Structure
 
 Directories within the root project folder are:
+
 * forms - for Qt .ui form files.
 * gtest-1.7.0 - the gtest dependency.
 * include - for .h, .hpp header files.
@@ -38,12 +41,15 @@ Directories within the root project folder are:
 * test - for .cpp gtest source files.
 
 Within the include, src folders there is an expected hierarchy also:
+
 basics, basicsP2, basicsP3 for historical reasons separate code that was made during phases I, II, and III. (This distinction is no longer necessary).
+
 Folders linux, win32 are for platform-specific headers and source implementations; this avoids #ifdefs, and puts the onus of platform specific code on the build system.
 
 ### Visual Studio Projects
 
 Projects include:
+
 * basics_libs - for the core structures and algorithms used by the Qt application.
 * cs5237_qt - the Qt application project.
 * polyavg_shader_test - a small driver program to test speeds and results of methods to find color for a polygon.
