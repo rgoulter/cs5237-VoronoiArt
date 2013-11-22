@@ -462,6 +462,7 @@
     <slot>doDrawEdgeBlur()</slot>
     <slot>doDrawPDF()</slot>
     <slot>doDrawEffect()</slot>
+    <slot>doGenerateUniformRandomPoints()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -802,6 +803,22 @@
     <hint type="destinationlabel">
      <x>409</x>
      <y>210</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnGenUniform</sender>
+   <signal>clicked()</signal>
+   <receiver>glWidget</receiver>
+   <slot>doGenerateUniformRandomPoints()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>507</x>
+     <y>391</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>427</x>
+     <y>395</y>
     </hint>
    </hints>
   </connection>

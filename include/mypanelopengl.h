@@ -32,6 +32,7 @@ public slots:
 	void doDrawEffect();
 
 	void doVoronoiDiagram();
+	void doGenerateUniformRandomPoints();
 	void doPDF();
 	
 	void setNumPoints1k();

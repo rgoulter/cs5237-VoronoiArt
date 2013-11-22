@@ -64,6 +64,30 @@ void generateOGLTextureForOpenCVMat(GLuint& tex, const Mat& M){
 
 
 
+// It would be nice to abstract these details and have some kind of "constant" PDF / mat,
+// and generate points from that. Oh well.
+vector<int> generateUniformRandomPoints(int numPoints) {
+	vector<int> outputPts;
+
+	// Now generate random points
+	srand((unsigned) time(0));
+
+    for(int i = 0; i < numPoints; i++){
+		double rndX = double(rand()) / RAND_MAX;
+		double rndY = double(rand()) / RAND_MAX;
+
+		int x = (int) (rndX * loadedImageWidth);
+		int y = (int) (rndY * loadedImageHeight);
+		
+		outputPts.push_back(x);
+		outputPts.push_back(y);
+    }
+
+	return outputPts;
+}
+
+
+
 vector<int> generatePointsWithPDF(int numPDFPoints) {
 	src = imread(loadedImageFilename);
 
