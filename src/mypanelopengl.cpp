@@ -747,16 +747,11 @@ void createpolygonsFortune(){
 
 void MyPanelOpenGL::doVoronoiDiagram(){
     //qDebug("Do Voronoi creation\n");
-	
-	// Commenting out the following code for implementing Fortune's
-	/*voronoiEdges.clear();
-	if (delaunayPointSet.myPoints.size() > 0)
-		createVoronoi();
-	else
-	{
-		doDelaunayTriangulation();
-		createVoronoi();
-	}*/
+
+	StopWatch voroSW;
+
+	voroSW.reset();
+	voroSW.resume();
 
 	// Do Voronoi using Fortune's algorithm
 	voronoiEdges.clear();
@@ -766,16 +761,30 @@ void MyPanelOpenGL::doVoronoiDiagram(){
 
 	voronoiedges = voronoi->GetEdges(voronoivertices,10000,10000);
 	
-	
+	voroSW.pause();
+	double timeFortune = voroSW.ms();
+	qDebug("TIME: voronoi->GetEdges(..) is %f", timeFortune);
+	voroSW.reset();
+	voroSW.resume();
+
 	createpolygonsFortune();
-
-
+	
+	voroSW.pause();
+	double timePolyConstruct = voroSW.ms();
+	qDebug("TIME: createpolygonsFortune() is %f", timePolyConstruct);
+	voroSW.reset();
+	voroSW.resume();
 
 	
- 
 	// Make the colored polygons from Voronoi.
 	generateColoredPolygons(voronoiEdges);
 	currentRenderType = EFFECT;
+	
+	voroSW.pause();
+	double timePolyColor = voroSW.ms();
+	qDebug("TIME: generateColoredPolygons(..) is %f", timePolyColor);
+	voroSW.reset();
+	voroSW.resume();
 
 	setVoronoiComputed(true);
 
