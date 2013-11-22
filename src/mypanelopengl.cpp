@@ -784,27 +784,48 @@ void MyPanelOpenGL::doVoronoiDiagram(){
 	voroSW.reset();
 	voroSW.resume();
 
-	// Do Voronoi using Fortune's algorithm
-	voronoiEdges.clear();
-	voronoivertices ->push_back(new VPoint(0.0, 10000.0));
-	voronoivertices ->push_back(new VPoint(-10000.0, -10000.0));
-	voronoivertices ->push_back(new VPoint(10000.0, -10000.0));
+	bool useOldVoronoiAlgo = false;
 
-	voronoiedges = voronoi->GetEdges(voronoivertices,10000,10000);
+	if (useOldVoronoiAlgo) {
+		doDelaunayTriangulation();
 	
-	voroSW.pause();
-	double timeFortune = voroSW.ms();
-	qDebug("TIME: voronoi->GetEdges(..) is %f", timeFortune);
-	voroSW.reset();
-	voroSW.resume();
+		voroSW.pause();
+		double timeDelaunay = voroSW.ms();
+		qDebug("TIME: doDelaunayTriangulation() is %f", timeDelaunay);
+		voroSW.reset();
+		voroSW.resume();
 
-	createpolygonsFortune();
+
+		createVoronoi();
 	
-	voroSW.pause();
-	double timePolyConstruct = voroSW.ms();
-	qDebug("TIME: createpolygonsFortune() is %f", timePolyConstruct);
-	voroSW.reset();
-	voroSW.resume();
+		voroSW.pause();
+		double timeCreateVoronoi = voroSW.ms();
+		qDebug("TIME: createVoronoi() is %f", timeCreateVoronoi);
+		voroSW.reset();
+		voroSW.resume();
+	} else {
+		// Do Voronoi using Fortune's algorithm
+		voronoiEdges.clear();
+		voronoivertices ->push_back(new VPoint(0.0, 10000.0));
+		voronoivertices ->push_back(new VPoint(-10000.0, -10000.0));
+		voronoivertices ->push_back(new VPoint(10000.0, -10000.0));
+
+		voronoiedges = voronoi->GetEdges(voronoivertices,10000,10000);
+	
+		voroSW.pause();
+		double timeFortune = voroSW.ms();
+		qDebug("TIME: voronoi->GetEdges(..) is %f", timeFortune);
+		voroSW.reset();
+		voroSW.resume();
+
+		createpolygonsFortune();
+	
+		voroSW.pause();
+		double timePolyConstruct = voroSW.ms();
+		qDebug("TIME: createpolygonsFortune() is %f", timePolyConstruct);
+		voroSW.reset();
+		voroSW.resume();
+	}
 
 	
 	// Make the colored polygons from Voronoi.
