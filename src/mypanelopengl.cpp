@@ -879,13 +879,13 @@ void MyPanelOpenGL::doSaveImage() {
 	unsigned char *data;
 	data = (unsigned char *) malloc(numComponents * copyWidth * copyHeight * sizeof(unsigned char));
 	
-
     glPixelStorei(GL_PACK_ALIGNMENT, 1); // align to the byte..
+	glReadBuffer(GL_FRONT);
 
 	// Read in "correct" row...
 	// (I think I have to do this since the texture coordinates' y-axis is flipped
 	//  compared to the rendered y-axis).
-
+	
 	for (int rowOffset = 0; rowOffset < copyHeight; rowOffset++) {
 		int copyRow = y + copyHeight - rowOffset - 1; // reverse this.
 		unsigned char * copyAddress = data + rowOffset * (copyWidth * numComponents);
