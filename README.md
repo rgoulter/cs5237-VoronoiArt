@@ -4,6 +4,23 @@ Our group project for Computational Geometry.
 
 Create a "stain-glass" effect using the Voronoi diagram of an image, with randomly generated points.
 
+This project is based on methods out in the paper: http://www.cs.swarthmore.edu/~adanner/cs97/s08/papers/gorbach.pdf
+
+## Usage
+
+Load an image using the "..." button.
+
+Select a number of points to generate. 1,000 works well.
+
+Generate random points, either with a uniform distribution, or with a Probability Distribution based on detected edges.
+
+Generate the Voronoi diagram of these points.
+
+Clicking the "Draw Image", "Draw Effect" buttons will allow you to switch between what is shown on the canvas. Voronoi sites and edges can be shown/hidden with the checkboxes.
+(You can also see the Edge detection steps, if the points were generated with the edge detection method).
+
+Clicking "Save Image" will output the canvas to "output.bmp" in the current directory.
+
 ## Known Limitations and Future Improvements
 
 * The color of the polygons do not represent the true average color of the area of the polygon in the image. This limitation was present for speed limitations. A GLSL fragment shader was implemented but not integrated.
