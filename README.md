@@ -1,60 +1,57 @@
 # CS5237 Project.
 
+Our group project for Computational Geometry.
+Create a "stain-glass" effect using the Voronoi diagram of an image, with randomly generated points.
+
+## Known Limitations and Future Improvements
+
+* The color of the polygons do not represent the true average color of the area of the polygon in the image. This limitation was present for speed limitations. A GLSL fragment shader was implemented but not integrated.
+* SOIL has issues loading certain images.
+* Our implementation of Fortune's algorithm has difficulty with co-linear points. We jitter the input points in order to mitigate this.
+
 ## Visual Studio version
 
-Version of Visual Studio which the Solution files use from the zips seems to be 2008.
+Solution and Project files are provided for MSVC++ 2010.
 
-## Phase II
+## Project Dependencies
 
-See the PPT for info. Building up triangulations using the Random-Incremental Algorithm
-discussed in class.
-
-Phase II requires OpenGL, and thus requires GLUT.
-If I recall correctly, the following links should be useful for installing GLUT on Windows.
-http://user.xmission.com/~nate/glut.html for the files, and follow the instructions in the readme for it.
-(Email for help if you're unsure about this).
+Various libraries used in this project include:
+* OpenGL
+* OpenCV version 2.4.6
+* Qt version 5.1.1
+* GLEW (for shaders)
+* SOIL (included in repo)
+* GTest (for testing, included in repo)
 
 ## General Project Structure
 
-Phase II is being handled entirely within the Phase II directory.
-(This is due to difficulty handling Visual Studio, blargh).
-As such, its subfolder 'basics' refers to Phase I structures,
-and its subfolder 'basicsP2' refers to Phase II structures.
+Directories within the root project folder are:
+* forms - for Qt .ui form files.
+* gtest-1.7.0 - the gtest dependency.
+* include - for .h, .hpp header files.
+* make - for makefiles.
+* msvc - for MSVC++ solutions and projects.
+* resource - for Qt .rc files.
+* shaders - for .vert, .frag GLSL shaders.
+* soil - for the SOIL dependency.
+* src - for .cpp source files.
+* test - for .cpp gtest source files.
 
-The Phase II folder itself has a 'main.cpp' file, which has an
-OpenGL/GLUT application, and the logic for the Phase II program.
-(The folder CS5237 in the base of the repo hosts a similar file
-for Phase I).
+Within the include, src folders there is an expected hierarchy also:
+basics, basicsP2, basicsP3 for historical reasons separate code that was made during phases I, II, and III. (This distinction is no longer necessary).
+Folders linux, win32 are for platform-specific headers and source implementations; this avoids #ifdefs, and puts the onus of platform specific code on the build system.
 
-Basics (P1) involves the data structures LongInt and PointSet.
-Basics (P2) involves the data structures PointSetArray, and Trist.
-PointSetArray extends PointSet, to allow for things like getting the point,
-and clearing all points. Trist is a TRIangle STructure, and manages
-the triangle point table as described in the notes on Ordered Triangle.
+### Visual Studio Projects
 
-THINGS TO BE AWARE OF:
-Indexing points is kindof a bitch / kindof inconsistent at the moment.
-e.g. PSA.getPoint(idx, x, y) has a 1-based index as argument (since the
-triangles are constructed with 1-based index points), but PS.inTri has
-0-based indices. (Since that's what the internal vector uses?).
-Indexing Triangles has the issue that Trist's methods expect an OrTri
-(Ordered Triangle), rather than just a tIdx (triangle index). This is
-resolved by shifting tIdx as described in Ordered Triangle notes.
+Projects include:
+* basics_libs - for the core structures and algorithms used by the Qt application.
+* cs5237_qt - the Qt application project.
+* polyavg_shader_test - a small driver program to test speeds and results of methods to find color for a polygon.
+* unittests - the GTest unit tests.
+* gtest - the GTest dependency project.
+* SOIL - the SOIL dependency project.
 
-## Projects Loving Each Other
-
-Because I don't trust Git + VS projects..
-You'll need to ensure a few things so that the projects combine nicely.
-i) That the ..\basics, ..\basicsP2, etc. directories (with the *.h files, e.g. li.h) are
-   found by the compiler. This is in the option:
-   Project -> Properties -> Configuration Properties -> C/C++ -> Additional Include Directories
-ii) That the linker will find the files from the depended-on projects.
-   This is found with:
-   Project -> Properties -> Common Properties -> Framework and References -> Add New Reference...
-   And ensure "Link Library Dependencies" is set (to True).
-
-
-With GTest and such:
+## GTest and such:
 Maybe get Link Error2005, because GTest isn't quite right:
 	"Make sure that all your individual projects are compiled with the same runtime libraries,
 	this is specified in Properties -> C/C++ -> Code Generation -> Runtime Library...
