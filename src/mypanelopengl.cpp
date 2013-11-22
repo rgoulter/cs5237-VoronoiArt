@@ -509,6 +509,7 @@ void tryInsertPoint (LongInt x, LongInt y) {
 	
 
 	voronoivertices ->push_back(new VPoint(x.doubleValue()+((double)rand()*15.0/(double)RAND_MAX), y.doubleValue()+((double)rand()*15.0/(double)RAND_MAX) ));
+	//voronoivertices ->push_back(new VPoint(x.doubleValue(), y.doubleValue() ));
 }
 
 void loadOpenGLTextureFromFilename(string imgFilename) {
@@ -817,7 +818,7 @@ void MyPanelOpenGL::doVoronoiDiagram(){
 		voronoivertices ->push_back( new VPoint(10000.0 +((double)rand()*15.0/(double)RAND_MAX),-10000.0 +((double)rand()*15.0/(double)RAND_MAX) ));
 		voronoivertices ->push_back( new VPoint(-10000.0 +((double)rand()*15.0/(double)RAND_MAX),-10000.0 +((double)rand()*15.0/(double)RAND_MAX) ));
 
-		voronoiedges = voronoi->GetEdges(voronoivertices,1,1);
+		voronoiedges = voronoi->GetEdges(voronoivertices,10000,10000);
 	
 		voroSW.pause();
 		double timeFortune = voroSW.ms();
