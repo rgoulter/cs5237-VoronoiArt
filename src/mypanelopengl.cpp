@@ -287,6 +287,9 @@ void display (void) {
 void generateColoredPolygons(vector<vector<int>>& polys){
 	hasCalculatedColoredPolygons = 0;
 	renderedPolygons.clear();
+	
+	StopWatch allSW;
+	allSW.resume();
 
 	for (int i = 0; i < polys.size(); i++) {
 		// Clip polygon to ensure we have nothing out of bounds
@@ -295,7 +298,15 @@ void generateColoredPolygons(vector<vector<int>>& polys){
 		vector<int> poly = polys[i];
 
 		int colorIv[3];
+		
+		StopWatch sw;
+		sw.resume();
+
 		findSomeColor3iv(poly, colorIv);
+
+		sw.pause();
+		double timeFindSomeColor = sw.ms();
+		qDebug("TIME: Find some color time: %f", timeFindSomeColor);
 
 		ColoredPolygon coloredPoly;
 
@@ -306,6 +317,12 @@ void generateColoredPolygons(vector<vector<int>>& polys){
 
 		renderedPolygons.push_back(coloredPoly);
 	}
+	
+	allSW.pause();
+	double timeFindSomeColor = allSW.ms();
+	int n = polys.size();
+	double timeAvg = timeFindSomeColor / n;
+	qDebug("TIME: Average: %f for %d polygons. Total: %f", timeAvg, n, timeFindSomeColor);
 
 	hasCalculatedColoredPolygons = 1;
 }

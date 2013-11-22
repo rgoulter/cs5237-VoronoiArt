@@ -524,7 +524,26 @@ int main(int argc, char** argv) {
 //-----------------------------------------------------------------------------
 // Perform computation on CPU.
 //-----------------------------------------------------------------------------
-    printf("CPU COMPUTATION:\n");
+    printf("CPU COMPUTATION (Quick Estimate):\n");
+	StopWatch cpuComputation1SW;
+	cpuComputation1SW.resume();
+
+    // CPU Calculation here.
+	int cpuResult1[3];
+	findSomeColor3iv(poly, cpuResult1);
+	
+	cpuComputation1SW.pause();
+	double cpuTime1 = cpuComputation1SW.ms();
+	printf("Time elapsed = %.4f msec\n", cpuTime1);
+
+    // Print some results.
+    printf("Result = (%3d, %3d, %3d)\n", cpuResult1[0], cpuResult1[1], cpuResult1[2]);
+    printf("\n\n");
+
+//-----------------------------------------------------------------------------
+// Perform computation on CPU.
+//-----------------------------------------------------------------------------
+    printf("CPU COMPUTATION (True Avg):\n");
 	StopWatch cpuComputationSW;
 	cpuComputationSW.resume();
 
