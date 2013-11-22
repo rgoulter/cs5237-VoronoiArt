@@ -302,15 +302,7 @@ void generateColoredPolygons(vector<vector<int>>& polys){
 		vector<int> poly = polys[i];
 
 		int colorIv[3];
-		
-		StopWatch sw;
-		sw.resume();
-
 		findSomeColor3iv(poly, colorIv);
-
-		sw.pause();
-		double timeFindSomeColor = sw.ms();
-		qDebug("TIME: Find some color time: %f", timeFindSomeColor);
 
 		ColoredPolygon coloredPoly;
 
