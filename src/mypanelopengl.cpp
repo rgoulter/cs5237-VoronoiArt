@@ -502,10 +502,13 @@ void init (void) {
 
 
 void tryInsertPoint (LongInt x, LongInt y) {
-	int ptIndex = inputPointSet.addPoint(x, y);
+	
 
-	// Points for Fortune's
-	voronoivertices ->push_back(new VPoint(x.doubleValue(), y.doubleValue()));
+	int ptIndex = inputPointSet.addPoint(x, y);
+	
+	
+
+	voronoivertices ->push_back(new VPoint(x.doubleValue()+((double)rand()*15.0/(double)RAND_MAX), y.doubleValue()+((double)rand()*15.0/(double)RAND_MAX) ));
 }
 
 void loadOpenGLTextureFromFilename(string imgFilename) {
@@ -807,11 +810,14 @@ void MyPanelOpenGL::doVoronoiDiagram(){
 	} else {
 		// Do Voronoi using Fortune's algorithm
 		voronoiEdges.clear();
-		voronoivertices ->push_back(new VPoint(0.0, 10000.0));
-		voronoivertices ->push_back(new VPoint(-10000.0, -10000.0));
-		voronoivertices ->push_back(new VPoint(10000.0, -10000.0));
+		
+		// Bounding Points for Fortune's
+		voronoivertices ->push_back( new VPoint(-10000.0 +((double)rand()*15.0/(double)RAND_MAX),10000.0 +((double)rand()*15.0/(double)RAND_MAX) ));
+		voronoivertices ->push_back( new VPoint(10000.0 +((double)rand()*15.0/(double)RAND_MAX),10000.0 +((double)rand()*15.0/(double)RAND_MAX) ));
+		voronoivertices ->push_back( new VPoint(10000.0 +((double)rand()*15.0/(double)RAND_MAX),-10000.0 +((double)rand()*15.0/(double)RAND_MAX) ));
+		voronoivertices ->push_back( new VPoint(-10000.0 +((double)rand()*15.0/(double)RAND_MAX),-10000.0 +((double)rand()*15.0/(double)RAND_MAX) ));
 
-		voronoiedges = voronoi->GetEdges(voronoivertices,10000,10000);
+		voronoiedges = voronoi->GetEdges(voronoivertices,1,1);
 	
 		voroSW.pause();
 		double timeFortune = voroSW.ms();

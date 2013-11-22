@@ -63,7 +63,7 @@ void	Voronoi::InsertParabola(VPoint * p)
 {
 	if(!root){root = new VParabola(p); return;}
 
-	if(root->isLeaf && root->site->y - p->y < 1) // degenerovaný pøípad - obì spodní místa ve stejné výšce
+	if(root->isLeaf && root->site->y - p->y < 0.1) // degenerovaný pøípad - obì spodní místa ve stejné výšce
 	{
 		VPoint * fp = root->site;
 		root->isLeaf = false;
@@ -268,11 +268,15 @@ void	Voronoi::CheckCircle(VParabola * b)
 
 VPoint * Voronoi::GetEdgeIntersection(VEdge * a, VEdge * b)
 {
-	//Test COde
-	if(a->f - b->f == 0) {a->f = b->f + 1;}
-
+	
 	double x = (b->g-a->g) / (a->f - b->f);
 	double y = a->f * x + a->g;
+	
+	//Test COde
+	//if(a->f - b->f >=0)
+	//{if(b->g-a->g>=0) x= 1000000.0;
+	//else x = -1000000.0;}
+
 
 	if((x - a->start->x)/a->direction->x < 0) return 0;
 	if((y - a->start->y)/a->direction->y < 0) return 0;

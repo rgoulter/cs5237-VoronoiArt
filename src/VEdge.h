@@ -49,10 +49,13 @@ public:
 		neighbour	= 0;
 		end			= 0;
 
-		//Test COde
-		if(a->y - b->y==0){a->y=b->y+1;}
-
+		
 		f = (b->x - a->x) / (a->y - b->y) ;
+		//Test COde
+		//if(a->y - b->y==0)
+		//{if(b->x - a->x >=0) f=1000000.0;
+		//else f=-100000.0;}
+
 		g = s->y - f * s->x ;
 		direction = new VPoint(b->y - a->y, -(b->x - a->x));
 	}
