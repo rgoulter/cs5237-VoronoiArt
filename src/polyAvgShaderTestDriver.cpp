@@ -512,10 +512,14 @@ int main(int argc, char** argv) {
 
     // GPU Calculation here.
 	int gpuResult[3];
+	int n = 1;
 	GPU_findAverageColor3iv(poly, gpuResult);
 
 	stopwatch.pause();
-	printf("Time elapsed = %.4f msec\n", stopwatch.ms());
+	double gpuTime = stopwatch.ms();
+	double gpuAvgTime = gpuTime / n;
+	printf("Time elapsed = %.4f msec for %d executions\n", gpuTime, n);
+	printf("Average Time = %.4f msec\n", gpuAvgTime);
 
     // Print some results.
     printf("Result = (%3d, %3d, %3d)\n", gpuResult[0], gpuResult[1], gpuResult[2]);
