@@ -27,6 +27,10 @@
 #include "delaunayTri.h"
 #include "directedGraph.h"
 
+// Imports as part of implementing Fortune's algorithm
+#include "Voronoi.h"
+#include "VPoint.h"
+
 using namespace std;
 
 void animate(int t);
@@ -62,6 +66,11 @@ DirectedGraph dag(delaunayPointSet);
 LongInt delta = 5;
 LongInt one = 1;
 int flag = 0; // for knowing if the command 'CD' is called for the first time or not
+
+//The following globals are required for Fortune's algorithm
+vor::Voronoi * voronoi;
+vor::Vertices * voronoivertices;  
+vor::Edges * voronoiedges;
 
 // These three functions are for those who are not familiar with OpenGL, you can change these or even completely ignore them
 
@@ -193,6 +202,12 @@ void init (void) {
 
 void tryInsertPoint (LongInt x, LongInt y) {
 	int ptIndex = inputPointSet.addPoint(x, y);
+	voronoivertices ->push_back(new VPoint(x.doubleValue(), y.doubleValue()));
+	
+
+	//This code will bypass the delaunay triangulation and use Fortune's algorithm to generate voronoi.
+
+
 
 	// The below portion is commented out as IP essentially means AP in Phase 3.
 
@@ -673,6 +688,11 @@ void mouse(int button, int state, int x, int y) {
 
 
 int main (int argc, char **argv) {
+	
+	//Initialize voronoi components for Fortune's
+	voronoi = new vor::Voronoi();
+	voronoivertices = new vor::Vertices();
+
 	cout<<"CS5237 Phase II"<< endl<< endl;
 
 	cout << "Right mouse click: OT operation"<<endl;
@@ -699,8 +719,9 @@ int main (int argc, char **argv) {
 	glutReshapeFunc(reshape);
 	glutMouseFunc(mouse);
 	glutKeyboardFunc(keyboard);
-
 	glutMainLoop();
+
+
 
 	return 0;
 }

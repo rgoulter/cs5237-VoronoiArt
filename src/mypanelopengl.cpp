@@ -35,6 +35,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+//Imports as part of implementing Fortune's algorithm
+#include "Voronoi.h"
+#include "VPoint.h"
+
 using namespace std;
 
 void animate(int t);
@@ -85,6 +89,11 @@ bool showVoronoiEdges = false;
 
 // Variables for point generation.
 int numPDFPoints = 75;
+
+//Initialize voronoi components for Fortune's algorithm
+vor::Voronoi * voronoi = new vor::Voronoi();
+vor::Vertices * voronoivertices = new vor::Vertices();
+vor::Edges * voronoiedges;
 
 // These three functions are for those who are not familiar with OpenGL, you can change these or even completely ignore them
 
@@ -462,6 +471,9 @@ void init (void) {
 
 void tryInsertPoint (LongInt x, LongInt y) {
 	int ptIndex = inputPointSet.addPoint(x, y);
+
+	// Points for Fortune's
+	voronoivertices ->push_back(new VPoint(x.doubleValue(), y.doubleValue()));
 }
 
 void loadOpenGLTextureFromFilename(string imgFilename) {
@@ -591,17 +603,176 @@ void MyPanelOpenGL::doDelaunayTriangulation(){
 	updateGL();
 }
 
+// This function is part of Fortune's implementation & outputs the voronoiEdges required for the generateColoredPolygons
+void createpolygonsFortune(){
+
+	//The dictionary is indexed by the voronoi points and gives the polygon for each voronoi.
+	// The border polygons are unbounded, so need to be careful.
+	std::map<VPoint *, std::vector<VEdge *>> dictionary;
+	for(vor::Edges::iterator i = voronoiedges->begin(); i!= voronoiedges->end(); ++i)
+	{
+		VEdge *edge = *i;
+		VPoint *leftpt = edge->left;
+		VPoint *rightpt = edge->right;
+
+		//Check if the dictionary has leftpoint
+		std::vector<VEdge *> listofedges;
+		std::map<VPoint *, std::vector<VEdge *>>::iterator it = dictionary.find(leftpt); 		
+		if(it!=dictionary.end())		
+		{
+			it->second.push_back(edge);
+		}
+				
+		else
+		{
+			listofedges.push_back(edge);
+			dictionary.insert(std::map<VPoint *,std::vector<VEdge *> >::value_type(leftpt,listofedges));				
+		}
+		
+		//Check if the dictionary has rightpoint
+		std::vector<VEdge *> listofedges2;
+		std::map<VPoint *, std::vector<VEdge *>>::iterator it2 = dictionary.find(rightpt); 		
+		if(it2!=dictionary.end())		
+		{
+			it2->second.push_back(edge);
+		}
+				
+		else
+		{
+			listofedges2.push_back(edge);
+			dictionary.insert(std::map<VPoint *,std::vector<VEdge *> >::value_type(rightpt,listofedges2));				
+		}		
+	}
+
+	// Convert each of the dictionary values(polygons) into ordered list of PointSetArray vertex set.
+	std::map<VPoint *, std::vector<VEdge *>>::iterator dictioniter;
+	for(dictioniter = dictionary.begin() ; dictioniter!= dictionary.end(); ++dictioniter)
+	{
+		std::vector<VEdge *>polygonedges = dictioniter->second;
+		PointSetArray polygonvertices;
+		std::vector<VPoint *> revvector;
+		// polygonedges has a set of edges, create an ordered list of points from this.	
+		//Take the first edge, store its start and end points into pointsetarray.
+		VEdge * firstedge = *polygonedges.begin();
+		polygonvertices.addPoint( (LongInt)firstedge->start->x, (LongInt)firstedge->start->y );
+		polygonvertices.addPoint( (LongInt)firstedge->end->x, (LongInt)firstedge->end->y );
+
+		// Store the start and end point of this edge for later use. When the last edge is found, its end edge will be the same as 
+		// the first edge's starting point. This signifies completion of polygon.
+		// The ending point will be updated as each subsequent edge is found.
+		VPoint *startpoint = new VPoint(firstedge->start->x,firstedge->start->y);
+		VPoint *endpoint = new VPoint(firstedge->end->x,firstedge->end->y);
+		polygonedges.erase(polygonedges.begin());
+
+		int edgecounter = polygonedges.size();
+		
+
+		while( edgecounter > 0 )
+		{
+			std::vector<VEdge *>::iterator polygonedgeiter;
+			int exitflag = 0;
+			
+			// Iterate throught the remaining list of edges to find the subsequent edge
+			for (polygonedgeiter = polygonedges.begin(); polygonedgeiter!=polygonedges.end(); ++polygonedgeiter)
+			{
+				VEdge * eachedge = *polygonedgeiter;
+				if (eachedge->start->x==endpoint->x && eachedge->start->y==endpoint->y )
+				{
+					polygonvertices.addPoint( (LongInt)eachedge->end->x, (LongInt)eachedge->end->y );
+					endpoint->x = eachedge->end->x; // Check if this pointer assignment works...
+					endpoint->y = eachedge->end->y;
+					polygonedges.erase(polygonedgeiter); // Delete the edge that has been added to the pointset array
+					edgecounter--;
+					exitflag=1;
+					break;
+				}
+				else if (eachedge->end->x==endpoint->x && eachedge->end->y==endpoint->y )
+				{
+					polygonvertices.addPoint( (LongInt)eachedge->start->x, (LongInt)eachedge->start->y );
+					endpoint->x = eachedge->start->x;
+					endpoint->y = eachedge->start->y;
+					polygonedges.erase(polygonedgeiter); // Delete the edge that has been added to the pointset array
+					edgecounter--;
+					exitflag=1;
+					break;
+				}			
+				
+			} //If edge has not been found, the following break executes and while exits with incomplete polygon(border condition).
+			if (edgecounter>0 && exitflag==0) 
+			{
+				//PointSetArray revpolygonvertices;
+				
+				for (polygonedgeiter = polygonedges.begin(); polygonedgeiter!=polygonedges.end(); ++polygonedgeiter)
+				{
+					VEdge * eachedge = *polygonedgeiter;
+					if(eachedge->start->x ==startpoint->x && eachedge->start->y==startpoint->y)
+					{
+						//revpolygonvertices.addPoint( (LongInt)eachedge->end->x, (LongInt)eachedge->end->y );
+						revvector.push_back(eachedge->end);
+						startpoint->x = eachedge->end->x; // Check if this pointer assignment works...
+						startpoint->y = eachedge->end->y;
+						polygonedges.erase(polygonedgeiter);
+						edgecounter--;
+						exitflag=1;
+						break;
+					}
+					else if(eachedge->end->x ==startpoint->x && eachedge->end->y==startpoint->y)
+					{
+						//revpolygonvertices.addPoint( (LongInt)eachedge->start->x, (LongInt)eachedge->start->y );
+						revvector.push_back(eachedge->start);
+						startpoint->x = eachedge->start->x;
+						startpoint->y = eachedge->start->y;
+						polygonedges.erase(polygonedgeiter);
+						edgecounter--;
+						exitflag=1;
+						break;
+					}
+
+				}// End of for				
+
+			}
+			
+		}	//End of while- Current polygon has been found
+		//Push the polygon into the list of polygons.
+		while(revvector.size()!=0)
+				{
+					VPoint * point = revvector.back();					
+					polygonvertices.addPoint( (LongInt)point->x, (LongInt)point->y );
+					revvector.pop_back();
+				}
+		voronoiEdges.push_back(polygonvertices);
+		
+	}// All polygons have been found
+}
+
 void MyPanelOpenGL::doVoronoiDiagram(){
     //qDebug("Do Voronoi creation\n");
-	voronoiEdges.clear();
+	
+	// Commenting out the following code for implementing Fortune's
+	/*voronoiEdges.clear();
 	if (delaunayPointSet.myPoints.size() > 0)
 		createVoronoi();
 	else
 	{
 		doDelaunayTriangulation();
 		createVoronoi();
-	}
+	}*/
 
+	// Do Voronoi using Fortune's algorithm
+	voronoiEdges.clear();
+	voronoivertices ->push_back(new VPoint(0.0, 10000.0));
+	voronoivertices ->push_back(new VPoint(-10000.0, -10000.0));
+	voronoivertices ->push_back(new VPoint(10000.0, -10000.0));
+
+	voronoiedges = voronoi->GetEdges(voronoivertices,10000,10000);
+	
+	
+	createpolygonsFortune();
+
+
+
+	
+ 
 	// Make the colored polygons from Voronoi.
 	generateColoredPolygons(voronoiEdges);
 	currentRenderType = EFFECT;
@@ -681,6 +852,7 @@ void MyPanelOpenGL::doPDF(){
 		int x = points[i * 2];
 		int y = points[i * 2 + 1];
 
+		
 		tryInsertPoint(x, y);
 	}
 
@@ -692,6 +864,10 @@ void MyPanelOpenGL::doPDF(){
 
 void MyPanelOpenGL::clearAll(){
 	// Clear all our points, and such data.
+
+	//Reset voronoi components for Fortune's algorithm
+	voronoi = new vor::Voronoi();
+	voronoivertices = new vor::Vertices();	
 
 	// Clear all the colored polygons.
 	bool hasCalculatedColoredPolygons = false;
