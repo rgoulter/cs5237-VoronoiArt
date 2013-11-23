@@ -45,7 +45,7 @@ class DirectedGraph {
 		void cleardirectedGraph();
 
 		// Finds the linked delaunay triangles for the input point id
-		std::vector<TriRecord> DirectedGraph::findlinkedNodes(int );
+		std::vector<TriRecord> findlinkedNodes(int );
 
 	protected:
 		
