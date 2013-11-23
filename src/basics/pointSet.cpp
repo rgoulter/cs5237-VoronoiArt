@@ -55,7 +55,7 @@ bool PointSet::circumCircle(int p1Idx, int p2Idx, int p3Idx, MyPoint& center){
     dC = p3.x * p3.x + p3.y * p3.y;
  
     aux1 = (dA*(p3.y - p2.y) + dB*(p1.y - p3.y) + dC*(p2.y - p1.y));	
-    aux2 = -(dA*(p3.x - p2.x) + dB*(p1.x - p3.x) + dC*(p2.x - p1.x));	
+    aux2 = LongInt(0) - (dA*(p3.x - p2.x) + dB*(p1.x - p3.x) + dC*(p2.x - p1.x)); // Negate not actually defined
     div = (two*(p1.x*(p3.y - p2.y) + p2.x*(p1.y-p3.y) + p3.x*(p2.y - p1.y)));
 	
  

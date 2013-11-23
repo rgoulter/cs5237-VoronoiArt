@@ -5,6 +5,8 @@
 
 #ifdef _WIN32 /*[*/
 #include <io.h>
+#else
+#include <unistd.h>
 #endif /*]*/
 
 #include <GL/glew.h>
@@ -117,7 +119,7 @@ static int fileSize( const char *fileName )
         _close(fd);
     }
 #else
-    fd = open(name, O_RDONLY);
+    fd = open(fileName, O_RDONLY);
     if (fd != -1)
     {
         count = lseek(fd, 0, SEEK_END);

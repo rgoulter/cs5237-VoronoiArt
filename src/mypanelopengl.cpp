@@ -5,8 +5,6 @@
 #include <QFileDialog>
 #include <QString>
 
-#include "SOIL.h"
-
 #include "math.h"
 #include <iostream>
 #include <fstream>
@@ -292,7 +290,7 @@ void display (void) {
 
 
 
-void generateColoredPolygons(vector<vector<int>>& polys){
+void generateColoredPolygons(vector< vector<int> >& polys){
 	hasCalculatedColoredPolygons = 0;
 	renderedPolygons.clear();
 	
@@ -329,9 +327,9 @@ void generateColoredPolygons(vector<vector<int>>& polys){
 
 
 
-void generateColoredPolygons(vector<vector<MyPoint>>& myPointPolys){
+void generateColoredPolygons(vector< vector<MyPoint> >& myPointPolys){
 	// Coerce the PSAs to vec<int> poly representation
-	vector<vector<int>> ivPolys;
+	vector< vector<int> > ivPolys;
 
 	for (int i = 0; i < myPointPolys.size(); i++) {
 		vector<MyPoint> mpPoly = myPointPolys[i];
@@ -353,7 +351,7 @@ void generateColoredPolygons(vector<vector<MyPoint>>& myPointPolys){
 
 void generateColoredPolygons(vector<PointSetArray>& psas){
 	// Coerce the PSAs to vec<int> poly representation
-	vector<vector<int>> ivPolys;
+	vector< vector<int> > ivPolys;
 
 	for (int i = 0; i < psas.size(); i++) {
 		ivPolys.push_back(coercePSAPolyToIVecPoly(psas[i]));
@@ -369,7 +367,7 @@ void generateDelaunayColoredPolygons() {
 
 	// Pre-condition: 'dag' generated.
 
-	vector<vector<MyPoint>> polys;
+	vector< vector<MyPoint> > polys;
 
 	// Create vector of vector of points, from delaunay.
 	// Draw all DAG leaf triangles.
@@ -644,7 +642,7 @@ void createpolygonsFortune(){
 
 	//The dictionary is indexed by the voronoi points and gives the polygon for each voronoi.
 	// The border polygons are unbounded, so need to be careful.
-	std::map<VPoint *, std::vector<VEdge *>> dictionary;
+	std::map< VPoint *, std::vector<VEdge *> > dictionary;
 	for(vor::Edges::iterator i = voronoiedges->begin(); i!= voronoiedges->end(); ++i)
 	{
 		VEdge *edge = *i;
@@ -653,7 +651,7 @@ void createpolygonsFortune(){
 
 		//Check if the dictionary has leftpoint
 		std::vector<VEdge *> listofedges;
-		std::map<VPoint *, std::vector<VEdge *>>::iterator it = dictionary.find(leftpt); 		
+		std::map< VPoint *, std::vector<VEdge *> >::iterator it = dictionary.find(leftpt); 		
 		if(it!=dictionary.end())		
 		{
 			it->second.push_back(edge);
@@ -667,7 +665,7 @@ void createpolygonsFortune(){
 		
 		//Check if the dictionary has rightpoint
 		std::vector<VEdge *> listofedges2;
-		std::map<VPoint *, std::vector<VEdge *>>::iterator it2 = dictionary.find(rightpt); 		
+		std::map< VPoint *, std::vector<VEdge *> >::iterator it2 = dictionary.find(rightpt); 		
 		if(it2!=dictionary.end())		
 		{
 			it2->second.push_back(edge);
@@ -681,10 +679,10 @@ void createpolygonsFortune(){
 	}
 
 	// Convert each of the dictionary values(polygons) into ordered list of PointSetArray vertex set.
-	std::map<VPoint *, std::vector<VEdge *>>::iterator dictioniter;
+	std::map< VPoint *, std::vector<VEdge *> >::iterator dictioniter;
 	for(dictioniter = dictionary.begin() ; dictioniter!= dictionary.end(); ++dictioniter)
 	{
-		std::vector<VEdge *>polygonedges = dictioniter->second;
+		std::vector<VEdge *> polygonedges = dictioniter->second;
 		PointSetArray polygonvertices;
 		std::vector<VPoint *> revvector;
 		// polygonedges has a set of edges, create an ordered list of points from this.	
