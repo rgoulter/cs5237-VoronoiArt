@@ -42,6 +42,12 @@ Various libraries used in this project include:
 * SOIL (included in repo)
 * GTest (for testing, included in repo)
 
+## Compiling on Linux
+
+On Ubuntu/Linux, it's fairly easy to get the above dependencies:
+```sudo apt-get install libopencv-dev qt5-default libqt5-opengl5-dev libglew-dev libsoil-dev```
+should be enough to get all the required dependencies listed above.
+
 ## General Project Structure
 
 Directories within the root project folder are:
