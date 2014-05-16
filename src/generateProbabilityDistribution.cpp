@@ -29,7 +29,7 @@ Mat dst, dst2, dst3, detected_edges, detected_edges2, detected_edges3;
 int edgeThresh = 1;
 int lowThreshold;
 int const max_lowThreshold = 100;
-int ratio = 3;
+int cannyRatio = 3;
 int kernel_size = 3;
 
 
@@ -105,7 +105,7 @@ vector<int> generatePointsWithPDF(int numPDFPoints) {
     blur(src_gray, detected_edges, Size(3,3));
 
     // Detect edges with Canny edge detector
-    Canny(detected_edges, detected_edges, 100, 100*ratio, kernel_size);
+    Canny(detected_edges, detected_edges, 100, 100*cannyRatio, kernel_size);
 	
 	// This is to get P_sharp?
 	GaussianBlur(detected_edges, detected_edges2, Size(7,7), 0, 0);
