@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include <QString>
 #include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 
 #include "math.h"
 #include <iostream>
@@ -529,13 +530,13 @@ void loadOpenGLTextureFromFilename(string imgFilename) {
 	// loadedImageData should be in RGB format, from
 	// imgFilename.c_str() filetype.
 	Mat src = imread(imgFilename.c_str()); // BGR
-    //cvtColor(src, src, CV_BGR2RGB);
+    cvtColor(src, src, CV_BGR2RGB);
 	loadedImageData = (unsigned char*)(src.data);
     loadedImageWidth = src.cols;
     loadedImageHeight = src.rows;
 	glTexImage2D(GL_TEXTURE_2D,
 		         0,
-				 GL_BGR,
+				 GL_RGB,
 				 loadedImageWidth,
 				 loadedImageHeight,
 				 0,
