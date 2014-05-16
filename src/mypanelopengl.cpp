@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QString>
+#include "opencv2/highgui/highgui.hpp"
 
 #include "math.h"
 #include <iostream>
@@ -38,6 +39,7 @@
 #include "VPoint.h"
 
 using namespace std;
+using namespace cv;
 
 void animate(int t);
 
@@ -524,12 +526,16 @@ void loadOpenGLTextureFromFilename(string imgFilename) {
 	glBindTexture(GL_TEXTURE_2D, loadedImageTexture);
 
 
-	SOIL_free_image_data(loadedImageData);
-	loadedImageData =
-		SOIL_load_image(imgFilename.c_str(), &loadedImageWidth, &loadedImageHeight, 0, SOIL_LOAD_RGB);
+	// loadedImageData should be in RGB format, from
+	// imgFilename.c_str() filetype.
+	Mat src = imread(imgFilename.c_str()); // BGR
+    //cvtColor(src, src, CV_BGR2RGB);
+	loadedImageData = (unsigned char*)(src.data);
+    loadedImageWidth = src.cols;
+    loadedImageHeight = src.rows;
 	glTexImage2D(GL_TEXTURE_2D,
 		         0,
-				 GL_RGB,
+				 GL_BGR,
 				 loadedImageWidth,
 				 loadedImageHeight,
 				 0,
@@ -537,7 +543,6 @@ void loadOpenGLTextureFromFilename(string imgFilename) {
 				 GL_UNSIGNED_BYTE,
 				 loadedImageData);
 	loadedImageFilename = imgFilename;
-	//SOIL_free_image_data(loadedImageData);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -894,18 +899,11 @@ void MyPanelOpenGL::doSaveImage() {
 	for (int rowOffset = 0; rowOffset < copyHeight; rowOffset++) {
 		int copyRow = y + copyHeight - rowOffset - 1; // reverse this.
 		unsigned char * copyAddress = data + rowOffset * (copyWidth * numComponents);
-		glReadPixels(x, copyRow, copyWidth, 1, GL_RGB, GL_UNSIGNED_BYTE, copyAddress);
+		glReadPixels(x, copyRow, copyWidth, 1, GL_BGR, GL_UNSIGNED_BYTE, copyAddress);
 	}
 
-	int save_result =
-		SOIL_save_image(outputImageFilename,
-		                SOIL_SAVE_TYPE_BMP,
-		                copyWidth,
-		                copyHeight,
-		                numComponents,
-		                data);
-
-	free(data);
+	Mat img(copyHeight, copyWidth, CV_8UC3, data);
+	imwrite(outputImageFilename, img);
 }
 
 void MyPanelOpenGL::doDrawImage(){
