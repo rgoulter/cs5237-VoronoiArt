@@ -17,6 +17,7 @@
 #include <sstream>
 #include <stdlib.h>
 
+#include "imagedata.h"
 #include "stopWatch.h"
 #include "li.h"
 #include "lmath.h"
@@ -71,9 +72,7 @@ LongInt one = 1;
 
 // Variables for Image Logic.
 string loadedImageFilename = "";
-int loadedImageWidth = -1;
-int loadedImageHeight = -1;
-unsigned char *loadedImageData;
+ImageData *imData = NULL;
 
 GLuint loadedImageTexture;
 GLuint edgesTexture;
@@ -99,6 +98,10 @@ int numPDFPoints = 75;
 vor::Voronoi * voronoi = new vor::Voronoi();
 vor::Vertices * voronoivertices = new vor::Vertices();
 vor::Edges * voronoiedges;
+
+bool hasLoadedImage() {
+	return imData != NULL;
+}
 
 // These three functions are for those who are not familiar with OpenGL, you can change these or even completely ignore them
 
@@ -136,7 +139,8 @@ void drawATriangle (double x1,double y1, double x2, double y2, double x3, double
 
 
 void drawPlaneUsingTexture(GLuint tex) {
-	if (loadedImageWidth < 0) { return; }
+	// If not loaded, don't render..
+	if (!hasLoadedImage()) { return; }
 
 	qDebug("Draw the texture");
 	glEnable(GL_TEXTURE_2D);
@@ -147,13 +151,13 @@ void drawPlaneUsingTexture(GLuint tex) {
 		glVertex3f (0.0, 0.0, -1.0);
 
 		glTexCoord2f (1.0, 0.0);
-		glVertex3f (loadedImageWidth, 0.0, -1.0);
+		glVertex3f (imData->width(), 0.0, -1.0);
 
 		glTexCoord2f (1.0, 1.0);
-		glVertex3f (loadedImageWidth, loadedImageHeight, -1.0);
+		glVertex3f (imData->width(), imData->height(), -1.0);
 
 		glTexCoord2f (0.0, 1.0);
-		glVertex3f (0.0, loadedImageHeight, -1.0);
+		glVertex3f (0.0, imData->height(), -1.0);
 	glEnd ();
 
 	glDisable(GL_TEXTURE_2D);
@@ -426,7 +430,7 @@ void refreshProjection() {
 
 	// If we haven't loaded an image,
 	// we don't particularly care what the coord system is.
-	if (loadedImageWidth < 0) {
+	if (!hasLoadedImage()) {
 		// Just some boring thing.
 		glOrtho(-1, 1, 1, -1, -1, 1);
 		glMatrixMode(GL_MODELVIEW);
@@ -435,20 +439,23 @@ void refreshProjection() {
 		return;
 	}
 
-	double imageRatio = ((double) loadedImageWidth) / loadedImageHeight;
+	int imWidth = imData->width();
+	int imHeight = imData->height();
+
+	double imageRatio = ((double) imWidth) / imHeight;
 	double windowRatio = ((double) windowWidth) / windowHeight;
 
 	if (imageRatio > windowRatio) {
 		double ratio = ((double) windowWidth) / windowHeight;
 
-		int renderWidth = loadedImageWidth;
-		int renderHeight = (int) (loadedImageWidth / ratio);
+		int renderWidth = imWidth;
+		int renderHeight = (int) (imWidth / ratio);
 
-		int delta = (renderHeight - loadedImageHeight) / 2;
+		int delta = (renderHeight - imHeight) / 2;
 
 		glOrtho(0,
 		        renderWidth,
-		        loadedImageHeight + delta,
+		        imHeight + delta,
 		        -delta,
 		        -1,
 		        1);
@@ -461,13 +468,13 @@ void refreshProjection() {
 	} else {
 		double ratio = ((double) windowWidth) / windowHeight;
 
-		int renderWidth = (int) (loadedImageHeight * ratio);
-		int renderHeight = loadedImageHeight;
+		int renderWidth = (int) (imHeight * ratio);
+		int renderHeight = imHeight;
 
-		int delta = (renderWidth - loadedImageWidth) / 2;
+		int delta = (renderWidth - imWidth) / 2;
 
 		glOrtho(-delta,
-		        loadedImageWidth + delta,
+		        imWidth + delta,
 		        renderHeight,
 		        0,
 		        -1,
@@ -532,18 +539,19 @@ void loadOpenGLTextureFromFilename(string imgFilename) {
 	// imgFilename.c_str() filetype.
 	Mat src = imread(imgFilename.c_str()); // BGR
 	cvtColor(src, src, CV_BGR2RGB);
-	loadedImageData = (unsigned char*)(src.data);
-	loadedImageWidth = src.cols;
-	loadedImageHeight = src.rows;
+	imData = new ImageData((unsigned char*)(src.data),
+	                       src.cols,
+	                       src.rows);
+	// TODO: Should free imData at some point..
 	glTexImage2D(GL_TEXTURE_2D,
 	             0,
 	             GL_RGB,
-	             loadedImageWidth,
-	             loadedImageHeight,
+	             imData->width(),
+	             imData->height(),
 	             0,
 	             GL_RGB,
 	             GL_UNSIGNED_BYTE,
-	             loadedImageData);
+	             imData->data());
 	loadedImageFilename = imgFilename;
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -592,6 +600,12 @@ void MyPanelOpenGL::paintGL() {
 
 void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 	//qDebug("Window: %d, %d\n", event->x(), event->y());
+	if (!hasLoadedImage()) {
+		return;
+	}
+
+	int loadedImageWidth = imData->width();
+	int loadedImageHeight = imData->height();
 
 	double imageRatio = ((double) loadedImageWidth) / loadedImageHeight;
 	double windowRatio = ((double) windowWidth) / windowHeight;

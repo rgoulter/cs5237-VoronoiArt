@@ -1,12 +1,12 @@
 #include "polypixel.h"
+#include "imagedata.h"
 #include <string>
 
 using namespace std;
 
 // Use these from the main Qt application logic code..
-extern int loadedImageWidth;
-extern int loadedImageHeight;
-extern unsigned char *loadedImageData;
+// TODO: migrate imData so it's an argument to these functions..
+extern ImageData *imData;
 
 
 
@@ -66,6 +66,9 @@ void findAverageColor3iv(const std::vector<MyPoint>& mpPoly, int* colorIv) {
 
 
 void findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
+	int loadedImageWidth = imData->width();
+	int loadedImageHeight = imData->height();
+	unsigned char* loadedImageData = imData->data();
 
 	// Find bounding box of polygon
 	int minX, maxX, minY, maxY;
@@ -163,6 +166,10 @@ void findSomeColor3iv(PointSetArray& psa, int* colorIv) {
 
 
 void findSomeColor3iv(const std::vector<int>& unclippedPoly, int* colorIv) {
+	int loadedImageWidth = imData->width();
+	int loadedImageHeight = imData->height();
+	unsigned char* loadedImageData = imData->data();
+
 	// Clip polygon to ensure we have nothing out of bounds
 	vector<int> poly = clipPolygonToRectangle(unclippedPoly, 0, 0, loadedImageWidth - 1, loadedImageHeight - 1);
 

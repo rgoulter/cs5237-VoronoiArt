@@ -28,6 +28,7 @@ set(VORONOI_SOURCES src/basicsP3/directedGraph.cpp
                     src/generateProbabilityDistribution.cpp
                     src/mypanelopengl.cpp
                     src/Voronoi.cpp
+                    src/imagedata.cpp
                     src/delaunay.cpp
                     src/basicsP2/trist.cpp
                     src/basicsP2/pointSetArray.cpp
@@ -43,6 +44,7 @@ set (VORONOI_HEADERS    src/VEdge.h
                         src/VParabola.h
                         src/VPoint.h
                         src/Voronoi.h
+                        include/imagedata.h
                         include/basicsP3/directedGraph.h
                         include/delaunayTri.h
                         include/delaunay.h

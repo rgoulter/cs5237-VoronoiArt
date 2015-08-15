@@ -7,6 +7,8 @@
 #include <time.h>
 #include <stdlib.h>
 
+#include "imagedata.h"
+
 using namespace std;
 using namespace cv;
 
@@ -19,8 +21,7 @@ extern GLuint edgesBlurTexture;
 extern GLuint pdfTexture;
 
 extern string loadedImageFilename;
-extern int loadedImageWidth;
-extern int loadedImageHeight;
+extern ImageData *imData;
 
 
 Mat src, src_gray;
@@ -35,6 +36,9 @@ int kernel_size = 3;
 
 
 void generateOGLTextureForOpenCVMat(GLuint& tex, const Mat& M) {
+	int loadedImageWidth = imData->width();
+	int loadedImageHeight = imData->height();
+
 	// copy the data to a new matrix
 	Mat mat = M.clone();
 	cvtColor(mat, mat, CV_GRAY2RGB);
@@ -92,6 +96,8 @@ vector<int> generateUniformRandomPoints(int numPoints) {
 
 
 vector<int> generatePointsWithPDF(int numPDFPoints) {
+	int loadedImageWidth = imData->width();
+
 	src = imread(loadedImageFilename);
 
 	if (!src.data) {
