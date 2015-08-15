@@ -23,6 +23,8 @@ public:
 		return loadedImageData;
 	}
 
+	void dataAt(int x, int y, unsigned char& r, unsigned char& g, unsigned char& b);
+
 private:
 	int loadedImageWidth;
 	int loadedImageHeight;
