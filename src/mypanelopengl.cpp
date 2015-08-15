@@ -539,7 +539,10 @@ void loadOpenGLTextureFromFilename(string imgFilename) {
 	// imgFilename.c_str() filetype.
 	Mat src = imread(imgFilename.c_str()); // BGR
 	cvtColor(src, src, CV_BGR2RGB);
-	imData = new ImageData((unsigned char*)(src.data),
+	int dataSize = 3 * src.cols * src.rows * sizeof(unsigned char);
+	unsigned char* dataCpy = (unsigned char*) malloc(dataSize);
+	memcpy(dataCpy, src.data, dataSize);
+	imData = new ImageData(dataCpy,
 	                       src.cols,
 	                       src.rows);
 	// TODO: Should free imData at some point..
