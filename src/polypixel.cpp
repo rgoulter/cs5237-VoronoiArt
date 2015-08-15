@@ -23,10 +23,10 @@ std::vector<int> enumerateLeftRightOfSimplePolygon(const std::vector<int>& poly)
 	int right  = maxX;
 	int top    = minY;
 	int bottom = maxY;
-	
+
 	for (int y = top; y <= bottom; y++) {
 		int leftmost = -1, rightmost = -1;
-		
+
 		// Find leftmost point which is in the polygon
 		for (int x = left; x <= right && leftmost < 0; x++) {
 			if (inPoly(poly, x, y)) {
@@ -44,7 +44,7 @@ std::vector<int> enumerateLeftRightOfSimplePolygon(const std::vector<int>& poly)
 		result.push_back(leftmost);
 		result.push_back(rightmost);
 	}
-	
+
 	// If we declare as a (const) ref, can we save ourselves
 	// memory copying here?
 	return result;
@@ -54,6 +54,7 @@ std::vector<int> enumerateLeftRightOfSimplePolygon(const std::vector<int>& poly)
 
 void findAverageColor3iv(const std::vector<MyPoint>& mpPoly, int* colorIv) {
 	std::vector<int> poly;
+
 	for (int i = 0; i < mpPoly.size(); i++) {
 		poly.push_back((int) mpPoly[i].x.doubleValue());
 		poly.push_back((int) mpPoly[i].y.doubleValue());
@@ -87,10 +88,10 @@ void findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	int offsetY = 0;
 	int width  = loadedImageWidth; //right - left + 1;
 	int height = loadedImageHeight; //bottom - top + 1;
-	
+
 	// TODO: Read values from texture itself, so we can save memory
-	
-	
+
+
 	// Get points in polygon.
 	std::vector<int> rowsOfPoly = enumerateLeftRightOfSimplePolygon(poly);
 
@@ -118,7 +119,7 @@ void findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 		GLubyte rb = loadedImageData[pos + 0];
 		GLubyte gb = loadedImageData[pos + 1];
 		GLubyte bb = loadedImageData[pos + 2];
-		
+
 		// Accumulative average
 		acc++;
 		accR = ((acc - 1) * accR + rb) / acc;
@@ -129,8 +130,8 @@ void findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	for (int row = 1; row < n; row++) {
 		rowLeft =  rowsOfPoly[row * 2];
 		rowRight = rowsOfPoly[row * 2 + 1];
-		
-		for(int j = rowLeft + 1; j <= rowRight; j++) {
+
+		for (int j = rowLeft + 1; j <= rowRight; j++) {
 			u = j - offsetX;
 			v = minY + row - offsetY;
 
@@ -138,7 +139,7 @@ void findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 			GLubyte rb = loadedImageData[pos + 0];
 			GLubyte gb = loadedImageData[pos + 1];
 			GLubyte bb = loadedImageData[pos + 2];
-		
+
 			// Accumulative average
 			acc++;
 			accR = ((acc - 1) * accR + rb) / acc;
@@ -171,7 +172,7 @@ void findSomeColor3iv(const std::vector<int>& unclippedPoly, int* colorIv) {
 	int offsetY = 0;
 	int width  = loadedImageWidth; //right - left + 1;
 	int height = loadedImageHeight; //bottom - top + 1;
-	
+
 
 	// For each point, find the average rgb.
 	int accR, accG, accB;
@@ -182,9 +183,9 @@ void findSomeColor3iv(const std::vector<int>& unclippedPoly, int* colorIv) {
 	int u, v;
 	u = poly[0];
 	v = poly[1];
-	
+
 	if (u < 0 || u > loadedImageWidth ||
-		v < 0 || v > loadedImageHeight) {
+	    v < 0 || v > loadedImageHeight) {
 		// This only happens in the POLYGON WASN'T TRIMMED.
 		colorIv[0] = 0;
 		colorIv[1] = 0;
@@ -201,7 +202,7 @@ void findSomeColor3iv(const std::vector<int>& unclippedPoly, int* colorIv) {
 		v = poly[2 * ptIdx + 1];
 
 		if (u < 0 || u > loadedImageWidth ||
-			v < 0 || v > loadedImageHeight) {
+		    v < 0 || v > loadedImageHeight) {
 			// This only happens in the POLYGON WASN'T TRIMMED.
 			colorIv[0] = 0;
 			colorIv[1] = 0;
@@ -214,7 +215,7 @@ void findSomeColor3iv(const std::vector<int>& unclippedPoly, int* colorIv) {
 		GLubyte rb = loadedImageData[pos + 0];
 		GLubyte gb = loadedImageData[pos + 1];
 		GLubyte bb = loadedImageData[pos + 2];
-		
+
 		// Accumulative average
 		acc++;
 		accR = ((acc - 1) * accR + rb) / acc;

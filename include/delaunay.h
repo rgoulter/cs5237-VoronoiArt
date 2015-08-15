@@ -15,15 +15,11 @@
 void delaunayIterationStep();
 
 
-
 // This method checks whether the voronoi edge identified already exists in the existing voronoi edge set.
 bool checkedgeExists(PointSetArray voronoiEdge);
 
 
-
 void createVoronoi();
-
-
 
 
 // Call this function when the user pushes the button to do Delaunay Triangulation

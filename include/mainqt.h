@@ -4,8 +4,7 @@
 #include <QtWidgets/QMainWindow>
 #include "ui_mainqt.h"
 
-class mainqt : public QMainWindow
-{
+class mainqt : public QMainWindow {
 	Q_OBJECT
 
 public:

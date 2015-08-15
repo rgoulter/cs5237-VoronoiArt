@@ -10,17 +10,17 @@
   For a triangle abc, if version 0 is abc
 
   version 0 abc     (v:012)
-  version 1 bca		(v:120)
-  version 2 cab		(v:201)
-  version 3 bac		(v:102)
-  version 4 cba		(v:210)
-  version 5 acb		(v:021)
+  version 1 bca     (v:120)
+  version 2 cab     (v:201)
+  version 3 bac     (v:102)
+  version 4 cba     (v:210)
+  version 5 acb     (v:021)
 
   enext cycles   0 > 1 > 2 > 0 ,  5 > 4 > 3 > 5
   sym cycles  i <> i + 3 % 6
 
   org  = ver < 3 ? v[ver] : v[(ver+1)%3]
-  dest = ver < 3 ? v[(ver+1)%3] : v[ver-3] 
+  dest = ver < 3 ? v[(ver+1)%3] : v[ver-3]
 
 */
 
@@ -38,8 +38,7 @@ class TriRecord {
 		OrTri fnext_[6];
 
 		// Benny: override < operator for the purpose of using a map in directedGraph.cpp.
-		bool operator<(const TriRecord di)const
-		{            
+		bool operator<(const TriRecord di) const {
 			if (vi_[0] < di.vi_[0])  return true;
 			if (vi_[0] > di.vi_[0])  return false;
 			// Otherwise a are equal
@@ -50,13 +49,12 @@ class TriRecord {
 			if (vi_[3] > di.vi_[2])  return false;
 
 			return false;
-			
-			
+
 			//return vi_[0] < di.vi_[0] && vi_[1] < di.vi_[1] && vi_[2] < di.vi_[2];
 		}
 
 		/*bool operator ==(const TriRecord di)const
-		{            
+		{
 			return vi_[0] == di.vi_[0] && vi_[1] == di.vi_[1] && vi_[2] == di.vi_[2];
 		}*/
 
@@ -67,7 +65,7 @@ class TriRecord {
 
 
 class Trist {
-	private: 
+	private:
 		void relableRefsToTri(OrTri oldEF, OrTri newEF);
 
 	protected:
@@ -83,7 +81,7 @@ class Trist {
 
 		void delTri(OrTri); // Delete a triangle, but you can assume that this is ONLY used by the IP operation
 		                    // You may want to make sure all its neighbours are detached (below)
-		
+
 		OrTri enext(OrTri ef);
 		OrTri sym(OrTri ef);
 		OrTri fnext(OrTri ef);
@@ -101,7 +99,6 @@ class Trist {
 		void incidentTriangles(int ptIndex,int& noOrTri, OrTri* otList); // A suggested function: you may want this function to return all the OrTri
 		                                                                 // that are incident to this point
 		                                                                 // Ignore this if you don't feel a need
-
 };
 
 

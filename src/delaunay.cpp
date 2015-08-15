@@ -27,19 +27,21 @@ extern LongInt delta;
 extern LongInt one;
 
 
-void DelaunayTri::findBoundingTri(PointSetArray &pSet){
+void DelaunayTri::findBoundingTri(PointSetArray &pSet) {
 	LongInt minX = pSet.myPoints[0].x;
 	LongInt maxX = pSet.myPoints[0].x;
 	LongInt minY = pSet.myPoints[0].y;
 	LongInt maxY = pSet.myPoints[0].y;
 	LongInt tempmaxX, tempminX, thousand = 2000;
 
-	for(int i = 1; i < pSet.myPoints.size(); i++){
-		if(minX > pSet.myPoints[i].x) minX = pSet.myPoints[i].x;
-		else if(maxX < pSet.myPoints[i].x) maxX = pSet.myPoints[i].x;
+	for (int i = 1; i < pSet.myPoints.size(); i++) {
+		if (minX > pSet.myPoints[i].x)
+			minX = pSet.myPoints[i].x;
+		else if (maxX < pSet.myPoints[i].x)
+			maxX = pSet.myPoints[i].x;
 
-		if(minY > pSet.myPoints[i].y) minY = pSet.myPoints[i].y;
-		else if(maxY < pSet.myPoints[i].y) maxY = pSet.myPoints[i].y;
+		if (minY > pSet.myPoints[i].y) minY = pSet.myPoints[i].y;
+		else if (maxY < pSet.myPoints[i].y) maxY = pSet.myPoints[i].y;
 	}
 
 	minX = minX-delta-thousand;
@@ -52,23 +54,29 @@ void DelaunayTri::findBoundingTri(PointSetArray &pSet){
 	pSet.addPoint(maxX+(maxY-minY),minY);
 	pSet.addPoint(minX-(maxY-minY),minY);
 
-	maxX = (maxX.doubleValue() - minX.doubleValue())/2;
-	
-	pSet.addPoint((LongInt)((maxX.doubleValue() + minX.doubleValue())/2), maxY+((maxX-minX))); // some rounding may occur if LongInt is odd
-	int temp =1;
+	maxX = (maxX.doubleValue() - minX.doubleValue()) / 2;
+
+	pSet.addPoint((LongInt) ((maxX.doubleValue() + minX.doubleValue()) / 2),
+	              maxY+((maxX-minX))); // some rounding may occur if LongInt is odd
+
+	int temp = 1;
 }
 
 
 
-void DelaunayTri::legalizeEdge(int pIdx1, int pIdx2, int pIdx3){
+void DelaunayTri::legalizeEdge(int pIdx1, int pIdx2, int pIdx3) {
 	vector<TriRecord> triangles = dag.findNodesForEdge(pIdx2, pIdx3);
 
 	int p4;
-	for(int i=0; i<triangles.size(); i++){
-		for(int j=0; j<3; j++){
-			if(triangles[i].vi_[j]!=pIdx1 && triangles[i].vi_[j]!=pIdx2 && triangles[i].vi_[j]!=pIdx3){
+	for (int i = 0; i < triangles.size(); i++) {
+		for (int j = 0; j < 3; j++) {
+			if (triangles[i].vi_[j] != pIdx1 &&
+			    triangles[i].vi_[j] != pIdx2 &&
+			    triangles[i].vi_[j] != pIdx3) {
 				p4 = triangles[i].vi_[j];
-				if(delaunayPointSet.inCircle(pIdx1, pIdx2, pIdx3, p4)>0){ // Adding 1 to the indexes for the benefit of inCircle method
+
+				// Adding 1 to the indexes for the benefit of inCircle method
+				if (delaunayPointSet.inCircle(pIdx1, pIdx2, pIdx3, p4) > 0) {
 					dag.addFlipChildrenNodes(pIdx1, pIdx2, pIdx3, p4);
 					legalizeEdge(pIdx1, pIdx2, p4);
 					legalizeEdge(pIdx1, pIdx3, p4);
@@ -82,7 +90,7 @@ void DelaunayTri::legalizeEdge(int pIdx1, int pIdx2, int pIdx3){
 
 
 void delaunayIterationStep() {
-	if(delaunayPointsToProcess.size() == 0){
+	if (delaunayPointsToProcess.size() == 0) {
 		return;
 	}
 
@@ -97,14 +105,14 @@ void delaunayIterationStep() {
 	DelaunayTri::legalizeEdge(pIdx, tri.vi_[1], tri.vi_[2]);
 
 	// Redisplay
-    //updateGL(); // updateGL is a method of the QGLWidget..
+	//updateGL(); // updateGL is a method of the QGLWidget..
 }
 
 // This method checks whether the voronoi edge identified already exists in the existing voronoi edge set.
-bool checkedgeExists(PointSetArray voronoiEdge){
+bool checkedgeExists(PointSetArray voronoiEdge) {
 	MyPoint dA, dB;
 	std::vector<PointSetArray>::iterator iter1;
-	for(iter1 = voronoiEdges.begin(); iter1 != voronoiEdges.end();)
+	for (iter1 = voronoiEdges.begin(); iter1 != voronoiEdges.end();)
 	{
 		PointSetArray vEdge = *iter1;
 		LongInt x1, y1, x2, y2, vx1, vy1, vx2, vy2;
@@ -116,8 +124,9 @@ bool checkedgeExists(PointSetArray voronoiEdge){
 		vy1 = voronoiEdge.myPoints[0].y;
 		vx2 = voronoiEdge.myPoints[1].x;
 		vy2 = voronoiEdge.myPoints[1].y;
-		
-		if((x1==vx1 && y1==vy1 && x2==vx2 && y2==vy2) || (x1==vx2 && y1==vy2 && x2==vx1 && y2==vy1))
+
+		if ((x1==vx1 && y1==vy1 && x2==vx2 && y2==vy2) ||
+		    (x1==vx2 && y1==vy2 && x2==vx1 && y2==vy1))
 			return true;
 		++iter1;
 	}
@@ -129,11 +138,10 @@ bool checkedgeExists(PointSetArray voronoiEdge){
 
 
 
-void createVoronoi(){
-
-	for (int dppIdx = 1; dppIdx <= delaunayPointSet.noPt()-3; dppIdx++)
+void createVoronoi() {
+	for (int dppIdx = 1; dppIdx <= delaunayPointSet.noPt() - 3; dppIdx++)
 	{
-		
+
 		// Find delaunay triangles to which this point is linked
 		std::vector<TriRecord> linkedTriangles = dag.findlinkedNodes(dppIdx);
 		PointSetArray polygon;
@@ -151,9 +159,6 @@ void createVoronoi(){
 
 		voronoiEdges.push_back(polygon);
 	}
-
-
-
 }
 
 
@@ -169,7 +174,7 @@ void tryDelaunayTriangulation() {
 	delaunayNewTrist.eraseAllTriangles();
 
 	// Copy points from the input set to Delaunay point set
-	for(int i = 1; i <= inputPointSet.noPt(); i++){
+	for (int i = 1; i <= inputPointSet.noPt(); i++) {
 		LongInt x, y;
 		inputPointSet.getPoint(i, x, y);
 		delaunayPointSet.addPoint(x, y);
@@ -181,13 +186,13 @@ void tryDelaunayTriangulation() {
 	// Add points 1 ... n - 3 (inclusive) into the set of points to be tested.
 	// (0 ... < n - 3 since that's what it was)
 	// (TODO: Explain: We don't include the last 3 points because...?).
-	for(int i = 1; i <= delaunayPointSet.noPt()-3; i++){
+	for (int i = 1; i <= delaunayPointSet.noPt() - 3; i++) {
 		delaunayPointsToProcess.push_back(i);
 	}
 
 	// TODO: Shuffle these points of delaunayPointsToProcess
 	srand (time(NULL));
-	for(int i = 0; i < delaunayPointsToProcess.size() / 2; i++){
+	for (int i = 0; i < delaunayPointsToProcess.size() / 2; i++) {
 		int j = rand() % delaunayPointsToProcess.size();
 
 		// swap
@@ -198,7 +203,7 @@ void tryDelaunayTriangulation() {
 
 	// Iterate through the points we need to process.
 	// NO ANIMATION, just run each step immediately.
-	while(delaunayPointsToProcess.size() > 0) {
+	while (delaunayPointsToProcess.size() > 0) {
 		delaunayIterationStep();
 	}
 }

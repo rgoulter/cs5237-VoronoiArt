@@ -34,7 +34,7 @@ int kernel_size = 3;
 
 
 
-void generateOGLTextureForOpenCVMat(GLuint& tex, const Mat& M){
+void generateOGLTextureForOpenCVMat(GLuint& tex, const Mat& M) {
 	// copy the data to a new matrix
 	Mat mat = M.clone();
 	cvtColor(mat, mat, CV_GRAY2RGB);
@@ -47,14 +47,14 @@ void generateOGLTextureForOpenCVMat(GLuint& tex, const Mat& M){
 	glBindTexture(GL_TEXTURE_2D, tex);
 
 	glTexImage2D(GL_TEXTURE_2D,
-		         0,
-				 GL_RGB,
-				 loadedImageWidth,
-				 loadedImageHeight,
-				 0,
-				 GL_RGB,
-				 GL_UNSIGNED_BYTE,
-				 matData);
+	             0,
+	             GL_RGB,
+	             loadedImageWidth,
+	             loadedImageHeight,
+	             0,
+	             GL_RGB,
+	             GL_UNSIGNED_BYTE,
+	             matData);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -67,21 +67,24 @@ void generateOGLTextureForOpenCVMat(GLuint& tex, const Mat& M){
 // It would be nice to abstract these details and have some kind of "constant" PDF / mat,
 // and generate points from that. Oh well.
 vector<int> generateUniformRandomPoints(int numPoints) {
+	int loadedImageWidth = imData->width();
+	int loadedImageHeight = imData->height();
+
 	vector<int> outputPts;
 
 	// Now generate random points
 	srand((unsigned) time(0));
 
-    for(int i = 0; i < numPoints; i++){
+	for (int i = 0; i < numPoints; i++) {
 		double rndX = double(rand()) / RAND_MAX;
 		double rndY = double(rand()) / RAND_MAX;
 
 		int x = (int) (rndX * loadedImageWidth);
 		int y = (int) (rndY * loadedImageHeight);
-		
+
 		outputPts.push_back(x);
 		outputPts.push_back(y);
-    }
+	}
 
 	return outputPts;
 }
@@ -101,22 +104,22 @@ vector<int> generatePointsWithPDF(int numPDFPoints) {
 	// Convert the image to grayscale
 	cvtColor(src, src_gray, COLOR_BGR2GRAY);
 
-    // Reduce noise with a kernel 3x3
-    blur(src_gray, detected_edges, Size(3,3));
+	// Reduce noise with a kernel 3x3
+	blur(src_gray, detected_edges, Size(3,3));
 
-    // Detect edges with Canny edge detector
-    Canny(detected_edges, detected_edges, 100, 100*cannyRatio, kernel_size);
-	
+	// Detect edges with Canny edge detector
+	Canny(detected_edges, detected_edges, 100, 100*cannyRatio, kernel_size);
+
 	// This is to get P_sharp?
 	GaussianBlur(detected_edges, detected_edges2, Size(7,7), 0, 0);
 
-    dst = Scalar::all(0);
+	dst = Scalar::all(0);
 	dst2 = Scalar::all(0);
 	dst3 = Scalar::all(0);
 
 	src_gray.copyTo(dst2, detected_edges2);
 	src_gray.copyTo(dst, detected_edges);
-	
+
 	// This is to get P_blur?
 	GaussianBlur(dst2, dst3, Size(15,15), 0, 0);
 	dst3.convertTo(dst3, -1, 2, 0);
@@ -141,14 +144,15 @@ vector<int> generatePointsWithPDF(int numPDFPoints) {
 	vector<float> cdf; //loadedImageWidth * loadedImageHeight
 	float sum = 0;
 
-	for (int r = 0; r < dst.rows; r++){
-		for(int c = 0; c < dst.cols; c++){
+	for (int r = 0; r < dst.rows; r++) {
+		for (int c = 0; c < dst.cols; c++) {
 			unsigned char val = dst.at<unsigned char> (r, c);
-			
+
 			cdf.push_back(sum);
 			sum += (float) val / 255;
 		}
 	}
+
 	cdf.push_back(sum); // don't forget the last value.
 
 	vector<int> outputPts;
@@ -157,7 +161,7 @@ vector<int> generatePointsWithPDF(int numPDFPoints) {
 	srand((unsigned) time(0));
 	double maxVal = cdf[cdf.size() - 1];
 
-    for(int i = 0; i < numPDFPoints; i++){
+	for (int i = 0; i < numPDFPoints; i++) {
 		double rnd = float(rand()) / RAND_MAX;
 		double threshold = rnd * maxVal;
 
@@ -166,7 +170,7 @@ vector<int> generatePointsWithPDF(int numPDFPoints) {
 
 		int left = 0; int right = cdf.size();
 
-		while(left < right) {
+		while (left < right) {
 			int mid = (right - left) / 2 + left;
 			double midVal = cdf[mid];
 
@@ -183,10 +187,10 @@ vector<int> generatePointsWithPDF(int numPDFPoints) {
 
 		int x = idx % loadedImageWidth;
 		int y = idx / loadedImageWidth;
-		
+
 		outputPts.push_back(x);
 		outputPts.push_back(y);
-    }
+	}
 
 	return outputPts;
 

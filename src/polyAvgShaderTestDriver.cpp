@@ -70,39 +70,39 @@ void loadImageData(string imgFilename) {
 
 /////////////////////////////////////////////////////////////////////////////
 // Check framebuffer status.
-// Modified from the sample code provided in the 
+// Modified from the sample code provided in the
 // GL_EXT_framebuffer_object extension sepcifications.
 /////////////////////////////////////////////////////////////////////////////
 bool CheckFramebufferStatus() {
-    GLenum status = (GLenum) glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	GLenum status = (GLenum) glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 
-    switch (status) {
-        case GL_FRAMEBUFFER_COMPLETE_EXT:
-            return true;
-        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
-            fprintf(stderr, "Framebuffer incomplete, incomplete attachment\n");
-            return false;
-        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
-            fprintf(stderr, "Framebuffer incomplete, missing attachment\n");
-            return false;
-        case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-            fprintf(stderr, "Framebuffer incomplete, attached images must have same dimensions\n");
-            return false;
-        case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-            fprintf(stderr, "Framebuffer incomplete, attached images must have same format\n");
-            return false;
-        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-            fprintf(stderr, "Framebuffer incomplete, missing draw buffer\n");
-            return false;
-        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
-            fprintf(stderr, "Framebuffer incomplete, missing read buffer\n");
-            return false;
-        case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
-            fprintf(stderr, "Unsupported framebuffer format\n");
-            return false;
-    }
+	switch (status) {
+		case GL_FRAMEBUFFER_COMPLETE_EXT:
+			return true;
+		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+			fprintf(stderr, "Framebuffer incomplete, incomplete attachment\n");
+			return false;
+		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
+			fprintf(stderr, "Framebuffer incomplete, missing attachment\n");
+			return false;
+		case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+			fprintf(stderr, "Framebuffer incomplete, attached images must have same dimensions\n");
+			return false;
+		case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
+			fprintf(stderr, "Framebuffer incomplete, attached images must have same format\n");
+			return false;
+		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
+			fprintf(stderr, "Framebuffer incomplete, missing draw buffer\n");
+			return false;
+		case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
+			fprintf(stderr, "Framebuffer incomplete, missing read buffer\n");
+			return false;
+		case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
+			fprintf(stderr, "Unsupported framebuffer format\n");
+			return false;
+	}
 
-    return false;
+	return false;
 }
 
 
@@ -120,10 +120,10 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	//-----------------------------------------------------------------------------
 	int minX, maxX, minY, maxY;
 	boundingBox(poly, minX, maxX, minY, maxY);
-	
+
 	int boundingBoxWidth = maxX - minX + 1;
 	int boundingBoxHeight = maxY - minY + 1;
-	
+
 	//-----------------------------------------------------------------------------
 	// Generate a texture which is a "mask" of the given polygon.
 	// (Black background, white for the polygon).
@@ -133,55 +133,55 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	GLuint texPolyMask;
 	glGenTextures(1, &texPolyMask);
 
-    glBindTexture(GL_TEXTURE_RECTANGLE, texPolyMask);
-    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_RECTANGLE,
-            0,
-            GL_RGB,
-            loadedImageWidth,
-            loadedImageHeight,
-            0,
-            GL_RGB,
-            GL_UNSIGNED_BYTE,
-            NULL);
+	glBindTexture(GL_TEXTURE_RECTANGLE, texPolyMask);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_RECTANGLE,
+	             0,
+	             GL_RGB,
+	             loadedImageWidth,
+	             loadedImageHeight,
+	             0,
+	             GL_RGB,
+	             GL_UNSIGNED_BYTE,
+	             NULL);
 
-    GLuint fboName;
-    glGenFramebuffers(1, &fboName);
-    glBindFramebuffer(GL_FRAMEBUFFER, fboName);
+	GLuint fboName;
+	glGenFramebuffers(1, &fboName);
+	glBindFramebuffer(GL_FRAMEBUFFER, fboName);
 
-    GLuint depthrenderbuffer;
-    glGenRenderbuffers(1, &depthrenderbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, loadedImageWidth, loadedImageHeight);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-    
-    // Set "renderedTexture" as our colour attachment #0
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texPolyMask, 0);
-     
-    // Set the list of draw buffers.
-    GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
-    glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
+	GLuint depthrenderbuffer;
+	glGenRenderbuffers(1, &depthrenderbuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, loadedImageWidth, loadedImageHeight);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	// Set "renderedTexture" as our colour attachment #0
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texPolyMask, 0);
+
+	// Set the list of draw buffers.
+	GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+	glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
 
 	CheckFramebufferStatus();
 
-    // Render to our framebuffer
-    glBindFramebuffer(GL_FRAMEBUFFER, fboName);
+	// Render to our framebuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, fboName);
 
 	// Clear mask texture to all black
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
-    // Set up projection.
-    glViewport(0, 0, loadedImageWidth, loadedImageHeight);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluOrtho2D(0, loadedImageWidth, 0, loadedImageHeight);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+
+	// Set up projection.
+	glViewport(0, 0, loadedImageWidth, loadedImageHeight);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0, loadedImageWidth, 0, loadedImageHeight);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
 	// Draw a polygon
 	glBegin(GL_POLYGON);
@@ -201,80 +201,76 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	// Attach loadedImageData to a texture, which we pass to
 	// the fragment shader.
 	//-----------------------------------------------------------------------------
-    glActiveTexture(GL_TEXTURE3);
+	glActiveTexture(GL_TEXTURE3);
 	GLuint texImg;
 	glGenTextures(1, &texImg);
 
-    glBindTexture(GL_TEXTURE_RECTANGLE, texImg);
-    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glBindTexture(GL_TEXTURE_RECTANGLE, texImg);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_RECTANGLE,
-		         0,
-				 GL_RGB,
-				 loadedImageWidth,
-				 loadedImageHeight,
-				 0,
-				 GL_RGB,
-				 GL_UNSIGNED_BYTE,
-				 loadedImageData);
-	
+	             0,
+	             GL_RGB,
+	             loadedImageWidth,
+	             loadedImageHeight,
+	             0,
+	             GL_RGB,
+	             GL_UNSIGNED_BYTE,
+	             loadedImageData);
+
 	int uniform_ImageTex = 3;
 
 	//-----------------------------------------------------------------------------
-	// Create two floating-point textures. 
+	// Create two floating-point textures.
 	// Use texture rectangle and texture internal format GL_ALPHA32F_ARB.
 	//-----------------------------------------------------------------------------
 
 	// Texture A.
-    glActiveTexture(GL_TEXTURE0);
-    GLuint texA;
-    glGenTextures(1, &texA);
-    glBindTexture(GL_TEXTURE_RECTANGLE, texA);
-    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA32F,
-                 loadedImageWidth, loadedImageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-    printOpenGLError();
+	glActiveTexture(GL_TEXTURE0);
+	GLuint texA;
+	glGenTextures(1, &texA);
+	glBindTexture(GL_TEXTURE_RECTANGLE, texA);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA32F, loadedImageWidth, loadedImageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	printOpenGLError();
 
 	// Texture B.
-    glActiveTexture(GL_TEXTURE1);
-    GLuint texB;
-    glGenTextures(1, &texB);
-    glBindTexture( GL_TEXTURE_RECTANGLE, texB );
-    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA32F,
-                 loadedImageWidth, loadedImageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-    printOpenGLError();
+	glActiveTexture(GL_TEXTURE1);
+	GLuint texB;
+	glGenTextures(1, &texB);
+	glBindTexture( GL_TEXTURE_RECTANGLE, texB );
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA32F, loadedImageWidth, loadedImageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	printOpenGLError();
 
 	//-----------------------------------------------------------------------------
 	// Attach the two textures to a FBO.
 	//-----------------------------------------------------------------------------
-    GLuint fbo;
-    glGenFramebuffers(1, &fbo); 
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	GLuint fbo;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 
-                           GL_TEXTURE_RECTANGLE, texA, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, texA, 0);
 	CheckFramebufferStatus();
-    printOpenGLError();
+	printOpenGLError();
 
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, 
-                           GL_TEXTURE_RECTANGLE, texB, 0);
-    CheckFramebufferStatus();
-    printOpenGLError();
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_RECTANGLE, texB, 0);
+	CheckFramebufferStatus();
+	printOpenGLError();
 
 
 	//-----------------------------------------------------------------------------
 	// Deploy user-defined shaders.
 	//-----------------------------------------------------------------------------
-    glUseProgram(shaderProg);
+	glUseProgram(shaderProg);
 
 	GLint inputTexLoc = glGetUniformLocation(shaderProg, "InputTex");
 	GLint inputColsLoc = glGetUniformLocation(shaderProg, "InputCols");
@@ -292,23 +288,23 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	//-----------------------------------------------------------------------------
 	// Set some OpenGL states and projection.
 	//-----------------------------------------------------------------------------
-    glDisable(GL_DITHER);
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_BLEND);
-    glDisable(GL_ALPHA_TEST);
-    glDisable(GL_COLOR_LOGIC_OP);
-    glDisable(GL_SCISSOR_TEST);
-    glDisable(GL_STENCIL_TEST);
-    glPolygonMode(GL_FRONT, GL_FILL);
+	glDisable(GL_DITHER);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+	glDisable(GL_ALPHA_TEST);
+	glDisable(GL_COLOR_LOGIC_OP);
+	glDisable(GL_SCISSOR_TEST);
+	glDisable(GL_STENCIL_TEST);
+	glPolygonMode(GL_FRONT, GL_FILL);
 
 	// Set up projection.
 	glViewport(0, 0, boundingBoxWidth, boundingBoxHeight);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluOrtho2D(0, boundingBoxWidth, 0, boundingBoxHeight);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0, boundingBoxWidth, 0, boundingBoxHeight);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
 	//-----------------------------------------------------------------------------
 	// Perform the rendering passes.
 	// Use the ping-pong technique.
@@ -335,7 +331,7 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 		glUniform1i(passCountLoc, passCount);
 
 		glUniform1i(offsetXLoc, minX);
-		glUniform1i(offsetYLoc, minY); 
+		glUniform1i(offsetYLoc, minY);
 
 		glUniform1i(polyMaskTexLoc, uniform_PolyMaskTex);
 		glUniform1i(imageTexLoc, uniform_ImageTex);
@@ -358,7 +354,7 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 		//---------------------------------------------------------
 		// Prepare for next rendering pass.
 		//---------------------------------------------------------
-		// Swap input and output textures. 
+		// Swap input and output textures.
 		if (inputTextureUnit == 0) {
 			inputTextureUnit = 1;
 		} else {
@@ -384,18 +380,18 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	// Read output buffer/texture to CPU memory.
 	//-----------------------------------------------------------------------------
 	float result[4];
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glReadBuffer(outputFBOAttachement);
-    glReadPixels(0, 0, 1, 1, GL_RGBA, GL_FLOAT, result);
-    printOpenGLError();
+	glPixelStorei(GL_PACK_ALIGNMENT, 1);
+	glReadBuffer(outputFBOAttachement);
+	glReadPixels(0, 0, 1, 1, GL_RGBA, GL_FLOAT, result);
+	printOpenGLError();
 
 	//-----------------------------------------------------------------------------
 	// Clean up.
 	//-----------------------------------------------------------------------------
-    glDeleteFramebuffersEXT(1, &fbo);
-    glDeleteTextures(1, &texA);
-    glDeleteTextures(1, &texB);
-	
+	glDeleteFramebuffersEXT(1, &fbo);
+	glDeleteTextures(1, &texA);
+	glDeleteTextures(1, &texB);
+
 	// Output results.. floats are between [0,1)
 	colorIv[0] = (int) (256 * result[0]); // r
 	colorIv[1] = (int) (256 * result[1]); // g
@@ -414,42 +410,42 @@ void GPU_findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 
 
 /////////////////////////////////////////////////////////////////////////////
-// Create a OpenGL rendering context. 
-// Check for OpenGL 2.0 and the necessary OpenGL extensions. 
+// Create a OpenGL rendering context.
+// Check for OpenGL 2.0 and the necessary OpenGL extensions.
 // Read in the shaders from files to create a shader program object.
 /////////////////////////////////////////////////////////////////////////////
 void PrepareGPUExecution(int argc, char** argv) {
 	// Initialize GLUT.
-    glutInit(&argc, argv);
+	glutInit(&argc, argv);
 
-    // This creates a OpenGL rendering context so that
-    // we can start to issue OpenGL commands after this.
-    glutWindowHandle = glutCreateWindow("");  
- 
+	// This creates a OpenGL rendering context so that
+	// we can start to issue OpenGL commands after this.
+	glutWindowHandle = glutCreateWindow("");
+
 	// Initialize GLEW.
-    GLenum err = glewInit();
-    if (err != GLEW_OK) {
-        fprintf(stderr, "Error: %s.\n", glewGetErrorString(err));
-        char ch; scanf("%c", &ch); // Prevents the console window from closing.
-        exit(1);
-    }
+	GLenum err = glewInit();
+	if (err != GLEW_OK) {
+		fprintf(stderr, "Error: %s.\n", glewGetErrorString(err));
+		char ch; scanf("%c", &ch); // Prevents the console window from closing.
+		exit(1);
+	}
 
 	// Make sure OpenGL 2.0 is supported.
-    if (!GLEW_VERSION_2_0) {
-        fprintf(stderr, "Error: OpenGL 2.0 is not supported.\n");
-        char ch;
+	if (!GLEW_VERSION_2_0) {
+		fprintf(stderr, "Error: OpenGL 2.0 is not supported.\n");
+		char ch;
 		scanf("%c", &ch); // Prevents the console window from closing.
-        exit(1);
-    }
+		exit(1);
+	}
 
 	// Make sure necessary OpenGL extensions are supported.
-    if (!GLEW_ARB_texture_float || 
-        !GLEW_EXT_framebuffer_object || 
-        !GLEW_ARB_texture_rectangle ) {
-        fprintf(stderr, "Error: Some necessary OpenGL extensions are not supported.\n");
-        char ch; scanf("%c", &ch); // Prevents the console window from closing.
-        exit(1);
-    }
+	if (!GLEW_ARB_texture_float ||
+			!GLEW_EXT_framebuffer_object ||
+			!GLEW_ARB_texture_rectangle ) {
+		fprintf(stderr, "Error: Some necessary OpenGL extensions are not supported.\n");
+		char ch; scanf("%c", &ch); // Prevents the console window from closing.
+		exit(1);
+	}
 
 	// Create shader program object.
 	//string shaderPath;
@@ -459,11 +455,11 @@ void PrepareGPUExecution(int argc, char** argv) {
 
 	shaderProg = makeShaderProgramFromFiles(vertShader.c_str(), fragShader.c_str(), NULL);
 
-    if (shaderProg == 0) {
-        fprintf(stderr, "Error: Cannot create shader program object.\n");
-        char ch; scanf("%c", &ch); // Prevents the console window from closing.
-        exit(1);
-    }
+	if (shaderProg == 0) {
+		fprintf(stderr, "Error: Cannot create shader program object.\n");
+		char ch; scanf("%c", &ch); // Prevents the console window from closing.
+		exit(1);
+	}
 }
 
 
@@ -472,15 +468,15 @@ void PrepareGPUExecution(int argc, char** argv) {
 // The main function.
 /////////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv) {
-    double starttime, endtime;
+	double starttime, endtime;
 	StopWatch stopwatch;
 
-    srand(927); // To use same set of random numbers every run.
+	srand(927); // To use same set of random numbers every run.
 
 //-----------------------------------------------------------------------------
 // Initialise data
 //-----------------------------------------------------------------------------
-    string imgFilename = "./sampleImage1.jpg";
+	string imgFilename = "./sampleImage1.jpg";
 
 	loadImageData(imgFilename);
 
@@ -503,10 +499,10 @@ int main(int argc, char** argv) {
 //-----------------------------------------------------------------------------
 // Perform computation on GPU.
 //-----------------------------------------------------------------------------
-    printf("GPU COMPUTATION:\n");
+	printf("GPU COMPUTATION:\n");
 
 	PrepareGPUExecution(argc, argv);
-	
+
 	stopwatch.reset();
 	stopwatch.resume();
 
@@ -521,52 +517,52 @@ int main(int argc, char** argv) {
 	printf("Time elapsed = %.4f msec for %d executions\n", gpuTime, n);
 	printf("Average Time = %.4f msec\n", gpuAvgTime);
 
-    // Print some results.
-    printf("Result = (%3d, %3d, %3d)\n", gpuResult[0], gpuResult[1], gpuResult[2]);
-    printf("\n\n");
+	// Print some results.
+	printf("Result = (%3d, %3d, %3d)\n", gpuResult[0], gpuResult[1], gpuResult[2]);
+	printf("\n\n");
 
 //-----------------------------------------------------------------------------
 // Perform computation on CPU.
 //-----------------------------------------------------------------------------
-    printf("CPU COMPUTATION (Quick Estimate):\n");
+	printf("CPU COMPUTATION (Quick Estimate):\n");
 	StopWatch cpuComputation1SW;
 	cpuComputation1SW.resume();
 
-    // CPU Calculation here.
+	// CPU Calculation here.
 	int cpuResult1[3];
 	findSomeColor3iv(poly, cpuResult1);
-	
+
 	cpuComputation1SW.pause();
 	double cpuTime1 = cpuComputation1SW.ms();
 	printf("Time elapsed = %.4f msec\n", cpuTime1);
 
-    // Print some results.
-    printf("Result = (%3d, %3d, %3d)\n", cpuResult1[0], cpuResult1[1], cpuResult1[2]);
-    printf("\n\n");
+	// Print some results.
+	printf("Result = (%3d, %3d, %3d)\n", cpuResult1[0], cpuResult1[1], cpuResult1[2]);
+	printf("\n\n");
 
 //-----------------------------------------------------------------------------
 // Perform computation on CPU.
 //-----------------------------------------------------------------------------
-    printf("CPU COMPUTATION (True Avg):\n");
+	printf("CPU COMPUTATION (True Avg):\n");
 	StopWatch cpuComputationSW;
 	cpuComputationSW.resume();
 
-    // CPU Calculation here.
+	// CPU Calculation here.
 	int cpuResult[3];
 	findAverageColor3iv(poly, cpuResult);
-	
+
 	cpuComputationSW.pause();
 	double time = cpuComputationSW.ms();
 	printf("Time elapsed = %.4f msec\n", time);
 
-    // Print some results.
-    printf("Result = (%3d, %3d, %3d)\n", cpuResult[0], cpuResult[1], cpuResult[2]);
-    printf("\n\n");
+	// Print some results.
+	printf("Result = (%3d, %3d, %3d)\n", cpuResult[0], cpuResult[1], cpuResult[2]);
+	printf("\n\n");
 
 //-----------------------------------------------------------------------------
 // Clean up.
-//-----------------------------------------------------------------------------	
-    
-    char ch; scanf("%c", &ch); // Prevents the console window from closing.
-    return 0;
+//-----------------------------------------------------------------------------
+
+	char ch; scanf("%c", &ch); // Prevents the console window from closing.
+	return 0;
 }
