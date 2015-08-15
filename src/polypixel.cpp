@@ -68,7 +68,6 @@ void findAverageColor3iv(const std::vector<MyPoint>& mpPoly, int* colorIv) {
 void findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	int loadedImageWidth = imData->width();
 	int loadedImageHeight = imData->height();
-	unsigned char* loadedImageData = imData->data();
 
 	// Find bounding box of polygon
 	int minX, maxX, minY, maxY;
@@ -100,7 +99,7 @@ void findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 
 
 	// For each point, find the average rgb.
-	int accR, accG, accB;
+	unsigned char accR, accG, accB;
 	int acc = 0;
 	int n = rowsOfPoly.size() / 2;
 
@@ -110,18 +109,15 @@ void findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	rowLeft = rowsOfPoly[0], rowRight = rowsOfPoly[1];
 	u = rowLeft - offsetX;
 	v = minY - offsetY;
-	int pos = (v * width + u) * 3;
-	accR = loadedImageData[pos], accG = loadedImageData[pos + 1], accB = loadedImageData[pos + 2];
+	imData->dataAt(u, v, accR, accG, accB);
 	acc = 1;
 
 	for(int j = rowLeft + 1; j <= rowRight; j++) {
 		u = j - offsetX;
 		v = minY - offsetY;
 
-		int pos = (v * width + u) * 3;
-		GLubyte rb = loadedImageData[pos + 0];
-		GLubyte gb = loadedImageData[pos + 1];
-		GLubyte bb = loadedImageData[pos + 2];
+		GLubyte rb, gb, bb;
+		imData->dataAt(u, v, rb, gb, bb);
 
 		// Accumulative average
 		acc++;
@@ -138,10 +134,8 @@ void findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 			u = j - offsetX;
 			v = minY + row - offsetY;
 
-			int pos = (v * width + u) * 3;
-			GLubyte rb = loadedImageData[pos + 0];
-			GLubyte gb = loadedImageData[pos + 1];
-			GLubyte bb = loadedImageData[pos + 2];
+			GLubyte rb, gb, bb;
+			imData->dataAt(u, v, rb, gb, bb);
 
 			// Accumulative average
 			acc++;
@@ -168,7 +162,6 @@ void findSomeColor3iv(PointSetArray& psa, int* colorIv) {
 void findSomeColor3iv(const std::vector<int>& unclippedPoly, int* colorIv) {
 	int loadedImageWidth = imData->width();
 	int loadedImageHeight = imData->height();
-	unsigned char* loadedImageData = imData->data();
 
 	// Clip polygon to ensure we have nothing out of bounds
 	vector<int> poly = clipPolygonToRectangle(unclippedPoly, 0, 0, loadedImageWidth - 1, loadedImageHeight - 1);
@@ -182,7 +175,7 @@ void findSomeColor3iv(const std::vector<int>& unclippedPoly, int* colorIv) {
 
 
 	// For each point, find the average rgb.
-	int accR, accG, accB;
+	unsigned char accR, accG, accB;
 	int acc = 0;
 	int n = poly.size() / 2;
 
@@ -200,8 +193,8 @@ void findSomeColor3iv(const std::vector<int>& unclippedPoly, int* colorIv) {
 		return;
 	}
 
-	int pos = (v * width + u) * 3;
-	accR = loadedImageData[pos], accG = loadedImageData[pos + 1], accB = loadedImageData[pos + 2];
+	GLubyte rb, gb, bb;
+	imData->dataAt(u, v, accR, accG, accB);
 	acc = 1;
 
 	for (int ptIdx = 1; ptIdx < n; ptIdx++) {
@@ -218,10 +211,9 @@ void findSomeColor3iv(const std::vector<int>& unclippedPoly, int* colorIv) {
 		}
 
 
-		int pos = (v * width + u) * 3;
-		GLubyte rb = loadedImageData[pos + 0];
-		GLubyte gb = loadedImageData[pos + 1];
-		GLubyte bb = loadedImageData[pos + 2];
+
+		GLubyte rb, gb, bb;
+		imData->dataAt(u, v, rb, gb, bb);
 
 		// Accumulative average
 		acc++;

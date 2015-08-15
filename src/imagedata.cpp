@@ -14,3 +14,9 @@ ImageData::ImageData(unsigned char *data, int width, int height) {
 }
 
 
+void ImageData::dataAt(int x, int y, unsigned char& r, unsigned char& g, unsigned char& b) {
+	int pos = (y * this->loadedImageWidth + x) * 3;
+	r = this->loadedImageData[pos + 0];
+	g = this->loadedImageData[pos + 1];
+	b = this->loadedImageData[pos + 2];
+}
