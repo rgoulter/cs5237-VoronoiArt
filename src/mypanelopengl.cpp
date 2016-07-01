@@ -858,7 +858,7 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 void MyPanelOpenGL::doOpenImage() {
 	//get a filename to open
 	QString qStr_fileName =
-		QFileDialog::getOpenFileName(this,
+		QFileDialog::getOpenFileName(Q_NULLPTR,
 	                                 tr("Open Image"),
 	                                 ".",
 	                                 tr("Image Files (*.png *.jpg *.bmp)"));
