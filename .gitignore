@@ -5,6 +5,10 @@
 *.sdf
 *.opensdf
 
+compile_commands.json
+.ycm_extra_conf.py
+.ycm_extra_conf.pyc
+
 # Copied from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 ## Ignore Visual Studio temporary files, build results, and
@@ -21,6 +25,7 @@
 [Rr]elease/
 x64/
 build/
+build*
 [Bb]in/
 [Oo]bj/
 
