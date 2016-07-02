@@ -8,6 +8,8 @@
 
 
 
+// As per http://doc.qt.io/qt-5/qglwidget.html
+// XXX QGLWidget is legacy, should use QOpenGLWidget instead.
 class MyPanelOpenGL : public QGLWidget
 {
     Q_OBJECT
@@ -49,8 +51,11 @@ public slots:
 	void setShowVoronoiEdges(bool b);
 
 protected:
+    // overloaded
     void initializeGL();
+    // overloaded
     void resizeGL(int x, int h);
+    // overloaded
     void paintGL();
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);

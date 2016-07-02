@@ -46,13 +46,6 @@ using std::vector;
 
 
 
-// XXX Would be better to use Qt's Widget size rather than these, right?
-const int WINDOW_WIDTH_DEFAULT = 1000;
-const int WINDOW_HEIGHT_DEFAULT = 700;
-
-int windowWidth = WINDOW_WIDTH_DEFAULT;
-int windowHeight = WINDOW_HEIGHT_DEFAULT;
-
 // Position of the image, in canvas space..
 int canvas_offsetX = 0;
 int canvas_offsetY = 0;
@@ -440,8 +433,8 @@ void generateDelaunayColoredPolygons() {
 
 
 // XXX this should be a method
-void refreshProjection() {
-	glViewport (0, 0, (GLsizei) windowWidth, (GLsizei) windowHeight);
+void refreshProjection(int width, int height) {
+	glViewport (0, 0, (GLsizei) width, (GLsizei) height);
 	glMatrixMode (GL_PROJECTION);
 	glLoadIdentity();
 
@@ -463,10 +456,10 @@ void refreshProjection() {
 	int imHeight = imData->height();
 
 	double imageRatio = ((double) imWidth) / imHeight;
-	double windowRatio = ((double) windowWidth) / windowHeight;
+	double windowRatio = ((double) width) / height;
 
 	if (imageRatio > windowRatio) {
-		double ratio = ((double) windowWidth) / windowHeight;
+		double ratio = ((double) width) / height;
 
 		int renderWidth = imWidth;
 		int renderHeight = (int) (imWidth / ratio);
@@ -482,11 +475,11 @@ void refreshProjection() {
 
 		// Scissor test to draw stuff only within the image
 		// (Use this for the voronoi-diagram-colors
-		int scissorDelta = delta * windowHeight / renderHeight;
+		int scissorDelta = delta * height / renderHeight;
 		canvas_offsetY = scissorDelta;
-		glScissor(0, scissorDelta, windowWidth, windowHeight - (2 * scissorDelta));
+		glScissor(0, scissorDelta, width, height - (2 * scissorDelta));
 	} else {
-		double ratio = ((double) windowWidth) / windowHeight;
+		double ratio = ((double) width) / height;
 
 		int renderWidth = (int) (imHeight * ratio);
 		int renderHeight = imHeight;
@@ -502,22 +495,13 @@ void refreshProjection() {
 
 		// Scissor test to draw stuff only within the image
 		// (Use this for the voronoi-diagram-colors
-		int scissorDelta = delta * windowWidth / renderWidth;
+		int scissorDelta = delta * width / renderWidth;
 		canvas_offsetX = scissorDelta;
-		glScissor(scissorDelta, 0, windowWidth - (2 * scissorDelta), windowHeight);
+		glScissor(scissorDelta, 0, width - (2 * scissorDelta), height);
 	}
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-}
-
-
-
-void reshape(int w, int h) {
-	windowWidth = w;
-	windowHeight = h;
-
-	refreshProjection();
 }
 
 
@@ -610,7 +594,7 @@ void MyPanelOpenGL::initializeGL() {
 
 
 void MyPanelOpenGL::resizeGL(int width, int height) {
-	reshape(width, height);
+	refreshProjection(width, height);
 }
 
 
@@ -635,6 +619,10 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 
 	int loadedImageWidth = imData->width();
 	int loadedImageHeight = imData->height();
+
+	QSize widgetSize = size();
+	int windowWidth = widgetSize.width();
+	int windowHeight = widgetSize.height();
 
 	double imageRatio = ((double) loadedImageWidth) / loadedImageHeight;
 	double windowRatio = ((double) windowWidth) / windowHeight;
@@ -913,7 +901,9 @@ void MyPanelOpenGL::doOpenImage() {
 
 	updateFilename(qStr_fileName); // to Qt textbox
 	loadOpenGLTextureFromFilename(filenameStr);
-	refreshProjection();
+
+	QSize widgetSize = size();
+	refreshProjection(widgetSize.width(), widgetSize.height());
 	imageLoaded();
 }
 
@@ -924,6 +914,10 @@ void MyPanelOpenGL::doSaveImage() {
 
 	int x = canvas_offsetX;
 	int y = canvas_offsetY;
+
+	QSize widgetSize = size();
+	int windowWidth = widgetSize.width();
+	int windowHeight = widgetSize.height();
 
 	int copyWidth = (windowWidth - (2 * canvas_offsetX));
 	int copyHeight = (windowHeight - (2 * canvas_offsetY));
