@@ -5,9 +5,9 @@
 #include "lmath.h"
 #include "pointSetArray.h"
 
+using std::vector;
 
 
-using namespace std;
 
 MyPoint::MyPoint() {
 	this->x = 0;
@@ -85,7 +85,7 @@ void findIntersectionPoint(int ax, int ay, int bx, int by, int cx, int cy, int d
 
 
 
-void boundingBox(const std::vector<int>& poly, int& minX, int& maxX, int& minY, int& maxY) {
+void boundingBox(const vector<int>& poly, int& minX, int& maxX, int& minY, int& maxY) {
 	minX = poly[0];
 	maxX = poly[0];
 	minY = poly[1];
@@ -112,7 +112,7 @@ void boundingBox(const std::vector<int>& poly, int& minX, int& maxX, int& minY, 
 
 
 
-void boundingBox(const std::vector<MyPoint>& poly, LongInt& minX, LongInt& maxX, LongInt& minY, LongInt& maxY) {
+void boundingBox(const vector<MyPoint>& poly, LongInt& minX, LongInt& maxX, LongInt& minY, LongInt& maxY) {
 	minX = poly[0].x;
 	maxX = poly[0].x;
 	minY = poly[0].y;
@@ -366,7 +366,7 @@ vector<int> clipPolygonToRectangle(const vector<int>& poly, int x1, int y1, int 
 
 
 
-int inPoly(const std::vector<MyPoint>& poly, const MyPoint & pt) {
+int inPoly(const vector<MyPoint>& poly, const MyPoint & pt) {
 	int n = poly.size();
 
 	// Find some point outsize of the poly.
@@ -413,7 +413,7 @@ int signDet(int x1, int y1, int w1,
 
 
 
-int inPoly(const std::vector<int>& poly, int x, int y) {
+int inPoly(const vector<int>& poly, int x, int y) {
 	int n = poly.size() / 2;
 
 	// Find some point outsize of the poly.

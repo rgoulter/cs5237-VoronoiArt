@@ -38,8 +38,11 @@
 #include "Voronoi.h"
 #include "VPoint.h"
 
-using namespace std;
-using namespace cv;
+using cv::Mat;
+using cv::imread;
+
+using std::string;
+using std::vector;
 
 
 

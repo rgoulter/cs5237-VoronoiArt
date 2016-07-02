@@ -4,7 +4,8 @@
 
 #include "imagedata.h"
 
-using namespace std;
+using std::string;
+using std::vector;
 
 
 
@@ -14,8 +15,8 @@ extern ImageData *imData;
 
 
 
-std::vector<int> enumerateLeftRightOfSimplePolygon(const std::vector<int>& poly) {
-	std::vector<int> result;
+vector<int> enumerateLeftRightOfSimplePolygon(const vector<int>& poly) {
+	vector<int> result;
 
 	// Find bounding box of polygon
 	int minX, maxX, minY, maxY;
@@ -56,8 +57,8 @@ std::vector<int> enumerateLeftRightOfSimplePolygon(const std::vector<int>& poly)
 
 
 
-void findAverageColor3iv(const std::vector<MyPoint>& mpPoly, int* colorIv) {
-	std::vector<int> poly;
+void findAverageColor3iv(const vector<MyPoint>& mpPoly, int* colorIv) {
+	vector<int> poly;
 
 	for (int i = 0; i < mpPoly.size(); i++) {
 		poly.push_back((int) mpPoly[i].x.doubleValue());
@@ -69,7 +70,7 @@ void findAverageColor3iv(const std::vector<MyPoint>& mpPoly, int* colorIv) {
 
 
 
-void findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
+void findAverageColor3iv(const vector<int>& poly, int* colorIv) {
 	int loadedImageWidth = imData->width();
 	int loadedImageHeight = imData->height();
 
@@ -99,7 +100,7 @@ void findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 
 
 	// Get points in polygon.
-	std::vector<int> rowsOfPoly = enumerateLeftRightOfSimplePolygon(poly);
+	vector<int> rowsOfPoly = enumerateLeftRightOfSimplePolygon(poly);
 
 
 	// For each point, find the average rgb.
@@ -157,13 +158,13 @@ void findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 
 
 void findSomeColor3iv(PointSetArray& psa, int* colorIv) {
-	std::vector<int> poly = coercePSAPolyToIVecPoly(psa);
+	vector<int> poly = coercePSAPolyToIVecPoly(psa);
 	findSomeColor3iv(poly, colorIv);
 };
 
 
 
-void findSomeColor3iv(const std::vector<int>& unclippedPoly, int* colorIv) {
+void findSomeColor3iv(const vector<int>& unclippedPoly, int* colorIv) {
 	int loadedImageWidth = imData->width();
 	int loadedImageHeight = imData->height();
 

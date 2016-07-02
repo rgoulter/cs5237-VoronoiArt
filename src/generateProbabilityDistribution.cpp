@@ -11,8 +11,14 @@
 #include "imagedata.h"
 #include "platform.h"
 
-using namespace std;
-using namespace cv;
+using std::string;
+using std::vector;
+
+using cv::COLOR_BGR2GRAY;
+using cv::Mat;
+using cv::Size;
+using cv::Scalar;
+using cv::imread;
 
 
 

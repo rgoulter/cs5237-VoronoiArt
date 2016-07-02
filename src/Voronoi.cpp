@@ -6,7 +6,8 @@
 #include <iostream>
 #include <set>
 
-using namespace vor;
+using vor::Voronoi;
+using vor::Edges;
 
 
 

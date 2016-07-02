@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include <string>
-
 #include "li.h"
 #include "lmath.h"
 #include "pointSet.h"
@@ -15,7 +13,7 @@
 #include "delaunayTri.h"
 #include "directedGraph.h"
 
-using namespace std;
+using std::vector;
 
 
 
