@@ -39,11 +39,11 @@ set(VORONOI_SOURCES src/basicsP3/directedGraph.cpp
                     src/basics/li.cpp
                     src/basics/polygon.cpp)
 
-set (VORONOI_HEADERS    src/VEdge.h
-                        src/VEvent.h
-                        src/VParabola.h
-                        src/VPoint.h
-                        src/Voronoi.h
+set (VORONOI_HEADERS    include/VEdge.h
+                        include/VEvent.h
+                        include/VParabola.h
+                        include/VPoint.h
+                        include/Voronoi.h
                         include/imagedata.h
                         include/basicsP3/directedGraph.h
                         include/delaunayTri.h
