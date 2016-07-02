@@ -3,6 +3,10 @@
 
 #include <vector>
 
+#include "li.h"
+
+
+
 class MyPoint {
 public:
 	LongInt x;

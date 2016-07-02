@@ -1,10 +1,14 @@
 #include "mainqt.h"
-#include <QtWidgets/QApplication>
+
 #include <iostream>
+
 #include <QTextStream>
 #include <QDebug>
+#include <QtWidgets/QApplication>
 
 using namespace std;
+
+
 
 mainqt::mainqt(QWidget *parent)
 	: QMainWindow(parent) {

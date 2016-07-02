@@ -5,6 +5,8 @@
 
 #include <vector>
 
+
+
 /*
 
   For a triangle abc, if version 0 is abc

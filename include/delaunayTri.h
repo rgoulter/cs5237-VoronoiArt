@@ -8,6 +8,8 @@
 #include "trist.h"
 #include "directedGraph.h"
 
+
+
 class DelaunayTri {
 	public:
 		// Method to add new children triangles to a parent triangle. Call this from tryInsertPoint method in main.cpp

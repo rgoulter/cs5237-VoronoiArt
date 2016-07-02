@@ -1,5 +1,8 @@
 #include "pointSet.h"
+
 #include <iostream>
+
+
 
 int PointSet::addPoint(LongInt x1, LongInt y1) {
 	MyPoint thisPoint(x1, y1);

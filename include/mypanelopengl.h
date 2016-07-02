@@ -2,8 +2,11 @@
 #define MYPANELOPENGL_H
 
 #include <string>
+
 #include <QGLWidget>
 #include <QString>
+
+
 
 class MyPanelOpenGL : public QGLWidget
 {

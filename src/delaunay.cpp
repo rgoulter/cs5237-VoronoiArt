@@ -1,6 +1,9 @@
-#include <string>
+#include "delaunay.h"
+
 #include <stdlib.h>
 #include <time.h>
+
+#include <string>
 
 #include "li.h"
 #include "lmath.h"
@@ -13,6 +16,8 @@
 #include "directedGraph.h"
 
 using namespace std;
+
+
 
 extern vector<int> delaunayPointsToProcess;
 extern PointSetArray inputPointSet; // Add the super triangle stuff to this.

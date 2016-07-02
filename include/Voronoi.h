@@ -1,6 +1,7 @@
 #ifndef Voronoi_h
 #define Voronoi_h
 
+#include <functional>
 #include <list>
 #include <queue>
 #include <set>
@@ -9,7 +10,7 @@
 #include "VEdge.h"
 #include "VParabola.h"
 #include "VEvent.h"
-#include <functional>
+
 
 
 namespace vor {

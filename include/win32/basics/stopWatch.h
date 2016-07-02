@@ -1,6 +1,9 @@
 #ifndef STOPWATCHH
 #define STOPWATCHH
+
 #include <windows.h>
+
+
 
 // stop watch function for time keeping
 class StopWatch {

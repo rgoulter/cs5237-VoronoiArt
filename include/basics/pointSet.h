@@ -2,9 +2,12 @@
 #define POINTSETH
 
 #include <vector>
+
 #include "li.h"
 #include "lmath.h"
 #include "polygon.h"
+
+
 
 class PointSet {
 protected:

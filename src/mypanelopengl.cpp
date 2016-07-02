@@ -1,40 +1,38 @@
-#include <QtGui/QMouseEvent>
 #include "mypanelopengl.h"
+
 #include <cmath>
+#include <cstdio>
+#include <stdlib.h>
+
+#include <QtGui/QMouseEvent>
 #include <QDebug>
 #include <QFileDialog>
 #include <QString>
+
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
-#include "math.h"
 #include <iostream>
 #include <fstream>
-#include "platform.h"
-#include <cstdio>
 #include <strstream>
 #include <string>
 #include <sstream>
-#include <stdlib.h>
 
-#include "imagedata.h"
+#include "platform.h"
 #include "stopWatch.h"
+
 #include "li.h"
 #include "lmath.h"
 #include "pointSet.h"
-
 #include "pointSetArray.h"
 #include "trist.h"
-
 #include "delaunayTri.h"
 #include "directedGraph.h"
-
 #include "delaunay.h"
+
+#include "imagedata.h"
 #include "polypixel.h"
 #include "generateProbabilityDistribution.h"
-
-#include <stdlib.h>
-#include <stdio.h>
 
 //Imports as part of implementing Fortune's algorithm
 #include "Voronoi.h"
@@ -42,6 +40,8 @@
 
 using namespace std;
 using namespace cv;
+
+
 
 void animate(int t);
 

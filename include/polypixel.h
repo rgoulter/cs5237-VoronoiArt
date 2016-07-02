@@ -1,10 +1,11 @@
 #ifndef CS5237_POLYPIXELH
 #define CS5237_POLYPIXELH
 
+#include <string>
+#include <vector>
+
 #include "pointSetArray.h"
 #include "platform.h"
-#include <vector>
-#include <string>
 
 class ColoredPolygon {
 public:

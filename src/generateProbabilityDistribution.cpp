@@ -1,13 +1,15 @@
-#include "opencv2/imgproc/imgproc.hpp"
-#include "opencv2/highgui/highgui.hpp"
+#include "generateProbabilityDistribution.h"
 
-#include "platform.h"
+#include <stdlib.h>
+#include <time.h>
 
 #include <vector>
-#include <time.h>
-#include <stdlib.h>
+
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 
 #include "imagedata.h"
+#include "platform.h"
 
 using namespace std;
 using namespace cv;

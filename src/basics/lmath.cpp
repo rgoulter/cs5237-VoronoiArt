@@ -1,5 +1,8 @@
 #include "lmath.h"
+
 #include <iostream>
+
+
 
 LongInt determinant(LongInt x1, LongInt y1, LongInt w1,
                     LongInt x2, LongInt y2, LongInt w2,

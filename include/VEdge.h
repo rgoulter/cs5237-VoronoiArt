@@ -1,8 +1,11 @@
 #ifndef VEdge_h
 #define VEdge_h
 
-#include "VPoint.h"
 #include <iostream>
+
+#include "VPoint.h"
+
+
 
 /*
     A class that stores an edge in Voronoi diagram

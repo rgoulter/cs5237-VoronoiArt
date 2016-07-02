@@ -1,11 +1,14 @@
-
 #include "Voronoi.h"
-#include <iostream>
-#include <algorithm>
-#include <set>
+
 #include <cmath>
 
+#include <algorithm>
+#include <iostream>
+#include <set>
+
 using namespace vor;
+
+
 
 Voronoi::Voronoi() {
 	edges = 0;

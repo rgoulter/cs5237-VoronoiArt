@@ -1,8 +1,12 @@
 #include "polypixel.h"
-#include "imagedata.h"
+
 #include <string>
 
+#include "imagedata.h"
+
 using namespace std;
+
+
 
 // Use these from the main Qt application logic code..
 // TODO: migrate imData so it's an argument to these functions..

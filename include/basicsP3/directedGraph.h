@@ -1,13 +1,14 @@
 #ifndef DIRECTEDGRAPHH
 #define DIRECTEDGRAPHH
 
-
 #include <map>
 #include <set>
 
 #include "pointSet.h"
 #include "pointSetArray.h"
 #include "trist.h"
+
+
 
 /* This Directed acyclic graph maintains a point location structure, which helps us find out the triangle in which
 the current point under consideration is.
