@@ -46,9 +46,6 @@ using std::vector;
 
 
 
-void animate(int t);
-
-
 const int WINDOW_WIDTH_DEFAULT = 1000;
 const int WINDOW_HEIGHT_DEFAULT = 700;
 
@@ -60,18 +57,19 @@ int canvas_offsetX = 0;
 int canvas_offsetY = 0;
 
 
-std::vector<int> delaunayPointsToProcess;
+// DELAUNAY
+vector<int> delaunayPointsToProcess;
 PointSetArray inputPointSet; // Add the super triangle stuff to this.
 PointSetArray delaunayPointSet; // Add the super triangle stuff to this.
 Trist delaunayOldTrist;
 Trist delaunayNewTrist;
-std::vector<PointSetArray> voronoiEdges; // Data structure to hold voronoi edges.
+vector<PointSetArray> voronoiEdges; // Data structure to hold voronoi edges.
+DirectedGraph dag(delaunayPointSet);
 
+LongInt delta = 5; // used in delaunay.cpp
+LongInt one = 1;
 
 static StopWatch globalSW;
-DirectedGraph dag(delaunayPointSet);
-LongInt delta = 5;
-LongInt one = 1;
 
 // Variables for Image Logic.
 string loadedImageFilename = "";
@@ -102,41 +100,42 @@ vor::Voronoi * voronoi = new vor::Voronoi();
 vor::Vertices * voronoivertices = new vor::Vertices();
 vor::Edges * voronoiedges;
 
+
+
 bool hasLoadedImage() {
 	return imData != NULL;
 }
 
 // These three functions are for those who are not familiar with OpenGL, you can change these or even completely ignore them
 
-void drawAPoint (double x,double y) {
-		glPointSize(5);
-		glBegin(GL_POINTS);
-		glColor3f(0,0,0);
-			glVertex2d(x,y);
-		glEnd();
-		glPointSize(1);
+void drawAPoint(double x,double y) {
+	glPointSize(5);
+	glBegin(GL_POINTS);
+	glColor3f(0,0,0);
+		glVertex2d(x,y);
+	glEnd();
+	glPointSize(1);
 }
 
-void drawALine (double x1,double y1, double x2, double y2) {
-		glPointSize(1);
-		glBegin(GL_LINE_LOOP);
-		glColor3f(0,0,1);
-			glVertex2d(x1,y1);
-			glVertex2d(x2,y2);
-		glEnd();
-		glPointSize(1);
+void drawALine(double x1,double y1, double x2, double y2) {
+	glPointSize(1);
+	glBegin(GL_LINE_LOOP);
+	glColor3f(0,0,1);
+		glVertex2d(x1,y1);
+		glVertex2d(x2,y2);
+	glEnd();
+	glPointSize(1);
 }
 
 
 
-void drawATriangle (double x1,double y1, double x2, double y2, double x3, double y3) {
-		glBegin(GL_POLYGON);
-		glColor3f(0,0.5,0);
-			glVertex2d(x1,y1);
-			glVertex2d(x2,y2);
-			glVertex2d(x3,y3);
-		glEnd();
-
+void drawATriangle(double x1,double y1, double x2, double y2, double x3, double y3) {
+	glBegin(GL_POLYGON);
+	glColor3f(0,0.5,0);
+		glVertex2d(x1,y1);
+		glVertex2d(x2,y2);
+		glVertex2d(x3,y3);
+	glEnd();
 }
 
 
@@ -168,45 +167,49 @@ void drawPlaneUsingTexture(GLuint tex) {
 
 
 
-void drawDelaunayStuff() {
-	// Draw all DAG leaf triangles.
-	vector<TriRecord> leafNodes = dag.getLeafNodes();
-	for (int i = 0; i < leafNodes.size(); i++){
-		TriRecord leafNode = leafNodes[i];
+// void drawDelaunayStuff() {
+// 	// Draw all DAG leaf triangles.
+// 	vector<TriRecord> leafNodes = dag.getLeafNodes();
+//
+// 	for (int i = 0; i < leafNodes.size(); i++){
+// 		TriRecord leafNode = leafNodes[i];
+//
+// 		int pIndex1 = leafNode.vi_[0];
+// 		int pIndex2 = leafNode.vi_[1];
+// 		int pIndex3 = leafNode.vi_[2];
+//
+// 		// Ignore if from the super triangle (i.e. index too large for input set)
+// 		if(pIndex1 > delaunayPointSet.noPt() - 3 ||
+// 		   pIndex2 > delaunayPointSet.noPt() - 3 ||
+// 		   pIndex3 > delaunayPointSet.noPt() - 3) {
+// 			continue;
+// 		}
+//
+// 		// Probably could clean this up..
+// 		LongInt p1x, p1y, p2x, p2y, p3x, p3y;
+//
+// 		delaunayPointSet.getPoint(pIndex1, p1x, p1y);
+// 		delaunayPointSet.getPoint(pIndex2, p2x, p2y);
+// 		delaunayPointSet.getPoint(pIndex3, p3x, p3y);
+//
+//
+// 		drawATriangle(p1x.doubleValue(), p1y.doubleValue(),
+// 		              p2x.doubleValue(), p2y.doubleValue(),
+// 		              p3x.doubleValue(), p3y.doubleValue());
+// 		drawALine(p1x.doubleValue(), p1y.doubleValue(),
+// 		          p2x.doubleValue(), p2y.doubleValue());
+// 		drawALine(p2x.doubleValue(), p2y.doubleValue(),
+// 		          p3x.doubleValue(), p3y.doubleValue());
+// 		drawALine(p3x.doubleValue(), p3y.doubleValue(),
+// 		          p1x.doubleValue(), p1y.doubleValue());
+// 	}
+// }
 
-		int pIndex1 = leafNode.vi_[0];
-		int pIndex2 = leafNode.vi_[1];
-		int pIndex3 = leafNode.vi_[2];
-
-		// Ignore if from the super triangle (i.e. index too large for input set)
-		if(pIndex1 > delaunayPointSet.noPt() - 3 ||
-		   pIndex2 > delaunayPointSet.noPt() - 3 ||
-		   pIndex3 > delaunayPointSet.noPt() - 3) {
-			continue;
-		}
-
-		// Probably could clean this up..
-		LongInt p1x, p1y, p2x, p2y, p3x, p3y;
-
-		delaunayPointSet.getPoint(pIndex1, p1x, p1y);
-		delaunayPointSet.getPoint(pIndex2, p2x, p2y);
-		delaunayPointSet.getPoint(pIndex3, p3x, p3y);
 
 
-		drawATriangle(p1x.doubleValue(), p1y.doubleValue(),
-		              p2x.doubleValue(), p2y.doubleValue(),
-		              p3x.doubleValue(), p3y.doubleValue());
-		drawALine(p1x.doubleValue(), p1y.doubleValue(),
-		          p2x.doubleValue(), p2y.doubleValue());
-		drawALine(p2x.doubleValue(), p2y.doubleValue(),
-		          p3x.doubleValue(), p3y.doubleValue());
-		drawALine(p3x.doubleValue(), p3y.doubleValue(),
-		          p1x.doubleValue(), p1y.doubleValue());
-	}
-}
-
+// DELAUNAY (it uses voronoiEdges)
 void drawVoronoiStuff() {
-	std::vector<PointSetArray>::iterator iter1;
+	vector<PointSetArray>::iterator iter1;
 
 	for (iter1 = voronoiEdges.begin(); iter1 != voronoiEdges.end(); ++iter1) {
 		PointSetArray polygon = *iter1;
@@ -259,7 +262,7 @@ void drawColoredPolygons() {
 
 
 
-void display (void) {
+void display(void) {
 	switch (currentRenderType) {
 		case EFFECT:
 			drawColoredPolygons();
@@ -288,11 +291,13 @@ void display (void) {
 	}
 
 	if (showVoronoiEdges) {
+		// DELAUNAY (voronoiEdges)
 		drawVoronoiStuff();
 	}
 
 
 	if (showVoronoiSites) {
+		// DELAUNAY (inputPointSet vs voronoisites)
 		// Point indices are 1-based here
 		// Draw input points
 		for (int i = 1; i <= inputPointSet.noPt(); i++){
@@ -377,6 +382,7 @@ void generateColoredPolygons(vector<PointSetArray>& psas) {
 
 
 
+// DELAUNAY
 void generateDelaunayColoredPolygons() {
 	qDebug("Calculate colored");
 
@@ -395,9 +401,9 @@ void generateDelaunayColoredPolygons() {
 		int pIndex3 = leafNode.vi_[2];
 
 		// Ignore if from the super triangle (i.e. index too large for input set)
-		if(pIndex1 > delaunayPointSet.noPt() - 3 ||
-		   pIndex2 > delaunayPointSet.noPt() - 3 ||
-		   pIndex3 > delaunayPointSet.noPt() - 3) {
+		if (pIndex1 > delaunayPointSet.noPt() - 3 ||
+		    pIndex2 > delaunayPointSet.noPt() - 3 ||
+		    pIndex3 > delaunayPointSet.noPt() - 3) {
 			continue;
 		}
 
@@ -496,7 +502,7 @@ void refreshProjection() {
 
 
 
-void reshape (int w, int h) {
+void reshape(int w, int h) {
 	windowWidth = w;
 	windowHeight = h;
 
@@ -511,18 +517,25 @@ void refreshZoom() {
 
 
 
-void init (void) {
+void init(void) {
 	glClearColor (1.0,1.0,1.0, 1.0);
 }
 
 
 
-void tryInsertPoint (LongInt x, LongInt y) {
+// DELAUNAY & VORONOI
+void tryInsertPoint(LongInt x, LongInt y) {
+	// DELAUNAY
 	int ptIndex = inputPointSet.addPoint(x, y);
 
-	voronoivertices ->push_back(new VPoint(x.doubleValue()+((double)rand()*15.0/(double)RAND_MAX), y.doubleValue()+((double)rand()*15.0/(double)RAND_MAX) ));
+	// VORONOI
+	VPoint *vp = new VPoint(x.doubleValue()+((double)rand()*15.0/(double)RAND_MAX),
+	                        y.doubleValue()+((double)rand()*15.0/(double)RAND_MAX));
+	voronoivertices->push_back(vp);
 	//voronoivertices ->push_back(new VPoint(x.doubleValue(), y.doubleValue() ));
 }
+
+
 
 void loadOpenGLTextureFromFilename(string imgFilename) {
 	//string loadedImageFilename = "";
@@ -589,9 +602,13 @@ void MyPanelOpenGL::initializeGL() {
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 }
 
+
+
 void MyPanelOpenGL::resizeGL(int width, int height) {
 	reshape(width, height);
 }
+
+
 
 void MyPanelOpenGL::paintGL() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -602,6 +619,7 @@ void MyPanelOpenGL::paintGL() {
 
 	glPopMatrix();
 }
+
 
 
 void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
@@ -622,7 +640,7 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 	int deltaX = 1;
 	int deltaY = 1;
 
-	if(loadedImageWidth > 0) {
+	if (loadedImageWidth > 0) {
 		if (imageRatio > windowRatio) {
 			double ratio = ((double) windowWidth) / windowHeight;
 
@@ -653,6 +671,8 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 	}
 }
 
+
+
 void MyPanelOpenGL::doDelaunayTriangulation() {
 	qDebug("Do Delaunay Triangulation\n");
 	tryDelaunayTriangulation();
@@ -661,11 +681,13 @@ void MyPanelOpenGL::doDelaunayTriangulation() {
 	updateGL();
 }
 
+
+
 // This function is part of Fortune's implementation & outputs the voronoiEdges required for the generateColoredPolygons
 void createpolygonsFortune() {
 	//The dictionary is indexed by the voronoi points and gives the polygon for each voronoi.
 	// The border polygons are unbounded, so need to be careful.
-	std::map< VPoint *, std::vector<VEdge *> > dictionary;
+	std::map< VPoint *, vector<VEdge *> > dictionary;
 
 	for (vor::Edges::iterator i = voronoiedges->begin(); i!= voronoiedges->end(); ++i) {
 		VEdge *edge = *i;
@@ -673,35 +695,35 @@ void createpolygonsFortune() {
 		VPoint *rightpt = edge->right;
 
 		//Check if the dictionary has leftpoint
-		std::vector<VEdge *> listofedges;
-		std::map< VPoint *, std::vector<VEdge *> >::iterator it = dictionary.find(leftpt);
+		vector<VEdge *> listofedges;
+		std::map< VPoint *, vector<VEdge *> >::iterator it = dictionary.find(leftpt);
 
 		if (it!=dictionary.end()) {
 			it->second.push_back(edge);
 		} else {
 			listofedges.push_back(edge);
-			dictionary.insert(std::map<VPoint *,std::vector<VEdge *> >::value_type(leftpt,listofedges));
+			dictionary.insert(std::map<VPoint *,vector<VEdge *> >::value_type(leftpt,listofedges));
 		}
 
 		//Check if the dictionary has rightpoint
-		std::vector<VEdge *> listofedges2;
-		std::map< VPoint *, std::vector<VEdge *> >::iterator it2 = dictionary.find(rightpt);
+		vector<VEdge *> listofedges2;
+		std::map< VPoint *, vector<VEdge *> >::iterator it2 = dictionary.find(rightpt);
 
-		if(it2!=dictionary.end()) {
+		if (it2!=dictionary.end()) {
 			it2->second.push_back(edge);
 		} else {
 			listofedges2.push_back(edge);
-			dictionary.insert(std::map<VPoint *,std::vector<VEdge *> >::value_type(rightpt,listofedges2));
+			dictionary.insert(std::map<VPoint *,vector<VEdge *> >::value_type(rightpt,listofedges2));
 		}
 	}
 
 	// Convert each of the dictionary values(polygons) into ordered list of PointSetArray vertex set.
-	std::map< VPoint *, std::vector<VEdge *> >::iterator dictioniter;
+	std::map< VPoint *, vector<VEdge *> >::iterator dictioniter;
 
 	for(dictioniter = dictionary.begin() ; dictioniter!= dictionary.end(); ++dictioniter) {
-		std::vector<VEdge *> polygonedges = dictioniter->second;
+		vector<VEdge *> polygonedges = dictioniter->second;
 		PointSetArray polygonvertices;
-		std::vector<VPoint *> revvector;
+		vector<VPoint *> revvector;
 		// polygonedges has a set of edges, create an ordered list of points from this.
 		//Take the first edge, store its start and end points into pointsetarray.
 		VEdge * firstedge = *polygonedges.begin();
@@ -719,7 +741,7 @@ void createpolygonsFortune() {
 
 
 		while (edgecounter > 0) {
-			std::vector<VEdge *>::iterator polygonedgeiter;
+			vector<VEdge *>::iterator polygonedgeiter;
 			int exitflag = 0;
 
 			// Iterate throught the remaining list of edges to find the subsequent edge
@@ -786,6 +808,8 @@ void createpolygonsFortune() {
 	}// All polygons have been found
 }
 
+
+
 void MyPanelOpenGL::doVoronoiDiagram() {
 	//qDebug("Do Voronoi creation\n");
 
@@ -794,7 +818,7 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 	voroSW.reset();
 	voroSW.resume();
 
-	bool useOldVoronoiAlgo = false;
+	bool useOldVoronoiAlgo = true;
 
 	if (useOldVoronoiAlgo) {
 		doDelaunayTriangulation();
@@ -876,6 +900,8 @@ void MyPanelOpenGL::doOpenImage() {
 	imageLoaded();
 }
 
+
+
 void MyPanelOpenGL::doSaveImage() {
 	char* outputImageFilename = "output.bmp";
 
@@ -908,12 +934,16 @@ void MyPanelOpenGL::doSaveImage() {
 	imwrite(outputImageFilename, img);
 }
 
+
+
 void MyPanelOpenGL::doDrawImage() {
 	qDebug("Draw OpenGL Image");
 	currentRenderType = IMAGE;
 
 	updateGL();
 }
+
+
 
 void MyPanelOpenGL::doDrawEdge() {
 	qDebug("Draw Edge");
@@ -922,12 +952,16 @@ void MyPanelOpenGL::doDrawEdge() {
 	updateGL();
 }
 
+
+
 void MyPanelOpenGL::doDrawEdgeSharp() {
 	qDebug("Draw Edge (Sharp)");
 	currentRenderType = EDGE_SHARP;
 
 	updateGL();
 }
+
+
 
 void MyPanelOpenGL::doDrawEdgeBlur() {
 	qDebug("Draw Edge (Blur)");
@@ -936,6 +970,8 @@ void MyPanelOpenGL::doDrawEdgeBlur() {
 	updateGL();
 }
 
+
+
 void MyPanelOpenGL::doDrawPDF() {
 	qDebug("Draw PDF");
 	currentRenderType = PDF;
@@ -943,12 +979,16 @@ void MyPanelOpenGL::doDrawPDF() {
 	updateGL();
 }
 
+
+
 void MyPanelOpenGL::doDrawEffect() {
 	qDebug("Draw Effect");
 	currentRenderType = EFFECT;
 
 	updateGL();
 }
+
+
 
 void MyPanelOpenGL::doGenerateUniformRandomPoints() {
 	// Returns {x0, y0, x1, y1,...}
@@ -968,6 +1008,8 @@ void MyPanelOpenGL::doGenerateUniformRandomPoints() {
 	updateGL();
 }
 
+
+
 void MyPanelOpenGL::doPDF() {
 	// Returns {x0, y0, x1, y1,...}
 	vector<int> points = generatePointsWithPDF(numPDFPoints);
@@ -984,6 +1026,8 @@ void MyPanelOpenGL::doPDF() {
 
 	updateGL();
 }
+
+
 
 void MyPanelOpenGL::clearAll() {
 	// Clear all our points, and such data.
@@ -1017,8 +1061,12 @@ void MyPanelOpenGL::clearAll() {
 	updateGL();
 }
 
+
+
 void MyPanelOpenGL::mouseMoveEvent(QMouseEvent *event) {
 }
+
+
 
 void MyPanelOpenGL::setShowVoronoiSites(bool b) {
 	showVoronoiSites = b;
@@ -1026,26 +1074,36 @@ void MyPanelOpenGL::setShowVoronoiSites(bool b) {
 	updateGL();
 }
 
+
+
 void MyPanelOpenGL::setShowVoronoiEdges(bool b) {
 	showVoronoiEdges = b;
 
 	updateGL();
 }
 
+
+
 void MyPanelOpenGL::setNumPoints1k() {
 	numPDFPoints = 1000;
 	updateNumPointsToGenerate(1000);
 }
+
+
 
 void MyPanelOpenGL::setNumPoints5k() {
 	numPDFPoints = 5000;
 	updateNumPointsToGenerate(5000);
 }
 
+
+
 void MyPanelOpenGL::setNumPoints(int n) {
 	numPDFPoints = n;
 	updateNumPointsToGenerate(n);
 }
+
+
 
 void MyPanelOpenGL::keyPressEvent(QKeyEvent* event) {
 	switch (event->key()) {

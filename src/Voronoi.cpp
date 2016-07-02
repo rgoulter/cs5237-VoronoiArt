@@ -15,6 +15,8 @@ Voronoi::Voronoi() {
 	edges = 0;
 }
 
+
+
 Edges * Voronoi::GetEdges(Vertices * v, int w, int h) {
 	places = v;
 	width = w;
@@ -70,6 +72,8 @@ Edges * Voronoi::GetEdges(Vertices * v, int w, int h) {
 	return edges;
 }
 
+
+
 void Voronoi::InsertParabola(VPoint * p) {
 	if (!root) {
 		root = new VParabola(p);
@@ -82,11 +86,17 @@ void Voronoi::InsertParabola(VPoint * p) {
 		root->isLeaf = false;
 		root->SetLeft(new VParabola(fp));
 		root->SetRight(new VParabola(p));
+
 		VPoint * s = new VPoint((p->x + fp->x)/2, height); // zaèátek hrany uprostøed míst
 		points.push_back(s);
-		if(p->x > fp->x) root->edge = new VEdge(s, fp, p); // rozhodnu, který vlevo, který vpravo
-		else root->edge = new VEdge(s, p, fp);
+
+		if (p->x > fp->x)
+		    root->edge = new VEdge(s, fp, p); // rozhodnu, který vlevo, který vpravo
+		else
+		    root->edge = new VEdge(s, p, fp);
+
 		edges->push_back(root->edge);
+
 		return;
 	}
 
@@ -124,6 +134,8 @@ void Voronoi::InsertParabola(VPoint * p) {
 	CheckCircle(p0);
 	CheckCircle(p2);
 }
+
+
 
 void Voronoi::RemoveParabola(VEvent * e) {
 	VParabola * p1 = e->arch;
@@ -170,9 +182,9 @@ void Voronoi::RemoveParabola(VEvent * e) {
 	VParabola * gparent = p1->parent->parent;
 
 	if (p1->parent->Left() == p1) {
-		if(gparent->Left()  == p1->parent)
+		if (gparent->Left()  == p1->parent)
 			gparent->SetLeft(p1->parent->Right());
-		if(gparent->Right() == p1->parent)
+		if (gparent->Right() == p1->parent)
 			gparent->SetRight(p1->parent->Right());
 	} else {
 		if (gparent->Left()  == p1->parent)
@@ -187,6 +199,8 @@ void Voronoi::RemoveParabola(VEvent * e) {
 	CheckCircle(p0);
 	CheckCircle(p2);
 }
+
+
 
 void Voronoi::FinishEdge(VParabola * n) {
 	if (n->isLeaf) {
@@ -208,6 +222,8 @@ void Voronoi::FinishEdge(VParabola * n) {
 	FinishEdge(n->Right());
 	delete n;
 }
+
+
 
 double Voronoi::GetXOfEdge(VParabola * par, double y) {
 	VParabola * left = VParabola::GetLeftChild(par);
@@ -245,6 +261,8 @@ double Voronoi::GetXOfEdge(VParabola * par, double y) {
 	return ry;
 }
 
+
+
 VParabola * Voronoi::GetParabolaByX(double xx) {
 	VParabola * par = root;
 	double x = 0.0;
@@ -262,6 +280,8 @@ VParabola * Voronoi::GetParabolaByX(double xx) {
 	return par;
 }
 
+
+
 // ohnisko, x-souøadnice
 double Voronoi::GetY(VPoint * p, double x) {
 	double dp = 2 * (p->y - ly);
@@ -271,6 +291,8 @@ double Voronoi::GetY(VPoint * p, double x) {
 
 	return(a1*x*x + b1*x + c1);
 }
+
+
 
 void Voronoi::CheckCircle(VParabola * b) {
 	VParabola * lp = VParabola::GetLeftParent (b);

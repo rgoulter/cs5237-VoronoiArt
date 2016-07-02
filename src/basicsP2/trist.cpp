@@ -170,8 +170,8 @@ void Trist::relableRefsToTri(OrTri oldEF, OrTri newEF) {
 
 	// Check all the triangles the tri oldEF is connected to,
 	// and then set their references to oldEF to point to newEF.
-	for(v = 0; v < 6; v++){
-		if(r->fnext_[v] >= 0){
+	for (v = 0; v < 6; v++){
+		if (r->fnext_[v] >= 0){
 			int nextTIdx = (r->fnext_[v] >> 3);
 			int nextV = (r->fnext_[v] & 7);
 			TriRecord *nextT = &(triPoints[nextTIdx]);
@@ -222,3 +222,4 @@ void Trist::incidentTriangles(int ptIndex, int& noOrTri, OrTri* otList) {
 		}
 	}
 }
+

@@ -244,3 +244,4 @@ bool findShaderDirectory(string& path, string shaderFilename) {
 	path = "don't use this for now";
 	return false;
 }
+

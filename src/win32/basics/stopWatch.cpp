@@ -25,3 +25,4 @@ void StopWatch::pause() {
 ULONGLONG StopWatch::ms() {
 	return t_;
 }
+

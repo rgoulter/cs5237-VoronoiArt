@@ -1,5 +1,7 @@
 #include "stopWatch.h"
 
+
+
 void StopWatch::resume() {
 	runningQ_=true;
 
@@ -8,6 +10,8 @@ void StopWatch::resume() {
 
 	last_start_ = tv.tv_sec * 1000 + tv.tv_usec / 1000;
 }
+
+
 
 void StopWatch::pause() {
 	runningQ_=false;
@@ -18,6 +22,9 @@ void StopWatch::pause() {
 	t_ += ((tv.tv_sec * 1000 + tv.tv_usec / 1000) - last_start_);
 }
 
+
+
 unsigned long long StopWatch::ms() {
 	return t_;
 }
+

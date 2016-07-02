@@ -8,9 +8,11 @@
 
 
 /*********************************************************CONSTRUCTORS*********************************************************/
-LongInt::LongInt(){
+LongInt::LongInt() {
 
 }
+
+
 
 LongInt::LongInt(const LongInt& oldLongInt) {
 	//Copy vector
@@ -20,6 +22,8 @@ LongInt::LongInt(const LongInt& oldLongInt) {
 	//Copy sign
 	this->signType = oldLongInt.signType;
 }
+
+
 
 LongInt::LongInt(int x) {
 	//Check sign of int
@@ -39,6 +43,8 @@ LongInt::LongInt(int x) {
 		y = y / DIVISOR;
 	} while (y > 0);
 }
+
+
 
 LongInt::LongInt(std::string x){
 	//Check sign of number
@@ -68,6 +74,8 @@ LongInt::LongInt(std::string x){
 		this->myLongInt.push_back(atol(x.c_str()));
 	}
 }
+
+
 
 /*********************************************************PRIVATE METHODS*********************************************************/
 LongInt LongInt::plusHelper(const LongInt& newNumber) const {
@@ -129,6 +137,8 @@ LongInt LongInt::plusHelper(const LongInt& newNumber) const {
 
 	return theAnswer;
 }
+
+
 
 LongInt LongInt::minusHelper(const LongInt& newNumber) const {
 	long carryover = 0L;
@@ -235,6 +245,8 @@ LongInt LongInt::minusHelper(const LongInt& newNumber) const {
 	return theAnswer;
 }
 
+
+
 void LongInt::assignWithCheck(LongInt otherLongInt, int start, int end) {
 	bool isZero = true;
 	if (start != end) {
@@ -255,8 +267,9 @@ void LongInt::assignWithCheck(LongInt otherLongInt, int start, int end) {
 		this->signType = type_positive;
 }
 
-LongInt LongInt::longMult(const LongInt& otherLongInt) const {
 
+
+LongInt LongInt::longMult(const LongInt& otherLongInt) const {
 	LongInt theAnswer = LongInt(0);
 
 	if (!this->eqZero() && !otherLongInt.eqZero()) {
@@ -304,6 +317,8 @@ LongInt LongInt::longMult(const LongInt& otherLongInt) const {
 
 	return theAnswer;
 }
+
+
 
 // Karatsuba Multiplication
 // The number of 'digits' we're looking at here is the number of elements in the array.
@@ -365,6 +380,8 @@ LongInt LongInt::karatsuba(const LongInt& otherLongInt) const {
 	return theAnswer;
 }
 
+
+
 void LongInt::changeSign() {
 	switch (signType) {
 		case type_positive:
@@ -376,6 +393,8 @@ void LongInt::changeSign() {
 	}
 }
 
+
+
 /*********************************************************PROTECTED METHODS*********************************************************/
 void LongInt::setZero_() {
 	signType = type_zero;
@@ -383,8 +402,10 @@ void LongInt::setZero_() {
 	myLongInt.push_back(0);
 }
 
+
+
 /*********************************************************PUBLIC METHODS*********************************************************/
-void LongInt::dump() const{
+void LongInt::dump() const {
 	using std::cout;
 	using std::endl;
 
@@ -397,6 +418,8 @@ void LongInt::dump() const{
 		cout << endl;
 	}
 }
+
+
 
 std::string LongInt::printOut() {
 	std::string answer;
@@ -440,6 +463,8 @@ std::string LongInt::printOut() {
 	return answer;
 }
 
+
+
 /*
 LongInt& LongInt::operator=(int x) {
 	LongInt theX = LongInt(x);
@@ -449,11 +474,15 @@ LongInt& LongInt::operator=(int x) {
 }
 */
 
+
+
 LongInt& LongInt::operator=(const LongInt& x) {
 	myLongInt = x.myLongInt;
 	signType = x.signType;
 	return *this;
 }
+
+
 
 LongInt LongInt::operator+(const LongInt& newNumber) const { // currentValue + newNumber
 	if (this->sign() == 0) {
@@ -474,6 +503,8 @@ LongInt LongInt::operator+(const LongInt& newNumber) const { // currentValue + n
 
 	return plusHelper(newNumber);
 }
+
+
 
 LongInt LongInt::operator-(const LongInt& newNumber) const { // currentValue - newNumber
 	if (this->sign() == 0) {
@@ -503,6 +534,8 @@ LongInt LongInt::operator-(const LongInt& newNumber) const { // currentValue - n
 	return minusHelper(newNumber);
 }
 
+
+
 LongInt LongInt::operator*(const LongInt& otherLongInt) const {
 	LongInt theAnswer;
 
@@ -521,8 +554,9 @@ LongInt LongInt::operator*(const LongInt& otherLongInt) const {
 	}
 
 	return theAnswer;
-
 }
+
+
 
 bool LongInt::operator>(const LongInt& otherLongInt) const {
 	int thisSign = this->sign();
@@ -559,9 +593,13 @@ bool LongInt::operator>(const LongInt& otherLongInt) const {
 	return false;
 }
 
+
+
 bool LongInt::operator<(const LongInt& otherLongInt) const {
 	return otherLongInt.operator>(*this);
 }
+
+
 
 bool LongInt::operator==(const LongInt& otherLongInt) const {
 	int thisSign = this->sign();
@@ -582,9 +620,13 @@ bool LongInt::operator==(const LongInt& otherLongInt) const {
 	return true;
 }
 
+
+
 bool LongInt::eqZero() const {
 	return (signType == type_zero);
 }
+
+
 
 int LongInt::sign() const {
 	switch (signType) {
@@ -597,6 +639,8 @@ int LongInt::sign() const {
 		default: return 0;
 	}
 }
+
+
 
 double LongInt::doubleValue() const {
 	if (this->eqZero())
@@ -615,13 +659,13 @@ double LongInt::doubleValue() const {
 }
 
 
+
 /* ---------------------------
     Unary Operator
 --------------------------- */
-
-
 LongInt operator-(LongInt& theLongInt) {
 	LongInt theAnswer = LongInt(theLongInt);
 	theAnswer.changeSign();
 	return theAnswer;
 }
+

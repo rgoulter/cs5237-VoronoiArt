@@ -14,10 +14,14 @@ MyPoint::MyPoint() {
 	this->y = 0;
 }
 
+
+
 MyPoint::MyPoint(LongInt x, LongInt y) {
 	this->x = x;
 	this->y = y;
 }
+
+
 
 int orientation(const MyPoint& p1, const MyPoint& p2, const MyPoint& p3) {
 	return signDet(p1.x, p1.y, LongInt(1),
@@ -446,3 +450,4 @@ int inPoly(const vector<int>& poly, int x, int y) {
 
 	return (numIntersections % 2) == 1;
 }
+

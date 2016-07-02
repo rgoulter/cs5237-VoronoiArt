@@ -16,6 +16,8 @@ VParabola::VParabola() {
 	parent = 0;
 }
 
+
+
 VParabola::VParabola(VPoint * s) {
 	site = s;
 	isLeaf = true;
@@ -23,6 +25,8 @@ VParabola::VParabola(VPoint * s) {
 	edge = 0;
 	parent = 0;
 }
+
+
 
 /*
     Tree operations (described in the header file)
@@ -33,9 +37,13 @@ VParabola * VParabola::GetLeft(VParabola * p) {
 }
 
 
+
+
 VParabola * VParabola::GetRight(VParabola * p) {
 	return GetRightChild(GetRightParent(p));
 }
+
+
 
 VParabola * VParabola::GetLeftParent(VParabola * p) {
 	VParabola * par = p->parent;
@@ -52,6 +60,8 @@ VParabola * VParabola::GetLeftParent(VParabola * p) {
 	return par;
 }
 
+
+
 VParabola * VParabola::GetRightParent(VParabola * p) {
 	VParabola * par = p->parent;
 	VParabola * pLast = p;
@@ -66,6 +76,8 @@ VParabola * VParabola::GetRightParent(VParabola * p) {
 	return par;
 }
 
+
+
 VParabola * VParabola::GetLeftChild(VParabola * p) {
 	if (!p)
 		return 0;
@@ -77,6 +89,8 @@ VParabola * VParabola::GetLeftChild(VParabola * p) {
 
 	return par;
 }
+
+
 
 VParabola * VParabola::GetRightChild(VParabola * p) {
 	if (!p)

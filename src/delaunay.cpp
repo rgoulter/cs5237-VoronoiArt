@@ -30,6 +30,7 @@ extern LongInt delta;
 extern LongInt one;
 
 
+
 void DelaunayTri::findBoundingTri(PointSetArray &pSet) {
 	LongInt minX = pSet.myPoints[0].x;
 	LongInt maxX = pSet.myPoints[0].x;
@@ -43,8 +44,10 @@ void DelaunayTri::findBoundingTri(PointSetArray &pSet) {
 		else if (maxX < pSet.myPoints[i].x)
 			maxX = pSet.myPoints[i].x;
 
-		if (minY > pSet.myPoints[i].y) minY = pSet.myPoints[i].y;
-		else if (maxY < pSet.myPoints[i].y) maxY = pSet.myPoints[i].y;
+		if (minY > pSet.myPoints[i].y)
+		    minY = pSet.myPoints[i].y;
+		else if (maxY < pSet.myPoints[i].y)
+		    maxY = pSet.myPoints[i].y;
 	}
 
 	minX = minX-delta-thousand;
@@ -111,12 +114,13 @@ void delaunayIterationStep() {
 	//updateGL(); // updateGL is a method of the QGLWidget..
 }
 
+
+
 // This method checks whether the voronoi edge identified already exists in the existing voronoi edge set.
 bool checkedgeExists(PointSetArray voronoiEdge) {
 	MyPoint dA, dB;
 	std::vector<PointSetArray>::iterator iter1;
-	for (iter1 = voronoiEdges.begin(); iter1 != voronoiEdges.end();)
-	{
+	for (iter1 = voronoiEdges.begin(); iter1 != voronoiEdges.end();) {
 		PointSetArray vEdge = *iter1;
 		LongInt x1, y1, x2, y2, vx1, vy1, vx2, vy2;
 		x1 = vEdge.myPoints[0].x;
@@ -139,20 +143,15 @@ bool checkedgeExists(PointSetArray voronoiEdge) {
 
 
 
-
-
 void createVoronoi() {
-	for (int dppIdx = 1; dppIdx <= delaunayPointSet.noPt() - 3; dppIdx++)
-	{
-
+	for (int dppIdx = 1; dppIdx <= delaunayPointSet.noPt() - 3; dppIdx++) {
 		// Find delaunay triangles to which this point is linked
 		std::vector<TriRecord> linkedTriangles = dag.findlinkedNodes(dppIdx);
 		PointSetArray polygon;
 
 		// findlinkedNodes method gives an ordered list of triangles. Iterate through and find circumcenters.
 		std::vector<TriRecord>::iterator iter1;
-		for (iter1 = linkedTriangles.begin(); iter1 != linkedTriangles.end();)
-		{
+		for (iter1 = linkedTriangles.begin(); iter1 != linkedTriangles.end();) {
 			TriRecord tri = *iter1;
 			MyPoint circum;
 			delaunayPointSet.circumCircle(tri.vi_[0], tri.vi_[1],tri.vi_[2], circum);
@@ -163,7 +162,6 @@ void createVoronoi() {
 		voronoiEdges.push_back(polygon);
 	}
 }
-
 
 
 
@@ -210,3 +208,4 @@ void tryDelaunayTriangulation() {
 		delaunayIterationStep();
 	}
 }
+

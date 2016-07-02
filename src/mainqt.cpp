@@ -13,15 +13,19 @@ mainqt::mainqt(QWidget *parent)
 	ui.setupUi(this);
 }
 
-mainqt::~mainqt() {
 
-}
+
+mainqt::~mainqt() { }
+
+
 
 void mainqt::updateNumPoints(int n) {
 	bool b = n > 0;
 
 	ui.btnDoVoronoi->setEnabled(b);
 }
+
+
 
 void mainqt::imageLoaded() {
 	// Enable various components
@@ -45,13 +49,16 @@ void mainqt::setUsePDF(bool b) {
 	ui.btnDrawPDF->setEnabled(b);
 }
 
+
+
 void mainqt::setVoronoiComputed(bool b) {
 	ui.btnDrawEffect->setEnabled(b);
 	ui.chkShowEdges->setEnabled(b);
 }
 
-int main(int argc, char *argv[])
-{
+
+
+int main(int argc, char *argv[]) {
 	QTextStream out(stdout);
 	out << "Running QT now.." << endl << flush;
 	qDebug()<<"debug output"<<endl;
@@ -61,3 +68,4 @@ int main(int argc, char *argv[])
 	w.show();
 	return a.exec();
 }
+

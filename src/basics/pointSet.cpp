@@ -11,9 +11,12 @@ int PointSet::addPoint(LongInt x1, LongInt y1) {
 	return (myPoints.size());
 }
 
+
+
 void PointSet::deleteLastPoint() {
 	myPoints.erase(myPoints.begin()+myPoints.size()-1);
 }
+
 
 
 int PointSet::inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx) {
@@ -42,6 +45,8 @@ int PointSet::inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx) {
 	               t2x, t2y, t2x*(p2.x+v.x) + t2y*(p2.y+v.y),
 	               t3x, t3y, t3x*(p3.x+v.x) + t3y*(p3.y+v.y))*orient>=0;
 }
+
+
 
 // This method returns the circumcircle center for the three input points.
 bool PointSet::circumCircle(int p1Idx, int p2Idx, int p3Idx, MyPoint& center) {
@@ -87,6 +92,7 @@ bool PointSet::circumCircle(int p1Idx, int p2Idx, int p3Idx, MyPoint& center) {
 
 	return true;
 }
+
 
 
 //this function gives an incorrect response for 1-2 cases per trial.

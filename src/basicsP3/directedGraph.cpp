@@ -13,9 +13,13 @@ DirectedGraph::DirectedGraph(PointSetArray &pSet) {
 	triVertices = &pSet;
 }
 
+
+
 std::vector<TriRecord> DirectedGraph::getLeafNodes() {
 	return leafnodeList;
 }
+
+
 
 // This method adds children nodes to the specified parent node. This is only for new point additions and not for flipping.
 void DirectedGraph::addChildrenNodes(int pIdX) {
@@ -75,8 +79,8 @@ void DirectedGraph::addChildrenNodes(int pIdX) {
 	for (it = leafnodeList.begin(); it != leafnodeList.end();) {
 		TriRecord tri = *it;
 		MyPoint circumCntr1;
-		if(tri.vi_[0]==containingTriangle.vi_[0] && tri.vi_[1]==containingTriangle.vi_[1]
-		   && tri.vi_[2]==containingTriangle.vi_[2]) {
+		if (tri.vi_[0]==containingTriangle.vi_[0] && tri.vi_[1]==containingTriangle.vi_[1]
+		    && tri.vi_[2]==containingTriangle.vi_[2]) {
 			it = leafnodeList.erase(it);
 
 			// Find the circumcenter of this triangle
@@ -85,6 +89,8 @@ void DirectedGraph::addChildrenNodes(int pIdX) {
 		}
 	}
 }
+
+
 
 // This method returns the triangle which encloses the input point.
 TriRecord DirectedGraph::findLeafNodeForPoint(int pIdX) {
@@ -142,6 +148,8 @@ TriRecord DirectedGraph::findLeafNodeForPoint(int pIdX) {
 	}
 }
 
+
+
 // This method returns the set of 2 triangles the input edge belongs to.
 std::vector<TriRecord> DirectedGraph::findNodesForEdge(int pIdx1, int pIdx2) {
 	std::vector<TriRecord> ::iterator iter;
@@ -166,6 +174,8 @@ std::vector<TriRecord> DirectedGraph::findNodesForEdge(int pIdx1, int pIdx2) {
 
 	return outputlist;
 }
+
+
 
 // This method returns the set of triangles the input point belongs to.
 std::vector<TriRecord> DirectedGraph::findlinkedNodes(int pIdx1) {
@@ -214,8 +224,8 @@ std::vector<TriRecord> DirectedGraph::findlinkedNodes(int pIdx1) {
 
 		outputlist.push_back(nextTri);
 		//Find an edge in nextTri that has the common vertex but not shared with prevTri
-		if(nextTri.vi_[0] == prevTri.vi_[commonvert] && nextTri.vi_[1] != prevTri.vi_[nextvert] ||
-		   nextTri.vi_[0]!=prevTri.vi_[nextvert] && nextTri.vi_[1]==prevTri.vi_[commonvert]) {
+		if (nextTri.vi_[0] == prevTri.vi_[commonvert] && nextTri.vi_[1] != prevTri.vi_[nextvert] ||
+		    nextTri.vi_[0]!=prevTri.vi_[nextvert] && nextTri.vi_[1]==prevTri.vi_[commonvert]) {
 			if (nextTri.vi_[0]==prevTri.vi_[commonvert] && nextTri.vi_[1]!=prevTri.vi_[nextvert]) {
 				nextvert = 1;
 				commonvert = 0;
@@ -248,6 +258,8 @@ std::vector<TriRecord> DirectedGraph::findlinkedNodes(int pIdx1) {
 
 	return outputlist;
 }
+
+
 
 // Please note that the edge to be flipped here is the 2nd and 3rd parameters.
 void DirectedGraph::addFlipChildrenNodes(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
@@ -293,6 +305,8 @@ void DirectedGraph::addFlipChildrenNodes(int pIdx1, int pIdx2, int pIdx3, int pI
 	}
 }
 
+
+
 // Removes everything from DAG
 void DirectedGraph::cleardirectedGraph() {
 	dagNode.clear();
@@ -300,3 +314,4 @@ void DirectedGraph::cleardirectedGraph() {
 	orderedkeyList.clear();
 	int temp =1;
 }
+
