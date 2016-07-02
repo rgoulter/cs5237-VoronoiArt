@@ -78,6 +78,8 @@ void generateOGLTextureForOpenCVMat(GLuint& tex, const Mat& M) {
 
 // It would be nice to abstract these details and have some kind of "constant" PDF / mat,
 // and generate points from that. Oh well.
+//
+// POINTREP:INTVEC
 vector<int> generateUniformRandomPoints(int numPoints) {
 	int loadedImageWidth = imData->width();
 	int loadedImageHeight = imData->height();
@@ -103,6 +105,7 @@ vector<int> generateUniformRandomPoints(int numPoints) {
 
 
 
+// POINTREP:INTVEC
 vector<int> generatePointsWithPDF(int numPDFPoints) {
 	int loadedImageWidth = imData->width();
 

@@ -46,6 +46,7 @@ using std::vector;
 
 
 
+// XXX Would be better to use Qt's Widget size rather than these, right?
 const int WINDOW_WIDTH_DEFAULT = 1000;
 const int WINDOW_HEIGHT_DEFAULT = 700;
 
@@ -98,7 +99,8 @@ int numPDFPoints = 75;
 //Initialize voronoi components for Fortune's algorithm
 vor::Voronoi * voronoi = new vor::Voronoi();
 vor::Vertices * voronoivertices = new vor::Vertices();
-vor::Edges * voronoiedges;
+// voronoiedges is used by createpolygonsFortune
+vor::Edges * voronoiedges; // Edges == std::list<VEdge *>
 
 
 
@@ -208,6 +210,7 @@ void drawPlaneUsingTexture(GLuint tex) {
 
 
 // DELAUNAY (it uses voronoiEdges)
+// used in display()
 void drawVoronoiStuff() {
 	vector<PointSetArray>::iterator iter1;
 
@@ -310,6 +313,8 @@ void display(void) {
 
 
 
+// POLYREP:INTVEC
+// also uses polypixel's ColoredPolygon
 void generateColoredPolygons(vector< vector<int> >& polys) {
 	hasCalculatedColoredPolygons = 0;
 	renderedPolygons.clear();
@@ -326,6 +331,9 @@ void generateColoredPolygons(vector< vector<int> >& polys) {
 		int colorIv[3];
 		findSomeColor3iv(poly, colorIv);
 
+		// XXX following could be a method / ctor, right?
+		// ColoredPolygon (from polypixel),
+		// internally uses POLYREP:INTVEC
 		ColoredPolygon coloredPoly;
 
 		coloredPoly.poly = poly;
@@ -347,6 +355,7 @@ void generateColoredPolygons(vector< vector<int> >& polys) {
 
 
 
+// POLYREP:MYPOINTVEC => :INTVEC
 void generateColoredPolygons(vector< vector<MyPoint> >& myPointPolys) {
 	// Coerce the PSAs to vec<int> poly representation
 	vector< vector<int> > ivPolys;
@@ -369,6 +378,7 @@ void generateColoredPolygons(vector< vector<MyPoint> >& myPointPolys) {
 
 
 
+// POLYREP:POINTSETARRAY => :INTVEC
 void generateColoredPolygons(vector<PointSetArray>& psas) {
 	// Coerce the PSAs to vec<int> poly representation
 	vector< vector<int> > ivPolys;
@@ -429,6 +439,7 @@ void generateDelaunayColoredPolygons() {
 
 
 
+// XXX this should be a method
 void refreshProjection() {
 	glViewport (0, 0, (GLsizei) windowWidth, (GLsizei) windowHeight);
 	glMatrixMode (GL_PROJECTION);
@@ -507,12 +518,6 @@ void reshape(int w, int h) {
 	windowHeight = h;
 
 	refreshProjection();
-}
-
-
-
-void refreshZoom() {
-	reshape(WINDOW_WIDTH_DEFAULT, WINDOW_HEIGHT_DEFAULT);
 }
 
 
@@ -673,8 +678,11 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 
 
 
+// DELAUNAY
 void MyPanelOpenGL::doDelaunayTriangulation() {
 	qDebug("Do Delaunay Triangulation\n");
+
+	// Invoke methods from `delaunay`
 	tryDelaunayTriangulation();
 	//generateDelaunayColoredPolygons(); // too slow.
 
@@ -683,7 +691,10 @@ void MyPanelOpenGL::doDelaunayTriangulation() {
 
 
 
-// This function is part of Fortune's implementation & outputs the voronoiEdges required for the generateColoredPolygons
+// This function is part of Fortune's implementation
+// & outputs the voronoiEdges required for the generateColoredPolygons
+//
+// VORONOI, wrapper to voronoiEdges(???)
 void createpolygonsFortune() {
 	//The dictionary is indexed by the voronoi points and gives the polygon for each voronoi.
 	// The border polygons are unbounded, so need to be careful.
@@ -720,7 +731,7 @@ void createpolygonsFortune() {
 	// Convert each of the dictionary values(polygons) into ordered list of PointSetArray vertex set.
 	std::map< VPoint *, vector<VEdge *> >::iterator dictioniter;
 
-	for(dictioniter = dictionary.begin() ; dictioniter!= dictionary.end(); ++dictioniter) {
+	for (dictioniter = dictionary.begin() ; dictioniter!= dictionary.end(); ++dictioniter) {
 		vector<VEdge *> polygonedges = dictioniter->second;
 		PointSetArray polygonvertices;
 		vector<VPoint *> revvector;
@@ -818,10 +829,11 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 	voroSW.reset();
 	voroSW.resume();
 
-	bool useOldVoronoiAlgo = true;
+	bool useOldVoronoiAlgo = false;
 
 	if (useOldVoronoiAlgo) {
-		doDelaunayTriangulation();
+		// DELAUNAY
+		doDelaunayTriangulation(); // method
 
 		voroSW.pause();
 		double timeDelaunay = voroSW.ms();
@@ -829,8 +841,7 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 		voroSW.reset();
 		voroSW.resume();
 
-
-		createVoronoi();
+		createVoronoi(); // in `delaunay`
 
 		voroSW.pause();
 		double timeCreateVoronoi = voroSW.ms();
@@ -838,14 +849,20 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 		voroSW.reset();
 		voroSW.resume();
 	} else {
+		// VORONOI
+
 		// Do Voronoi using Fortune's algorithm
 		voronoiEdges.clear();
 
 		// Bounding Points for Fortune's
-		voronoivertices ->push_back( new VPoint(-10000.0 +((double)rand()*15.0/(double)RAND_MAX),10000.0 +((double)rand()*15.0/(double)RAND_MAX) ));
-		voronoivertices ->push_back( new VPoint(10000.0 +((double)rand()*15.0/(double)RAND_MAX),10000.0 +((double)rand()*15.0/(double)RAND_MAX) ));
-		voronoivertices ->push_back( new VPoint(10000.0 +((double)rand()*15.0/(double)RAND_MAX),-10000.0 +((double)rand()*15.0/(double)RAND_MAX) ));
-		voronoivertices ->push_back( new VPoint(-10000.0 +((double)rand()*15.0/(double)RAND_MAX),-10000.0 +((double)rand()*15.0/(double)RAND_MAX) ));
+		voronoivertices->push_back(new VPoint(-10000.0 +((double)rand()*15.0/(double)RAND_MAX),
+		                                       10000.0 +((double)rand()*15.0/(double)RAND_MAX)));
+		voronoivertices->push_back(new VPoint( 10000.0 +((double)rand()*15.0/(double)RAND_MAX),
+		                                       10000.0 +((double)rand()*15.0/(double)RAND_MAX)));
+		voronoivertices->push_back(new VPoint( 10000.0 +((double)rand()*15.0/(double)RAND_MAX),
+		                                      -10000.0 +((double)rand()*15.0/(double)RAND_MAX)));
+		voronoivertices->push_back(new VPoint(-10000.0 +((double)rand()*15.0/(double)RAND_MAX),
+		                                      -10000.0 +((double)rand()*15.0/(double)RAND_MAX) ));
 
 		voronoiedges = voronoi->GetEdges(voronoivertices,10000,10000);
 
@@ -991,6 +1008,7 @@ void MyPanelOpenGL::doDrawEffect() {
 
 
 void MyPanelOpenGL::doGenerateUniformRandomPoints() {
+	// POINTREP:INTVEC
 	// Returns {x0, y0, x1, y1,...}
 	vector<int> points = generateUniformRandomPoints(numPDFPoints);
 
@@ -1011,6 +1029,7 @@ void MyPanelOpenGL::doGenerateUniformRandomPoints() {
 
 
 void MyPanelOpenGL::doPDF() {
+	// POINTREP:INTVEC
 	// Returns {x0, y0, x1, y1,...}
 	vector<int> points = generatePointsWithPDF(numPDFPoints);
 
