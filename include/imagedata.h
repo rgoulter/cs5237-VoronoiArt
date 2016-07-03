@@ -13,11 +13,11 @@ class ImageData {
 public:
 	ImageData(unsigned char *data, int width, int height);
 
-	int width() {
+	int width() const {
 		return loadedImageWidth;
 	}
 
-	int height() {
+	int height() const {
 		return loadedImageHeight;
 	}
 
@@ -25,7 +25,7 @@ public:
 		return loadedImageData;
 	}
 
-	void dataAt(int x, int y, unsigned char& r, unsigned char& g, unsigned char& b);
+	void dataAt(int x, int y, unsigned char& r, unsigned char& g, unsigned char& b) const;
 
 private:
 	int loadedImageWidth;

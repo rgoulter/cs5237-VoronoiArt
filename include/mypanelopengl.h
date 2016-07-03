@@ -2,9 +2,12 @@
 #define MYPANELOPENGL_H
 
 #include <string>
+#include <vector>
 
 #include <QGLWidget>
 #include <QString>
+
+#include "pointSetArray.h"
 
 
 
@@ -26,7 +29,6 @@ signals:
 	void setVoronoiComputed(bool);
 
 public slots:
-	void doDelaunayTriangulation();
 	void doOpenImage();
 
 	void doDrawImage();
@@ -51,17 +53,24 @@ public slots:
 	void setShowVoronoiEdges(bool b);
 
 protected:
-    // overloaded
-    void initializeGL();
-    // overloaded
-    void resizeGL(int x, int h);
-    // overloaded
-    void paintGL();
-    void mousePressEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void keyPressEvent(QKeyEvent *event);
+	// overloaded
+	void initializeGL();
+	// overloaded
+	void resizeGL(int x, int h);
+	// overloaded
+	void paintGL();
+	void mousePressEvent(QMouseEvent *event);
+	void mouseMoveEvent(QMouseEvent *event);
+	void keyPressEvent(QKeyEvent *event);
 
 private:
+	// TODO Probably could do without these?
+	// Position of the image, in canvas space..
+	int canvasOffsetX_ = 0;
+	int canvasOffsetY_ = 0;
+
+
+	std::vector<PointSetArray> voronoiPolygons_;
 
 };
 

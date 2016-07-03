@@ -446,7 +446,6 @@
     <signal>setUsePDF(bool)</signal>
     <signal>setVoronoiComputed(bool)</signal>
     <signal>updateNumPointsToGenerate(int)</signal>
-    <slot>doDelaunayTriangulation()</slot>
     <slot>doOpenImage()</slot>
     <slot>doDrawImage()</slot>
     <slot>doVoronoiDiagram()</slot>

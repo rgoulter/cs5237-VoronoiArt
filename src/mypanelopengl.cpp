@@ -14,7 +14,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <strstream>
 #include <string>
 #include <sstream>
 
@@ -46,22 +45,9 @@ using std::vector;
 
 
 
-// Position of the image, in canvas space..
-int canvas_offsetX = 0;
-int canvas_offsetY = 0;
-
-
 // DELAUNAY
-vector<int> delaunayPointsToProcess;
-PointSetArray inputPointSet; // Add the super triangle stuff to this.
-PointSetArray delaunayPointSet; // Add the super triangle stuff to this.
-Trist delaunayOldTrist;
-Trist delaunayNewTrist;
-vector<PointSetArray> voronoiEdges; // Data structure to hold voronoi edges.
-DirectedGraph dag(delaunayPointSet);
-
-LongInt delta = 5; // used in delaunay.cpp
-LongInt one = 1;
+PointSetArray inputPointSet;
+// PointSetArray delaunayPointSet; // Add the super triangle stuff to this.
 
 static StopWatch globalSW;
 
@@ -70,10 +56,8 @@ string loadedImageFilename = "";
 ImageData *imData = NULL;
 
 GLuint loadedImageTexture;
-GLuint edgesTexture;
-GLuint edgesSharpTexture;
-GLuint edgesBlurTexture;
-GLuint pdfTexture;
+
+PDFTextures pdfTextures_;
 
 // Variables for colored polygons
 bool hasCalculatedColoredPolygons = 0;
@@ -204,10 +188,10 @@ void drawPlaneUsingTexture(GLuint tex) {
 
 // DELAUNAY (it uses voronoiEdges)
 // used in display()
-void drawVoronoiStuff() {
+void drawVoronoiPolygons(vector<PointSetArray>& voronoiPolys) {
 	vector<PointSetArray>::iterator iter1;
 
-	for (iter1 = voronoiEdges.begin(); iter1 != voronoiEdges.end(); ++iter1) {
+	for (iter1 = voronoiPolys.begin(); iter1 != voronoiPolys.end(); ++iter1) {
 		PointSetArray polygon = *iter1;
 
 		for (int i = 1; i <= polygon.noPt(); i++) {
@@ -258,26 +242,26 @@ void drawColoredPolygons() {
 
 
 
-void display(void) {
+void display(vector<PointSetArray> voronoiPolys) {
 	switch (currentRenderType) {
 		case EFFECT:
 			drawColoredPolygons();
 			break;
 
 		case EDGE_RAW:
-			drawPlaneUsingTexture(edgesTexture);
+			drawPlaneUsingTexture(pdfTextures_.edgesTexture);
 			break;
 
 		case EDGE_SHARP:
-			drawPlaneUsingTexture(edgesSharpTexture);
+			drawPlaneUsingTexture(pdfTextures_.edgesSharpTexture);
 			break;
 
 		case EDGE_BLUR:
-			drawPlaneUsingTexture(edgesBlurTexture);
+			drawPlaneUsingTexture(pdfTextures_.edgesBlurTexture);
 			break;
 
 		case PDF:
-			drawPlaneUsingTexture(pdfTexture);
+			drawPlaneUsingTexture(pdfTextures_.pdfTexture);
 			break;
 
 		case IMAGE:
@@ -288,7 +272,7 @@ void display(void) {
 
 	if (showVoronoiEdges) {
 		// DELAUNAY (voronoiEdges)
-		drawVoronoiStuff();
+		drawVoronoiPolygons(voronoiPolys);
 	}
 
 
@@ -321,8 +305,10 @@ void generateColoredPolygons(vector< vector<int> >& polys) {
 		// vector<int> poly = clipPolygonToRectangle(unclippedPoly, 0, 0, loadedImageWidth, loadedImageHeight);
 		vector<int> poly = polys[i];
 
+		// TODO: Would be nice to be able to inject another function
+		// instead of `findSomeColor3iv`.
 		int colorIv[3];
-		findSomeColor3iv(poly, colorIv);
+		findSomeColor3iv(*imData, poly, colorIv);
 
 		// XXX following could be a method / ctor, right?
 		// ColoredPolygon (from polypixel),
@@ -386,54 +372,56 @@ void generateColoredPolygons(vector<PointSetArray>& psas) {
 
 
 // DELAUNAY
-void generateDelaunayColoredPolygons() {
-	qDebug("Calculate colored");
-
-	// Pre-condition: 'dag' generated.
-
-	vector< vector<MyPoint> > polys;
-
-	// Create vector of vector of points, from delaunay.
-	// Draw all DAG leaf triangles.
-	vector<TriRecord> leafNodes = dag.getLeafNodes();
-	for (int i = 0; i < leafNodes.size(); i++){
-		TriRecord leafNode = leafNodes[i];
-
-		int pIndex1 = leafNode.vi_[0];
-		int pIndex2 = leafNode.vi_[1];
-		int pIndex3 = leafNode.vi_[2];
-
-		// Ignore if from the super triangle (i.e. index too large for input set)
-		if (pIndex1 > delaunayPointSet.noPt() - 3 ||
-		    pIndex2 > delaunayPointSet.noPt() - 3 ||
-		    pIndex3 > delaunayPointSet.noPt() - 3) {
-			continue;
-		}
-
-		// Probably could clean this up..
-		// Since MyPoint is now exposed.
-		LongInt p1x, p1y, p2x, p2y, p3x, p3y;
-
-		delaunayPointSet.getPoint(pIndex1, p1x, p1y);
-		delaunayPointSet.getPoint(pIndex2, p2x, p2y);
-		delaunayPointSet.getPoint(pIndex3, p3x, p3y);
-
-		// Add a polygon for the triangle.
-		vector<MyPoint> poly;
-		poly.push_back(MyPoint(p1x, p1y));
-		poly.push_back(MyPoint(p2x, p2y));
-		poly.push_back(MyPoint(p3x, p3y));
-
-		polys.push_back(poly);
-	}
-
-	generateColoredPolygons(polys);
-}
+// NB: unused, but also, genColorPoly() is in ::doVoronoiDiagram
+// void generateDelaunayColoredPolygons() {
+// 	qDebug("Calculate colored");
+//
+// 	// Pre-condition: 'dag' generated.
+//
+// 	vector< vector<MyPoint> > polys;
+//
+// 	// Create vector of vector of points, from delaunay.
+// 	// Draw all DAG leaf triangles.
+// 	vector<TriRecord> leafNodes = dag.getLeafNodes();
+// 	for (int i = 0; i < leafNodes.size(); i++){
+// 		TriRecord leafNode = leafNodes[i];
+//
+// 		int pIndex1 = leafNode.vi_[0];
+// 		int pIndex2 = leafNode.vi_[1];
+// 		int pIndex3 = leafNode.vi_[2];
+//
+// 		// Ignore if from the super triangle (i.e. index too large for input set)
+// 		if (pIndex1 > delaunayPointSet.noPt() - 3 ||
+// 		    pIndex2 > delaunayPointSet.noPt() - 3 ||
+// 		    pIndex3 > delaunayPointSet.noPt() - 3) {
+// 			continue;
+// 		}
+//
+// 		// Probably could clean this up..
+// 		// Since MyPoint is now exposed.
+// 		LongInt p1x, p1y, p2x, p2y, p3x, p3y;
+//
+// 		delaunayPointSet.getPoint(pIndex1, p1x, p1y);
+// 		delaunayPointSet.getPoint(pIndex2, p2x, p2y);
+// 		delaunayPointSet.getPoint(pIndex3, p3x, p3y);
+//
+// 		// Add a polygon for the triangle.
+// 		vector<MyPoint> poly;
+// 		poly.push_back(MyPoint(p1x, p1y));
+// 		poly.push_back(MyPoint(p2x, p2y));
+// 		poly.push_back(MyPoint(p3x, p3y));
+//
+// 		polys.push_back(poly);
+// 	}
+//
+// 	generateColoredPolygons(polys);
+// }
 
 
 
 // XXX this should be a method
-void refreshProjection(int width, int height) {
+void refreshProjection(int width, int height,
+                       int& canvas_offsetX, int& canvas_offsetY) {
 	glViewport (0, 0, (GLsizei) width, (GLsizei) height);
 	glMatrixMode (GL_PROJECTION);
 	glLoadIdentity();
@@ -594,7 +582,7 @@ void MyPanelOpenGL::initializeGL() {
 
 
 void MyPanelOpenGL::resizeGL(int width, int height) {
-	refreshProjection(width, height);
+	refreshProjection(width, height, canvasOffsetX_, canvasOffsetY_);
 }
 
 
@@ -604,7 +592,7 @@ void MyPanelOpenGL::paintGL() {
 
 	glPushMatrix();
 
-	display();
+	display(voronoiPolygons_);
 
 	glPopMatrix();
 }
@@ -666,77 +654,74 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 
 
 
-// DELAUNAY
-void MyPanelOpenGL::doDelaunayTriangulation() {
-	qDebug("Do Delaunay Triangulation\n");
-
-	// Invoke methods from `delaunay`
-	tryDelaunayTriangulation();
-	//generateDelaunayColoredPolygons(); // too slow.
-
-	updateGL();
-}
-
-
-
 // This function is part of Fortune's implementation
 // & outputs the voronoiEdges required for the generateColoredPolygons
 //
 // VORONOI, wrapper to voronoiEdges(???)
-void createpolygonsFortune() {
-	//The dictionary is indexed by the voronoi points and gives the polygon for each voronoi.
+vector<PointSetArray> createpolygonsFortune() {
+	vector<PointSetArray> voronoiEdges;
+
+	// The dictionary is indexed by the voronoi points and gives the polygon for each voronoi.
 	// The border polygons are unbounded, so need to be careful.
 	std::map< VPoint *, vector<VEdge *> > dictionary;
 
+	// XXX This should be its own function.
+	// Given a list of VEdges,
+	// construct reverse-lookup of VEdges associated with each VPoint.
 	for (vor::Edges::iterator i = voronoiedges->begin(); i!= voronoiedges->end(); ++i) {
 		VEdge *edge = *i;
 		VPoint *leftpt = edge->left;
 		VPoint *rightpt = edge->right;
 
 		//Check if the dictionary has leftpoint
-		vector<VEdge *> listofedges;
 		std::map< VPoint *, vector<VEdge *> >::iterator it = dictionary.find(leftpt);
 
-		if (it!=dictionary.end()) {
+		if (it != dictionary.end()) {
 			it->second.push_back(edge);
 		} else {
+			vector<VEdge *> listofedges;
 			listofedges.push_back(edge);
 			dictionary.insert(std::map<VPoint *,vector<VEdge *> >::value_type(leftpt,listofedges));
 		}
 
 		//Check if the dictionary has rightpoint
-		vector<VEdge *> listofedges2;
 		std::map< VPoint *, vector<VEdge *> >::iterator it2 = dictionary.find(rightpt);
 
-		if (it2!=dictionary.end()) {
+		if (it2 != dictionary.end()) {
 			it2->second.push_back(edge);
 		} else {
+			vector<VEdge *> listofedges2;
 			listofedges2.push_back(edge);
 			dictionary.insert(std::map<VPoint *,vector<VEdge *> >::value_type(rightpt,listofedges2));
 		}
 	}
 
-	// Convert each of the dictionary values(polygons) into ordered list of PointSetArray vertex set.
+
+	// Convert each of the dictionary values (unsorted edges associated with vertex)
+	// into ordered list of PointSetArray vertex set.
 	std::map< VPoint *, vector<VEdge *> >::iterator dictioniter;
 
-	for (dictioniter = dictionary.begin() ; dictioniter!= dictionary.end(); ++dictioniter) {
+	for (dictioniter = dictionary.begin(); dictioniter != dictionary.end(); ++dictioniter) {
 		vector<VEdge *> polygonedges = dictioniter->second;
 		PointSetArray polygonvertices;
 		vector<VPoint *> revvector;
+
 		// polygonedges has a set of edges, create an ordered list of points from this.
-		//Take the first edge, store its start and end points into pointsetarray.
+		// Take the first edge, store its start and end points into pointsetarray.
 		VEdge * firstedge = *polygonedges.begin();
 		polygonvertices.addPoint( (LongInt)firstedge->start->x, (LongInt)firstedge->start->y );
 		polygonvertices.addPoint( (LongInt)firstedge->end->x, (LongInt)firstedge->end->y );
 
-		// Store the start and end point of this edge for later use. When the last edge is found, its end edge will be the same as
+		// Store the start and end point of this edge for later use.
+		// When the last edge is found, its end edge will be the same as
 		// the first edge's starting point. This signifies completion of polygon.
+		//
 		// The ending point will be updated as each subsequent edge is found.
 		VPoint *startpoint = new VPoint(firstedge->start->x,firstedge->start->y);
-		VPoint *endpoint = new VPoint(firstedge->end->x,firstedge->end->y);
-		polygonedges.erase(polygonedges.begin());
+		VPoint *endpoint = new VPoint(firstedge->end->x,firstedge->end->y); // XXX CpyCtor
+		polygonedges.erase(polygonedges.begin()); // NB remove firstedge, as we've consumed it
 
-		int edgecounter = polygonedges.size();
+		int edgecounter = polygonedges.size(); // Why would *this* matter? WRONG, surely.
 
 
 		while (edgecounter > 0) {
@@ -746,14 +731,16 @@ void createpolygonsFortune() {
 			// Iterate throught the remaining list of edges to find the subsequent edge
 			for (polygonedgeiter = polygonedges.begin(); polygonedgeiter!=polygonedges.end(); ++polygonedgeiter) {
 				VEdge * eachedge = *polygonedgeiter;
+
 				if (eachedge->start->x == endpoint->x &&
 				    eachedge->start->y == endpoint->y) {
 					polygonvertices.addPoint( (LongInt)eachedge->end->x, (LongInt)eachedge->end->y );
 					endpoint->x = eachedge->end->x; // Check if this pointer assignment works...
-					endpoint->y = eachedge->end->y;
+					endpoint->y = eachedge->end->y; // XXX Copy-Assignment operator
 					polygonedges.erase(polygonedgeiter); // Delete the edge that has been added to the pointset array
 					edgecounter--;
-					exitflag=1;
+					exitflag = 1;
+
 					break;
 				} else if (eachedge->end->x == endpoint->x &&
 				           eachedge->end->y == endpoint->y) {
@@ -762,10 +749,13 @@ void createpolygonsFortune() {
 					endpoint->y = eachedge->start->y;
 					polygonedges.erase(polygonedgeiter); // Delete the edge that has been added to the pointset array
 					edgecounter--;
-					exitflag=1;
+					exitflag = 1;
+
 					break;
 				}
-			} //If edge has not been found, the following break executes and while exits with incomplete polygon(border condition).
+			}
+
+			//If edge has not been found, the following break executes and while exits with incomplete polygon(border condition).
 			if (edgecounter > 0 && exitflag == 0) {
 				//PointSetArray revpolygonvertices;
 				for (polygonedgeiter = polygonedges.begin(); polygonedgeiter!=polygonedges.end(); ++polygonedgeiter) {
@@ -779,7 +769,8 @@ void createpolygonsFortune() {
 						startpoint->y = eachedge->end->y;
 						polygonedges.erase(polygonedgeiter);
 						edgecounter--;
-						exitflag=1;
+						exitflag = 1;
+
 						break;
 					} else if (eachedge->end->x == startpoint->x &&
 					           eachedge->end->y == startpoint->y) {
@@ -789,10 +780,11 @@ void createpolygonsFortune() {
 						startpoint->y = eachedge->start->y;
 						polygonedges.erase(polygonedgeiter);
 						edgecounter--;
-						exitflag=1;
+						exitflag = 1;
+
 						break;
 					}
-				}// End of for
+				} // End of for
 			}
 		} //End of while- Current polygon has been found
 
@@ -805,6 +797,8 @@ void createpolygonsFortune() {
 
 		voronoiEdges.push_back(polygonvertices);
 	}// All polygons have been found
+
+	return voronoiEdges;
 }
 
 
@@ -821,7 +815,14 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 
 	if (useOldVoronoiAlgo) {
 		// DELAUNAY
-		doDelaunayTriangulation(); // method
+
+		DirectedGraph dag = dagFromInputPoints(inputPointSet);
+
+		qDebug("Do doDelaunay in MPOG::doVoronoi\n");
+		tryDelaunayTriangulation(dag);
+		//generateDelaunayColoredPolygons(); // too slow.
+
+		updateGL();
 
 		voroSW.pause();
 		double timeDelaunay = voroSW.ms();
@@ -829,7 +830,7 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 		voroSW.reset();
 		voroSW.resume();
 
-		createVoronoi(); // in `delaunay`
+		voronoiPolygons_ = createVoronoi(dag); // in `delaunay`
 
 		voroSW.pause();
 		double timeCreateVoronoi = voroSW.ms();
@@ -838,9 +839,6 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 		voroSW.resume();
 	} else {
 		// VORONOI
-
-		// Do Voronoi using Fortune's algorithm
-		voronoiEdges.clear();
 
 		// Bounding Points for Fortune's
 		voronoivertices->push_back(new VPoint(-10000.0 +((double)rand()*15.0/(double)RAND_MAX),
@@ -860,7 +858,7 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 		voroSW.reset();
 		voroSW.resume();
 
-		createpolygonsFortune();
+		voronoiPolygons_ = createpolygonsFortune();
 
 		voroSW.pause();
 		double timePolyConstruct = voroSW.ms();
@@ -871,7 +869,7 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 
 
 	// Make the colored polygons from Voronoi.
-	generateColoredPolygons(voronoiEdges);
+	generateColoredPolygons(voronoiPolygons_);
 	currentRenderType = EFFECT;
 
 	voroSW.pause();
@@ -903,24 +901,27 @@ void MyPanelOpenGL::doOpenImage() {
 	loadOpenGLTextureFromFilename(filenameStr);
 
 	QSize widgetSize = size();
-	refreshProjection(widgetSize.width(), widgetSize.height());
+	refreshProjection(widgetSize.width(), widgetSize.height(),
+	                  canvasOffsetX_, canvasOffsetY_);
 	imageLoaded();
 }
 
 
 
 void MyPanelOpenGL::doSaveImage() {
-	char* outputImageFilename = "output.bmp";
+	// TODO: This impl. feels impure
+	// TODO: Should be a way to set output filename
+	string outputImageFilename = "output.bmp";
 
-	int x = canvas_offsetX;
-	int y = canvas_offsetY;
+	int x = canvasOffsetX_;
+	int y = canvasOffsetY_;
 
 	QSize widgetSize = size();
 	int windowWidth = widgetSize.width();
 	int windowHeight = widgetSize.height();
 
-	int copyWidth = (windowWidth - (2 * canvas_offsetX));
-	int copyHeight = (windowHeight - (2 * canvas_offsetY));
+	int copyWidth = (windowWidth - (2 * x));
+	int copyHeight = (windowHeight - (2 * y));
 
 	int numComponents = 3; // RGB
 
@@ -942,7 +943,7 @@ void MyPanelOpenGL::doSaveImage() {
 	}
 
 	Mat img(copyHeight, copyWidth, CV_8UC3, data);
-	imwrite(outputImageFilename, img);
+	imwrite(outputImageFilename.c_str(), img);
 }
 
 
@@ -1002,9 +1003,13 @@ void MyPanelOpenGL::doDrawEffect() {
 
 
 void MyPanelOpenGL::doGenerateUniformRandomPoints() {
+	if (imData == NULL) return;
+
 	// POINTREP:INTVEC
 	// Returns {x0, y0, x1, y1,...}
-	vector<int> points = generateUniformRandomPoints(numPDFPoints);
+	int width = imData->width();
+	int height = imData->height();
+	vector<int> points = generateUniformRandomPoints(width, height, numPDFPoints);
 
 	for (int i = 0; i < points.size() / 2; i++) {
 		int x = points[i * 2];
@@ -1025,7 +1030,7 @@ void MyPanelOpenGL::doGenerateUniformRandomPoints() {
 void MyPanelOpenGL::doPDF() {
 	// POINTREP:INTVEC
 	// Returns {x0, y0, x1, y1,...}
-	vector<int> points = generatePointsWithPDF(numPDFPoints);
+	vector<int> points = generatePointsWithPDF(loadedImageFilename, numPDFPoints, &pdfTextures_);
 
 	for (int i = 0; i < points.size() / 2; i++) {
 		int x = points[i * 2];
@@ -1045,24 +1050,19 @@ void MyPanelOpenGL::doPDF() {
 void MyPanelOpenGL::clearAll() {
 	// Clear all our points, and such data.
 
-	//Reset voronoi components for Fortune's algorithm
-	voronoi = new vor::Voronoi();
-	voronoivertices = new vor::Vertices();
-
 	// Clear all the colored polygons.
 	bool hasCalculatedColoredPolygons = false;
 	renderedPolygons.clear();
 
+	voronoiPolygons_.clear();
+
 	// Clear all the Voronoi computations
-	voronoiEdges.clear();
+	// Reset voronoi components for Fortune's algorithm
+	voronoi = new vor::Voronoi();
+	voronoivertices = new vor::Vertices();
 
 	// Clear all the points.
-	delaunayPointsToProcess.clear();
 	inputPointSet.eraseAllPoints();
-	delaunayPointSet.eraseAllPoints();
-	delaunayOldTrist.eraseAllTriangles();
-	delaunayNewTrist.eraseAllTriangles();
-	dag.cleardirectedGraph();
 
 	// Signals and stuff
 	updateNumPoints(inputPointSet.noPt());

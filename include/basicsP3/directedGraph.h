@@ -46,6 +46,10 @@ class DirectedGraph {
 		// Finds the linked delaunay triangles for the input point id
 		std::vector<TriRecord> findlinkedNodes(int );
 
+		const PointSetArray& getPointSet() const {
+			return *triVertices;
+		}
+
 	protected:
 		// Keeps the relationship between a parent node and its children.
 		std::map<TriRecord, std::vector<TriRecord> > dagNode;

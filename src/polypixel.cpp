@@ -9,12 +9,6 @@ using std::vector;
 
 
 
-// Use these from the main Qt application logic code..
-// TODO: migrate imData so it's an argument to these functions..
-extern ImageData *imData;
-
-
-
 vector<int> enumerateLeftRightOfSimplePolygon(const vector<int>& poly) {
 	vector<int> result;
 
@@ -57,7 +51,7 @@ vector<int> enumerateLeftRightOfSimplePolygon(const vector<int>& poly) {
 
 
 
-void findAverageColor3iv(const vector<MyPoint>& mpPoly, int* colorIv) {
+void findAverageColor3iv(const ImageData& imData, const vector<MyPoint>& mpPoly, int* colorIv) {
 	vector<int> poly;
 
 	for (int i = 0; i < mpPoly.size(); i++) {
@@ -65,14 +59,14 @@ void findAverageColor3iv(const vector<MyPoint>& mpPoly, int* colorIv) {
 		poly.push_back((int) mpPoly[i].y.doubleValue());
 	}
 
-	findAverageColor3iv(poly, colorIv);
+	findAverageColor3iv(imData, poly, colorIv);
 }
 
 
 
-void findAverageColor3iv(const vector<int>& poly, int* colorIv) {
-	int loadedImageWidth = imData->width();
-	int loadedImageHeight = imData->height();
+void findAverageColor3iv(const ImageData& imData, const vector<int>& poly, int* colorIv) {
+	int loadedImageWidth = imData.width();
+	int loadedImageHeight = imData.height();
 
 	// Find bounding box of polygon
 	int minX, maxX, minY, maxY;
@@ -114,7 +108,7 @@ void findAverageColor3iv(const vector<int>& poly, int* colorIv) {
 	rowLeft = rowsOfPoly[0], rowRight = rowsOfPoly[1];
 	u = rowLeft - offsetX;
 	v = minY - offsetY;
-	imData->dataAt(u, v, accR, accG, accB);
+	imData.dataAt(u, v, accR, accG, accB);
 	acc = 1;
 
 	for(int j = rowLeft + 1; j <= rowRight; j++) {
@@ -122,7 +116,7 @@ void findAverageColor3iv(const vector<int>& poly, int* colorIv) {
 		v = minY - offsetY;
 
 		GLubyte rb, gb, bb;
-		imData->dataAt(u, v, rb, gb, bb);
+		imData.dataAt(u, v, rb, gb, bb);
 
 		// Accumulative average
 		acc++;
@@ -140,7 +134,7 @@ void findAverageColor3iv(const vector<int>& poly, int* colorIv) {
 			v = minY + row - offsetY;
 
 			GLubyte rb, gb, bb;
-			imData->dataAt(u, v, rb, gb, bb);
+			imData.dataAt(u, v, rb, gb, bb);
 
 			// Accumulative average
 			acc++;
@@ -157,16 +151,16 @@ void findAverageColor3iv(const vector<int>& poly, int* colorIv) {
 
 
 
-void findSomeColor3iv(PointSetArray& psa, int* colorIv) {
+void findSomeColor3iv(const ImageData& imData, PointSetArray& psa, int* colorIv) {
 	vector<int> poly = coercePSAPolyToIVecPoly(psa);
-	findSomeColor3iv(poly, colorIv);
+	findSomeColor3iv(imData, poly, colorIv);
 };
 
 
 
-void findSomeColor3iv(const vector<int>& unclippedPoly, int* colorIv) {
-	int loadedImageWidth = imData->width();
-	int loadedImageHeight = imData->height();
+void findSomeColor3iv(const ImageData& imData, const vector<int>& unclippedPoly, int* colorIv) {
+	int loadedImageWidth = imData.width();
+	int loadedImageHeight = imData.height();
 
 	// Clip polygon to ensure we have nothing out of bounds
 	vector<int> poly = clipPolygonToRectangle(unclippedPoly, 0, 0, loadedImageWidth - 1, loadedImageHeight - 1);
@@ -199,7 +193,7 @@ void findSomeColor3iv(const vector<int>& unclippedPoly, int* colorIv) {
 	}
 
 	GLubyte rb, gb, bb;
-	imData->dataAt(u, v, accR, accG, accB);
+	imData.dataAt(u, v, accR, accG, accB);
 	acc = 1;
 
 	for (int ptIdx = 1; ptIdx < n; ptIdx++) {
@@ -218,7 +212,7 @@ void findSomeColor3iv(const vector<int>& unclippedPoly, int* colorIv) {
 
 
 		GLubyte rb, gb, bb;
-		imData->dataAt(u, v, rb, gb, bb);
+		imData.dataAt(u, v, rb, gb, bb);
 
 		// Accumulative average
 		acc++;

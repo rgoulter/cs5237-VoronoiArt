@@ -22,19 +22,11 @@ using cv::imread;
 
 
 
-// OpenGL textures
-extern GLuint edgesTexture;
-extern GLuint edgesSharpTexture;
-extern GLuint edgesBlurTexture;
-extern GLuint pdfTexture;
-
-extern string loadedImageFilename;
-extern ImageData *imData;
-
-
+// XXX Should make these variables local, also.
 Mat src, src_gray;
 Mat dst, dst2, dst3, detected_edges, detected_edges2, detected_edges3;
 
+// TODO these parameters might be good to be input from GUI
 int edgeThresh = 1;
 int lowThreshold;
 int const max_lowThreshold = 100;
@@ -44,8 +36,8 @@ int kernel_size = 3;
 
 
 void generateOGLTextureForOpenCVMat(GLuint& tex, const Mat& M) {
-	int loadedImageWidth = imData->width();
-	int loadedImageHeight = imData->height();
+	int width = M.cols; // imData->width();
+	int height = M.rows; // imData->height();
 
 	// copy the data to a new matrix
 	Mat mat = M.clone();
@@ -61,8 +53,8 @@ void generateOGLTextureForOpenCVMat(GLuint& tex, const Mat& M) {
 	glTexImage2D(GL_TEXTURE_2D,
 	             0,
 	             GL_RGB,
-	             loadedImageWidth,
-	             loadedImageHeight,
+	             width,
+	             height,
 	             0,
 	             GL_RGB,
 	             GL_UNSIGNED_BYTE,
@@ -80,10 +72,7 @@ void generateOGLTextureForOpenCVMat(GLuint& tex, const Mat& M) {
 // and generate points from that. Oh well.
 //
 // POINTREP:INTVEC
-vector<int> generateUniformRandomPoints(int numPoints) {
-	int loadedImageWidth = imData->width();
-	int loadedImageHeight = imData->height();
-
+vector<int> generateUniformRandomPoints(int width, int height, int numPoints) {
 	vector<int> outputPts;
 
 	// Now generate random points
@@ -93,8 +82,8 @@ vector<int> generateUniformRandomPoints(int numPoints) {
 		double rndX = double(rand()) / RAND_MAX;
 		double rndY = double(rand()) / RAND_MAX;
 
-		int x = (int) (rndX * loadedImageWidth);
-		int y = (int) (rndY * loadedImageHeight);
+		int x = (int) (rndX * width);
+		int y = (int) (rndY * height);
 
 		outputPts.push_back(x);
 		outputPts.push_back(y);
@@ -106,10 +95,10 @@ vector<int> generateUniformRandomPoints(int numPoints) {
 
 
 // POINTREP:INTVEC
-vector<int> generatePointsWithPDF(int numPDFPoints) {
-	int loadedImageWidth = imData->width();
+vector<int> generatePointsWithPDF(string imageFilename, int numPDFPoints, PDFTextures *oglTextures) {
+	src = imread(imageFilename);
 
-	src = imread(loadedImageFilename);
+	int width = src.cols;
 
 	if (!src.data) {
 		return vector<int>();
@@ -147,10 +136,12 @@ vector<int> generatePointsWithPDF(int numPDFPoints) {
 
 	// Make OpenGL Textures for the following:
 	// (I'm not 100% certain about these mappings?).
-	generateOGLTextureForOpenCVMat(edgesTexture, detected_edges);
-	generateOGLTextureForOpenCVMat(edgesSharpTexture, detected_edges2);
-	generateOGLTextureForOpenCVMat(edgesBlurTexture, dst3);
-	generateOGLTextureForOpenCVMat(pdfTexture, dst);
+	if (oglTextures != NULL) {
+		generateOGLTextureForOpenCVMat(oglTextures->edgesTexture, detected_edges);
+		generateOGLTextureForOpenCVMat(oglTextures->edgesSharpTexture, detected_edges2);
+		generateOGLTextureForOpenCVMat(oglTextures->edgesBlurTexture, dst3);
+		generateOGLTextureForOpenCVMat(oglTextures->pdfTexture, dst);
+	}
 
 	// So, let's build up a 1-D array of the CDF from the 2D PDF.
 	//  idx -> (row, col) : row = idx / width, col = idx % width
@@ -202,8 +193,8 @@ vector<int> generatePointsWithPDF(int numPDFPoints) {
 		// (The difference is only 1 px).
 		idx = left;
 
-		int x = idx % loadedImageWidth;
-		int y = idx / loadedImageWidth;
+		int x = idx % width;
+		int y = idx / width;
 
 		outputPts.push_back(x);
 		outputPts.push_back(y);
