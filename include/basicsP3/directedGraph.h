@@ -22,39 +22,39 @@ got deleted.
 
 
 class DirectedGraph {
-	public:
-		DirectedGraph(PointSetArray &);
+public:
+	DirectedGraph(PointSetArray &);
 
-		// Method to add new children triangles to a parent triangle. Use findLeafNodeforPoint to find parent, and then create child node for this triangle.
-		void addChildrenNodes(int );
+	// Method to add new children triangles to a parent triangle. Use findLeafNodeforPoint to find parent, and then create child node for this triangle.
+	void addChildrenNodes(int );
 
-		// Method to add new children triangles to a parent triangle. Use findLeafNodeforPoint to find parent, and then create child node for this triangle.
-		std::vector<TriRecord> getLeafNodes();
+	// Method to add new children triangles to a parent triangle. Use findLeafNodeforPoint to find parent, and then create child node for this triangle.
+	std::vector<TriRecord> getLeafNodes();
 
-		// Method to search the DAG for the triangle containing the point. This triangle will be subdivided into smaller triangles.
-		TriRecord findLeafNodeForPoint(int);
+	// Method to search the DAG for the triangle containing the point. This triangle will be subdivided into smaller triangles.
+	TriRecord findLeafNodeForPoint(int);
 
-		// Returns a set of triangles for the input point indexes.
-		std::vector<TriRecord> findNodesForEdge(int, int );
+	// Returns a set of triangles for the input point indexes.
+	std::vector<TriRecord> findNodesForEdge(int, int );
 
-		// Create children nodes with 2 parents in case of edge flipping.
-		void addFlipChildrenNodes(int, int, int, int);
+	// Create children nodes with 2 parents in case of edge flipping.
+	void addFlipChildrenNodes(int, int, int, int);
 
-		// Resets the graph, removes everything from it.
-		void cleardirectedGraph();
+	// Resets the graph, removes everything from it.
+	void cleardirectedGraph();
 
-		// Finds the linked delaunay triangles for the input point id
-		std::vector<TriRecord> findlinkedNodes(int );
+	// Finds the linked delaunay triangles for the input point id
+	std::vector<TriRecord> findlinkedNodes(int );
 
-		const PointSetArray& getPointSet() const {
-			return *triVertices;
-		}
+	const PointSetArray& getPointSet() const {
+		return *triVertices;
+	}
 
-	protected:
-		// Keeps the relationship between a parent node and its children.
-		std::map<TriRecord, std::vector<TriRecord> > dagNode;
+protected:
+	// Keeps the relationship between a parent node and its children.
+	std::map<TriRecord, std::vector<TriRecord> > dagNode;
 
-		PointSetArray *triVertices;
+	PointSetArray *triVertices;
 };
 
 #endif
