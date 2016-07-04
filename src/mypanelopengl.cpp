@@ -41,31 +41,23 @@ using std::vector;
 
 
 
+// TODO: the stopwatch code used makes code less readable.
 static StopWatch globalSW;
 
 // Variables for Image Logic.
-string loadedImageFilename = "";
-ImageData *imData = NULL;
 
 GLuint loadedImageTexture;
 
 PDFTextures pdfTextures_;
 
 // Variables for render state stuff.
-enum ShowImageType { IMAGE, EDGE_RAW, EDGE_SHARP, EDGE_BLUR, PDF, EFFECT };
-ShowImageType currentRenderType = IMAGE;
+enum ShowImageType { IMAGE, EDGE_RAW, EDGE_SHARP, EDGE_BLUR, PDF, EFFECT, NONE };
+ShowImageType currentRenderType = NONE;
 bool showVoronoiSites = true;
 bool showVoronoiEdges = false;
 
-// Variables for point generation.
-int numPDFPoints = 75;
 
 
-
-
-bool hasLoadedImage() {
-	return imData != NULL;
-}
 
 // These three functions are for those who are not familiar with OpenGL, you can change these or even completely ignore them
 
@@ -101,10 +93,7 @@ void drawATriangle(double x1,double y1, double x2, double y2, double x3, double 
 
 
 
-void drawPlaneUsingTexture(GLuint tex) {
-	// If not loaded, don't render..
-	if (!hasLoadedImage()) { return; }
-
+void drawPlaneUsingTexture(GLuint tex, int width, int height) {
 	qDebug("Draw the texture");
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture (GL_TEXTURE_2D, tex);
@@ -114,13 +103,13 @@ void drawPlaneUsingTexture(GLuint tex) {
 		glVertex3f (0.0, 0.0, -1.0);
 
 		glTexCoord2f (1.0, 0.0);
-		glVertex3f (imData->width(), 0.0, -1.0);
+		glVertex3f (width, 0.0, -1.0);
 
 		glTexCoord2f (1.0, 1.0);
-		glVertex3f (imData->width(), imData->height(), -1.0);
+		glVertex3f (width, height, -1.0);
 
 		glTexCoord2f (0.0, 1.0);
-		glVertex3f (0.0, imData->height(), -1.0);
+		glVertex3f (0.0, height, -1.0);
 	glEnd ();
 
 	glDisable(GL_TEXTURE_2D);
@@ -222,31 +211,36 @@ void drawColoredPolygons(const vector<ColoredPolygon>& renderedPolygons) {
 
 void display(vector<PointSetArray>& voronoiPolys,
              const vector<ColoredPolygon>& renderedPolygons,
-             const PointSetArray& pointSet) {
+             const PointSetArray& pointSet,
+             int imgWidth,
+             int imgHeight) {
 	switch (currentRenderType) {
 		case EFFECT:
 			drawColoredPolygons(renderedPolygons);
 			break;
 
 		case EDGE_RAW:
-			drawPlaneUsingTexture(pdfTextures_.edgesTexture);
+			drawPlaneUsingTexture(pdfTextures_.edgesTexture, imgWidth, imgHeight);
 			break;
 
 		case EDGE_SHARP:
-			drawPlaneUsingTexture(pdfTextures_.edgesSharpTexture);
+			drawPlaneUsingTexture(pdfTextures_.edgesSharpTexture, imgWidth, imgHeight);
 			break;
 
 		case EDGE_BLUR:
-			drawPlaneUsingTexture(pdfTextures_.edgesBlurTexture);
+			drawPlaneUsingTexture(pdfTextures_.edgesBlurTexture, imgWidth, imgHeight);
 			break;
 
 		case PDF:
-			drawPlaneUsingTexture(pdfTextures_.pdfTexture);
+			drawPlaneUsingTexture(pdfTextures_.pdfTexture, imgWidth, imgHeight);
 			break;
 
 		case IMAGE:
+			drawPlaneUsingTexture(loadedImageTexture, imgWidth, imgHeight);
+			break;
+
 		default:
-			drawPlaneUsingTexture(loadedImageTexture);
+		case NONE:
 			break;
 	}
 
@@ -272,7 +266,7 @@ void display(vector<PointSetArray>& voronoiPolys,
 
 // POLYREP:INTVEC
 // also uses polypixel's ColoredPolygon
-vector<ColoredPolygon> generateColoredPolygons(vector< vector<int> >& polys) {
+vector<ColoredPolygon> generateColoredPolygons(vector< vector<int> >& polys, const ImageData& imData) {
 	vector<ColoredPolygon> renderedPolygons;
 
 	StopWatch allSW;
@@ -287,7 +281,7 @@ vector<ColoredPolygon> generateColoredPolygons(vector< vector<int> >& polys) {
 		// TODO: Would be nice to be able to inject another function
 		// instead of `findSomeColor3iv`.
 		int colorIv[3];
-		findSomeColor3iv(*imData, poly, colorIv);
+		findSomeColor3iv(imData, poly, colorIv);
 
 		// XXX following could be a method / ctor, right?
 		// ColoredPolygon (from polypixel),
@@ -314,7 +308,7 @@ vector<ColoredPolygon> generateColoredPolygons(vector< vector<int> >& polys) {
 
 
 // POLYREP:MYPOINTVEC => :INTVEC
-vector<ColoredPolygon> generateColoredPolygons(vector< vector<MyPoint> >& myPointPolys) {
+vector<ColoredPolygon> generateColoredPolygons(vector< vector<MyPoint> >& myPointPolys, const ImageData& imData) {
 	// Coerce the PSAs to vec<int> poly representation
 	vector< vector<int> > ivPolys;
 
@@ -331,13 +325,13 @@ vector<ColoredPolygon> generateColoredPolygons(vector< vector<MyPoint> >& myPoin
 		ivPolys.push_back(poly);
 	}
 
-	return generateColoredPolygons(ivPolys);
+	return generateColoredPolygons(ivPolys, imData);
 }
 
 
 
 // POLYREP:POINTSETARRAY => :INTVEC
-vector<ColoredPolygon> generateColoredPolygons(vector<PointSetArray>& psas) {
+vector<ColoredPolygon> generateColoredPolygons(vector<PointSetArray>& psas, const ImageData& imData) {
 	// Coerce the PSAs to vec<int> poly representation
 	vector< vector<int> > ivPolys;
 
@@ -345,7 +339,7 @@ vector<ColoredPolygon> generateColoredPolygons(vector<PointSetArray>& psas) {
 		ivPolys.push_back(coercePSAPolyToIVecPoly(psas[i]));
 	}
 
-	return generateColoredPolygons(ivPolys);
+	return generateColoredPolygons(ivPolys, imData);
 }
 
 
@@ -398,9 +392,10 @@ vector<ColoredPolygon> generateColoredPolygons(vector<PointSetArray>& psas) {
 
 
 
-// XXX this should be a method
+// XXX this should be a method?
 void refreshProjection(int width, int height,
-                       int& canvas_offsetX, int& canvas_offsetY) {
+                       int& canvas_offsetX, int& canvas_offsetY,
+                       ImageData *imData) {
 	glViewport (0, 0, (GLsizei) width, (GLsizei) height);
 	glMatrixMode (GL_PROJECTION);
 	glLoadIdentity();
@@ -410,7 +405,7 @@ void refreshProjection(int width, int height,
 
 	// If we haven't loaded an image,
 	// we don't particularly care what the coord system is.
-	if (!hasLoadedImage()) {
+	if (imData == NULL) {
 		// Just some boring thing.
 		glOrtho(-1, 1, 1, -1, -1, 1);
 		glMatrixMode(GL_MODELVIEW);
@@ -493,31 +488,30 @@ void MyPanelOpenGL::insertPoint(LongInt x, LongInt y) {
 
 
 
-void loadOpenGLTextureFromFilename(string imgFilename) {
-	//string loadedImageFilename = "";
-	//int loadedImageWidth = -1;
-	//int loadedImageHeight = -1;
-	//GLuint loadedImageTexture;
+// Uses OpenCV
+ImageData* loadImageData(string imgFilename) {
+	Mat src = imread(imgFilename.c_str()); // BGR
+	cvtColor(src, src, CV_BGR2RGB);
 
+	int dataSize = 3 * src.cols * src.rows * sizeof(unsigned char);
+	unsigned char* dataCpy = (unsigned char*) malloc(dataSize);
+	memcpy(dataCpy, src.data, dataSize);
+
+	return new ImageData(dataCpy, src.cols, src.rows);
+}
+
+
+
+void loadOpenGLTextureFromImageData(ImageData *imData, GLuint *tex) {
 	// See http://open.gl/textures for more information.
 
 	glEnable(GL_TEXTURE_2D);
 
-	glGenTextures(1, &loadedImageTexture);
+	glGenTextures(1, tex);
 	glBindTexture(GL_TEXTURE_2D, loadedImageTexture);
-
 
 	// loadedImageData should be in RGB format, from
 	// imgFilename.c_str() filetype.
-	Mat src = imread(imgFilename.c_str()); // BGR
-	cvtColor(src, src, CV_BGR2RGB);
-	int dataSize = 3 * src.cols * src.rows * sizeof(unsigned char);
-	unsigned char* dataCpy = (unsigned char*) malloc(dataSize);
-	memcpy(dataCpy, src.data, dataSize);
-	imData = new ImageData(dataCpy,
-	                       src.cols,
-	                       src.rows);
-	// TODO: Should free imData at some point..
 	glTexImage2D(GL_TEXTURE_2D,
 	             0,
 	             GL_RGB,
@@ -527,7 +521,6 @@ void loadOpenGLTextureFromFilename(string imgFilename) {
 	             GL_RGB,
 	             GL_UNSIGNED_BYTE,
 	             imData->data());
-	loadedImageFilename = imgFilename;
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -561,7 +554,7 @@ void MyPanelOpenGL::initializeGL() {
 
 
 void MyPanelOpenGL::resizeGL(int width, int height) {
-	refreshProjection(width, height, canvasOffsetX_, canvasOffsetY_);
+	refreshProjection(width, height, canvasOffsetX_, canvasOffsetY_, imData_);
 }
 
 
@@ -571,7 +564,9 @@ void MyPanelOpenGL::paintGL() {
 
 	glPushMatrix();
 
-	display(voronoiPolygons_, renderedPolygons_, inputPointSet_);
+	int w = hasLoadedImage() ? imData_->width() : -1;
+	int h = hasLoadedImage() ? imData_->height() : -1;
+	display(voronoiPolygons_, renderedPolygons_, inputPointSet_, w, h);
 
 	glPopMatrix();
 }
@@ -584,8 +579,8 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 		return;
 	}
 
-	int loadedImageWidth = imData->width();
-	int loadedImageHeight = imData->height();
+	int loadedImageWidth = imData_->width();
+	int loadedImageHeight = imData_->height();
 
 	QSize widgetSize = size();
 	int windowWidth = widgetSize.width();
@@ -849,7 +844,8 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 
 
 	// Make the colored polygons from Voronoi.
-	renderedPolygons_ = generateColoredPolygons(voronoiPolygons_);
+	assert(imData_ != NULL);
+	renderedPolygons_ = generateColoredPolygons(voronoiPolygons_, *imData_);
 	currentRenderType = EFFECT;
 
 	voroSW.pause();
@@ -874,14 +870,15 @@ void MyPanelOpenGL::doOpenImage() {
 	                                 tr("Image Files (*.png *.jpg *.bmp)"));
 	string filenameStr = qStr_fileName.toStdString();
 
-	qDebug(filenameStr.c_str());
-
 	updateFilename(qStr_fileName); // to Qt textbox
-	loadOpenGLTextureFromFilename(filenameStr);
+	imData_ = loadImageData(filenameStr);
+	loadOpenGLTextureFromImageData(imData_, &loadedImageTexture);
+	loadedImageFilename_ = filenameStr;
 
 	QSize widgetSize = size();
 	refreshProjection(widgetSize.width(), widgetSize.height(),
-	                  canvasOffsetX_, canvasOffsetY_);
+	                  canvasOffsetX_, canvasOffsetY_,
+	                  imData_);
 	imageLoaded();
 }
 
@@ -982,13 +979,13 @@ void MyPanelOpenGL::doDrawEffect() {
 
 
 void MyPanelOpenGL::doGenerateUniformRandomPoints() {
-	if (imData == NULL) return;
+	if (!hasLoadedImage()) return;
 
 	// POINTREP:INTVEC
 	// Returns {x0, y0, x1, y1,...}
-	int width = imData->width();
-	int height = imData->height();
-	vector<int> points = generateUniformRandomPoints(width, height, numPDFPoints);
+	int width = imData_->width();
+	int height = imData_->height();
+	vector<int> points = generateUniformRandomPoints(width, height, numPDFPoints_);
 
 	for (int i = 0; i < points.size() / 2; i++) {
 		int x = points[i * 2];
@@ -1008,7 +1005,7 @@ void MyPanelOpenGL::doGenerateUniformRandomPoints() {
 void MyPanelOpenGL::doPDF() {
 	// POINTREP:INTVEC
 	// Returns {x0, y0, x1, y1,...}
-	vector<int> points = generatePointsWithPDF(loadedImageFilename, numPDFPoints, &pdfTextures_);
+	vector<int> points = generatePointsWithPDF(loadedImageFilename_, numPDFPoints_, &pdfTextures_);
 
 	for (int i = 0; i < points.size() / 2; i++) {
 		int x = points[i * 2];
@@ -1075,21 +1072,19 @@ void MyPanelOpenGL::setShowVoronoiEdges(bool b) {
 
 
 void MyPanelOpenGL::setNumPoints1k() {
-	numPDFPoints = 1000;
-	updateNumPointsToGenerate(1000);
+	setNumPoints(1000);
 }
 
 
 
 void MyPanelOpenGL::setNumPoints5k() {
-	numPDFPoints = 5000;
-	updateNumPointsToGenerate(5000);
+	setNumPoints(5000);
 }
 
 
 
 void MyPanelOpenGL::setNumPoints(int n) {
-	numPDFPoints = n;
+	numPDFPoints_ = n;
 	updateNumPointsToGenerate(n);
 }
 

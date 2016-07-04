@@ -70,12 +70,17 @@ protected:
 
 private:
 	void insertPoint(LongInt x, LongInt y);
+	bool hasLoadedImage() { return imData_ != NULL; }
 
 	// TODO Probably could do without these?
 	// Position of the image, in canvas space..
 	int canvasOffsetX_ = 0;
 	int canvasOffsetY_ = 0;
 
+	std::string loadedImageFilename_ = "";
+	ImageData *imData_ = NULL;
+
+	int numPDFPoints_ = 75;
 
 	/// The 'bare-bones' Voronoi regions, represented using `PointSetArray`s.
 	std::vector<PointSetArray> voronoiPolygons_;
