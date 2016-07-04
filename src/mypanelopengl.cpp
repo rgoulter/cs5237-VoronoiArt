@@ -896,6 +896,10 @@ void MyPanelOpenGL::doOpenImage() {
 	                                 tr("Open Image"),
 	                                 ".",
 	                                 tr("Image Files (*.png *.jpg *.bmp)"));
+	if (qStr_fileName == "") {
+		return;
+	}
+
 	string filenameStr = qStr_fileName.toStdString();
 
 	updateFilename(qStr_fileName); // to Qt textbox
