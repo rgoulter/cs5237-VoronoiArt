@@ -11,26 +11,54 @@
 // then might as well remove it.
 class ImageData {
 public:
-	ImageData(unsigned char *data, int width, int height);
+	ImageData(unsigned char *data,
+	          unsigned char *texData,
+	          int width,
+	          int height,
+	          int texWidth,
+	          int texHeight) :
+	  imageData_(data),
+	  textureData_(texData),
+	  imageWidth_(width),
+	  imageHeight_(height),
+	  texWidth_(texWidth),
+	  texHeight_(texHeight)
+	{
+	}
 
 	int width() const {
-		return loadedImageWidth;
+		return imageWidth_;
 	}
 
 	int height() const {
-		return loadedImageHeight;
+		return imageHeight_;
+	}
+
+	int textureWidth() const {
+		return texWidth_;
+	}
+
+	int textureHeight() const {
+		return texHeight_;
 	}
 
 	unsigned char* data() {
-		return loadedImageData;
+		return imageData_;
+	}
+
+	unsigned char* textureData() {
+		return textureData_;
 	}
 
 	void dataAt(int x, int y, unsigned char& r, unsigned char& g, unsigned char& b) const;
 
 private:
-	int loadedImageWidth;
-	int loadedImageHeight;
-	unsigned char *loadedImageData;
+	int imageWidth_;
+	int imageHeight_;
+	int texWidth_;
+	int texHeight_;
+	unsigned char *imageData_;
+	unsigned char *textureData_;
 };
 
 #endif // IMAGEDATA_H

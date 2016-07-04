@@ -438,14 +438,53 @@ void MyPanelOpenGL::insertPoint(LongInt x, LongInt y) {
 
 // Uses OpenCV
 ImageData* loadImageData(string imgFilename) {
-	Mat src = imread(imgFilename.c_str()); // BGR
-	cvtColor(src, src, CV_BGR2RGB);
+	std::cout << "CUNT 1" << std::endl;
+	Mat imgMat = imread(imgFilename.c_str()); // BGR
 
-	int dataSize = 3 * src.cols * src.rows * sizeof(unsigned char);
-	unsigned char* dataCpy = (unsigned char*) malloc(dataSize);
-	memcpy(dataCpy, src.data, dataSize);
+	int imgW = imgMat.cols;
+	int imgH = imgMat.rows;
+	int texW = pow(2, ceil(log2(imgW)));
+	int texH = pow(2, ceil(log2(imgH)));
 
-	return new ImageData(dataCpy, src.cols, src.rows);
+	std::cout << "ImgW = " << imgW << ", => texW = " << texW << std::endl;
+	std::cout << "ImgH = " << imgH << ", => texH = " << texH << std::endl;
+
+	// OpenCV loads as BGR, `loadOpenGLTextureFromImageData` wants RGB
+	cvtColor(imgMat, imgMat, CV_BGR2RGB);
+
+	// Copy the src data to `dataCpy`
+	int dataSize = 3 * imgW * imgH * sizeof(unsigned char);
+	unsigned char *dataCpy = (unsigned char*) malloc(dataSize);
+	memcpy(dataCpy, imgMat.data, dataSize);
+
+	std::cout << "CUNT 2" << std::endl;
+
+	// Textures want width/height to be powers of 2.
+	// So, as kindof a kludge, pack that into ImageData.
+	Mat texMat(texH, texW, CV_8UC3);
+	std::cout << "CUNT 2.1" << std::endl;
+	Mat region = texMat(cv::Rect(0, 0, imgW, imgH));
+
+	std::cout << "CUNT 3" << std::endl;
+
+	if (imgMat.type() == region.type()) {
+		imgMat.copyTo(region);
+	} else if (imgMat.type() == CV_8UC1) {
+		cvtColor(imgMat, region, CV_GRAY2RGB);
+	} else {
+		imgMat.convertTo(region, CV_8UC3, 255.0);
+	}
+
+	std::cout << "CUNT 4" << std::endl;
+
+	// Copy the src data to `dataCpy`
+	int texDataSize = 3 * texW * texH * sizeof(unsigned char);
+	unsigned char *texData = (unsigned char*) malloc(texDataSize);
+	memcpy(texData, texMat.data, texDataSize);
+
+	std::cout << "CUNT 5" << std::endl;
+
+	return new ImageData(dataCpy, texData, imgW, imgH, texW, texH);
 }
 
 
@@ -463,12 +502,12 @@ void loadOpenGLTextureFromImageData(ImageData *imData, GLuint *tex) {
 	glTexImage2D(GL_TEXTURE_2D,
 	             0,
 	             GL_RGB,
-	             imData->width(),
-	             imData->height(),
+	             imData->textureWidth(),
+	             imData->textureHeight(),
 	             0,
 	             GL_RGB,
 	             GL_UNSIGNED_BYTE,
-	             imData->data());
+	             imData->textureData());
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -514,6 +553,8 @@ void MyPanelOpenGL::paintGL() {
 
 	int w = hasLoadedImage() ? imData_->width() : -1;
 	int h = hasLoadedImage() ? imData_->height() : -1;
+	int tw = hasLoadedImage() ? imData_->textureWidth() : -1;
+	int th = hasLoadedImage() ? imData_->textureHeight() : -1;
 
 	switch (currentRenderType_) {
 		case EFFECT:
@@ -537,7 +578,8 @@ void MyPanelOpenGL::paintGL() {
 			break;
 
 		case IMAGE:
-			drawPlaneUsingTexture(loadedImageTexture_, w, h);
+			// XXX This is kindof a kludge, but..
+			drawPlaneUsingTexture(loadedImageTexture_, tw, th);
 			break;
 
 		default:
@@ -857,6 +899,9 @@ void MyPanelOpenGL::doOpenImage() {
 	string filenameStr = qStr_fileName.toStdString();
 
 	updateFilename(qStr_fileName); // to Qt textbox
+
+	// TODO: prefer ImageData to encapsulate cv::Mat -> OpenGL texture stuff!
+	// (& should improve on the viewport / rendering textured quad, too).
 	imData_ = loadImageData(filenameStr);
 	loadOpenGLTextureFromImageData(imData_, &loadedImageTexture_);
 	loadedImageFilename_ = filenameStr;
