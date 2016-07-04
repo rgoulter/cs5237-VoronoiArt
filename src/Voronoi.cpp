@@ -80,18 +80,18 @@ void Voronoi::insertParabola(VPoint *p) {
 		return;
 	}
 
-	// degenerovaný pøípad - obì spodní místa ve stejné výšce
+	// TRANSLATEME degenerovaný pøípad - obì spodní místa ve stejné výšce
 	if (root->isLeaf && root->site->y - p->y < 0.1) {
 		VPoint *fp = root->site;
 		root->isLeaf = false;
 		root->setLeft(new VParabola(fp));
 		root->setRight(new VParabola(p));
 
-		VPoint *s = new VPoint((p->x + fp->x) / 2, height); // zaèátek hrany uprostøed míst
+		VPoint *s = new VPoint((p->x + fp->x) / 2, height); // TRANSLATEME zaèátek hrany uprostøed míst
 		points.push_back(s);
 
 		if (p->x > fp->x)
-		    root->edge = new VEdge(s, fp, p); // rozhodnu, který vlevo, který vpravo
+		    root->edge = new VEdge(s, fp, p); // TRANSLATEME rozhodnu, který vlevo, který vpravo
 		else
 		    root->edge = new VEdge(s, p, fp);
 
@@ -116,7 +116,7 @@ void Voronoi::insertParabola(VPoint *p) {
 	el->neighbour = er;
 	edges->push_back(el);
 
-	// pøestavuju strom .. vkládám novou parabolu
+	// TRANSLATEME pøestavuju strom .. vkládám novou parabolu
 	par->edge = er;
 	par->isLeaf = false;
 
@@ -147,7 +147,7 @@ void Voronoi::removeParabola(VEvent *e) {
 	VParabola *p2 = VParabola::getRightChild(xr);
 
 	if (p0 == p2)
-		std::cout << "chyba - pravá a levá parabola má stejné ohnisko!\n";
+		std::cout << "TRANSLATEME chyba - pravá a levá parabola má stejné ohnisko!\n";
 
 	if (p0->cEvent) {
 		deleted.insert(p0->cEvent);
@@ -269,7 +269,7 @@ VParabola * Voronoi::getParabolaByX(double xx) {
 	VParabola *par = root;
 	double x = 0.0;
 
-	// projdu stromem dokud nenarazím na vhodný list
+	// TRANSLATEME projdu stromem dokud nenarazím na vhodný list
 	while (!par->isLeaf) {
 		x = getXOfEdge(par, ly);
 
@@ -284,7 +284,7 @@ VParabola * Voronoi::getParabolaByX(double xx) {
 
 
 
-// ohnisko, x-souøadnice
+// TRANSLATEME ohnisko, x-souøadnice
 double Voronoi::getY(VPoint *p, double x) {
 	double dp = 2 * (p->y - ly);
 	double a1 = 1 / dp;
@@ -306,7 +306,7 @@ void Voronoi::checkCircle(VParabola *b) {
 	if (!a || !c || a->site == c->site)
 		return;
 
-	VPoint * s = 0;
+	VPoint *s = 0;
 	s = getEdgeIntersection(lp->edge, rp->edge);
 
 	if (s == 0)
@@ -332,7 +332,7 @@ VPoint * Voronoi::getEdgeIntersection(VEdge *a, VEdge *b) {
 	double x = (b->g - a->g) / (a->f - b->f);
 	double y = a->f * x + a->g;
 
-	//Test COde
+	//Test Code
 	//if(a->f - b->f >=0)
 	//{if(b->g-a->g>=0) x= 1000000.0;
 	//else x = -1000000.0;}
