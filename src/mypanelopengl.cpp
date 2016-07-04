@@ -88,7 +88,9 @@ void drawPointSetArray(const PointSetArray& pointSet) {
 
 
 void drawPlaneUsingTexture(GLuint tex, int width, int height) {
-	qDebug("Draw the texture");
+	// Here, the texCoords used are (0,0) to (1,1)
+	// TODO: want to use something ... else. Depends on ImageData.
+	// (Besides that, ... ???).
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture (GL_TEXTURE_2D, tex);
 
@@ -203,12 +205,174 @@ void drawColoredPolygons(const vector<ColoredPolygon>& renderedPolygons) {
 
 
 
-void display(vector<PointSetArray>& voronoiPolys,
-             const vector<ColoredPolygon>& renderedPolygons,
-             const PointSetArray& pointSet,
-             int imgWidth,
-             int imgHeight) {
+// XXX this should be a method?
+void refreshProjection(int width, int height,
+                       int& canvas_offsetX, int& canvas_offsetY,
+                       ImageData *imData) {
+	glViewport (0, 0, (GLsizei) width, (GLsizei) height);
+	glMatrixMode (GL_PROJECTION);
+	glLoadIdentity();
+
+	canvas_offsetX = 0;
+	canvas_offsetY = 0;
+
+	// If we haven't loaded an image,
+	// we don't particularly care what the coord system is.
+	if (imData == NULL) {
+		// Just some boring thing.
+		glOrtho(-1, 1, 1, -1, -1, 1);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+
+		return;
+	}
+
+	int imWidth = imData->width();
+	int imHeight = imData->height();
+
+	double imageRatio = ((double) imWidth) / imHeight;
+	double windowRatio = ((double) width) / height;
+
+	if (imageRatio > windowRatio) {
+		double ratio = ((double) width) / height;
+
+		int renderWidth = imWidth;
+		int renderHeight = (int) (imWidth / ratio);
+
+		int delta = (renderHeight - imHeight) / 2;
+
+		glOrtho(0,
+		        renderWidth,
+		        imHeight + delta,
+		        -delta,
+		        -1,
+		        1);
+
+		// Scissor test to draw stuff only within the image
+		// (Use this for the voronoi-diagram-colors
+		int scissorDelta = delta * height / renderHeight;
+		canvas_offsetY = scissorDelta;
+		glScissor(0, scissorDelta, width, height - (2 * scissorDelta));
+	} else {
+		double ratio = ((double) width) / height;
+
+		int renderWidth = (int) (imHeight * ratio);
+		int renderHeight = imHeight;
+
+		int delta = (renderWidth - imWidth) / 2;
+
+		glOrtho(-delta,
+		        imWidth + delta,
+		        renderHeight,
+		        0,
+		        -1,
+		        1);
+
+		// Scissor test to draw stuff only within the image
+		// (Use this for the voronoi-diagram-colors
+		int scissorDelta = delta * width / renderWidth;
+		canvas_offsetX = scissorDelta;
+		glScissor(scissorDelta, 0, width - (2 * scissorDelta), height);
+	}
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 }
+
+
+
+// Uses OpenCV
+ImageData* loadImageData(string imgFilename) {
+	std::cout << "CUNT 1" << std::endl;
+	Mat imgMat = imread(imgFilename.c_str()); // BGR
+
+	int imgW = imgMat.cols;
+	int imgH = imgMat.rows;
+	int texW = pow(2, ceil(log2(imgW)));
+	int texH = pow(2, ceil(log2(imgH)));
+
+	std::cout << "ImgW = " << imgW << ", => texW = " << texW << std::endl;
+	std::cout << "ImgH = " << imgH << ", => texH = " << texH << std::endl;
+
+	// OpenCV loads as BGR, `loadOpenGLTextureFromImageData` wants RGB
+	cvtColor(imgMat, imgMat, CV_BGR2RGB);
+
+	// Copy the src data to `dataCpy`
+	int dataSize = 3 * imgW * imgH * sizeof(unsigned char);
+	unsigned char *dataCpy = (unsigned char*) malloc(dataSize);
+	memcpy(dataCpy, imgMat.data, dataSize);
+
+	std::cout << "CUNT 2" << std::endl;
+
+	// Textures want width/height to be powers of 2.
+	// So, as kindof a kludge, pack that into ImageData.
+	Mat texMat(texH, texW, CV_8UC3);
+	std::cout << "CUNT 2.1" << std::endl;
+	Mat region = texMat(cv::Rect(0, 0, imgW, imgH));
+
+	std::cout << "CUNT 3" << std::endl;
+
+	if (imgMat.type() == region.type()) {
+		imgMat.copyTo(region);
+	} else if (imgMat.type() == CV_8UC1) {
+		cvtColor(imgMat, region, CV_GRAY2RGB);
+	} else {
+		imgMat.convertTo(region, CV_8UC3, 255.0);
+	}
+
+	std::cout << "CUNT 4" << std::endl;
+
+	// Copy the src data to `dataCpy`
+	int texDataSize = 3 * texW * texH * sizeof(unsigned char);
+	unsigned char *texData = (unsigned char*) malloc(texDataSize);
+	memcpy(texData, texMat.data, texDataSize);
+
+	std::cout << "CUNT 5" << std::endl;
+
+	return new ImageData(dataCpy, texData, imgW, imgH, texW, texH);
+}
+
+
+
+// XXX merge w/ ImageData(?) and `generateOGLTextureForOpenCVMat`,
+// (which previously leaked, I guess).
+void loadOpenGLTextureFromImageData(ImageData *imData, GLuint *tex) {
+	// See http://open.gl/textures for more information.
+
+	glEnable(GL_TEXTURE_2D);
+
+	glGenTextures(1, tex);
+	glBindTexture(GL_TEXTURE_2D, *tex);
+
+	// loadedImageData should be in RGB format, from
+	// imgFilename.c_str() filetype.
+	glTexImage2D(GL_TEXTURE_2D,
+	             0,
+	             GL_RGB,
+	             imData->textureWidth(),
+	             imData->textureHeight(),
+	             0,
+	             GL_RGB,
+	             GL_UNSIGNED_BYTE,
+	             imData->textureData());
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+}
+
+
+
+// void display(vector<PointSetArray>& voronoiPolys,
+//              const vector<ColoredPolygon>& renderedPolygons,
+//              const PointSetArray& pointSet,
+//              int imgWidth,
+//              int imgHeight) {
+// }
 
 
 
@@ -292,6 +456,158 @@ vector<ColoredPolygon> generateColoredPolygons(vector<PointSetArray>& psas, cons
 
 
 
+// This function is part of Fortune's implementation
+// & outputs the voronoiEdges required for the generateColoredPolygons
+//
+// VORONOI, wrapper to voronoiEdges(???)
+vector<PointSetArray> createPolygonsFortune(vor::Edges *voronoiedges) {
+	vector<PointSetArray> voronoiEdges;
+
+	// The dictionary is indexed by the voronoi points and gives the polygon for each voronoi.
+	// The border polygons are unbounded, so need to be careful.
+	std::map< VPoint *, vector<VEdge *> > dictionary;
+
+	// XXX This should be its own function.
+	// Given a list of VEdges,
+	// construct reverse-lookup of VEdges associated with each VPoint.
+	for (vor::Edges::iterator i = voronoiedges->begin(); i != voronoiedges->end(); ++i) {
+		VEdge *edge = *i;
+		VPoint *leftPt = edge->left;
+		VPoint *rightPt = edge->right;
+
+		//Check if the dictionary has leftpoint
+		std::map< VPoint *, vector<VEdge *> >::iterator it = dictionary.find(leftPt);
+
+		if (it != dictionary.end()) {
+			it->second.push_back(edge);
+		} else {
+			vector<VEdge *> listofedges;
+			listofedges.push_back(edge);
+			dictionary.insert(std::map<VPoint *,vector<VEdge *> >::value_type(leftPt,listofedges));
+		}
+
+		//Check if the dictionary has rightpoint
+		std::map< VPoint *, vector<VEdge *> >::iterator it2 = dictionary.find(rightPt);
+
+		if (it2 != dictionary.end()) {
+			it2->second.push_back(edge);
+		} else {
+			vector<VEdge *> listofedges2;
+			listofedges2.push_back(edge);
+			dictionary.insert(std::map<VPoint *,vector<VEdge *> >::value_type(rightPt,listofedges2));
+		}
+	}
+
+
+	// What follows is *supposed* to yield polygons from edges,
+	// but doesn't manage to always do what it's intended to.
+
+	// Convert each of the dictionary values (unsorted edges associated with vertex)
+	// into ordered list of PointSetArray vertex set.
+	std::map< VPoint *, vector<VEdge *> >::iterator dictioniter;
+
+	for (dictioniter = dictionary.begin(); dictioniter != dictionary.end(); ++dictioniter) {
+		vector<VEdge *> polygonEdges = dictioniter->second;
+		PointSetArray polygonvertices;
+		vector<VPoint *> revvector;
+
+		// polygonEdges has a set of edges, create an ordered list of points from this.
+		// Take the first edge, store its start and end points into pointsetarray.
+		VEdge * firstedge = *polygonEdges.begin();
+		polygonvertices.addPoint( (LongInt)firstedge->start->x, (LongInt)firstedge->start->y );
+		polygonvertices.addPoint( (LongInt)firstedge->end->x, (LongInt)firstedge->end->y );
+
+		// Store the start and end point of this edge for later use.
+		// When the last edge is found, its end edge will be the same as
+		// the first edge's starting point. This signifies completion of polygon.
+		//
+		// The ending point will be updated as each subsequent edge is found.
+		VPoint *startpoint = new VPoint(firstedge->start->x, firstedge->start->y);
+		VPoint *endpoint   = new VPoint(firstedge->end->x, firstedge->end->y); // XXX CpyCtor
+		polygonEdges.erase(polygonEdges.begin()); // NB remove firstedge, as we've consumed it
+
+		int edgeCount = polygonEdges.size(); // Why would *this* matter? WRONG, surely.
+
+
+		while (edgeCount > 0) {
+			vector<VEdge *>::iterator polygonedgeiter;
+			int exitflag = 0;
+
+			// Iterate throught the remaining list of edges to find the subsequent edge
+			for (polygonedgeiter = polygonEdges.begin(); polygonedgeiter != polygonEdges.end(); ++polygonedgeiter) {
+				VEdge * eachedge = *polygonedgeiter;
+
+				if (eachedge->start->x == endpoint->x &&
+				    eachedge->start->y == endpoint->y) {
+					polygonvertices.addPoint( (LongInt)eachedge->end->x, (LongInt)eachedge->end->y );
+					endpoint->x = eachedge->end->x; // Check if this pointer assignment works...
+					endpoint->y = eachedge->end->y; // XXX Copy-Assignment operator
+					polygonEdges.erase(polygonedgeiter); // Delete the edge that has been added to the pointset array
+					edgeCount--;
+					exitflag = 1;
+
+					break;
+				} else if (eachedge->end->x == endpoint->x &&
+				           eachedge->end->y == endpoint->y) {
+					polygonvertices.addPoint( (LongInt)eachedge->start->x, (LongInt)eachedge->start->y );
+					endpoint->x = eachedge->start->x;
+					endpoint->y = eachedge->start->y;
+					polygonEdges.erase(polygonedgeiter); // Delete the edge that has been added to the pointset array
+					edgeCount--;
+					exitflag = 1;
+
+					break;
+				}
+			}
+
+			//If edge has not been found, the following break executes and while exits with incomplete polygon(border condition).
+			if (edgeCount > 0 && exitflag == 0) {
+				//PointSetArray revpolygonvertices;
+				for (polygonedgeiter = polygonEdges.begin(); polygonedgeiter != polygonEdges.end(); ++polygonedgeiter) {
+					VEdge * eachedge = *polygonedgeiter;
+
+					if (eachedge->start->x == startpoint->x &&
+					    eachedge->start->y == startpoint->y) {
+						//revpolygonvertices.addPoint( (LongInt)eachedge->end->x, (LongInt)eachedge->end->y );
+						revvector.push_back(eachedge->end);
+						startpoint->x = eachedge->end->x; // Check if this pointer assignment works...
+						startpoint->y = eachedge->end->y;
+						polygonEdges.erase(polygonedgeiter);
+						edgeCount--;
+						exitflag = 1;
+
+						break;
+					} else if (eachedge->end->x == startpoint->x &&
+					           eachedge->end->y == startpoint->y) {
+						//revpolygonvertices.addPoint( (LongInt)eachedge->start->x, (LongInt)eachedge->start->y );
+						revvector.push_back(eachedge->start);
+						startpoint->x = eachedge->start->x;
+						startpoint->y = eachedge->start->y;
+						polygonEdges.erase(polygonedgeiter);
+						edgeCount--;
+						exitflag = 1;
+
+						break;
+					}
+				} // End of for
+			}
+		} //End of while- Current polygon has been found
+
+		//Push the polygon into the list of polygons.
+		while (revvector.size() != 0) {
+			VPoint * point = revvector.back();
+			polygonvertices.addPoint( (LongInt)point->x, (LongInt)point->y );
+			revvector.pop_back();
+		}
+
+		voronoiEdges.push_back(polygonvertices);
+	}// All polygons have been found
+
+	return voronoiEdges;
+}
+
+
+
 // DELAUNAY
 // NB: unused, but also, genColorPoly() is in ::doVoronoiDiagram
 // void generateDelaunayColoredPolygons() {
@@ -340,88 +656,6 @@ vector<ColoredPolygon> generateColoredPolygons(vector<PointSetArray>& psas, cons
 
 
 
-// XXX this should be a method?
-void refreshProjection(int width, int height,
-                       int& canvas_offsetX, int& canvas_offsetY,
-                       ImageData *imData) {
-	glViewport (0, 0, (GLsizei) width, (GLsizei) height);
-	glMatrixMode (GL_PROJECTION);
-	glLoadIdentity();
-
-	canvas_offsetX = 0;
-	canvas_offsetY = 0;
-
-	// If we haven't loaded an image,
-	// we don't particularly care what the coord system is.
-	if (imData == NULL) {
-		// Just some boring thing.
-		glOrtho(-1, 1, 1, -1, -1, 1);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-
-		return;
-	}
-
-	int imWidth = imData->width();
-	int imHeight = imData->height();
-
-	double imageRatio = ((double) imWidth) / imHeight;
-	double windowRatio = ((double) width) / height;
-
-	if (imageRatio > windowRatio) {
-		double ratio = ((double) width) / height;
-
-		int renderWidth = imWidth;
-		int renderHeight = (int) (imWidth / ratio);
-
-		int delta = (renderHeight - imHeight) / 2;
-
-		glOrtho(0,
-		        renderWidth,
-		        imHeight + delta,
-		        -delta,
-		        -1,
-		        1);
-
-		// Scissor test to draw stuff only within the image
-		// (Use this for the voronoi-diagram-colors
-		int scissorDelta = delta * height / renderHeight;
-		canvas_offsetY = scissorDelta;
-		glScissor(0, scissorDelta, width, height - (2 * scissorDelta));
-	} else {
-		double ratio = ((double) width) / height;
-
-		int renderWidth = (int) (imHeight * ratio);
-		int renderHeight = imHeight;
-
-		int delta = (renderWidth - imWidth) / 2;
-
-		glOrtho(-delta,
-		        imWidth + delta,
-		        renderHeight,
-		        0,
-		        -1,
-		        1);
-
-		// Scissor test to draw stuff only within the image
-		// (Use this for the voronoi-diagram-colors
-		int scissorDelta = delta * width / renderWidth;
-		canvas_offsetX = scissorDelta;
-		glScissor(scissorDelta, 0, width - (2 * scissorDelta), height);
-	}
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-}
-
-
-
-void init(void) {
-	glClearColor (1.0,1.0,1.0, 1.0);
-}
-
-
-
 // DELAUNAY & VORONOI
 void MyPanelOpenGL::insertPoint(LongInt x, LongInt y) {
 	// DELAUNAY
@@ -432,90 +666,6 @@ void MyPanelOpenGL::insertPoint(LongInt x, LongInt y) {
 	                        y.doubleValue()+((double)rand()*15.0/(double)RAND_MAX));
 	voronoiVertices_->push_back(vp);
 	//voronoivertices ->push_back(new VPoint(x.doubleValue(), y.doubleValue() ));
-}
-
-
-
-// Uses OpenCV
-ImageData* loadImageData(string imgFilename) {
-	std::cout << "CUNT 1" << std::endl;
-	Mat imgMat = imread(imgFilename.c_str()); // BGR
-
-	int imgW = imgMat.cols;
-	int imgH = imgMat.rows;
-	int texW = pow(2, ceil(log2(imgW)));
-	int texH = pow(2, ceil(log2(imgH)));
-
-	std::cout << "ImgW = " << imgW << ", => texW = " << texW << std::endl;
-	std::cout << "ImgH = " << imgH << ", => texH = " << texH << std::endl;
-
-	// OpenCV loads as BGR, `loadOpenGLTextureFromImageData` wants RGB
-	cvtColor(imgMat, imgMat, CV_BGR2RGB);
-
-	// Copy the src data to `dataCpy`
-	int dataSize = 3 * imgW * imgH * sizeof(unsigned char);
-	unsigned char *dataCpy = (unsigned char*) malloc(dataSize);
-	memcpy(dataCpy, imgMat.data, dataSize);
-
-	std::cout << "CUNT 2" << std::endl;
-
-	// Textures want width/height to be powers of 2.
-	// So, as kindof a kludge, pack that into ImageData.
-	Mat texMat(texH, texW, CV_8UC3);
-	std::cout << "CUNT 2.1" << std::endl;
-	Mat region = texMat(cv::Rect(0, 0, imgW, imgH));
-
-	std::cout << "CUNT 3" << std::endl;
-
-	if (imgMat.type() == region.type()) {
-		imgMat.copyTo(region);
-	} else if (imgMat.type() == CV_8UC1) {
-		cvtColor(imgMat, region, CV_GRAY2RGB);
-	} else {
-		imgMat.convertTo(region, CV_8UC3, 255.0);
-	}
-
-	std::cout << "CUNT 4" << std::endl;
-
-	// Copy the src data to `dataCpy`
-	int texDataSize = 3 * texW * texH * sizeof(unsigned char);
-	unsigned char *texData = (unsigned char*) malloc(texDataSize);
-	memcpy(texData, texMat.data, texDataSize);
-
-	std::cout << "CUNT 5" << std::endl;
-
-	return new ImageData(dataCpy, texData, imgW, imgH, texW, texH);
-}
-
-
-
-void loadOpenGLTextureFromImageData(ImageData *imData, GLuint *tex) {
-	// See http://open.gl/textures for more information.
-
-	glEnable(GL_TEXTURE_2D);
-
-	glGenTextures(1, tex);
-	glBindTexture(GL_TEXTURE_2D, *tex);
-
-	// loadedImageData should be in RGB format, from
-	// imgFilename.c_str() filetype.
-	glTexImage2D(GL_TEXTURE_2D,
-	             0,
-	             GL_RGB,
-	             imData->textureWidth(),
-	             imData->textureHeight(),
-	             0,
-	             GL_RGB,
-	             GL_UNSIGNED_BYTE,
-	             imData->textureData());
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 }
 
 
@@ -656,155 +806,6 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 
 
 
-// This function is part of Fortune's implementation
-// & outputs the voronoiEdges required for the generateColoredPolygons
-//
-// VORONOI, wrapper to voronoiEdges(???)
-vector<PointSetArray> createPolygonsFortune(vor::Edges *voronoiedges) {
-	vector<PointSetArray> voronoiEdges;
-
-	// The dictionary is indexed by the voronoi points and gives the polygon for each voronoi.
-	// The border polygons are unbounded, so need to be careful.
-	std::map< VPoint *, vector<VEdge *> > dictionary;
-
-	// XXX This should be its own function.
-	// Given a list of VEdges,
-	// construct reverse-lookup of VEdges associated with each VPoint.
-	for (vor::Edges::iterator i = voronoiedges->begin(); i != voronoiedges->end(); ++i) {
-		VEdge *edge = *i;
-		VPoint *leftPt = edge->left;
-		VPoint *rightPt = edge->right;
-
-		//Check if the dictionary has leftpoint
-		std::map< VPoint *, vector<VEdge *> >::iterator it = dictionary.find(leftPt);
-
-		if (it != dictionary.end()) {
-			it->second.push_back(edge);
-		} else {
-			vector<VEdge *> listofedges;
-			listofedges.push_back(edge);
-			dictionary.insert(std::map<VPoint *,vector<VEdge *> >::value_type(leftPt,listofedges));
-		}
-
-		//Check if the dictionary has rightpoint
-		std::map< VPoint *, vector<VEdge *> >::iterator it2 = dictionary.find(rightPt);
-
-		if (it2 != dictionary.end()) {
-			it2->second.push_back(edge);
-		} else {
-			vector<VEdge *> listofedges2;
-			listofedges2.push_back(edge);
-			dictionary.insert(std::map<VPoint *,vector<VEdge *> >::value_type(rightPt,listofedges2));
-		}
-	}
-
-
-	// Convert each of the dictionary values (unsorted edges associated with vertex)
-	// into ordered list of PointSetArray vertex set.
-	std::map< VPoint *, vector<VEdge *> >::iterator dictioniter;
-
-	for (dictioniter = dictionary.begin(); dictioniter != dictionary.end(); ++dictioniter) {
-		vector<VEdge *> polygonEdges = dictioniter->second;
-		PointSetArray polygonvertices;
-		vector<VPoint *> revvector;
-
-		// polygonEdges has a set of edges, create an ordered list of points from this.
-		// Take the first edge, store its start and end points into pointsetarray.
-		VEdge * firstedge = *polygonEdges.begin();
-		polygonvertices.addPoint( (LongInt)firstedge->start->x, (LongInt)firstedge->start->y );
-		polygonvertices.addPoint( (LongInt)firstedge->end->x, (LongInt)firstedge->end->y );
-
-		// Store the start and end point of this edge for later use.
-		// When the last edge is found, its end edge will be the same as
-		// the first edge's starting point. This signifies completion of polygon.
-		//
-		// The ending point will be updated as each subsequent edge is found.
-		VPoint *startpoint = new VPoint(firstedge->start->x, firstedge->start->y);
-		VPoint *endpoint   = new VPoint(firstedge->end->x, firstedge->end->y); // XXX CpyCtor
-		polygonEdges.erase(polygonEdges.begin()); // NB remove firstedge, as we've consumed it
-
-		int edgeCount = polygonEdges.size(); // Why would *this* matter? WRONG, surely.
-
-
-		while (edgeCount > 0) {
-			vector<VEdge *>::iterator polygonedgeiter;
-			int exitflag = 0;
-
-			// Iterate throught the remaining list of edges to find the subsequent edge
-			for (polygonedgeiter = polygonEdges.begin(); polygonedgeiter != polygonEdges.end(); ++polygonedgeiter) {
-				VEdge * eachedge = *polygonedgeiter;
-
-				if (eachedge->start->x == endpoint->x &&
-				    eachedge->start->y == endpoint->y) {
-					polygonvertices.addPoint( (LongInt)eachedge->end->x, (LongInt)eachedge->end->y );
-					endpoint->x = eachedge->end->x; // Check if this pointer assignment works...
-					endpoint->y = eachedge->end->y; // XXX Copy-Assignment operator
-					polygonEdges.erase(polygonedgeiter); // Delete the edge that has been added to the pointset array
-					edgeCount--;
-					exitflag = 1;
-
-					break;
-				} else if (eachedge->end->x == endpoint->x &&
-				           eachedge->end->y == endpoint->y) {
-					polygonvertices.addPoint( (LongInt)eachedge->start->x, (LongInt)eachedge->start->y );
-					endpoint->x = eachedge->start->x;
-					endpoint->y = eachedge->start->y;
-					polygonEdges.erase(polygonedgeiter); // Delete the edge that has been added to the pointset array
-					edgeCount--;
-					exitflag = 1;
-
-					break;
-				}
-			}
-
-			//If edge has not been found, the following break executes and while exits with incomplete polygon(border condition).
-			if (edgeCount > 0 && exitflag == 0) {
-				//PointSetArray revpolygonvertices;
-				for (polygonedgeiter = polygonEdges.begin(); polygonedgeiter != polygonEdges.end(); ++polygonedgeiter) {
-					VEdge * eachedge = *polygonedgeiter;
-
-					if (eachedge->start->x == startpoint->x &&
-					    eachedge->start->y == startpoint->y) {
-						//revpolygonvertices.addPoint( (LongInt)eachedge->end->x, (LongInt)eachedge->end->y );
-						revvector.push_back(eachedge->end);
-						startpoint->x = eachedge->end->x; // Check if this pointer assignment works...
-						startpoint->y = eachedge->end->y;
-						polygonEdges.erase(polygonedgeiter);
-						edgeCount--;
-						exitflag = 1;
-
-						break;
-					} else if (eachedge->end->x == startpoint->x &&
-					           eachedge->end->y == startpoint->y) {
-						//revpolygonvertices.addPoint( (LongInt)eachedge->start->x, (LongInt)eachedge->start->y );
-						revvector.push_back(eachedge->start);
-						startpoint->x = eachedge->start->x;
-						startpoint->y = eachedge->start->y;
-						polygonEdges.erase(polygonedgeiter);
-						edgeCount--;
-						exitflag = 1;
-
-						break;
-					}
-				} // End of for
-			}
-		} //End of while- Current polygon has been found
-
-		//Push the polygon into the list of polygons.
-		while (revvector.size() != 0) {
-			VPoint * point = revvector.back();
-			polygonvertices.addPoint( (LongInt)point->x, (LongInt)point->y );
-			revvector.pop_back();
-		}
-
-		voronoiEdges.push_back(polygonvertices);
-	}// All polygons have been found
-
-	return voronoiEdges;
-}
-
-
-
 void MyPanelOpenGL::doVoronoiDiagram() {
 	//qDebug("Do Voronoi creation\n");
 
@@ -922,6 +923,7 @@ void MyPanelOpenGL::doOpenImage() {
 void MyPanelOpenGL::doSaveImage() {
 	// TODO: This impl. feels impure
 	// TODO: Should be a way to set output filename
+	// TODO: ImageData stuff applies here, too.
 	string outputImageFilename = "output.bmp";
 
 	int x = canvasOffsetX_;
