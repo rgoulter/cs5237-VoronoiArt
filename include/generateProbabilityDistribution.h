@@ -21,6 +21,6 @@ struct PDFTextures {
 
 
 std::vector<int> generateUniformRandomPoints(int width, int height, int numPoints);
-std::vector<int> generatePointsWithPDF(std::string filename, int numPoints, PDFTextures* tex);
+std::vector<int> generatePointsWithPDF(std::string filename, int numPoints, PDFTextures* tex, int cannyRatio = 3, int kernelSize = 3);
 
 #endif

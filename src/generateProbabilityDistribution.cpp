@@ -22,19 +22,6 @@ using cv::imread;
 
 
 
-// XXX Should make these variables local, also.
-Mat src, src_gray;
-Mat dst, dst2, dst3, detected_edges, detected_edges2, detected_edges3;
-
-// TODO these parameters might be good to be input from GUI
-int edgeThresh = 1;
-int lowThreshold;
-int const max_lowThreshold = 100;
-int cannyRatio = 3;
-int kernel_size = 3;
-
-
-
 void generateOGLTextureForOpenCVMat(GLuint& tex, const Mat& M) {
 	int width = M.cols; // imData->width();
 	int height = M.rows; // imData->height();
@@ -95,8 +82,9 @@ vector<int> generateUniformRandomPoints(int width, int height, int numPoints) {
 
 
 // POINTREP:INTVEC
-vector<int> generatePointsWithPDF(string imageFilename, int numPDFPoints, PDFTextures *oglTextures) {
-	src = imread(imageFilename);
+// TODO: generatePointsWithPDF could do with a tidyup
+vector<int> generatePointsWithPDF(string imageFilename, int numPDFPoints, PDFTextures *oglTextures, int cannyRatio, int kernelSize) {
+	Mat src = imread(imageFilename);
 
 	int width = src.cols;
 
@@ -105,22 +93,27 @@ vector<int> generatePointsWithPDF(string imageFilename, int numPDFPoints, PDFTex
 	}
 
 	// Create a matrix of the same type and size as src (for dst)
-	dst.create(src.size(), src.type());
+	Mat dst(src.size(), src.type());
 
 	// Convert the image to grayscale
+	Mat src_gray;
 	cvtColor(src, src_gray, COLOR_BGR2GRAY);
 
 	// Reduce noise with a kernel 3x3
+	Mat detected_edges;
 	blur(src_gray, detected_edges, Size(3,3));
 
 	// Detect edges with Canny edge detector
-	Canny(detected_edges, detected_edges, 100, 100*cannyRatio, kernel_size);
+	Canny(detected_edges, detected_edges, 100, 100*cannyRatio, kernelSize);
 
 	// This is to get P_sharp?
+	Mat detected_edges2;
 	GaussianBlur(detected_edges, detected_edges2, Size(7,7), 0, 0);
 
 	dst = Scalar::all(0);
+	Mat dst2;
 	dst2 = Scalar::all(0);
+	Mat dst3;
 	dst3 = Scalar::all(0);
 
 	src_gray.copyTo(dst2, detected_edges2);
