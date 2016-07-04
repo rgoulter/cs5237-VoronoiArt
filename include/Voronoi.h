@@ -46,7 +46,7 @@ public:
 
 	    All the data structures are managed by this class
 	*/
-	Edges * GetEdges(Vertices * v, int w, int h);
+	Edges * getEdges(Vertices *v, int w, int h);
 
 private:
 	/*
@@ -58,10 +58,10 @@ private:
 	    ly : current "y" position of the line (see Fortune's algorithm)
 	*/
 
-	Vertices * places;
-	Edges * edges;
+	Vertices *places;
+	Edges *edges;
 	double width, height;
-	VParabola * root;
+	VParabola *root;
 	double ly;
 
 	/*
@@ -83,14 +83,14 @@ private:
 	    GetEdgeInterse
 	*/
 
-	void InsertParabola(VPoint * p);
-	void RemoveParabola(VEvent * e);
-	void FinishEdge(VParabola * n);
-	double GetXOfEdge(VParabola * par, double y);
-	VParabola * GetParabolaByX(double xx);
-	double GetY(VPoint * p, double x);
-	void CheckCircle(VParabola * b);
-	VPoint * GetEdgeIntersection(VEdge * a, VEdge * b);
+	void insertParabola(VPoint *p);
+	void removeParabola(VEvent *e);
+	void finishEdge(VParabola *n);
+	double getXOfEdge(VParabola *par, double y);
+	VParabola * getParabolaByX(double xx);
+	double getY(VPoint *p, double x);
+	void checkCircle(VParabola *b);
+	VPoint * getEdgeIntersection(VEdge *a, VEdge *b);
 };
 
 }

@@ -9,6 +9,7 @@ std::vector<TriRecord> orderedkeyList;
 std::vector<TriRecord> leafnodeList;
 
 
+
 DirectedGraph::DirectedGraph(PointSetArray &pSet) {
 	triVertices = &pSet;
 }
@@ -79,8 +80,9 @@ void DirectedGraph::addChildrenNodes(int pIdX) {
 	for (it = leafnodeList.begin(); it != leafnodeList.end();) {
 		TriRecord tri = *it;
 		MyPoint circumCntr1;
-		if (tri.vi_[0]==containingTriangle.vi_[0] && tri.vi_[1]==containingTriangle.vi_[1]
-		    && tri.vi_[2]==containingTriangle.vi_[2]) {
+		if (tri.vi_[0] == containingTriangle.vi_[0] &&
+		    tri.vi_[1] == containingTriangle.vi_[1] &&
+		    tri.vi_[2] == containingTriangle.vi_[2]) {
 			it = leafnodeList.erase(it);
 
 			// Find the circumcenter of this triangle
@@ -118,6 +120,7 @@ TriRecord DirectedGraph::findLeafNodeForPoint(int pIdX) {
 		boundingTri.vi_[0] = pIdX;
 		boundingTri.vi_[1] = pIdX - 1;
 		boundingTri.vi_[2] = pIdX - 2;
+
 		return boundingTri;
 	}
 
@@ -125,7 +128,7 @@ TriRecord DirectedGraph::findLeafNodeForPoint(int pIdX) {
 	// the new worklist of this triangle and continue iteration.
 
 
-	for (iter=worklist.begin(); iter != worklist.end(); ) {
+	for (iter = worklist.begin(); iter != worklist.end(); ) {
 		TriRecord checkTriangle = *iter;
 		pIndex1 = checkTriangle.vi_[0];
 		pIndex2 = checkTriangle.vi_[1];
@@ -178,12 +181,12 @@ std::vector<TriRecord> DirectedGraph::findNodesForEdge(int pIdx1, int pIdx2) {
 
 
 // This method returns the set of triangles the input point belongs to.
-std::vector<TriRecord> DirectedGraph::findlinkedNodes(int pIdx1) {
+std::vector<TriRecord> DirectedGraph::findLinkedNodes(int pIdx1) {
 	std::vector<TriRecord> ::iterator iter;
 	std::vector<TriRecord> templist, outputlist;
 	int pIndex1,pIndex2, pIndex3;
 
-	for (iter=leafnodeList.begin(); iter != leafnodeList.end(); ) {
+	for (iter = leafnodeList.begin(); iter != leafnodeList.end(); ++iter) {
 		TriRecord checkTriangle = *iter;
 		pIndex1 = checkTriangle.vi_[0];
 		pIndex2 = checkTriangle.vi_[1];
@@ -192,8 +195,6 @@ std::vector<TriRecord> DirectedGraph::findlinkedNodes(int pIdx1) {
 		if (pIndex1 == pIdx1 || pIndex2 == pIdx1 || pIndex3 == pIdx1) {
 			templist.push_back(checkTriangle);
 		}
-
-		++iter;
 	}
 
 	//
@@ -211,49 +212,68 @@ std::vector<TriRecord> DirectedGraph::findlinkedNodes(int pIdx1) {
 
 	while (true) {
 		std::vector<TriRecord> fnextlist= findNodesForEdge(prevTri.vi_[commonvert],prevTri.vi_[nextvert] );
-		if (fnextlist.front().vi_[0]==prevTri.vi_[0] && fnextlist.front().vi_[1]==prevTri.vi_[1] &&
-		    fnextlist.front().vi_[2]==prevTri.vi_[2]) {
+
+		if (fnextlist.front().vi_[0] == prevTri.vi_[0] &&
+		    fnextlist.front().vi_[1] == prevTri.vi_[1] &&
+		    fnextlist.front().vi_[2] == prevTri.vi_[2]) {
 		    nextTri = fnextlist.back();
 		} else {
 			nextTri = fnextlist.front();
 		}
 
-		//If the newly found triangle is the same as the very first triangle picked, then a full cycle of sort has been completed.
-		if (nextTri.vi_[0]==pickedTri.vi_[0] && nextTri.vi_[1]==pickedTri.vi_[1] && nextTri.vi_[2]==pickedTri.vi_[2])
+		// If the newly found triangle is the same as the very first triangle picked,
+		// then a full cycle of sort has been completed.
+		if (nextTri.vi_[0] == pickedTri.vi_[0] &&
+		    nextTri.vi_[1] == pickedTri.vi_[1] &&
+		    nextTri.vi_[2] == pickedTri.vi_[2])
 			break;
 
 		outputlist.push_back(nextTri);
-		//Find an edge in nextTri that has the common vertex but not shared with prevTri
-		if (nextTri.vi_[0] == prevTri.vi_[commonvert] && nextTri.vi_[1] != prevTri.vi_[nextvert] ||
-		    nextTri.vi_[0]!=prevTri.vi_[nextvert] && nextTri.vi_[1]==prevTri.vi_[commonvert]) {
-			if (nextTri.vi_[0]==prevTri.vi_[commonvert] && nextTri.vi_[1]!=prevTri.vi_[nextvert]) {
-				nextvert = 1;
+
+		// Find an edge in nextTri that has the common vertex
+		// but not shared with prevTri
+		// XXX The following *badly* could be simplified w/ tmp bool vars.
+		if ((nextTri.vi_[0] == prevTri.vi_[commonvert] &&
+		     nextTri.vi_[1] != prevTri.vi_[nextvert]) ||
+		    (nextTri.vi_[0] != prevTri.vi_[nextvert] &&
+		     nextTri.vi_[1] == prevTri.vi_[commonvert])) {
+			if (nextTri.vi_[0] == prevTri.vi_[commonvert] &&
+			    nextTri.vi_[1] != prevTri.vi_[nextvert]) {
+				nextvert   = 1;
 				commonvert = 0;
 			} else {
-				nextvert = 0;
-				commonvert=1;
+				nextvert   = 0;
+				commonvert = 1;
 			}
-		} else if (nextTri.vi_[1]==prevTri.vi_[commonvert] && nextTri.vi_[2]!=prevTri.vi_[nextvert] ||
-		           nextTri.vi_[1]!=prevTri.vi_[nextvert] && nextTri.vi_[2]==prevTri.vi_[commonvert]) {
-			if (nextTri.vi_[1]==prevTri.vi_[commonvert] && nextTri.vi_[2]!=prevTri.vi_[nextvert]) {
-				nextvert = 2;
+		} else if ((nextTri.vi_[1] == prevTri.vi_[commonvert] &&
+		            nextTri.vi_[2] != prevTri.vi_[nextvert]) ||
+		           (nextTri.vi_[1] != prevTri.vi_[nextvert] &&
+		            nextTri.vi_[2] == prevTri.vi_[commonvert])) {
+			if (nextTri.vi_[1] == prevTri.vi_[commonvert] &&
+			    nextTri.vi_[2] != prevTri.vi_[nextvert]) {
+				nextvert   = 2;
 				commonvert = 1;
 			} else {
-				nextvert = 1;
+				nextvert   = 1;
 				commonvert = 2;
 			}
-		} else if (nextTri.vi_[2]==prevTri.vi_[commonvert] && nextTri.vi_[0]!=prevTri.vi_[nextvert] ||
-		           nextTri.vi_[2]!=prevTri.vi_[nextvert] && nextTri.vi_[0]==prevTri.vi_[commonvert]) {
-			if (nextTri.vi_[2]==prevTri.vi_[commonvert] && nextTri.vi_[0]!=prevTri.vi_[nextvert]) {
-				nextvert = 0;
+		} else if ((nextTri.vi_[2] == prevTri.vi_[commonvert] &&
+		            nextTri.vi_[0] != prevTri.vi_[nextvert]) ||
+		           (nextTri.vi_[2] != prevTri.vi_[nextvert] &&
+		            nextTri.vi_[0] == prevTri.vi_[commonvert])) {
+			if (nextTri.vi_[2] == prevTri.vi_[commonvert] &&
+			    nextTri.vi_[0] != prevTri.vi_[nextvert]) {
+				nextvert   = 0;
 				commonvert = 2;
 			} else {
-				nextvert = 2;
-				commonvert=0;
+				nextvert   = 2;
+				commonvert = 0;
 			}
 		}
 
-		prevTri.vi_[0] = nextTri.vi_[0]; prevTri.vi_[1] = nextTri.vi_[1]; prevTri.vi_[2] = nextTri.vi_[2];
+		prevTri.vi_[0] = nextTri.vi_[0];
+		prevTri.vi_[1] = nextTri.vi_[1];
+		prevTri.vi_[2] = nextTri.vi_[2];
 	}
 
 	return outputlist;
@@ -308,7 +328,7 @@ void DirectedGraph::addFlipChildrenNodes(int pIdx1, int pIdx2, int pIdx3, int pI
 
 
 // Removes everything from DAG
-void DirectedGraph::cleardirectedGraph() {
+void DirectedGraph::clearDirectedGraph() {
 	dagNode.clear();
 	leafnodeList.clear();
 	orderedkeyList.clear();

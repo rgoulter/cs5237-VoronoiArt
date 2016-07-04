@@ -45,18 +45,18 @@ public:
 	    Access to the children (in tree).
 	*/
 
-	void SetLeft(VParabola * p) {
+	void setLeft(VParabola * p) {
 		_left  = p;
 		p->parent = this;
 	}
 
-	void SetRight(VParabola * p) {
+	void setRight(VParabola * p) {
 		_right = p;
 		p->parent = this;
 	}
 
-	VParabola *	Left () { return _left;  }
-	VParabola * Right() { return _right; }
+	VParabola * left () { return _left;  }
+	VParabola * right() { return _right; }
 
 	/*
 	    Some useful tree operations
@@ -69,12 +69,12 @@ public:
 	    GetRightChild : returns the closest leave which is on the right of current node
 	*/
 
-	static VParabola * GetLeft(VParabola * p);
-	static VParabola * GetRight(VParabola * p);
-	static VParabola * GetLeftParent(VParabola * p);
-	static VParabola * GetRightParent(VParabola * p);
-	static VParabola * GetLeftChild(VParabola * p);
-	static VParabola * GetRightChild(VParabola * p);
+	static VParabola * getLeft(VParabola * p);
+	static VParabola * getRight(VParabola * p);
+	static VParabola * getLeftParent(VParabola * p);
+	static VParabola * getRightParent(VParabola * p);
+	static VParabola * getLeftChild(VParabola * p);
+	static VParabola * getRightChild(VParabola * p);
 
 private:
 	VParabola * _left;

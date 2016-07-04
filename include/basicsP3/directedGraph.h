@@ -41,10 +41,10 @@ public:
 	void addFlipChildrenNodes(int, int, int, int);
 
 	// Resets the graph, removes everything from it.
-	void cleardirectedGraph();
+	void clearDirectedGraph();
 
 	// Finds the linked delaunay triangles for the input point id
-	std::vector<TriRecord> findlinkedNodes(int );
+	std::vector<TriRecord> findLinkedNodes(int );
 
 	const PointSetArray& getPointSet() const {
 		return *triVertices;

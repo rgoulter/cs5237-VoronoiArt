@@ -197,7 +197,7 @@ vector<PointSetArray> createVoronoi(DirectedGraph& dag) {
 
 	for (int dppIdx = 1; dppIdx <= delaunayPointSet.noPt() - 3; dppIdx++) {
 		// Find delaunay triangles to which this point is linked
-		std::vector<TriRecord> linkedTriangles = dag.findlinkedNodes(dppIdx);
+		std::vector<TriRecord> linkedTriangles = dag.findLinkedNodes(dppIdx);
 		PointSetArray polygon;
 
 		// findlinkedNodes method gives an ordered list of triangles. Iterate through and find circumcenters.

@@ -23,16 +23,16 @@
 
 class VEdge {
 public:
-	VPoint * start;
-	VPoint * end;
-	VPoint * direction;
-	VPoint * left;
-	VPoint * right;
+	VPoint *start;
+	VPoint *end;
+	VPoint *direction;
+	VPoint *left;
+	VPoint *right;
 	
 	double f;
 	double g;
 
-	VEdge * neighbour;
+	VEdge *neighbour;
 
 	/*
 	    Constructor of the class
@@ -42,7 +42,7 @@ public:
 	    b : pointer to right place
 	*/
 
-	VEdge(VPoint * s, VPoint * a, VPoint * b) {
+	VEdge(VPoint *s, VPoint *a, VPoint *b) {
 		start = s;
 		left = a;
 		right = b;

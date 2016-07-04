@@ -74,10 +74,7 @@ bool showVoronoiEdges = false;
 int numPDFPoints = 75;
 
 //Initialize voronoi components for Fortune's algorithm
-vor::Voronoi * voronoi = new vor::Voronoi();
-vor::Vertices * voronoivertices = new vor::Vertices();
-// voronoiedges is used by createpolygonsFortune
-vor::Edges * voronoiedges; // Edges == std::list<VEdge *>
+vor::Vertices * voronoiVertices_ = new vor::Vertices();
 
 
 
@@ -508,7 +505,7 @@ void tryInsertPoint(LongInt x, LongInt y) {
 	// VORONOI
 	VPoint *vp = new VPoint(x.doubleValue()+((double)rand()*15.0/(double)RAND_MAX),
 	                        y.doubleValue()+((double)rand()*15.0/(double)RAND_MAX));
-	voronoivertices->push_back(vp);
+	voronoiVertices_->push_back(vp);
 	//voronoivertices ->push_back(new VPoint(x.doubleValue(), y.doubleValue() ));
 }
 
@@ -658,7 +655,7 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 // & outputs the voronoiEdges required for the generateColoredPolygons
 //
 // VORONOI, wrapper to voronoiEdges(???)
-vector<PointSetArray> createpolygonsFortune() {
+vector<PointSetArray> createPolygonsFortune(vor::Edges *voronoiedges) {
 	vector<PointSetArray> voronoiEdges;
 
 	// The dictionary is indexed by the voronoi points and gives the polygon for each voronoi.
@@ -668,31 +665,31 @@ vector<PointSetArray> createpolygonsFortune() {
 	// XXX This should be its own function.
 	// Given a list of VEdges,
 	// construct reverse-lookup of VEdges associated with each VPoint.
-	for (vor::Edges::iterator i = voronoiedges->begin(); i!= voronoiedges->end(); ++i) {
+	for (vor::Edges::iterator i = voronoiedges->begin(); i != voronoiedges->end(); ++i) {
 		VEdge *edge = *i;
-		VPoint *leftpt = edge->left;
-		VPoint *rightpt = edge->right;
+		VPoint *leftPt = edge->left;
+		VPoint *rightPt = edge->right;
 
 		//Check if the dictionary has leftpoint
-		std::map< VPoint *, vector<VEdge *> >::iterator it = dictionary.find(leftpt);
+		std::map< VPoint *, vector<VEdge *> >::iterator it = dictionary.find(leftPt);
 
 		if (it != dictionary.end()) {
 			it->second.push_back(edge);
 		} else {
 			vector<VEdge *> listofedges;
 			listofedges.push_back(edge);
-			dictionary.insert(std::map<VPoint *,vector<VEdge *> >::value_type(leftpt,listofedges));
+			dictionary.insert(std::map<VPoint *,vector<VEdge *> >::value_type(leftPt,listofedges));
 		}
 
 		//Check if the dictionary has rightpoint
-		std::map< VPoint *, vector<VEdge *> >::iterator it2 = dictionary.find(rightpt);
+		std::map< VPoint *, vector<VEdge *> >::iterator it2 = dictionary.find(rightPt);
 
 		if (it2 != dictionary.end()) {
 			it2->second.push_back(edge);
 		} else {
 			vector<VEdge *> listofedges2;
 			listofedges2.push_back(edge);
-			dictionary.insert(std::map<VPoint *,vector<VEdge *> >::value_type(rightpt,listofedges2));
+			dictionary.insert(std::map<VPoint *,vector<VEdge *> >::value_type(rightPt,listofedges2));
 		}
 	}
 
@@ -702,13 +699,13 @@ vector<PointSetArray> createpolygonsFortune() {
 	std::map< VPoint *, vector<VEdge *> >::iterator dictioniter;
 
 	for (dictioniter = dictionary.begin(); dictioniter != dictionary.end(); ++dictioniter) {
-		vector<VEdge *> polygonedges = dictioniter->second;
+		vector<VEdge *> polygonEdges = dictioniter->second;
 		PointSetArray polygonvertices;
 		vector<VPoint *> revvector;
 
-		// polygonedges has a set of edges, create an ordered list of points from this.
+		// polygonEdges has a set of edges, create an ordered list of points from this.
 		// Take the first edge, store its start and end points into pointsetarray.
-		VEdge * firstedge = *polygonedges.begin();
+		VEdge * firstedge = *polygonEdges.begin();
 		polygonvertices.addPoint( (LongInt)firstedge->start->x, (LongInt)firstedge->start->y );
 		polygonvertices.addPoint( (LongInt)firstedge->end->x, (LongInt)firstedge->end->y );
 
@@ -717,19 +714,19 @@ vector<PointSetArray> createpolygonsFortune() {
 		// the first edge's starting point. This signifies completion of polygon.
 		//
 		// The ending point will be updated as each subsequent edge is found.
-		VPoint *startpoint = new VPoint(firstedge->start->x,firstedge->start->y);
-		VPoint *endpoint = new VPoint(firstedge->end->x,firstedge->end->y); // XXX CpyCtor
-		polygonedges.erase(polygonedges.begin()); // NB remove firstedge, as we've consumed it
+		VPoint *startpoint = new VPoint(firstedge->start->x, firstedge->start->y);
+		VPoint *endpoint   = new VPoint(firstedge->end->x, firstedge->end->y); // XXX CpyCtor
+		polygonEdges.erase(polygonEdges.begin()); // NB remove firstedge, as we've consumed it
 
-		int edgecounter = polygonedges.size(); // Why would *this* matter? WRONG, surely.
+		int edgeCount = polygonEdges.size(); // Why would *this* matter? WRONG, surely.
 
 
-		while (edgecounter > 0) {
+		while (edgeCount > 0) {
 			vector<VEdge *>::iterator polygonedgeiter;
 			int exitflag = 0;
 
 			// Iterate throught the remaining list of edges to find the subsequent edge
-			for (polygonedgeiter = polygonedges.begin(); polygonedgeiter!=polygonedges.end(); ++polygonedgeiter) {
+			for (polygonedgeiter = polygonEdges.begin(); polygonedgeiter != polygonEdges.end(); ++polygonedgeiter) {
 				VEdge * eachedge = *polygonedgeiter;
 
 				if (eachedge->start->x == endpoint->x &&
@@ -737,8 +734,8 @@ vector<PointSetArray> createpolygonsFortune() {
 					polygonvertices.addPoint( (LongInt)eachedge->end->x, (LongInt)eachedge->end->y );
 					endpoint->x = eachedge->end->x; // Check if this pointer assignment works...
 					endpoint->y = eachedge->end->y; // XXX Copy-Assignment operator
-					polygonedges.erase(polygonedgeiter); // Delete the edge that has been added to the pointset array
-					edgecounter--;
+					polygonEdges.erase(polygonedgeiter); // Delete the edge that has been added to the pointset array
+					edgeCount--;
 					exitflag = 1;
 
 					break;
@@ -747,8 +744,8 @@ vector<PointSetArray> createpolygonsFortune() {
 					polygonvertices.addPoint( (LongInt)eachedge->start->x, (LongInt)eachedge->start->y );
 					endpoint->x = eachedge->start->x;
 					endpoint->y = eachedge->start->y;
-					polygonedges.erase(polygonedgeiter); // Delete the edge that has been added to the pointset array
-					edgecounter--;
+					polygonEdges.erase(polygonedgeiter); // Delete the edge that has been added to the pointset array
+					edgeCount--;
 					exitflag = 1;
 
 					break;
@@ -756,9 +753,9 @@ vector<PointSetArray> createpolygonsFortune() {
 			}
 
 			//If edge has not been found, the following break executes and while exits with incomplete polygon(border condition).
-			if (edgecounter > 0 && exitflag == 0) {
+			if (edgeCount > 0 && exitflag == 0) {
 				//PointSetArray revpolygonvertices;
-				for (polygonedgeiter = polygonedges.begin(); polygonedgeiter!=polygonedges.end(); ++polygonedgeiter) {
+				for (polygonedgeiter = polygonEdges.begin(); polygonedgeiter != polygonEdges.end(); ++polygonedgeiter) {
 					VEdge * eachedge = *polygonedgeiter;
 
 					if (eachedge->start->x == startpoint->x &&
@@ -767,8 +764,8 @@ vector<PointSetArray> createpolygonsFortune() {
 						revvector.push_back(eachedge->end);
 						startpoint->x = eachedge->end->x; // Check if this pointer assignment works...
 						startpoint->y = eachedge->end->y;
-						polygonedges.erase(polygonedgeiter);
-						edgecounter--;
+						polygonEdges.erase(polygonedgeiter);
+						edgeCount--;
 						exitflag = 1;
 
 						break;
@@ -778,8 +775,8 @@ vector<PointSetArray> createpolygonsFortune() {
 						revvector.push_back(eachedge->start);
 						startpoint->x = eachedge->start->x;
 						startpoint->y = eachedge->start->y;
-						polygonedges.erase(polygonedgeiter);
-						edgecounter--;
+						polygonEdges.erase(polygonedgeiter);
+						edgeCount--;
 						exitflag = 1;
 
 						break;
@@ -841,16 +838,17 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 		// VORONOI
 
 		// Bounding Points for Fortune's
-		voronoivertices->push_back(new VPoint(-10000.0 +((double)rand()*15.0/(double)RAND_MAX),
-		                                       10000.0 +((double)rand()*15.0/(double)RAND_MAX)));
-		voronoivertices->push_back(new VPoint( 10000.0 +((double)rand()*15.0/(double)RAND_MAX),
-		                                       10000.0 +((double)rand()*15.0/(double)RAND_MAX)));
-		voronoivertices->push_back(new VPoint( 10000.0 +((double)rand()*15.0/(double)RAND_MAX),
-		                                      -10000.0 +((double)rand()*15.0/(double)RAND_MAX)));
-		voronoivertices->push_back(new VPoint(-10000.0 +((double)rand()*15.0/(double)RAND_MAX),
-		                                      -10000.0 +((double)rand()*15.0/(double)RAND_MAX) ));
+		voronoiVertices_->push_back(new VPoint(-10000.0 + ((double)rand()*15.0 / (double)RAND_MAX),
+		                                        10000.0 + ((double)rand()*15.0 / (double)RAND_MAX)));
+		voronoiVertices_->push_back(new VPoint( 10000.0 + ((double)rand()*15.0 / (double)RAND_MAX),
+		                                        10000.0 + ((double)rand()*15.0 / (double)RAND_MAX)));
+		voronoiVertices_->push_back(new VPoint( 10000.0 + ((double)rand()*15.0 / (double)RAND_MAX),
+		                                       -10000.0 + ((double)rand()*15.0 / (double)RAND_MAX)));
+		voronoiVertices_->push_back(new VPoint(-10000.0 + ((double)rand()*15.0 / (double)RAND_MAX),
+		                                       -10000.0 + ((double)rand()*15.0 / (double)RAND_MAX) ));
 
-		voronoiedges = voronoi->GetEdges(voronoivertices,10000,10000);
+		vor::Voronoi *voronoi;
+		vor::Edges *voronoiEdges = voronoi->getEdges(voronoiVertices_, 10000, 10000);
 
 		voroSW.pause();
 		double timeFortune = voroSW.ms();
@@ -858,11 +856,11 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 		voroSW.reset();
 		voroSW.resume();
 
-		voronoiPolygons_ = createpolygonsFortune();
+		voronoiPolygons_ = createPolygonsFortune(voronoiEdges);
 
 		voroSW.pause();
 		double timePolyConstruct = voroSW.ms();
-		qDebug("TIME: createpolygonsFortune() is %f", timePolyConstruct);
+		qDebug("TIME: createPolygonsFortune() is %f", timePolyConstruct);
 		voroSW.reset();
 		voroSW.resume();
 	}
@@ -1058,8 +1056,8 @@ void MyPanelOpenGL::clearAll() {
 
 	// Clear all the Voronoi computations
 	// Reset voronoi components for Fortune's algorithm
-	voronoi = new vor::Voronoi();
-	voronoivertices = new vor::Vertices();
+	// XXX this is clearly not memory safe
+	voronoiVertices_ = new vor::Vertices();
 
 	// Clear all the points.
 	inputPointSet.eraseAllPoints();

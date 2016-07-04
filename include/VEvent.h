@@ -17,10 +17,10 @@
 
 class VEvent {
 public:
-	VPoint * point;
+	VPoint *point;
 	bool pe;
 	double y;
-	VParabola * arch;
+	VParabola *arch;
 
 	/*
 	    Constructor for the class
@@ -29,13 +29,14 @@ public:
 	    pev : whether it is a place event or not
 	*/
 
-	VEvent(VPoint * p, bool pev) {
+	VEvent(VPoint *p, bool pev) {
 		point = p;
 		pe = pev;
 		y = p->y;
 		arch = 0;
 	}
 
+	// Shouldn't this be operator< or something?
 	/*
 	    function for comparing two events (by "y" property)
 	*/
