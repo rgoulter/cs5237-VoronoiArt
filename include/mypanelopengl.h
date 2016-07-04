@@ -8,6 +8,11 @@
 #include <QString>
 
 #include "pointSetArray.h"
+#include "polypixel.h"
+
+// Imports as part of implementing Fortune's algorithm
+#include "Voronoi.h"
+#include "VPoint.h"
 
 
 
@@ -17,7 +22,7 @@ class MyPanelOpenGL : public QGLWidget
 {
     Q_OBJECT
 public:
-    explicit MyPanelOpenGL(QWidget *parent = 0);
+	explicit MyPanelOpenGL(QWidget *parent = 0);
 	
 signals:
 	void updateFilename(QString);
@@ -64,14 +69,26 @@ protected:
 	void keyPressEvent(QKeyEvent *event);
 
 private:
+	void insertPoint(LongInt x, LongInt y);
+
 	// TODO Probably could do without these?
 	// Position of the image, in canvas space..
 	int canvasOffsetX_ = 0;
 	int canvasOffsetY_ = 0;
 
 
+	/// The 'bare-bones' Voronoi regions, represented using `PointSetArray`s.
 	std::vector<PointSetArray> voronoiPolygons_;
 
+	/// The `ColoredPolygon`s we use to render the "stain-glass" effect.
+	std::vector<ColoredPolygon> renderedPolygons_;
+
+	// DELAUNAY
+	PointSetArray inputPointSet_;
+
+	// VORONOI
+	/// Vertices for Fortune's algorithm
+	vor::Vertices * voronoiVertices_ = new vor::Vertices();
 };
 
 #endif // MYPANELOPENGL_H

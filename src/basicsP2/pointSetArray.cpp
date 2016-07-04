@@ -6,10 +6,10 @@ using std::vector;
 
 
 
-int PointSetArray::getPoint(int obpIndex, LongInt& x1,LongInt& y1) {
+int PointSetArray::getPoint(int obpIndex, LongInt& x1,LongInt& y1) const {
 	// one-based point index
 	if (0 < obpIndex && obpIndex <= myPoints.size()) {
-		MyPoint *p = &(myPoints[obpIndex - 1]);
+		const MyPoint *p = &(myPoints[obpIndex - 1]);
 		x1 = p->x;
 		y1 = p->y;
 
@@ -21,7 +21,7 @@ int PointSetArray::getPoint(int obpIndex, LongInt& x1,LongInt& y1) {
 
 
 
-int PointSetArray::noPt() {
+int PointSetArray::noPt() const {
 	return myPoints.size();
 }
 

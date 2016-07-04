@@ -33,10 +33,6 @@
 #include "polypixel.h"
 #include "generateProbabilityDistribution.h"
 
-//Imports as part of implementing Fortune's algorithm
-#include "Voronoi.h"
-#include "VPoint.h"
-
 using cv::Mat;
 using cv::imread;
 
@@ -44,10 +40,6 @@ using std::string;
 using std::vector;
 
 
-
-// DELAUNAY
-PointSetArray inputPointSet;
-// PointSetArray delaunayPointSet; // Add the super triangle stuff to this.
 
 static StopWatch globalSW;
 
@@ -59,11 +51,6 @@ GLuint loadedImageTexture;
 
 PDFTextures pdfTextures_;
 
-// Variables for colored polygons
-bool hasCalculatedColoredPolygons = 0;
-vector<ColoredPolygon> renderedPolygons;
-string imageName;
-
 // Variables for render state stuff.
 enum ShowImageType { IMAGE, EDGE_RAW, EDGE_SHARP, EDGE_BLUR, PDF, EFFECT };
 ShowImageType currentRenderType = IMAGE;
@@ -73,8 +60,6 @@ bool showVoronoiEdges = false;
 // Variables for point generation.
 int numPDFPoints = 75;
 
-//Initialize voronoi components for Fortune's algorithm
-vor::Vertices * voronoiVertices_ = new vor::Vertices();
 
 
 
@@ -210,11 +195,7 @@ void drawVoronoiPolygons(vector<PointSetArray>& voronoiPolys) {
 
 
 
-void drawColoredPolygons() {
-	if (!hasCalculatedColoredPolygons) {
-		return;
-	}
-
+void drawColoredPolygons(const vector<ColoredPolygon>& renderedPolygons) {
 	glEnable(GL_COLOR_MATERIAL);
 	glEnable(GL_SCISSOR_TEST);
 
@@ -239,10 +220,12 @@ void drawColoredPolygons() {
 
 
 
-void display(vector<PointSetArray> voronoiPolys) {
+void display(vector<PointSetArray>& voronoiPolys,
+             const vector<ColoredPolygon>& renderedPolygons,
+             const PointSetArray& pointSet) {
 	switch (currentRenderType) {
 		case EFFECT:
-			drawColoredPolygons();
+			drawColoredPolygons(renderedPolygons);
 			break;
 
 		case EDGE_RAW:
@@ -277,9 +260,9 @@ void display(vector<PointSetArray> voronoiPolys) {
 		// DELAUNAY (inputPointSet vs voronoisites)
 		// Point indices are 1-based here
 		// Draw input points
-		for (int i = 1; i <= inputPointSet.noPt(); i++){
+		for (int i = 1; i <= pointSet.noPt(); i++){
 			LongInt px, py;
-			inputPointSet.getPoint(i, px, py);
+			pointSet.getPoint(i, px, py);
 			drawAPoint(px.doubleValue(), py.doubleValue());
 		}
 	}
@@ -289,9 +272,8 @@ void display(vector<PointSetArray> voronoiPolys) {
 
 // POLYREP:INTVEC
 // also uses polypixel's ColoredPolygon
-void generateColoredPolygons(vector< vector<int> >& polys) {
-	hasCalculatedColoredPolygons = 0;
-	renderedPolygons.clear();
+vector<ColoredPolygon> generateColoredPolygons(vector< vector<int> >& polys) {
+	vector<ColoredPolygon> renderedPolygons;
 
 	StopWatch allSW;
 	allSW.resume();
@@ -326,13 +308,13 @@ void generateColoredPolygons(vector< vector<int> >& polys) {
 	double timeAvg = timeFindSomeColor / n;
 	qDebug("TIME: Average: %f for %d polygons. Total: %f", timeAvg, n, timeFindSomeColor);
 
-	hasCalculatedColoredPolygons = 1;
+	return renderedPolygons;
 }
 
 
 
 // POLYREP:MYPOINTVEC => :INTVEC
-void generateColoredPolygons(vector< vector<MyPoint> >& myPointPolys) {
+vector<ColoredPolygon> generateColoredPolygons(vector< vector<MyPoint> >& myPointPolys) {
 	// Coerce the PSAs to vec<int> poly representation
 	vector< vector<int> > ivPolys;
 
@@ -349,13 +331,13 @@ void generateColoredPolygons(vector< vector<MyPoint> >& myPointPolys) {
 		ivPolys.push_back(poly);
 	}
 
-	generateColoredPolygons(ivPolys);
+	return generateColoredPolygons(ivPolys);
 }
 
 
 
 // POLYREP:POINTSETARRAY => :INTVEC
-void generateColoredPolygons(vector<PointSetArray>& psas) {
+vector<ColoredPolygon> generateColoredPolygons(vector<PointSetArray>& psas) {
 	// Coerce the PSAs to vec<int> poly representation
 	vector< vector<int> > ivPolys;
 
@@ -363,7 +345,7 @@ void generateColoredPolygons(vector<PointSetArray>& psas) {
 		ivPolys.push_back(coercePSAPolyToIVecPoly(psas[i]));
 	}
 
-	generateColoredPolygons(ivPolys);
+	return generateColoredPolygons(ivPolys);
 }
 
 
@@ -498,9 +480,9 @@ void init(void) {
 
 
 // DELAUNAY & VORONOI
-void tryInsertPoint(LongInt x, LongInt y) {
+void MyPanelOpenGL::insertPoint(LongInt x, LongInt y) {
 	// DELAUNAY
-	int ptIndex = inputPointSet.addPoint(x, y);
+	int ptIndex = inputPointSet_.addPoint(x, y);
 
 	// VORONOI
 	VPoint *vp = new VPoint(x.doubleValue()+((double)rand()*15.0/(double)RAND_MAX),
@@ -589,7 +571,7 @@ void MyPanelOpenGL::paintGL() {
 
 	glPushMatrix();
 
-	display(voronoiPolygons_);
+	display(voronoiPolygons_, renderedPolygons_, inputPointSet_);
 
 	glPopMatrix();
 }
@@ -642,8 +624,8 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 
 		qDebug("Insert Point: %d, %d\n", px, py);
 
-		tryInsertPoint(px, py);
-		updateNumPoints(inputPointSet.noPt());
+		insertPoint(px, py);
+		updateNumPoints(inputPointSet_.noPt());
 
 		updateGL();
 	}
@@ -813,7 +795,7 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 	if (useOldVoronoiAlgo) {
 		// DELAUNAY
 
-		DirectedGraph dag = dagFromInputPoints(inputPointSet);
+		DirectedGraph dag = dagFromInputPoints(inputPointSet_);
 
 		qDebug("Do doDelaunay in MPOG::doVoronoi\n");
 		tryDelaunayTriangulation(dag);
@@ -867,7 +849,7 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 
 
 	// Make the colored polygons from Voronoi.
-	generateColoredPolygons(voronoiPolygons_);
+	renderedPolygons_ = generateColoredPolygons(voronoiPolygons_);
 	currentRenderType = EFFECT;
 
 	voroSW.pause();
@@ -891,7 +873,6 @@ void MyPanelOpenGL::doOpenImage() {
 	                                 ".",
 	                                 tr("Image Files (*.png *.jpg *.bmp)"));
 	string filenameStr = qStr_fileName.toStdString();
-	imageName = filenameStr;
 
 	qDebug(filenameStr.c_str());
 
@@ -1013,11 +994,10 @@ void MyPanelOpenGL::doGenerateUniformRandomPoints() {
 		int x = points[i * 2];
 		int y = points[i * 2 + 1];
 
-
-		tryInsertPoint(x, y);
+		insertPoint(x, y);
 	}
 
-	updateNumPoints(inputPointSet.noPt());
+	updateNumPoints(inputPointSet_.noPt());
 	setUsePDF(true);
 
 	updateGL();
@@ -1034,10 +1014,10 @@ void MyPanelOpenGL::doPDF() {
 		int x = points[i * 2];
 		int y = points[i * 2 + 1];
 
-		tryInsertPoint(x, y);
+		insertPoint(x, y);
 	}
 
-	updateNumPoints(inputPointSet.noPt());
+	updateNumPoints(inputPointSet_.noPt());
 	setUsePDF(true);
 
 	updateGL();
@@ -1049,8 +1029,7 @@ void MyPanelOpenGL::clearAll() {
 	// Clear all our points, and such data.
 
 	// Clear all the colored polygons.
-	bool hasCalculatedColoredPolygons = false;
-	renderedPolygons.clear();
+	renderedPolygons_.clear();
 
 	voronoiPolygons_.clear();
 
@@ -1060,10 +1039,10 @@ void MyPanelOpenGL::clearAll() {
 	voronoiVertices_ = new vor::Vertices();
 
 	// Clear all the points.
-	inputPointSet.eraseAllPoints();
+	inputPointSet_.eraseAllPoints();
 
 	// Signals and stuff
-	updateNumPoints(inputPointSet.noPt());
+	updateNumPoints(inputPointSet_.noPt());
 	setUsePDF(false);
 	setVoronoiComputed(false);
 
