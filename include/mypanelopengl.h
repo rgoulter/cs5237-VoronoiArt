@@ -9,10 +9,23 @@
 
 #include "pointSetArray.h"
 #include "polypixel.h"
+#include "generateProbabilityDistribution.h"
 
 // Imports as part of implementing Fortune's algorithm
 #include "Voronoi.h"
 #include "VPoint.h"
+
+
+
+enum ShowImageType {
+	IMAGE,
+	EDGE_RAW,
+	EDGE_SHARP,
+	EDGE_BLUR,
+	PDF,
+	EFFECT,
+	NONE
+};
 
 
 
@@ -79,6 +92,15 @@ private:
 
 	std::string loadedImageFilename_ = "";
 	ImageData *imData_ = NULL;
+
+	// OpenGL stuff
+	GLuint loadedImageTexture_;
+	PDFTextures pdfTextures_;
+
+	ShowImageType currentRenderType_ = NONE;
+	bool showVoronoiSites_ = true;
+	bool showVoronoiEdges_ = false;
+
 
 	int numPDFPoints_ = 75;
 

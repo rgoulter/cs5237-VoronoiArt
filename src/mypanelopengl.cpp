@@ -30,8 +30,6 @@
 #include "delaunay.h"
 
 #include "imagedata.h"
-#include "polypixel.h"
-#include "generateProbabilityDistribution.h"
 
 using cv::Mat;
 using cv::imread;
@@ -44,22 +42,7 @@ using std::vector;
 // TODO: the stopwatch code used makes code less readable.
 static StopWatch globalSW;
 
-// Variables for Image Logic.
 
-GLuint loadedImageTexture;
-
-PDFTextures pdfTextures_;
-
-// Variables for render state stuff.
-enum ShowImageType { IMAGE, EDGE_RAW, EDGE_SHARP, EDGE_BLUR, PDF, EFFECT, NONE };
-ShowImageType currentRenderType = NONE;
-bool showVoronoiSites = true;
-bool showVoronoiEdges = false;
-
-
-
-
-// These three functions are for those who are not familiar with OpenGL, you can change these or even completely ignore them
 
 void drawAPoint(double x,double y) {
 	glPointSize(5);
@@ -89,6 +72,17 @@ void drawATriangle(double x1,double y1, double x2, double y2, double x3, double 
 		glVertex2d(x2,y2);
 		glVertex2d(x3,y3);
 	glEnd();
+}
+
+
+
+void drawPointSetArray(const PointSetArray& pointSet) {
+	// Draw input points
+	for (int i = 1; i <= pointSet.noPt(); i++){
+		LongInt px, py;
+		pointSet.getPoint(i, px, py);
+		drawAPoint(px.doubleValue(), py.doubleValue());
+	}
 }
 
 
@@ -214,52 +208,6 @@ void display(vector<PointSetArray>& voronoiPolys,
              const PointSetArray& pointSet,
              int imgWidth,
              int imgHeight) {
-	switch (currentRenderType) {
-		case EFFECT:
-			drawColoredPolygons(renderedPolygons);
-			break;
-
-		case EDGE_RAW:
-			drawPlaneUsingTexture(pdfTextures_.edgesTexture, imgWidth, imgHeight);
-			break;
-
-		case EDGE_SHARP:
-			drawPlaneUsingTexture(pdfTextures_.edgesSharpTexture, imgWidth, imgHeight);
-			break;
-
-		case EDGE_BLUR:
-			drawPlaneUsingTexture(pdfTextures_.edgesBlurTexture, imgWidth, imgHeight);
-			break;
-
-		case PDF:
-			drawPlaneUsingTexture(pdfTextures_.pdfTexture, imgWidth, imgHeight);
-			break;
-
-		case IMAGE:
-			drawPlaneUsingTexture(loadedImageTexture, imgWidth, imgHeight);
-			break;
-
-		default:
-		case NONE:
-			break;
-	}
-
-	if (showVoronoiEdges) {
-		// DELAUNAY (voronoiEdges)
-		drawVoronoiPolygons(voronoiPolys);
-	}
-
-
-	if (showVoronoiSites) {
-		// DELAUNAY (inputPointSet vs voronoisites)
-		// Point indices are 1-based here
-		// Draw input points
-		for (int i = 1; i <= pointSet.noPt(); i++){
-			LongInt px, py;
-			pointSet.getPoint(i, px, py);
-			drawAPoint(px.doubleValue(), py.doubleValue());
-		}
-	}
 }
 
 
@@ -508,7 +456,7 @@ void loadOpenGLTextureFromImageData(ImageData *imData, GLuint *tex) {
 	glEnable(GL_TEXTURE_2D);
 
 	glGenTextures(1, tex);
-	glBindTexture(GL_TEXTURE_2D, loadedImageTexture);
+	glBindTexture(GL_TEXTURE_2D, *tex);
 
 	// loadedImageData should be in RGB format, from
 	// imgFilename.c_str() filetype.
@@ -566,7 +514,45 @@ void MyPanelOpenGL::paintGL() {
 
 	int w = hasLoadedImage() ? imData_->width() : -1;
 	int h = hasLoadedImage() ? imData_->height() : -1;
-	display(voronoiPolygons_, renderedPolygons_, inputPointSet_, w, h);
+
+	switch (currentRenderType_) {
+		case EFFECT:
+			drawColoredPolygons(renderedPolygons_);
+			break;
+
+		case EDGE_RAW:
+			drawPlaneUsingTexture(pdfTextures_.edgesTexture, w, h);
+			break;
+
+		case EDGE_SHARP:
+			drawPlaneUsingTexture(pdfTextures_.edgesSharpTexture, w, h);
+			break;
+
+		case EDGE_BLUR:
+			drawPlaneUsingTexture(pdfTextures_.edgesBlurTexture, w, h);
+			break;
+
+		case PDF:
+			drawPlaneUsingTexture(pdfTextures_.pdfTexture, w, h);
+			break;
+
+		case IMAGE:
+			drawPlaneUsingTexture(loadedImageTexture_, w, h);
+			break;
+
+		default:
+		case NONE:
+			break;
+	}
+
+	if (showVoronoiEdges_) {
+		// DELAUNAY (voronoiEdges)
+		drawVoronoiPolygons(voronoiPolygons_);
+	}
+
+	if (showVoronoiSites_) {
+		drawPointSetArray(inputPointSet_);
+	}
 
 	glPopMatrix();
 }
@@ -846,7 +832,7 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 	// Make the colored polygons from Voronoi.
 	assert(imData_ != NULL);
 	renderedPolygons_ = generateColoredPolygons(voronoiPolygons_, *imData_);
-	currentRenderType = EFFECT;
+	currentRenderType_ = EFFECT;
 
 	voroSW.pause();
 	double timePolyColor = voroSW.ms();
@@ -872,7 +858,7 @@ void MyPanelOpenGL::doOpenImage() {
 
 	updateFilename(qStr_fileName); // to Qt textbox
 	imData_ = loadImageData(filenameStr);
-	loadOpenGLTextureFromImageData(imData_, &loadedImageTexture);
+	loadOpenGLTextureFromImageData(imData_, &loadedImageTexture_);
 	loadedImageFilename_ = filenameStr;
 
 	QSize widgetSize = size();
@@ -925,35 +911,28 @@ void MyPanelOpenGL::doSaveImage() {
 
 
 void MyPanelOpenGL::doDrawImage() {
-	qDebug("Draw OpenGL Image");
-	currentRenderType = IMAGE;
-
+	currentRenderType_ = IMAGE;
 	updateGL();
 }
 
 
 
 void MyPanelOpenGL::doDrawEdge() {
-	qDebug("Draw Edge");
-	currentRenderType = EDGE_RAW;
-
+	currentRenderType_ = EDGE_RAW;
 	updateGL();
 }
 
 
 
 void MyPanelOpenGL::doDrawEdgeSharp() {
-	qDebug("Draw Edge (Sharp)");
-	currentRenderType = EDGE_SHARP;
-
+	currentRenderType_ = EDGE_SHARP;
 	updateGL();
 }
 
 
 
 void MyPanelOpenGL::doDrawEdgeBlur() {
-	qDebug("Draw Edge (Blur)");
-	currentRenderType = EDGE_BLUR;
+	currentRenderType_ = EDGE_BLUR;
 
 	updateGL();
 }
@@ -961,18 +940,14 @@ void MyPanelOpenGL::doDrawEdgeBlur() {
 
 
 void MyPanelOpenGL::doDrawPDF() {
-	qDebug("Draw PDF");
-	currentRenderType = PDF;
-
+	currentRenderType_ = PDF;
 	updateGL();
 }
 
 
 
 void MyPanelOpenGL::doDrawEffect() {
-	qDebug("Draw Effect");
-	currentRenderType = EFFECT;
-
+	currentRenderType_ = EFFECT;
 	updateGL();
 }
 
@@ -1043,7 +1018,7 @@ void MyPanelOpenGL::clearAll() {
 	setUsePDF(false);
 	setVoronoiComputed(false);
 
-	currentRenderType = IMAGE;
+	currentRenderType_ = NONE;
 
 	updateGL();
 }
@@ -1056,16 +1031,14 @@ void MyPanelOpenGL::mouseMoveEvent(QMouseEvent *event) {
 
 
 void MyPanelOpenGL::setShowVoronoiSites(bool b) {
-	showVoronoiSites = b;
-
+	showVoronoiSites_ = b;
 	updateGL();
 }
 
 
 
 void MyPanelOpenGL::setShowVoronoiEdges(bool b) {
-	showVoronoiEdges = b;
-
+	showVoronoiEdges_ = b;
 	updateGL();
 }
 
