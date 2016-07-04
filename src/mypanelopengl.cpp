@@ -847,8 +847,8 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 		voronoiVertices_->push_back(new VPoint(-10000.0 + ((double)rand()*15.0 / (double)RAND_MAX),
 		                                       -10000.0 + ((double)rand()*15.0 / (double)RAND_MAX) ));
 
-		vor::Voronoi *voronoi;
-		vor::Edges *voronoiEdges = voronoi->getEdges(voronoiVertices_, 10000, 10000);
+		vor::Voronoi voronoi;
+		vor::Edges *voronoiEdges = voronoi.getEdges(voronoiVertices_, 10000, 10000);
 
 		voroSW.pause();
 		double timeFortune = voroSW.ms();
