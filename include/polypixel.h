@@ -1,10 +1,12 @@
 #ifndef CS5237_POLYPIXELH
 #define CS5237_POLYPIXELH
 
-#include "pointSetArray.h"
-#include "platform.h"
-#include <vector>
 #include <string>
+#include <vector>
+
+#include "imagedata.h"
+#include "pointsetarray.h"
+#include "platform.h"
 
 class ColoredPolygon {
 public:
@@ -14,12 +16,12 @@ public:
 
 
 
-void findSomeColor3iv(const std::vector<int>& poly, int* colorIv);
-void findSomeColor3iv(PointSetArray& psa, int* colorIv);
+void findSomeColor3iv(const ImageData& imData, const std::vector<int>& poly, int* colorIv);
+void findSomeColor3iv(const ImageData& imData, PointSetArray& psa, int* colorIv);
 
 
-void findAverageColor3iv(const std::vector<int>& poly, int* colorIv);
-void findAverageColor3iv(const std::vector<MyPoint>& poly, int* colorIv);
+void findAverageColor3iv(const ImageData& imData, const std::vector<int>& poly, int* colorIv);
+void findAverageColor3iv(const ImageData& imData, const std::vector<MyPoint>& poly, int* colorIv);
 
 
 bool findShaderDirectory(std::string& path, std::string shaderFilename);

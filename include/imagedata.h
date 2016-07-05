@@ -3,32 +3,47 @@
 
 #include <string>
 
-// This isn't indented to be a good representation;
-// just a structure while refactoring.
-// if it just maps to e.g. some OpenCV structure,
-// then might as well remove it.
+#include "opencv2/imgproc/imgproc.hpp"
+
+// for OpenGL
+#include "platform.h"
+
+using cv::Mat;
+
+
+
 class ImageData {
 public:
-	ImageData(unsigned char *data, int width, int height);
+	/// Construct ImageData with given matrix,
+	/// also provide code to convert the matrix (BGR or GRAY) to RGB.
+	ImageData(const cv::Mat& mat, int codeToRGB);
 
-	int width() {
-		return loadedImageWidth;
+	int width() const {
+		return imageMat_.cols;
 	}
 
-	int height() {
-		return loadedImageHeight;
+	int height() const {
+		return imageMat_.rows;
 	}
 
-	unsigned char* data() {
-		return loadedImageData;
+	int textureWidth() const {
+		return textureMat_.cols;
 	}
 
-	void dataAt(int x, int y, unsigned char& r, unsigned char& g, unsigned char& b);
+	int textureHeight() const {
+		return textureMat_.rows;
+	}
+
+	void dataAt(int x, int y, unsigned char& r, unsigned char& g, unsigned char& b) const;
+
+	/// Renders a plane with same dimensions as image.
+	void renderPlane() const;
 
 private:
-	int loadedImageWidth;
-	int loadedImageHeight;
-	unsigned char *loadedImageData;
+	cv::Mat imageMat_;
+	cv::Mat textureMat_;
+
+	GLuint texture_;
 };
 
 #endif // IMAGEDATA_H

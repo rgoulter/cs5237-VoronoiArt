@@ -6,6 +6,8 @@
 
 cmake_minimum_required(VERSION 2.8)
 
+option(test "Build all tests." OFF)
+
 project(VoronoiArt)
 
 # Find includes in corresponding build directories
@@ -23,58 +25,62 @@ find_package(OpenCV REQUIRED)
 find_package(OpenGL REQUIRED)
 
 
-set(VORONOI_SOURCES src/basicsP3/directedGraph.cpp
-                    src/polypixel.cpp
-                    src/generateProbabilityDistribution.cpp
-                    src/mypanelopengl.cpp
-                    src/Voronoi.cpp
-                    src/imagedata.cpp
-                    src/delaunay.cpp
-                    src/basicsP2/trist.cpp
-                    src/basicsP2/pointSetArray.cpp
-                    src/mainqt.cpp
-                    src/VParabola.cpp
-                    src/basics/pointSet.cpp
-                    src/basics/lmath.cpp
-                    src/basics/li.cpp
-                    src/basics/polygon.cpp)
 
-set (VORONOI_HEADERS    src/VEdge.h
-                        src/VEvent.h
-                        src/VParabola.h
-                        src/VPoint.h
-                        src/Voronoi.h
+# Lib for Non-Qt code
+set(VORONOI_LIB_SOURCES src/delaunay/li.cpp
+                        src/delaunay/lmath.cpp
+                        src/delaunay/polygon.cpp
+                        src/delaunay/trist.cpp
+                        src/delaunay/pointset.cpp
+                        src/delaunay/pointsetarray.cpp
+                        src/delaunay/directedgraph.cpp
+                        src/delaunay/delaunay.cpp
+                        src/voronoi/voronoi.cpp
+                        src/voronoi/vparabola.cpp
+                        src/imagedata.cpp
+                        src/generatepoints.cpp
+                        src/polypixel.cpp)
+# For Qt code
+set(VORONOI_SOURCES src/mypanelopengl.cpp
+                    src/mainqt.cpp)
+
+set(VORONOI_LIB_HEADERS include/delaunay/li.h
+                        include/delaunay/lmath.h
+                        include/delaunay/polygon.h
+                        include/delaunay/trist.h
+                        include/delaunay/pointset.h
+                        include/delaunay/pointsetarray.h
+                        include/delaunay/directedgraph.h
+                        include/delaunay/delaunay.h
+                        include/delaunay/delaunaytri.h
+                        include/voronoi/vedge.h
+                        include/voronoi/vevent.h
+                        include/voronoi/vparabola.h
+                        include/voronoi/vpoint.h
+                        include/voronoi/voronoi.h
                         include/imagedata.h
-                        include/basicsP3/directedGraph.h
-                        include/delaunayTri.h
-                        include/delaunay.h
-                        include/tinydir.h
-                        include/mypanelopengl.h
-                        include/generateProbabilityDistribution.h
-                        include/polypixel.h
-                        include/basicsP2/trist.h
-                        include/basicsP2/pointSetArray.h
-                        include/mainqt.h
-                        include/basics/polygon.h
-                        include/basics/li.h
-                        include/basics/pointSet.h
-                        include/basics/lmath.h)
+                        include/generatepoints.h
+                        include/polypixel.h)
+set (VORONOI_HEADERS include/mypanelopengl.h
+                     include/mainqt.h)
 
-include_directories(include include/basics include/basicsP2 include/basicsP3)
+include_directories(include
+                    include/delaunay
+                    include/voronoi)
 
 
 IF (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set (PLATFORM_SOURCES src/linux/basics/stopWatch.cpp)
+    set (PLATFORM_SOURCES src/linux/stopwatch.cpp)
     set (PLATFORM_HEADERS include/linux/platform.h
-                          include/linux/basics/stopWatch.h)
+                          include/linux/stopwatch.h)
     include_directories(include/linux include/linux/basics)
 ENDIF (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 IF (APPLE)
-    set (PLATFORM_SOURCES src/linux/basics/stopWatch.cpp)
+    set (PLATFORM_SOURCES src/linux/stopwatch.cpp)
     set (PLATFORM_HEADERS include/mac/platform.h
-                          include/mac/basics/stopWatch.h)
-    include_directories(include/mac include/mac/basics soil/src)
+                          include/mac/stopwatch.h)
+    include_directories(include/mac include/mac/basics)
 ENDIF (APPLE)
 
 
@@ -93,6 +99,8 @@ SET(GUI_TYPE MACOSX_BUNDLE)
 ENDIF (APPLE)
 
 
+add_library(VoronoiArt_lib ${VORONOI_LIB_HEADERS}
+                           ${VORONOI_LIB_SOURCES})
 add_executable(VoronoiArt ${GUI_TYPE}
                           ${VORONOI_HEADERS}
                           ${VORONOI_SOURCES}
@@ -100,6 +108,7 @@ add_executable(VoronoiArt ${GUI_TYPE}
                           ${PLATFORM_SOURCES}
                           ${UI_HEADERS})
 
+target_link_libraries(VoronoiArt VoronoiArt_lib)
 target_link_libraries(VoronoiArt ${OpenCV_LIBS})
 target_link_libraries(VoronoiArt ${OPENGL_LIBRARIES})
 
@@ -113,3 +122,35 @@ ENDIF (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 # Use the Widgets module from Qt 5.
 # Core, Gui, Widgets, OpenGL.
 qt5_use_modules(VoronoiArt Widgets OpenGL)
+
+
+
+# GTest integration with CMake adapted from
+#   https://github.com/dmonopoly/gtest-cmake-example
+
+################################
+# Testing
+################################
+if (test)
+  # This adds another subdirectory, which has 'project(gtest)'.
+  add_subdirectory(gtest-1.7.0)
+
+  enable_testing()
+
+  # Include the gtest library. gtest_SOURCE_DIR is available due to
+  # 'project(gtest)' above.
+  include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
+
+  ##############
+  # Unit Tests
+  ##############
+  add_executable(runUnitTests test/basictests.cpp)
+
+  target_link_libraries(runUnitTests gtest gtest_main)
+  target_link_libraries(runUnitTests VoronoiArt_lib)
+
+  # This is so you can do 'make test' to see all your tests run, instead of
+  # manually running the executable runUnitTests to see those specific tests.
+  add_test(NAME voronoi-art-unit-test COMMAND runUnitTests)
+endif()
+

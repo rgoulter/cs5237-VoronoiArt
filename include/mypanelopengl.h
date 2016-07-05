@@ -2,14 +2,40 @@
 #define MYPANELOPENGL_H
 
 #include <string>
+#include <vector>
+
 #include <QGLWidget>
 #include <QString>
 
+#include "pointsetarray.h"
+#include "polypixel.h"
+#include "generatepoints.h"
+
+// Imports as part of implementing Fortune's algorithm
+#include "voronoi.h"
+#include "vpoint.h"
+
+
+
+enum ShowImageType {
+	IMAGE,
+	EDGE_RAW,
+	EDGE_SHARP,
+	EDGE_BLUR,
+	PDF,
+	EFFECT,
+	NONE
+};
+
+
+
+// As per http://doc.qt.io/qt-5/qglwidget.html
+// XXX QGLWidget is legacy, should use QOpenGLWidget instead.
 class MyPanelOpenGL : public QGLWidget
 {
     Q_OBJECT
 public:
-    explicit MyPanelOpenGL(QWidget *parent = 0);
+	explicit MyPanelOpenGL(QWidget *parent = 0);
 	
 signals:
 	void updateFilename(QString);
@@ -21,7 +47,6 @@ signals:
 	void setVoronoiComputed(bool);
 
 public slots:
-	void doDelaunayTriangulation();
 	void doOpenImage();
 
 	void doDrawImage();
@@ -46,15 +71,49 @@ public slots:
 	void setShowVoronoiEdges(bool b);
 
 protected:
-    void initializeGL();
-    void resizeGL(int x, int h);
-    void paintGL();
-    void mousePressEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void keyPressEvent(QKeyEvent *event);
+	// overloaded
+	void initializeGL();
+	// overloaded
+	void resizeGL(int x, int h);
+	// overloaded
+	void paintGL();
+	void mousePressEvent(QMouseEvent *event);
+	void mouseMoveEvent(QMouseEvent *event);
+	void keyPressEvent(QKeyEvent *event);
 
 private:
+	void insertPoint(LongInt x, LongInt y);
+	bool hasLoadedImage() { return imData_ != NULL; }
 
+	// TODO Probably could do without these?
+	// Position of the image, in canvas space..
+	int canvasOffsetX_ = 0;
+	int canvasOffsetY_ = 0;
+
+	std::string loadedImageFilename_ = "";
+	ImageData *imData_ = NULL;
+	PDFTextures pdfTextures_;
+
+	// OpenGL stuff
+	ShowImageType currentRenderType_ = NONE;
+	bool showVoronoiSites_ = true;
+	bool showVoronoiEdges_ = false;
+
+
+	int numPDFPoints_ = 75;
+
+	/// The 'bare-bones' Voronoi regions, represented using `PointSetArray`s.
+	std::vector<PointSetArray> voronoiPolygons_;
+
+	/// The `ColoredPolygon`s we use to render the "stain-glass" effect.
+	std::vector<ColoredPolygon> renderedPolygons_;
+
+	// DELAUNAY
+	PointSetArray inputPointSet_;
+
+	// VORONOI
+	/// Vertices for Fortune's algorithm
+	vor::Vertices * voronoiVertices_ = new vor::Vertices();
 };
 
 #endif // MYPANELOPENGL_H

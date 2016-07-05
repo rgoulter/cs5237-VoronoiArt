@@ -1,17 +1,16 @@
 #include "polypixel.h"
-#include "imagedata.h"
+
 #include <string>
 
-using namespace std;
+#include "imagedata.h"
 
-// Use these from the main Qt application logic code..
-// TODO: migrate imData so it's an argument to these functions..
-extern ImageData *imData;
-
+using std::string;
+using std::vector;
 
 
-std::vector<int> enumerateLeftRightOfSimplePolygon(const std::vector<int>& poly) {
-	std::vector<int> result;
+
+vector<int> enumerateLeftRightOfSimplePolygon(const vector<int>& poly) {
+	vector<int> result;
 
 	// Find bounding box of polygon
 	int minX, maxX, minY, maxY;
@@ -52,22 +51,22 @@ std::vector<int> enumerateLeftRightOfSimplePolygon(const std::vector<int>& poly)
 
 
 
-void findAverageColor3iv(const std::vector<MyPoint>& mpPoly, int* colorIv) {
-	std::vector<int> poly;
+void findAverageColor3iv(const ImageData& imData, const vector<MyPoint>& mpPoly, int* colorIv) {
+	vector<int> poly;
 
 	for (int i = 0; i < mpPoly.size(); i++) {
 		poly.push_back((int) mpPoly[i].x.doubleValue());
 		poly.push_back((int) mpPoly[i].y.doubleValue());
 	}
 
-	findAverageColor3iv(poly, colorIv);
+	findAverageColor3iv(imData, poly, colorIv);
 }
 
 
 
-void findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
-	int loadedImageWidth = imData->width();
-	int loadedImageHeight = imData->height();
+void findAverageColor3iv(const ImageData& imData, const vector<int>& poly, int* colorIv) {
+	int loadedImageWidth = imData.width();
+	int loadedImageHeight = imData.height();
 
 	// Find bounding box of polygon
 	int minX, maxX, minY, maxY;
@@ -95,7 +94,7 @@ void findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 
 
 	// Get points in polygon.
-	std::vector<int> rowsOfPoly = enumerateLeftRightOfSimplePolygon(poly);
+	vector<int> rowsOfPoly = enumerateLeftRightOfSimplePolygon(poly);
 
 
 	// For each point, find the average rgb.
@@ -109,7 +108,7 @@ void findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 	rowLeft = rowsOfPoly[0], rowRight = rowsOfPoly[1];
 	u = rowLeft - offsetX;
 	v = minY - offsetY;
-	imData->dataAt(u, v, accR, accG, accB);
+	imData.dataAt(u, v, accR, accG, accB);
 	acc = 1;
 
 	for(int j = rowLeft + 1; j <= rowRight; j++) {
@@ -117,7 +116,7 @@ void findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 		v = minY - offsetY;
 
 		GLubyte rb, gb, bb;
-		imData->dataAt(u, v, rb, gb, bb);
+		imData.dataAt(u, v, rb, gb, bb);
 
 		// Accumulative average
 		acc++;
@@ -135,7 +134,7 @@ void findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 			v = minY + row - offsetY;
 
 			GLubyte rb, gb, bb;
-			imData->dataAt(u, v, rb, gb, bb);
+			imData.dataAt(u, v, rb, gb, bb);
 
 			// Accumulative average
 			acc++;
@@ -152,16 +151,16 @@ void findAverageColor3iv(const std::vector<int>& poly, int* colorIv) {
 
 
 
-void findSomeColor3iv(PointSetArray& psa, int* colorIv) {
-	std::vector<int> poly = coercePSAPolyToIVecPoly(psa);
-	findSomeColor3iv(poly, colorIv);
+void findSomeColor3iv(const ImageData& imData, PointSetArray& psa, int* colorIv) {
+	vector<int> poly = coercePSAPolyToIVecPoly(psa);
+	findSomeColor3iv(imData, poly, colorIv);
 };
 
 
 
-void findSomeColor3iv(const std::vector<int>& unclippedPoly, int* colorIv) {
-	int loadedImageWidth = imData->width();
-	int loadedImageHeight = imData->height();
+void findSomeColor3iv(const ImageData& imData, const vector<int>& unclippedPoly, int* colorIv) {
+	int loadedImageWidth = imData.width();
+	int loadedImageHeight = imData.height();
 
 	// Clip polygon to ensure we have nothing out of bounds
 	vector<int> poly = clipPolygonToRectangle(unclippedPoly, 0, 0, loadedImageWidth - 1, loadedImageHeight - 1);
@@ -194,7 +193,7 @@ void findSomeColor3iv(const std::vector<int>& unclippedPoly, int* colorIv) {
 	}
 
 	GLubyte rb, gb, bb;
-	imData->dataAt(u, v, accR, accG, accB);
+	imData.dataAt(u, v, accR, accG, accB);
 	acc = 1;
 
 	for (int ptIdx = 1; ptIdx < n; ptIdx++) {
@@ -213,7 +212,7 @@ void findSomeColor3iv(const std::vector<int>& unclippedPoly, int* colorIv) {
 
 
 		GLubyte rb, gb, bb;
-		imData->dataAt(u, v, rb, gb, bb);
+		imData.dataAt(u, v, rb, gb, bb);
 
 		// Accumulative average
 		acc++;
@@ -239,3 +238,4 @@ bool findShaderDirectory(string& path, string shaderFilename) {
 	path = "don't use this for now";
 	return false;
 }
+
