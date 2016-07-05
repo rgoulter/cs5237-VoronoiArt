@@ -283,7 +283,6 @@ void refreshProjection(int width, int height,
 
 // Uses OpenCV
 ImageData* loadImageData(string imgFilename) {
-	std::cout << "CUNT 1" << std::endl;
 	Mat imgMat = imread(imgFilename.c_str()); // BGR
 
 	int imgW = imgMat.cols;
@@ -302,15 +301,11 @@ ImageData* loadImageData(string imgFilename) {
 	unsigned char *dataCpy = (unsigned char*) malloc(dataSize);
 	memcpy(dataCpy, imgMat.data, dataSize);
 
-	std::cout << "CUNT 2" << std::endl;
-
 	// Textures want width/height to be powers of 2.
 	// So, as kindof a kludge, pack that into ImageData.
 	Mat texMat(texH, texW, CV_8UC3);
-	std::cout << "CUNT 2.1" << std::endl;
 	Mat region = texMat(cv::Rect(0, 0, imgW, imgH));
 
-	std::cout << "CUNT 3" << std::endl;
 
 	if (imgMat.type() == region.type()) {
 		imgMat.copyTo(region);
@@ -320,14 +315,10 @@ ImageData* loadImageData(string imgFilename) {
 		imgMat.convertTo(region, CV_8UC3, 255.0);
 	}
 
-	std::cout << "CUNT 4" << std::endl;
-
 	// Copy the src data to `dataCpy`
 	int texDataSize = 3 * texW * texH * sizeof(unsigned char);
 	unsigned char *texData = (unsigned char*) malloc(texDataSize);
 	memcpy(texData, texMat.data, texDataSize);
-
-	std::cout << "CUNT 5" << std::endl;
 
 	return new ImageData(dataCpy, texData, imgW, imgH, texW, texH);
 }
