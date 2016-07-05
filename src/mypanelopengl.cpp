@@ -698,14 +698,16 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 	voroSW.reset();
 	voroSW.resume();
 
-	bool useOldVoronoiAlgo = false;
+	bool useOldVoronoiAlgo = true;
 
 	if (useOldVoronoiAlgo) {
 		// DELAUNAY
+		qDebug("Do doDelaunay in MPOG::doVoronoi");
 
 		DirectedGraph dag = dagFromInputPoints(inputPointSet_);
 
-		qDebug("Do doDelaunay in MPOG::doVoronoi\n");
+		qDebug("MPOG::doVoronoi, created dag");
+
 		tryDelaunayTriangulation(dag);
 		//generateDelaunayColoredPolygons(); // too slow.
 
@@ -717,6 +719,7 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 		voroSW.reset();
 		voroSW.resume();
 
+		qDebug("MPOG::doVoronoi, about to createVoronoi");
 		voronoiPolygons_ = createVoronoi(dag); // in `delaunay`
 
 		voroSW.pause();

@@ -2,6 +2,9 @@
 
 #include <stdlib.h>
 #include <time.h>
+#include <assert.h>
+
+#include <iostream>
 
 #include "li.h"
 #include "lmath.h"
@@ -14,6 +17,8 @@
 #include "directedgraph.h"
 
 using std::vector;
+using std::cout;
+using std::endl;
 
 
 
@@ -60,10 +65,15 @@ void DelaunayTri::findBoundingTri(PointSetArray &pSet) {
 
 
 void DelaunayTri::legalizeEdge(DirectedGraph& dag, int pIdx1, int pIdx2, int pIdx3) {
+	cout << "DTri::legalizeEdge 1" << endl;
+
 	vector<TriRecord> triangles = dag.findNodesForEdge(pIdx2, pIdx3);
+
+	cout << "DTri::legalizeEdge 2" << endl;
 
 	for (int i = 0; i < triangles.size(); i++) {
 		for (int j = 0; j < 3; j++) {
+			cout << "loop idx " << i << "," << j << endl;
 			int pointIdx = triangles[i].pointIndexOf(j);
 
 			if (pointIdx != pIdx1 && pointIdx != pIdx2 && pointIdx != pIdx3) {
@@ -73,16 +83,21 @@ void DelaunayTri::legalizeEdge(DirectedGraph& dag, int pIdx1, int pIdx2, int pId
 				// so this is legit
 				PointSetArray pointSet = dag.getPointSet();
 
+				cout << "about to check inCircle.." << endl;
+				assert(p4 > 0); // check p4!
 				if (pointSet.inCircle(pIdx1, pIdx2, pIdx3, p4) > 0) {
 					dag.addFlipChildrenNodes(pIdx1, pIdx2, pIdx3, p4);
 					legalizeEdge(dag, pIdx1, pIdx2, p4);
 					legalizeEdge(dag, pIdx1, pIdx3, p4);
 				}
+				cout << "after check inCircle.." << endl;
 
 				return;
 			}
 		}
 	}
+
+	cout << "DTri::legalizeEdge end" << endl;
 }
 
 
@@ -93,18 +108,28 @@ void delaunayIterationStep(vector<int>& delaunayPointsToProcess,
 		return;
 	}
 
+	cout << "dlyIterStep 1" << endl;
+
 	int pIdx = delaunayPointsToProcess[0];
 	delaunayPointsToProcess.erase(delaunayPointsToProcess.begin());
+
+	cout << "dlyIterStep 2" << endl;
 
 	TriRecord tri = dag.findLeafNodeForPoint(pIdx); // Return the containing triangle for the point i.
 	dag.addChildrenNodes(pIdx);
 
+	cout << "dlyIterStep 3" << endl;
+
 	int triPIdx1, triPIdx2, triPIdx3;
 	tri.get(triPIdx1, triPIdx2, triPIdx3);
+
+	cout << "dlyIterStep 4" << endl;
 
 	DelaunayTri::legalizeEdge(dag, pIdx, triPIdx1, triPIdx2);
 	DelaunayTri::legalizeEdge(dag, pIdx, triPIdx1, triPIdx3);
 	DelaunayTri::legalizeEdge(dag, pIdx, triPIdx2, triPIdx3);
+
+	cout << "dlyIterStep 5" << endl;
 
 	// Redisplay
 	// updateGL(); // updateGL is a method of the QGLWidget..
@@ -165,17 +190,25 @@ DirectedGraph dagFromInputPoints(const PointSetArray& inputPointSet) {
 void tryDelaunayTriangulation(DirectedGraph& dag) {
 	vector<int> delaunayPointsToProcess;
 
+	cout << "tryDelaunayTriangulation 1" << endl;
+
 	PointSetArray delaunayPointSet = dag.getPointSet();
+
+	cout << "tryDelaunayTriangulation 2" << endl;
 
 	// Add points 1 ... n - 3 (inclusive) into the set of points to be tested.
 	// (0 ... < n - 3 since delaunayPointSet includes bounding triangle at end)
 	for (int i = 1; i <= delaunayPointSet.noPt() - 3; i++) {
+		cout << "tryDelaunayTriangulation loop idx=" << i << endl;
 		delaunayPointsToProcess.push_back(i);
 	}
+
+	cout << "tryDelaunayTriangulation 3" << endl;
 
 	// TODO: Shuffle these points of delaunayPointsToProcess
 	srand (time(NULL));
 	for (int i = 0; i < delaunayPointsToProcess.size() / 2; i++) {
+		cout << "tryDelaunayTriangulation loop idx=" << i << endl;
 		int j = rand() % delaunayPointsToProcess.size();
 
 		// swap
@@ -184,11 +217,15 @@ void tryDelaunayTriangulation(DirectedGraph& dag) {
 		delaunayPointsToProcess[j] = tmp;
 	}
 
+	cout << "tryDelaunayTriangulation 4" << endl;
+
 	// Iterate through the points we need to process.
 	// NO ANIMATION, just run each step immediately.
 	while (delaunayPointsToProcess.size() > 0) {
 		delaunayIterationStep(delaunayPointsToProcess, dag);
 	}
+
+	cout << "tryDelaunayTriangulation 5 (end)" << endl;
 }
 
 
@@ -196,16 +233,24 @@ void tryDelaunayTriangulation(DirectedGraph& dag) {
 vector<PointSetArray> createVoronoi(DirectedGraph& dag) {
 	vector<PointSetArray> voronoiEdges; // Data structure to hold voronoi edges.
 
+	cout << "createVoronoi 1 (begin)" << endl;
+
 	PointSetArray delaunayPointSet = dag.getPointSet();
 
+	cout << "createVoronoi 2" << endl;
+
 	for (int dppIdx = 1; dppIdx <= delaunayPointSet.noPt() - 3; dppIdx++) {
+		cout << "createVoronoi for loop, idx=" << dppIdx << endl;
+
 		// Find delaunay triangles to which this point is linked
+		cout << "dag.findLinkedNodes()" << endl;
 		std::vector<TriRecord> linkedTriangles = dag.findLinkedNodes(dppIdx);
 		PointSetArray polygon;
 
 		// findlinkedNodes method gives an ordered list of triangles. Iterate through and find circumcenters.
 		std::vector<TriRecord>::iterator iter1;
-		for (iter1 = linkedTriangles.begin(); iter1 != linkedTriangles.end();) {
+		for (iter1 = linkedTriangles.begin(); iter1 != linkedTriangles.end(); ++iter1) {
+			cout << "inner-for, idx=" << (iter1 - linkedTriangles.begin()) << endl;
 			TriRecord tri = *iter1;
 			MyPoint circum;
             std::cout << "circumCircle" << std::endl;
@@ -214,11 +259,13 @@ vector<PointSetArray> createVoronoi(DirectedGraph& dag) {
 			tri.get(triPIdx1, triPIdx2, triPIdx3);
 			delaunayPointSet.circumCircle(triPIdx1, triPIdx2,triPIdx3, circum);
 			polygon.addPoint(circum.x,circum.y);
-			++iter1;
 		}
 
 		voronoiEdges.push_back(polygon);
+		cout << "createVoronoi for loop, idx=" << dppIdx << " (end)" << endl;
 	}
+
+	cout << "createVoronoi 1 (end)" << endl;
 
 	return voronoiEdges;
 }

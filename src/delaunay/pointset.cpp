@@ -20,6 +20,8 @@ void PointSet::deleteLastPoint() {
 
 
 int PointSet::inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx) {
+	std::cout << "inCircle " << p1Idx << "," << p2Idx << "," << p3Idx << ", " << pIdx << "; len=" << (myPoints.size()) << std::endl;
+
 	// Indices given are 1-based, but stored as 0-based.
 	MyPoint p1 = myPoints[p1Idx - 1];
 	MyPoint p2 = myPoints[p2Idx - 1];
@@ -50,12 +52,19 @@ int PointSet::inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx) {
 
 // This method returns the circumcircle center for the three input points.
 bool PointSet::circumCircle(int p1Idx, int p2Idx, int p3Idx, MyPoint& center) {
+	std::cout << "circumCirle 1" << std::endl;
 	LongInt dA, dB, dC, aux1, aux2, div;
 	int quo1, quo2, aux1Sign, aux2Sign;
 	LongInt two = 2;
-	MyPoint p1 = myPoints[p1Idx - 1];
+	std::cout << "MyPoints size " << myPoints.size() << std::endl;
+	std::cout << "accessing: " << (p1Idx - 1) << ", " << (p2Idx - 1) << ", " << (p3Idx - 1) << std::endl;
+	std::cout << "circumCirle 1.1" << std::endl;
+	MyPoint p1 = myPoints[p1Idx - 1]; // ... SIGSEGV here?
+	std::cout << "circumCirle 1.2" << std::endl;
 	MyPoint p2 = myPoints[p2Idx - 1];
+	std::cout << "circumCirle 1.3" << std::endl;
 	MyPoint p3 = myPoints[p3Idx - 1];
+	std::cout << "circumCirle 1.4" << std::endl;
 	//p1.x = 0;p1.y=0,p2.x=0,p2.y=2;p3.x=1,p3.y=1;
 
 	dA = p1.x * p1.x + p1.y * p1.y;
@@ -66,6 +75,7 @@ bool PointSet::circumCircle(int p1Idx, int p2Idx, int p3Idx, MyPoint& center) {
 	aux2 = LongInt(0) - (dA*(p3.x - p2.x) + dB*(p1.x - p3.x) + dC*(p2.x - p1.x)); // Negate not actually defined
 	div = (two*(p1.x*(p3.y - p2.y) + p2.x*(p1.y-p3.y) + p3.x*(p2.y - p1.y)));
 
+	std::cout << "circumCirle 2" << std::endl;
 
 	if (div == 0) {
 		return false;
@@ -78,17 +88,25 @@ bool PointSet::circumCircle(int p1Idx, int p2Idx, int p3Idx, MyPoint& center) {
 	LongInt aux2modval = aux2*aux2sign;
 	LongInt divmodval = div*divsign;
 
+	std::cout << "circumCirle 3" << std::endl;
+
 	// Repeated subtraction for division
 	for (quo1 = 0; aux1modval - divmodval >= 0; quo1++) {
 		aux1modval = aux1modval - divmodval;
 	}
 
+	std::cout << "circumCirle 4" << std::endl;
+
 	for (quo2 = 0; aux2modval - divmodval >= 0; quo2++) {
 		aux2modval = aux2modval - divmodval;
 	}
 
+	std::cout << "circumCirle 5" << std::endl;
+
 	center.x = ((LongInt)quo1)*aux1sign*divsign;
 	center.y = ((LongInt)quo2)*aux2sign*divsign;
+
+	std::cout << "circumCirle 6" << std::endl;
 
 	return true;
 }

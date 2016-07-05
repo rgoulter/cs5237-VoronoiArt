@@ -1,8 +1,13 @@
 #include "trist.h"
 
+#include <assert.h>
+
 
 
 TriRecord::TriRecord(int idx1, int idx2, int idx3) {
+	assert(idx1 >= 1 && idx1 < 1000000);
+	assert(idx2 >= 1 && idx2 < 1000000);
+	assert(idx3 >= 1 && idx3 < 1000000);
 	vi_[0] = idx1;
 	vi_[1] = idx2;
 	vi_[2] = idx3;

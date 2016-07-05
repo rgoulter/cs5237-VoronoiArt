@@ -1,5 +1,7 @@
 #include "directedgraph.h"
 
+#include <assert.h>
+
 #include <iostream>
 
 using std::map;
@@ -21,11 +23,14 @@ vector<TriRecord> DirectedGraph::getLeafNodes() {
 
 // This method adds children nodes to the specified parent node. This is only for new point additions and not for flipping.
 void DirectedGraph::addChildrenNodes(int pIdx) {
-	std::cout << "inside addchildrennodes:" << pIdx << std::endl;
+	std::cout << "addChildrenNodes 1, pIdx=" << pIdx << std::endl;
+
 
 	// Find triangle to which the point belongs. This function returns the bounding triangle in the case that the
 	// point passed here is the end vertex of the bounding triangle
 	TriRecord containingTriangle = findLeafNodeForPoint(pIdx);
+
+	std::cout << "addChildrenNodes 2" << std::endl;
 
 
 	// Declare iterator for the dagNode, and the vector of TriRecords for the children of the node.
@@ -38,6 +43,8 @@ void DirectedGraph::addChildrenNodes(int pIdx) {
 	int pIndex1, pIndex2, pIndex3;
 	containingTriangle.get(pIndex1, pIndex2, pIndex3);
 
+	std::cout << "pIdx1-3=" << pIndex1 << "," << pIndex2 << "," << pIndex3 << ", pIdx=" << pIdx << std::endl;
+
 	// Construct 3 Trirecords, one for each child triangle
 	// and add it to existingChildren.
 	TriRecord child1(pIndex1, pIndex2, pIdx);
@@ -46,6 +53,8 @@ void DirectedGraph::addChildrenNodes(int pIdx) {
 	existingChildren.push_back(child1);
 	existingChildren.push_back(child2);
 	existingChildren.push_back(child3);
+
+	std::cout << "addChildrenNodes 3" << std::endl;
 
 	// Insert the parent-child relationship into the DAG, only if the containing triangle itself is not the bounding triangle.
 	if (pIdx != pIndex1 && pIdx != pIndex2 && pIdx != pIndex3) {
@@ -61,6 +70,7 @@ void DirectedGraph::addChildrenNodes(int pIdx) {
 	// First record will always be the bounding triangle, which we will use in the findLeafNodeforPoint for setting the
 	// initial worklist
 
+	std::cout << "addChildrenNodes 4" << std::endl;
 
 	orderedKeyList_.push_back(containingTriangle);
 
@@ -76,12 +86,18 @@ void DirectedGraph::addChildrenNodes(int pIdx) {
 			++it;
 		}
 	}
+
+	std::cout << "addChildrenNodes 5" << std::endl;
 }
 
 
 
 // This method returns the triangle which encloses the input point.
 TriRecord DirectedGraph::findLeafNodeForPoint(int pIdx) {
+	assert(pIdx >= 1 && pIdx < 1000000);
+
+	std::cout << "findLeafNodeForPt 1, " << pIdx << std::endl;
+
 	vector<TriRecord> worklist;
 
 
@@ -106,30 +122,44 @@ TriRecord DirectedGraph::findLeafNodeForPoint(int pIdx) {
 	// Iterate through the worklist and find the containing triangle. Once found, replace the worklist with
 	// the new worklist of this triangle and continue iteration.
 
+	std::cout << "findLeafNodeForPt 2" << std::endl;
 
 	for (vector<TriRecord>::iterator iter = worklist.begin(); iter != worklist.end(); ) {
+		std::cout << "findLeafNodeForPt 2.1" << std::endl;
 		TriRecord checkTriangle = *iter;
+		std::cout << "findLeafNodeForPt 2.2" << std::endl;
 
 		// TODO inTri would benefit from using TriRecord
 		int pIndex1, pIndex2, pIndex3;
 		checkTriangle.get(pIndex1, pIndex2, pIndex3);
 
 		int ret = triVertices_.inTri(pIndex1, pIndex2, pIndex3, pIdx);
+		std::cout << "findLeafNodeForPt 2.3" << std::endl;
 
 		// If ret is >=0, the point is inside the triangle
 		if (ret >= 0) {
-			if (dagNode_.find(checkTriangle) != dagNode_.end()) {
-				// There could be error here.
-				// Does C++ allow us to change the object we are iterating through?
-				worklist = dagNode_.find(checkTriangle)->second;
-				iter = worklist.begin();
-			} else {
-				return checkTriangle;
-			}
+			std::cout << "findLeafNodeForPt 2.3A" << std::endl;
+
+			return checkTriangle;
+			// XXX WTF is the rest of the code for?
+			// if (dagNode_.find(checkTriangle) != dagNode_.end()) {
+			// 	// There could be error here.
+			// 	// Does C++ allow us to change the object we are iterating through?
+			// 	worklist = dagNode_.find(checkTriangle)->second;
+			// 	iter = worklist.begin();
+			// } else {
+			// 	std::cout << "findLeafNodeForPt 2.3B" << std::endl;
+			// 	return checkTriangle;
+			// }
 		} else {
 			++iter;
 		}
+
+		std::cout << "findLeafNodeForPt 3" << std::endl;
 	}
+
+	std::cout << "findLeafNodeForPt 4, we never return anything!!" << std::endl;
+	assert(false);
 }
 
 
@@ -220,6 +250,11 @@ vector<TriRecord> DirectedGraph::findLinkedNodes(int pIdx1) {
 
 // Please note that the edge to be flipped here is the 2nd and 3rd parameters.
 void DirectedGraph::addFlipChildrenNodes(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
+	assert(pIdx1 >= 1 && pIdx1 < 1000000); // XXX magic bound
+	assert(pIdx2 >= 1 && pIdx2 < 1000000);
+	assert(pIdx3 >= 1 && pIdx3 < 1000000);
+	assert(pIdx4 >= 1 && pIdx4 < 1000000);
+
 	vector<TriRecord> parentTriangles = findNodesForEdge(pIdx2, pIdx3);
 
 	TriRecord newTri1(pIdx1, pIdx2, pIdx4);
