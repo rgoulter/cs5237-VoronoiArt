@@ -50,7 +50,7 @@ public:
 	std::vector<TriRecord> findLinkedNodes(int );
 
 	const PointSetArray& getPointSet() const {
-		return triVertices;
+		return triVertices_;
 	}
 
 protected:

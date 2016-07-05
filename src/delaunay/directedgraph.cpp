@@ -29,28 +29,20 @@ void DirectedGraph::addChildrenNodes(int pIdx) {
 
 
 	// Declare iterator for the dagNode, and the vector of TriRecords for the children of the node.
-	map< TriRecord, vector<TriRecord> >::iterator iter;
+	// map< TriRecord, vector<TriRecord> >::iterator iter;
 	vector<TriRecord> existingChildren;
-	TriRecord child1, child2, child3;
-	int pIndex1, pIndex2, pIndex3;
 
-	//iter = dagNode.find(containingTriangle);
+	// iter = dagNode.find(containingTriangle);
 
 	// Get the vertices of the parent triangle
-	pIndex1 = containingTriangle.vi_[0];
-	pIndex2 = containingTriangle.vi_[1];
-	pIndex3 = containingTriangle.vi_[2];
+	int pIndex1, pIndex2, pIndex3;
+	containingTriangle.get(pIndex1, pIndex2, pIndex3);
 
-	// Construct 3 Trirecords, one for each child triangle and add it to existingChildren.
-	child1.vi_[0] = pIndex1;
-	child1.vi_[1] = pIndex2;
-	child1.vi_[2] = pIdx;
-	child2.vi_[0] = pIndex2;
-	child2.vi_[1] = pIndex3;
-	child2.vi_[2] = pIdx;
-	child3.vi_[0] = pIndex3;
-	child3.vi_[1] = pIndex1;
-	child3.vi_[2] = pIdx;
+	// Construct 3 Trirecords, one for each child triangle
+	// and add it to existingChildren.
+	TriRecord child1(pIndex1, pIndex2, pIdx);
+	TriRecord child2(pIndex2, pIndex3, pIdx);
+	TriRecord child3(pIndex3, pIndex1, pIdx);
 	existingChildren.push_back(child1);
 	existingChildren.push_back(child2);
 	existingChildren.push_back(child3);
@@ -61,8 +53,9 @@ void DirectedGraph::addChildrenNodes(int pIdx) {
 		leafNodeList_.push_back(child1);
 		leafNodeList_.push_back(child2);
 		leafNodeList_.push_back(child3);
-	} else
+	} else {
 		leafNodeList_.push_back(containingTriangle);
+	}
 
 	// Push the parent node into the orderedkeylist. This will preserve the order in which parents have been inserted.
 	// First record will always be the bounding triangle, which we will use in the findLeafNodeforPoint for setting the
@@ -75,9 +68,7 @@ void DirectedGraph::addChildrenNodes(int pIdx) {
 	for (vector<TriRecord>::iterator it = leafNodeList_.begin(); it != leafNodeList_.end(); ) {
 		TriRecord tri = *it;
 		MyPoint circumCntr1;
-		if (tri.vi_[0] == containingTriangle.vi_[0] &&
-		    tri.vi_[1] == containingTriangle.vi_[1] &&
-		    tri.vi_[2] == containingTriangle.vi_[2]) {
+		if (tri == containingTriangle) {
 			it = leafNodeList_.erase(it);
 
 			// Find the circumcenter of this triangle
@@ -94,25 +85,20 @@ TriRecord DirectedGraph::findLeafNodeForPoint(int pIdx) {
 	vector<TriRecord> worklist;
 
 
-	TriRecord rootNode;
-
 	// If the root node has no edges, it is the bounding triangle.
-	if (!orderedkeyList.empty()) {
-		rootNode = orderedkeyList.front();
+	if (!orderedKeyList_.empty()) {
+		TriRecord rootNode = orderedKeyList_.front();
 
 		// Happens when the ordered list only has bounding triangle
-		if (dagNode.size() == 0) {
+		if (dagNode_.size() == 0) {
 			worklist.push_back(rootNode);
 		} else {
-			worklist = dagNode.find(rootNode) ->second;
+			worklist = dagNode_.find(rootNode) ->second;
 		}
 	} else {
 		// Return the trirecord composed of last 3 entries from myPoints pointset. The incoming point ID is the last vertex of
 		// the bounding triangle.
-		TriRecord boundingTri;
-		boundingTri.vi_[0] = pIdx;
-		boundingTri.vi_[1] = pIdx - 1;
-		boundingTri.vi_[2] = pIdx - 2;
+		TriRecord boundingTri(pIdx, pIdx - 1, pIdx - 2);
 
 		return boundingTri;
 	}
@@ -124,14 +110,13 @@ TriRecord DirectedGraph::findLeafNodeForPoint(int pIdx) {
 	for (vector<TriRecord>::iterator iter = worklist.begin(); iter != worklist.end(); ) {
 		TriRecord checkTriangle = *iter;
 
+		// TODO inTri would benefit from using TriRecord
 		int pIndex1, pIndex2, pIndex3;
-		pIndex1 = checkTriangle.vi_[0];
-		pIndex2 = checkTriangle.vi_[1];
-		pIndex3 = checkTriangle.vi_[2];
+		checkTriangle.get(pIndex1, pIndex2, pIndex3);
 
+		int ret = triVertices_.inTri(pIndex1, pIndex2, pIndex3, pIdx);
 
-		int ret = triVertices_.inTri(pIndex1, pIndex2, pIndex3, pIdx); // If ret is >=0, the point is inside the triangle
-
+		// If ret is >=0, the point is inside the triangle
 		if (ret >= 0) {
 			if (dagNode_.find(checkTriangle) != dagNode_.end()) {
 				// There could be error here.
@@ -157,13 +142,11 @@ vector<TriRecord> DirectedGraph::findNodesForEdge(int pIdx1, int pIdx2) {
 	for (vector<TriRecord>::iterator iter = leafNodeList_.begin(); iter != leafNodeList_.end(); ++iter) {
 		TriRecord checkTriangle = *iter;
 
-		int pIndex1,pIndex2, pIndex3;
-		pIndex1 = checkTriangle.vi_[0];
-		pIndex2 = checkTriangle.vi_[1];
-		pIndex3 = checkTriangle.vi_[2];
+		int pIndex1, pIndex2, pIndex3;
+		checkTriangle.get(pIndex1, pIndex2, pIndex3);
 
-		if (pIndex1 == pIdx1 || pIndex2 == pIdx1 || pIndex3 == pIdx1) {
-			if (pIndex1 == pIdx2 || pIndex2 == pIdx2 || pIndex3 == pIdx2) {
+		if (checkTriangle.hasPointIndex(pIdx1)) {
+			if (checkTriangle.hasPointIndex(pIdx2)) {
 				outputlist.push_back(checkTriangle);
 			}
 		}
@@ -181,96 +164,53 @@ vector<TriRecord> DirectedGraph::findLinkedNodes(int pIdx1) {
 	for (vector<TriRecord>::iterator iter = leafNodeList_.begin(); iter != leafNodeList_.end(); ++iter) {
 		TriRecord checkTriangle = *iter;
 
-		int pIndex1,pIndex2, pIndex3;
-		pIndex1 = checkTriangle.vi_[0];
-		pIndex2 = checkTriangle.vi_[1];
-		pIndex3 = checkTriangle.vi_[2];
-
-		if (pIndex1 == pIdx1 || pIndex2 == pIdx1 || pIndex3 == pIdx1) {
+		// trirecord has pIdx1?
+		if (checkTriangle.hasPointIndex(pIdx1)) {
 			templist.push_back(checkTriangle);
 		}
 	}
 
 	//
 	TriRecord pickedTri = templist.front();
-	TriRecord nextTri;
 	TriRecord prevTri = templist.front();
 
 	outputlist.push_back(pickedTri);
-	int commonvert, nextvert;
+	int commonvert;
+	int nextvert;
 
-	if (pIdx1 == pickedTri.vi_[0]) {
-		commonvert = 0; nextvert = 1;
-	} else if (pIdx1 == pickedTri.vi_[1]) {
-		commonvert = 1; nextvert = 2;
-	} else if (pIdx1 == pickedTri.vi_[2]) {
-		commonvert = 2; nextvert = 0;
+	// get common vert? -> (0,1,2), or -1
+	if (pIdx1 == pickedTri.pointIndexOf(0)) {
+		commonvert = 0;
+		nextvert = 1;
+	} else if (pIdx1 == pickedTri.pointIndexOf(1)) {
+		commonvert = 1;
+		nextvert = 2;
+	} else if (pIdx1 == pickedTri.pointIndexOf(2)) {
+		commonvert = 2;
+		nextvert = 0;
 	}
 
 	while (true) {
-		vector<TriRecord> fnextlist = findNodesForEdge(prevTri.vi_[commonvert], prevTri.vi_[nextvert]);
+		vector<TriRecord> fnextlist = findNodesForEdge(prevTri.pointIndexOf(commonvert), prevTri.pointIndexOf(nextvert));
 
-		if (fnextlist.front().vi_[0] == prevTri.vi_[0] &&
-		    fnextlist.front().vi_[1] == prevTri.vi_[1] &&
-		    fnextlist.front().vi_[2] == prevTri.vi_[2]) {
-		    nextTri = fnextlist.back();
-		} else {
-			nextTri = fnextlist.front();
-		}
+		TriRecord nextTri =
+			(fnextlist.front() == prevTri) ?
+			fnextlist.back() :
+			fnextlist.front();
 
-		// If the newly found triangle is the same as the very first triangle picked,
+		// If the newly found triangle is the same as
+		//    the very first triangle picked,
 		// then a full cycle of sort has been completed.
-		if (nextTri.vi_[0] == pickedTri.vi_[0] &&
-		    nextTri.vi_[1] == pickedTri.vi_[1] &&
-		    nextTri.vi_[2] == pickedTri.vi_[2])
+		if (nextTri == pickedTri)
 			break;
 
 		outputlist.push_back(nextTri);
 
 		// Find an edge in nextTri that has the common vertex
 		// but not shared with prevTri
-		// XXX The following *badly* could be simplified w/ tmp bool vars.
-		if ((nextTri.vi_[0] == prevTri.vi_[commonvert] &&
-		     nextTri.vi_[1] != prevTri.vi_[nextvert]) ||
-		    (nextTri.vi_[0] != prevTri.vi_[nextvert] &&
-		     nextTri.vi_[1] == prevTri.vi_[commonvert])) {
-			if (nextTri.vi_[0] == prevTri.vi_[commonvert] &&
-			    nextTri.vi_[1] != prevTri.vi_[nextvert]) {
-				nextvert   = 1;
-				commonvert = 0;
-			} else {
-				nextvert   = 0;
-				commonvert = 1;
-			}
-		} else if ((nextTri.vi_[1] == prevTri.vi_[commonvert] &&
-		            nextTri.vi_[2] != prevTri.vi_[nextvert]) ||
-		           (nextTri.vi_[1] != prevTri.vi_[nextvert] &&
-		            nextTri.vi_[2] == prevTri.vi_[commonvert])) {
-			if (nextTri.vi_[1] == prevTri.vi_[commonvert] &&
-			    nextTri.vi_[2] != prevTri.vi_[nextvert]) {
-				nextvert   = 2;
-				commonvert = 1;
-			} else {
-				nextvert   = 1;
-				commonvert = 2;
-			}
-		} else if ((nextTri.vi_[2] == prevTri.vi_[commonvert] &&
-		            nextTri.vi_[0] != prevTri.vi_[nextvert]) ||
-		           (nextTri.vi_[2] != prevTri.vi_[nextvert] &&
-		            nextTri.vi_[0] == prevTri.vi_[commonvert])) {
-			if (nextTri.vi_[2] == prevTri.vi_[commonvert] &&
-			    nextTri.vi_[0] != prevTri.vi_[nextvert]) {
-				nextvert   = 0;
-				commonvert = 2;
-			} else {
-				nextvert   = 2;
-				commonvert = 0;
-			}
-		}
+		prevTri.nextEdge(commonvert, nextvert, nextTri);
 
-		prevTri.vi_[0] = nextTri.vi_[0];
-		prevTri.vi_[1] = nextTri.vi_[1];
-		prevTri.vi_[2] = nextTri.vi_[2];
+		prevTri = nextTri;
 	}
 
 	return outputlist;
@@ -282,15 +222,8 @@ vector<TriRecord> DirectedGraph::findLinkedNodes(int pIdx1) {
 void DirectedGraph::addFlipChildrenNodes(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 	vector<TriRecord> parentTriangles = findNodesForEdge(pIdx2, pIdx3);
 
-	TriRecord newTri1;
-	newTri1.vi_[0] = pIdx1;
-	newTri1.vi_[1] = pIdx2;
-	newTri1.vi_[2] = pIdx4;
-
-	TriRecord newTri2;
-	newTri2.vi_[0] = pIdx1;
-	newTri2.vi_[1] = pIdx3;
-	newTri2.vi_[2] = pIdx4;
+	TriRecord newTri1(pIdx1, pIdx2, pIdx4);
+	TriRecord newTri2(pIdx1, pIdx3, pIdx4);
 
 	vector<TriRecord> children;
 	children.push_back(newTri1);
@@ -308,9 +241,7 @@ void DirectedGraph::addFlipChildrenNodes(int pIdx1, int pIdx2, int pIdx3, int pI
 		for (vector<TriRecord>::iterator it = leafNodeList_.begin(); it != leafNodeList_.end(); ) {
 			TriRecord tri = *it;
 
-			if (tri.vi_[0] == triangle.vi_[0] &&
-			    tri.vi_[1] == triangle.vi_[1] &&
-			    tri.vi_[2] == triangle.vi_[2]) {
+			if (tri == triangle) {
 				it = leafNodeList_.erase(it);
 			} else {
 				++it;

@@ -62,23 +62,23 @@ void DelaunayTri::findBoundingTri(PointSetArray &pSet) {
 void DelaunayTri::legalizeEdge(DirectedGraph& dag, int pIdx1, int pIdx2, int pIdx3) {
 	vector<TriRecord> triangles = dag.findNodesForEdge(pIdx2, pIdx3);
 
-	int p4;
 	for (int i = 0; i < triangles.size(); i++) {
 		for (int j = 0; j < 3; j++) {
-			if (triangles[i].vi_[j] != pIdx1 &&
-			    triangles[i].vi_[j] != pIdx2 &&
-			    triangles[i].vi_[j] != pIdx3) {
-				p4 = triangles[i].vi_[j];
+			int pointIdx = triangles[i].pointIndexOf(j);
 
-				// Adding 1 to the indexes for the benefit of inCircle method
+			if (pointIdx != pIdx1 && pointIdx != pIdx2 && pointIdx != pIdx3) {
+				int p4 = pointIdx;
+
 				// Presumably delaunayPointSet === dag.getPointSet()
 				// so this is legit
 				PointSetArray pointSet = dag.getPointSet();
+
 				if (pointSet.inCircle(pIdx1, pIdx2, pIdx3, p4) > 0) {
 					dag.addFlipChildrenNodes(pIdx1, pIdx2, pIdx3, p4);
 					legalizeEdge(dag, pIdx1, pIdx2, p4);
 					legalizeEdge(dag, pIdx1, pIdx3, p4);
 				}
+
 				return;
 			}
 		}
@@ -99,12 +99,15 @@ void delaunayIterationStep(vector<int>& delaunayPointsToProcess,
 	TriRecord tri = dag.findLeafNodeForPoint(pIdx); // Return the containing triangle for the point i.
 	dag.addChildrenNodes(pIdx);
 
-	DelaunayTri::legalizeEdge(dag, pIdx, tri.vi_[0], tri.vi_[1]);
-	DelaunayTri::legalizeEdge(dag, pIdx, tri.vi_[0], tri.vi_[2]);
-	DelaunayTri::legalizeEdge(dag, pIdx, tri.vi_[1], tri.vi_[2]);
+	int triPIdx1, triPIdx2, triPIdx3;
+	tri.get(triPIdx1, triPIdx2, triPIdx3);
+
+	DelaunayTri::legalizeEdge(dag, pIdx, triPIdx1, triPIdx2);
+	DelaunayTri::legalizeEdge(dag, pIdx, triPIdx1, triPIdx3);
+	DelaunayTri::legalizeEdge(dag, pIdx, triPIdx2, triPIdx3);
 
 	// Redisplay
-	//updateGL(); // updateGL is a method of the QGLWidget..
+	// updateGL(); // updateGL is a method of the QGLWidget..
 }
 
 
@@ -205,7 +208,11 @@ vector<PointSetArray> createVoronoi(DirectedGraph& dag) {
 		for (iter1 = linkedTriangles.begin(); iter1 != linkedTriangles.end();) {
 			TriRecord tri = *iter1;
 			MyPoint circum;
-			delaunayPointSet.circumCircle(tri.vi_[0], tri.vi_[1],tri.vi_[2], circum);
+			cout << "circumCircle" << endl;
+			// TODO circumCircle may benefit from using TriRecord
+			int triPIdx1, triPIdx2, triPIdx3;
+			tri.get(triPIdx1, triPIdx2, triPIdx3);
+			delaunayPointSet.circumCircle(triPIdx1, triPIdx2,triPIdx3, circum);
 			polygon.addPoint(circum.x,circum.y);
 			++iter1;
 		}

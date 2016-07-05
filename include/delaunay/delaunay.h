@@ -20,7 +20,7 @@
 
 
 
-DirectedGraph dagFromInputPoints(PointSetArray& inputPointSet);
+DirectedGraph dagFromInputPoints(const PointSetArray& inputPointSet);
 
 
 

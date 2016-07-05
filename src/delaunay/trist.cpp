@@ -1,13 +1,49 @@
 #include "trist.h"
 
 
+
+TriRecord::TriRecord(int idx1, int idx2, int idx3) {
+	vi_[0] = idx1;
+	vi_[1] = idx2;
+	vi_[2] = idx3;
+}
+
+
+
+void TriRecord::nextEdge(int& commonIdx, int& nextIdx, const TriRecord& nextTri) const {
+	int commonVert = vi_[commonIdx];
+	int notVert    = vi_[nextIdx]; // don't want nextIdx
+
+	if (nextTri.vi_[0] == commonVert &&
+		nextTri.vi_[1] != notVert) {
+		commonIdx = 0;
+		nextIdx   = 1;
+	} else if (nextTri.vi_[0] != notVert &&
+	           nextTri.vi_[1] == commonVert) {
+		commonIdx = 1;
+		nextIdx   = 0;
+	} else if (nextTri.vi_[1] == commonVert &&
+	           nextTri.vi_[2] != notVert) {
+		commonIdx = 1;
+		nextIdx   = 2;
+	} else if (nextTri.vi_[1] != notVert &&
+	           nextTri.vi_[2] == commonVert) {
+		commonIdx = 2;
+		nextIdx   = 1;
+	} else if (nextTri.vi_[2] == commonVert &&
+	           nextTri.vi_[0] != notVert) {
+		commonIdx = 2;
+		nextIdx   = 0;
+	} else if (nextTri.vi_[2] != notVert &&
+	           nextTri.vi_[0] == commonVert) {
+		commonIdx = 0;
+		nextIdx   = 2;
+	}
+}
+
+
+
 Trist::Trist() {
-	en_[0] = 1;
-	en_[1] = 2;
-	en_[2] = 0;
-	en_[3] = 5;
-	en_[4] = 3;
-	en_[5] = 4;
 }
 
 
@@ -18,14 +54,12 @@ int Trist::noTri() {
 
 
 
+// TODO `makeTri` vs TriRecord c'tor. esp. use of `fnext_`
 int Trist::makeTri(int pIndex1, int pIndex2, int pIndex3, bool autoMerge) {
 	// Add a triangle into the Trist with the three point indices
 	// Moreover, automatically establish the fnext pointers to its neigbhours if autoMerge = true
 
-	TriRecord record;
-	record.vi_[0] = pIndex1;
-	record.vi_[1] = pIndex2;
-	record.vi_[2] = pIndex3;
+	TriRecord record(pIndex1, pIndex2, pIndex3);
 
 	// TODO: Allow for auto merging.
 	record.fnext_[0] = -1;
@@ -71,7 +105,7 @@ OrTri Trist::enext(OrTri ef) {
 	int tId = ef >> 3;
 	int v = ef & 7; // ef & 00111b ... last 3 bits.
 
-	return (OrTri) (tId << 3) + en_[v];
+	return (OrTri) (tId << 3) + kEdgeNext[v];
 }
 
 
