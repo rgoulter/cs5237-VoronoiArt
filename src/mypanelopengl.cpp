@@ -87,32 +87,6 @@ void drawPointSetArray(const PointSetArray& pointSet) {
 
 
 
-void drawPlaneUsingTexture(GLuint tex, int width, int height) {
-	// Here, the texCoords used are (0,0) to (1,1)
-	// TODO: want to use something ... else. Depends on ImageData.
-	// (Besides that, ... ???).
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture (GL_TEXTURE_2D, tex);
-
-	glBegin (GL_QUADS);
-		glTexCoord2f (0.0, 0.0);
-		glVertex3f (0.0, 0.0, -1.0);
-
-		glTexCoord2f (1.0, 0.0);
-		glVertex3f (width, 0.0, -1.0);
-
-		glTexCoord2f (1.0, 1.0);
-		glVertex3f (width, height, -1.0);
-
-		glTexCoord2f (0.0, 1.0);
-		glVertex3f (0.0, height, -1.0);
-	glEnd ();
-
-	glDisable(GL_TEXTURE_2D);
-}
-
-
-
 // void drawDelaunayStuff() {
 // 	// Draw all DAG leaf triangles.
 // 	vector<TriRecord> leafNodes = dag.getLeafNodes();
@@ -154,7 +128,6 @@ void drawPlaneUsingTexture(GLuint tex, int width, int height) {
 
 
 // DELAUNAY (it uses voronoiEdges)
-// used in display()
 void drawVoronoiPolygons(vector<PointSetArray>& voronoiPolys) {
 	vector<PointSetArray>::iterator iter1;
 
@@ -285,85 +258,8 @@ void refreshProjection(int width, int height,
 ImageData* loadImageData(string imgFilename) {
 	Mat imgMat = imread(imgFilename.c_str()); // BGR
 
-	int imgW = imgMat.cols;
-	int imgH = imgMat.rows;
-	int texW = pow(2, ceil(log2(imgW)));
-	int texH = pow(2, ceil(log2(imgH)));
-
-	std::cout << "ImgW = " << imgW << ", => texW = " << texW << std::endl;
-	std::cout << "ImgH = " << imgH << ", => texH = " << texH << std::endl;
-
-	// OpenCV loads as BGR, `loadOpenGLTextureFromImageData` wants RGB
-	cvtColor(imgMat, imgMat, CV_BGR2RGB);
-
-	// Copy the src data to `dataCpy`
-	int dataSize = 3 * imgW * imgH * sizeof(unsigned char);
-	unsigned char *dataCpy = (unsigned char*) malloc(dataSize);
-	memcpy(dataCpy, imgMat.data, dataSize);
-
-	// Textures want width/height to be powers of 2.
-	// So, as kindof a kludge, pack that into ImageData.
-	Mat texMat(texH, texW, CV_8UC3);
-	Mat region = texMat(cv::Rect(0, 0, imgW, imgH));
-
-
-	if (imgMat.type() == region.type()) {
-		imgMat.copyTo(region);
-	} else if (imgMat.type() == CV_8UC1) {
-		cvtColor(imgMat, region, CV_GRAY2RGB);
-	} else {
-		imgMat.convertTo(region, CV_8UC3, 255.0);
-	}
-
-	// Copy the src data to `dataCpy`
-	int texDataSize = 3 * texW * texH * sizeof(unsigned char);
-	unsigned char *texData = (unsigned char*) malloc(texDataSize);
-	memcpy(texData, texMat.data, texDataSize);
-
-	return new ImageData(dataCpy, texData, imgW, imgH, texW, texH);
+	return new ImageData(imgMat, CV_BGR2RGB);
 }
-
-
-
-// XXX merge w/ ImageData(?) and `generateOGLTextureForOpenCVMat`,
-// (which previously leaked, I guess).
-void loadOpenGLTextureFromImageData(ImageData *imData, GLuint *tex) {
-	// See http://open.gl/textures for more information.
-
-	glEnable(GL_TEXTURE_2D);
-
-	glGenTextures(1, tex);
-	glBindTexture(GL_TEXTURE_2D, *tex);
-
-	// loadedImageData should be in RGB format, from
-	// imgFilename.c_str() filetype.
-	glTexImage2D(GL_TEXTURE_2D,
-	             0,
-	             GL_RGB,
-	             imData->textureWidth(),
-	             imData->textureHeight(),
-	             0,
-	             GL_RGB,
-	             GL_UNSIGNED_BYTE,
-	             imData->textureData());
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-}
-
-
-
-// void display(vector<PointSetArray>& voronoiPolys,
-//              const vector<ColoredPolygon>& renderedPolygons,
-//              const PointSetArray& pointSet,
-//              int imgWidth,
-//              int imgHeight) {
-// }
 
 
 
@@ -694,8 +590,6 @@ void MyPanelOpenGL::paintGL() {
 
 	int w = hasLoadedImage() ? imData_->width() : -1;
 	int h = hasLoadedImage() ? imData_->height() : -1;
-	int tw = hasLoadedImage() ? imData_->textureWidth() : -1;
-	int th = hasLoadedImage() ? imData_->textureHeight() : -1;
 
 	switch (currentRenderType_) {
 		case EFFECT:
@@ -703,24 +597,23 @@ void MyPanelOpenGL::paintGL() {
 			break;
 
 		case EDGE_RAW:
-			drawPlaneUsingTexture(pdfTextures_.edgesTexture, w, h);
+			pdfTextures_.edgesTexture->renderPlane();
 			break;
 
 		case EDGE_SHARP:
-			drawPlaneUsingTexture(pdfTextures_.edgesSharpTexture, w, h);
+			pdfTextures_.edgesSharpTexture->renderPlane();
 			break;
 
 		case EDGE_BLUR:
-			drawPlaneUsingTexture(pdfTextures_.edgesBlurTexture, w, h);
+			pdfTextures_.edgesBlurTexture->renderPlane();
 			break;
 
 		case PDF:
-			drawPlaneUsingTexture(pdfTextures_.pdfTexture, w, h);
+			pdfTextures_.pdfTexture->renderPlane();
 			break;
 
 		case IMAGE:
-			// XXX This is kindof a kludge, but..
-			drawPlaneUsingTexture(loadedImageTexture_, tw, th);
+			imData_->renderPlane();
 			break;
 
 		default:
@@ -896,10 +789,7 @@ void MyPanelOpenGL::doOpenImage() {
 
 	updateFilename(qStr_fileName); // to Qt textbox
 
-	// TODO: prefer ImageData to encapsulate cv::Mat -> OpenGL texture stuff!
-	// (& should improve on the viewport / rendering textured quad, too).
 	imData_ = loadImageData(filenameStr);
-	loadOpenGLTextureFromImageData(imData_, &loadedImageTexture_);
 	loadedImageFilename_ = filenameStr;
 
 	QSize widgetSize = size();

@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "imagedata.h"
 #include "platform.h"
 
 
@@ -11,11 +12,14 @@
 // generatePointsWithPDF loads values into textures,
 // using `generateOGLTextureForOpenCVMat`.
 // Use this struct to keep track of these
+//
+// Since ImageData keeps cv::Mat, and cv::Mat is cheap to copy,
+// should be ok to do like this.
 struct PDFTextures {
-	GLuint edgesTexture;
-	GLuint edgesSharpTexture;
-	GLuint edgesBlurTexture;
-	GLuint pdfTexture;
+	ImageData *edgesTexture;
+	ImageData *edgesSharpTexture;
+	ImageData *edgesBlurTexture;
+	ImageData *pdfTexture;
 };
 
 

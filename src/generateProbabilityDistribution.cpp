@@ -22,39 +22,6 @@ using cv::imread;
 
 
 
-void generateOGLTextureForOpenCVMat(GLuint& tex, const Mat& M) {
-	int width = M.cols; // imData->width();
-	int height = M.rows; // imData->height();
-
-	// copy the data to a new matrix
-	Mat mat = M.clone();
-	cvtColor(mat, mat, CV_GRAY2RGB);
-	unsigned char *matData = (unsigned char*)(mat.data);
-
-	// Now load the data into some opengl texture.
-	glEnable(GL_TEXTURE_2D);
-
-	glGenTextures(1, &tex);
-	glBindTexture(GL_TEXTURE_2D, tex);
-
-	glTexImage2D(GL_TEXTURE_2D,
-	             0,
-	             GL_RGB,
-	             width,
-	             height,
-	             0,
-	             GL_RGB,
-	             GL_UNSIGNED_BYTE,
-	             matData);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-}
-
-
-
 // It would be nice to abstract these details and have some kind of "constant" PDF / mat,
 // and generate points from that. Oh well.
 //
@@ -130,10 +97,10 @@ vector<int> generatePointsWithPDF(string imageFilename, int numPDFPoints, PDFTex
 	// Make OpenGL Textures for the following:
 	// (I'm not 100% certain about these mappings?).
 	if (oglTextures != NULL) {
-		generateOGLTextureForOpenCVMat(oglTextures->edgesTexture, detected_edges);
-		generateOGLTextureForOpenCVMat(oglTextures->edgesSharpTexture, detected_edges2);
-		generateOGLTextureForOpenCVMat(oglTextures->edgesBlurTexture, dst3);
-		generateOGLTextureForOpenCVMat(oglTextures->pdfTexture, dst);
+		oglTextures->edgesTexture = new ImageData(detected_edges, CV_GRAY2RGB);
+		oglTextures->edgesSharpTexture = new ImageData(detected_edges2, CV_GRAY2RGB);
+		oglTextures->edgesBlurTexture = new ImageData(dst3, CV_GRAY2RGB);
+		oglTextures->pdfTexture = new ImageData(dst, CV_GRAY2RGB);
 	}
 
 	// So, let's build up a 1-D array of the CDF from the 2D PDF.

@@ -3,62 +3,47 @@
 
 #include <string>
 
+#include "opencv2/imgproc/imgproc.hpp"
+
+// for OpenGL
+#include "platform.h"
+
+using cv::Mat;
 
 
-// This isn't indented to be a good representation;
-// just a structure while refactoring.
-// if it just maps to e.g. some OpenCV structure,
-// then might as well remove it.
+
 class ImageData {
 public:
-	ImageData(unsigned char *data,
-	          unsigned char *texData,
-	          int width,
-	          int height,
-	          int texWidth,
-	          int texHeight) :
-	  imageData_(data),
-	  textureData_(texData),
-	  imageWidth_(width),
-	  imageHeight_(height),
-	  texWidth_(texWidth),
-	  texHeight_(texHeight)
-	{
-	}
+	/// Construct ImageData with given matrix,
+	/// also provide code to convert the matrix (BGR or GRAY) to RGB.
+	ImageData(const cv::Mat& mat, int codeToRGB);
 
 	int width() const {
-		return imageWidth_;
+		return imageMat_.cols;
 	}
 
 	int height() const {
-		return imageHeight_;
+		return imageMat_.rows;
 	}
 
 	int textureWidth() const {
-		return texWidth_;
+		return textureMat_.cols;
 	}
 
 	int textureHeight() const {
-		return texHeight_;
-	}
-
-	unsigned char* data() {
-		return imageData_;
-	}
-
-	unsigned char* textureData() {
-		return textureData_;
+		return textureMat_.rows;
 	}
 
 	void dataAt(int x, int y, unsigned char& r, unsigned char& g, unsigned char& b) const;
 
+	/// Renders a plane with same dimensions as image.
+	void renderPlane() const;
+
 private:
-	int imageWidth_;
-	int imageHeight_;
-	int texWidth_;
-	int texHeight_;
-	unsigned char *imageData_;
-	unsigned char *textureData_;
+	cv::Mat imageMat_;
+	cv::Mat textureMat_;
+
+	GLuint texture_;
 };
 
 #endif // IMAGEDATA_H

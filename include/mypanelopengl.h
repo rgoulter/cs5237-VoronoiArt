@@ -92,11 +92,9 @@ private:
 
 	std::string loadedImageFilename_ = "";
 	ImageData *imData_ = NULL;
-
-	// OpenGL stuff
-	GLuint loadedImageTexture_;
 	PDFTextures pdfTextures_;
 
+	// OpenGL stuff
 	ShowImageType currentRenderType_ = NONE;
 	bool showVoronoiSites_ = true;
 	bool showVoronoiEdges_ = false;
