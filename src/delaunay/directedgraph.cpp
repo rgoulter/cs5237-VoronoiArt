@@ -191,6 +191,9 @@ vector<TriRecord> DirectedGraph::findNodesForEdge(int pIdx1, int pIdx2) {
 vector<TriRecord> DirectedGraph::findLinkedNodes(int pIdx1) {
 	vector<TriRecord> templist, outputlist;
 
+	std::cout << "DAG::findLinkedNodes 1, " << pIdx1 << std::endl;
+
+	// XXX FUCKING EVEN THIS SHIT DOESN'T WORK WHAT THE FUCK
 	for (vector<TriRecord>::iterator iter = leafNodeList_.begin(); iter != leafNodeList_.end(); ++iter) {
 		TriRecord checkTriangle = *iter;
 
@@ -200,13 +203,17 @@ vector<TriRecord> DirectedGraph::findLinkedNodes(int pIdx1) {
 		}
 	}
 
-	//
+	std::cout << "DAG::findLinkedNodes 2" << std::endl;
+
+	assert(templist.size() > 0); // XXX FAILS OMG
 	TriRecord pickedTri = templist.front();
 	TriRecord prevTri = templist.front();
 
 	outputlist.push_back(pickedTri);
 	int commonvert;
 	int nextvert;
+
+	std::cout << "DAG::findLinkedNodes 3" << std::endl;
 
 	// get common vert? -> (0,1,2), or -1
 	if (pIdx1 == pickedTri.pointIndexOf(0)) {
@@ -220,7 +227,11 @@ vector<TriRecord> DirectedGraph::findLinkedNodes(int pIdx1) {
 		nextvert = 0;
 	}
 
+	std::cout << "DAG::findLinkedNodes 3" << std::endl;
+
+	// XXX MIGHTN'T EVEN FUCKING TERMINATE
 	while (true) {
+		std::cout << "DAG::findLinkedNodes 4.1" << std::endl;
 		vector<TriRecord> fnextlist = findNodesForEdge(prevTri.pointIndexOf(commonvert), prevTri.pointIndexOf(nextvert));
 
 		TriRecord nextTri =
@@ -228,11 +239,15 @@ vector<TriRecord> DirectedGraph::findLinkedNodes(int pIdx1) {
 			fnextlist.back() :
 			fnextlist.front();
 
+		std::cout << "DAG::findLinkedNodes 4.2" << std::endl;
+
 		// If the newly found triangle is the same as
 		//    the very first triangle picked,
 		// then a full cycle of sort has been completed.
 		if (nextTri == pickedTri)
 			break;
+
+		std::cout << "DAG::findLinkedNodes 4.3" << std::endl;
 
 		outputlist.push_back(nextTri);
 
