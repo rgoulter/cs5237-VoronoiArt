@@ -28,26 +28,28 @@ class DirectedGraph {
 public:
 	DirectedGraph(PointSetArray);
 
-	// Method to add new children triangles to a parent triangle. Use findLeafNodeforPoint to find parent, and then create child node for this triangle.
-	void addChildrenNodes(int );
+	/// Finds the linked delaunay triangles for the input point index
+	std::vector<TriRecord> findLinkedNodes(int);
 
-	// Method to add new children triangles to a parent triangle. Use findLeafNodeforPoint to find parent, and then create child node for this triangle.
-	std::vector<TriRecord> getLeafNodes();
+	/// Returns a set of triangles for the input point indexes.
+	std::vector<TriRecord> findNodesForEdge(int, int);
 
-	// Method to search the DAG for the triangle containing the point. This triangle will be subdivided into smaller triangles.
+	/// Method to search the DAG for the triangle containing the point.
+	/// This triangle will be subdivided into smaller triangles.
 	TriRecord findLeafNodeForPoint(int);
 
-	// Returns a set of triangles for the input point indexes.
-	std::vector<TriRecord> findNodesForEdge(int, int );
+	std::vector<TriRecord> getLeafNodes();
 
-	// Create children nodes with 2 parents in case of edge flipping.
+	/// Method to add new children triangles to a parent triangle.
+	/// Use findLeafNodeforPoint to find parent,
+	/// and then create child node for this triangle.
+	void addChildrenNodes(int);
+
+	/// Create children nodes with 2 parents in case of edge flipping.
 	void addFlipChildrenNodes(int, int, int, int);
 
-	// Resets the graph, removes everything from it.
+	/// Resets the graph, removes everything from it.
 	void clearDirectedGraph();
-
-	// Finds the linked delaunay triangles for the input point id
-	std::vector<TriRecord> findLinkedNodes(int );
 
 	const PointSetArray& getPointSet() const {
 		return triVertices_;
