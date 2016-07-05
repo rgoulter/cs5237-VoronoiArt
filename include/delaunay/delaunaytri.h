@@ -1,10 +1,10 @@
 #ifndef DELAUNAYH
 #define DELAUNAYH
 
-#include "pointSet.h"
-#include "pointSetArray.h"
+#include "pointset.h"
+#include "pointsetarray.h"
 #include "trist.h"
-#include "directedGraph.h"
+#include "directedgraph.h"
 
 
 

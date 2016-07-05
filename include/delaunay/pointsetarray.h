@@ -1,7 +1,7 @@
 #ifndef POINTSETARRAYH
 #define POINTSETARRAYH
 
-#include "pointSet.h"
+#include "pointset.h"
 
 
 

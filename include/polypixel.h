@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "imagedata.h"
-#include "pointSetArray.h"
+#include "pointsetarray.h"
 #include "platform.h"
 
 class ColoredPolygon {

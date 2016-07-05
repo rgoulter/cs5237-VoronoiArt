@@ -1,4 +1,4 @@
-#include "directedGraph.h"
+#include "directedgraph.h"
 
 #include <iostream>
 

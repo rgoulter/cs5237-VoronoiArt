@@ -5,13 +5,13 @@
 
 #include "li.h"
 #include "lmath.h"
-#include "pointSet.h"
+#include "pointset.h"
 
-#include "pointSetArray.h"
+#include "pointsetarray.h"
 #include "trist.h"
 
-#include "delaunayTri.h"
-#include "directedGraph.h"
+#include "delaunaytri.h"
+#include "directedgraph.h"
 
 
 

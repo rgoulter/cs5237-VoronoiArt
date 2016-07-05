@@ -1,8 +1,8 @@
 #ifndef VParabola_h
 #define VParabola_h
 
-#include "VPoint.h"
-#include "VEdge.h"
+#include "vpoint.h"
+#include "vedge.h"
 
 /*
     Parabolas and events have pointers to each other, so we declare class VEvent, which will be defined later.

@@ -1,4 +1,4 @@
-#include "pointSetArray.h"
+#include "pointsetarray.h"
 
 #include <vector>
 

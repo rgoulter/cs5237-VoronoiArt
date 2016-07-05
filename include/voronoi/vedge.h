@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "VPoint.h"
+#include "vpoint.h"
 
 
 

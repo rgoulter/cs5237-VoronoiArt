@@ -27,61 +27,60 @@ find_package(OpenGL REQUIRED)
 
 
 # Lib for Non-Qt code
-set(VORONOI_LIB_SOURCES src/basics/pointSet.cpp
-                        src/basics/lmath.cpp
-                        src/basics/li.cpp
-                        src/basics/polygon.cpp
-                        src/basicsP2/trist.cpp
-                        src/basicsP2/pointSetArray.cpp
-                        src/basicsP3/directedGraph.cpp
-                        src/delaunay.cpp
-                        src/Voronoi.cpp
-                        src/VParabola.cpp
+set(VORONOI_LIB_SOURCES src/delaunay/li.cpp
+                        src/delaunay/lmath.cpp
+                        src/delaunay/polygon.cpp
+                        src/delaunay/trist.cpp
+                        src/delaunay/pointset.cpp
+                        src/delaunay/pointsetarray.cpp
+                        src/delaunay/directedgraph.cpp
+                        src/delaunay/delaunay.cpp
+                        src/voronoi/voronoi.cpp
+                        src/voronoi/vparabola.cpp
                         src/imagedata.cpp
-                        src/generateProbabilityDistribution.cpp
+                        src/generatepoints.cpp
                         src/polypixel.cpp)
 # For Qt code
 set(VORONOI_SOURCES src/mypanelopengl.cpp
                     src/mainqt.cpp)
 
-set(VORONOI_LIB_HEADERS include/basics/polygon.h
-                        include/basics/li.h
-                        include/basics/pointSet.h
-                        include/basics/lmath.h
-                        include/basicsP2/trist.h
-                        include/basicsP2/pointSetArray.h
-                        include/basicsP3/directedGraph.h
-                        include/delaunay.h
-                        include/delaunayTri.h
-                        include/VEdge.h
-                        include/VEvent.h
-                        include/VParabola.h
-                        include/VPoint.h
-                        include/Voronoi.h
+set(VORONOI_LIB_HEADERS include/delaunay/li.h
+                        include/delaunay/lmath.h
+                        include/delaunay/polygon.h
+                        include/delaunay/trist.h
+                        include/delaunay/pointset.h
+                        include/delaunay/pointsetarray.h
+                        include/delaunay/directedgraph.h
+                        include/delaunay/delaunay.h
+                        include/delaunay/delaunaytri.h
+                        include/voronoi/vedge.h
+                        include/voronoi/vevent.h
+                        include/voronoi/vparabola.h
+                        include/voronoi/vpoint.h
+                        include/voronoi/voronoi.h
                         include/imagedata.h
-                        include/generateProbabilityDistribution.h
+                        include/generatepoints.h
                         include/polypixel.h)
 set (VORONOI_HEADERS include/mypanelopengl.h
                      include/mainqt.h)
 
 include_directories(include
-                    include/basics
-                    include/basicsP2
-                    include/basicsP3)
+                    include/delaunay
+                    include/voronoi)
 
 
 IF (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set (PLATFORM_SOURCES src/linux/basics/stopWatch.cpp)
+    set (PLATFORM_SOURCES src/linux/stopwatch.cpp)
     set (PLATFORM_HEADERS include/linux/platform.h
-                          include/linux/basics/stopWatch.h)
+                          include/linux/stopwatch.h)
     include_directories(include/linux include/linux/basics)
 ENDIF (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 IF (APPLE)
-    set (PLATFORM_SOURCES src/linux/basics/stopWatch.cpp)
+    set (PLATFORM_SOURCES src/linux/stopwatch.cpp)
     set (PLATFORM_HEADERS include/mac/platform.h
-                          include/mac/basics/stopWatch.h)
-    include_directories(include/mac include/mac/basics soil/src)
+                          include/mac/stopwatch.h)
+    include_directories(include/mac include/mac/basics)
 ENDIF (APPLE)
 
 

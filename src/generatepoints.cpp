@@ -1,4 +1,4 @@
-#include "generateProbabilityDistribution.h"
+#include "generatepoints.h"
 
 #include <stdlib.h>
 #include <time.h>

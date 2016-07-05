@@ -7,13 +7,13 @@
 #include <QGLWidget>
 #include <QString>
 
-#include "pointSetArray.h"
+#include "pointsetarray.h"
 #include "polypixel.h"
-#include "generateProbabilityDistribution.h"
+#include "generatepoints.h"
 
 // Imports as part of implementing Fortune's algorithm
-#include "Voronoi.h"
-#include "VPoint.h"
+#include "voronoi.h"
+#include "vpoint.h"
 
 
 

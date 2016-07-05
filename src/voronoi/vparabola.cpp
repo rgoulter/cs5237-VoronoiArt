@@ -1,6 +1,6 @@
-#include "VParabola.h"
+#include "vparabola.h"
 
-#include "VPoint.h"
+#include "vpoint.h"
 
 
 

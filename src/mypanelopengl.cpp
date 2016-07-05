@@ -18,15 +18,15 @@
 #include <sstream>
 
 #include "platform.h"
-#include "stopWatch.h"
+#include "stopwatch.h"
 
 #include "li.h"
 #include "lmath.h"
-#include "pointSet.h"
-#include "pointSetArray.h"
+#include "pointset.h"
+#include "pointsetarray.h"
 #include "trist.h"
-#include "delaunayTri.h"
-#include "directedGraph.h"
+#include "delaunaytri.h"
+#include "directedgraph.h"
 #include "delaunay.h"
 
 #include "imagedata.h"

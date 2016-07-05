@@ -1,4 +1,4 @@
-#include "Voronoi.h"
+#include "voronoi.h"
 
 #include <cmath>
 

@@ -3,8 +3,8 @@
 
 #include <iostream>
 
-#include "VPoint.h"
-#include "VParabola.h"
+#include "vpoint.h"
+#include "vparabola.h"
 
 /*
 	The class for storing place / circle event in event queue.

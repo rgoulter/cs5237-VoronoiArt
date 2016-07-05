@@ -1,10 +1,14 @@
-#include "gtest/gtest.h"
-#include "li.h"
-#include "pointSet.h"
-#include "polygon.h"
 #include <vector>
 
-using namespace std;
+#include "gtest/gtest.h"
+
+#include "li.h"
+#include "pointset.h"
+#include "polygon.h"
+
+using std::vector;
+using std::cout;
+using std::endl;
 
 TEST(BasicsTest, PointSetInTriSimple) {
 	PointSet ps;

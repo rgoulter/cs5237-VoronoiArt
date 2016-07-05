@@ -4,8 +4,8 @@
 #include <map>
 #include <set>
 
-#include "pointSet.h"
-#include "pointSetArray.h"
+#include "pointset.h"
+#include "pointsetarray.h"
 #include "trist.h"
 
 

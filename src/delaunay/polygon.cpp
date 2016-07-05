@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "lmath.h"
-#include "pointSetArray.h"
+#include "pointsetarray.h"
 
 using std::vector;
 

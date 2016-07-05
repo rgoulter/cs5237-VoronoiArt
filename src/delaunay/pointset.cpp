@@ -1,4 +1,4 @@
-#include "pointSet.h"
+#include "pointset.h"
 
 #include <iostream>
 
