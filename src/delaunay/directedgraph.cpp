@@ -2,38 +2,35 @@
 
 #include <iostream>
 
-
-
-// Vector that keeps the order in which keys got inserted into DAG. Remove if not needed.
-std::vector<TriRecord> orderedkeyList;
-std::vector<TriRecord> leafnodeList;
+using std::map;
+using std::vector;
 
 
 
-DirectedGraph::DirectedGraph(PointSetArray &pSet) {
-	triVertices = &pSet;
+DirectedGraph::DirectedGraph(PointSetArray pSet) {
+	triVertices_ = pSet;
 }
 
 
 
-std::vector<TriRecord> DirectedGraph::getLeafNodes() {
-	return leafnodeList;
+vector<TriRecord> DirectedGraph::getLeafNodes() {
+	return leafNodeList_;
 }
 
 
 
 // This method adds children nodes to the specified parent node. This is only for new point additions and not for flipping.
-void DirectedGraph::addChildrenNodes(int pIdX) {
-	std::cout << "inside addchildrennodes:" << pIdX << std::endl;
+void DirectedGraph::addChildrenNodes(int pIdx) {
+	std::cout << "inside addchildrennodes:" << pIdx << std::endl;
 
 	// Find triangle to which the point belongs. This function returns the bounding triangle in the case that the
 	// point passed here is the end vertex of the bounding triangle
-	TriRecord containingTriangle = findLeafNodeForPoint(pIdX);
+	TriRecord containingTriangle = findLeafNodeForPoint(pIdx);
 
 
 	// Declare iterator for the dagNode, and the vector of TriRecords for the children of the node.
-	std::map<TriRecord,std::vector<TriRecord> >::iterator iter;
-	std::vector<TriRecord> existingChildren;
+	map< TriRecord, vector<TriRecord> >::iterator iter;
+	vector<TriRecord> existingChildren;
 	TriRecord child1, child2, child3;
 	int pIndex1, pIndex2, pIndex3;
 
@@ -47,43 +44,41 @@ void DirectedGraph::addChildrenNodes(int pIdX) {
 	// Construct 3 Trirecords, one for each child triangle and add it to existingChildren.
 	child1.vi_[0] = pIndex1;
 	child1.vi_[1] = pIndex2;
-	child1.vi_[2] = pIdX;
+	child1.vi_[2] = pIdx;
 	child2.vi_[0] = pIndex2;
 	child2.vi_[1] = pIndex3;
-	child2.vi_[2] = pIdX;
+	child2.vi_[2] = pIdx;
 	child3.vi_[0] = pIndex3;
 	child3.vi_[1] = pIndex1;
-	child3.vi_[2] = pIdX;
+	child3.vi_[2] = pIdx;
 	existingChildren.push_back(child1);
 	existingChildren.push_back(child2);
 	existingChildren.push_back(child3);
 
 	// Insert the parent-child relationship into the DAG, only if the containing triangle itself is not the bounding triangle.
-	if (pIdX != pIndex1 && pIdX != pIndex2 && pIdX != pIndex3) {
-		dagNode.insert(std::map<TriRecord, std::vector<TriRecord> >::value_type(containingTriangle, existingChildren));
-		leafnodeList.push_back(child1);
-		leafnodeList.push_back(child2);
-		leafnodeList.push_back(child3);
+	if (pIdx != pIndex1 && pIdx != pIndex2 && pIdx != pIndex3) {
+		dagNode_.insert(map< TriRecord, vector<TriRecord> >::value_type(containingTriangle, existingChildren));
+		leafNodeList_.push_back(child1);
+		leafNodeList_.push_back(child2);
+		leafNodeList_.push_back(child3);
 	} else
-		leafnodeList.push_back(containingTriangle);
+		leafNodeList_.push_back(containingTriangle);
 
 	// Push the parent node into the orderedkeylist. This will preserve the order in which parents have been inserted.
 	// First record will always be the bounding triangle, which we will use in the findLeafNodeforPoint for setting the
 	// initial worklist
 
 
-	orderedkeyList.push_back(containingTriangle);
+	orderedKeyList_.push_back(containingTriangle);
 
 	// Section for removing the newly created parent node from the leafnodeList.
-	std::vector<TriRecord>::iterator it;
-
-	for (it = leafnodeList.begin(); it != leafnodeList.end();) {
+	for (vector<TriRecord>::iterator it = leafNodeList_.begin(); it != leafNodeList_.end(); ) {
 		TriRecord tri = *it;
 		MyPoint circumCntr1;
 		if (tri.vi_[0] == containingTriangle.vi_[0] &&
 		    tri.vi_[1] == containingTriangle.vi_[1] &&
 		    tri.vi_[2] == containingTriangle.vi_[2]) {
-			it = leafnodeList.erase(it);
+			it = leafNodeList_.erase(it);
 
 			// Find the circumcenter of this triangle
 		} else {
@@ -95,10 +90,8 @@ void DirectedGraph::addChildrenNodes(int pIdX) {
 
 
 // This method returns the triangle which encloses the input point.
-TriRecord DirectedGraph::findLeafNodeForPoint(int pIdX) {
-	std::vector<TriRecord> worklist;
-	std::vector<TriRecord> ::iterator iter;
-	int pIndex1,pIndex2, pIndex3;
+TriRecord DirectedGraph::findLeafNodeForPoint(int pIdx) {
+	vector<TriRecord> worklist;
 
 
 	TriRecord rootNode;
@@ -117,9 +110,9 @@ TriRecord DirectedGraph::findLeafNodeForPoint(int pIdX) {
 		// Return the trirecord composed of last 3 entries from myPoints pointset. The incoming point ID is the last vertex of
 		// the bounding triangle.
 		TriRecord boundingTri;
-		boundingTri.vi_[0] = pIdX;
-		boundingTri.vi_[1] = pIdX - 1;
-		boundingTri.vi_[2] = pIdX - 2;
+		boundingTri.vi_[0] = pIdx;
+		boundingTri.vi_[1] = pIdx - 1;
+		boundingTri.vi_[2] = pIdx - 2;
 
 		return boundingTri;
 	}
@@ -128,19 +121,22 @@ TriRecord DirectedGraph::findLeafNodeForPoint(int pIdX) {
 	// the new worklist of this triangle and continue iteration.
 
 
-	for (iter = worklist.begin(); iter != worklist.end(); ) {
+	for (vector<TriRecord>::iterator iter = worklist.begin(); iter != worklist.end(); ) {
 		TriRecord checkTriangle = *iter;
+
+		int pIndex1, pIndex2, pIndex3;
 		pIndex1 = checkTriangle.vi_[0];
 		pIndex2 = checkTriangle.vi_[1];
 		pIndex3 = checkTriangle.vi_[2];
 
 
-		int ret = (*triVertices).inTri(pIndex1,pIndex2,pIndex3,pIdX); // If ret is >=0, the point is inside the triangle
+		int ret = triVertices_.inTri(pIndex1, pIndex2, pIndex3, pIdx); // If ret is >=0, the point is inside the triangle
 
 		if (ret >= 0) {
-			if (dagNode.find(checkTriangle) != dagNode.end()) {
-				// There could be error here. Does C++ alow us to change the object we are iterating through?
-				worklist = dagNode.find(checkTriangle)->second;
+			if (dagNode_.find(checkTriangle) != dagNode_.end()) {
+				// There could be error here.
+				// Does C++ allow us to change the object we are iterating through?
+				worklist = dagNode_.find(checkTriangle)->second;
 				iter = worklist.begin();
 			} else {
 				return checkTriangle;
@@ -154,14 +150,14 @@ TriRecord DirectedGraph::findLeafNodeForPoint(int pIdX) {
 
 
 // This method returns the set of 2 triangles the input edge belongs to.
-std::vector<TriRecord> DirectedGraph::findNodesForEdge(int pIdx1, int pIdx2) {
-	std::vector<TriRecord> ::iterator iter;
-	std::vector<TriRecord> outputlist;
-	int pIndex1,pIndex2, pIndex3;
+vector<TriRecord> DirectedGraph::findNodesForEdge(int pIdx1, int pIdx2) {
+	vector<TriRecord> outputlist;
 
 
-	for (iter=leafnodeList.begin(); iter != leafnodeList.end(); ) {
+	for (vector<TriRecord>::iterator iter = leafNodeList_.begin(); iter != leafNodeList_.end(); ++iter) {
 		TriRecord checkTriangle = *iter;
+
+		int pIndex1,pIndex2, pIndex3;
 		pIndex1 = checkTriangle.vi_[0];
 		pIndex2 = checkTriangle.vi_[1];
 		pIndex3 = checkTriangle.vi_[2];
@@ -171,8 +167,6 @@ std::vector<TriRecord> DirectedGraph::findNodesForEdge(int pIdx1, int pIdx2) {
 				outputlist.push_back(checkTriangle);
 			}
 		}
-
-		++iter;
 	}
 
 	return outputlist;
@@ -181,13 +175,13 @@ std::vector<TriRecord> DirectedGraph::findNodesForEdge(int pIdx1, int pIdx2) {
 
 
 // This method returns the set of triangles the input point belongs to.
-std::vector<TriRecord> DirectedGraph::findLinkedNodes(int pIdx1) {
-	std::vector<TriRecord> ::iterator iter;
-	std::vector<TriRecord> templist, outputlist;
-	int pIndex1,pIndex2, pIndex3;
+vector<TriRecord> DirectedGraph::findLinkedNodes(int pIdx1) {
+	vector<TriRecord> templist, outputlist;
 
-	for (iter = leafnodeList.begin(); iter != leafnodeList.end(); ++iter) {
+	for (vector<TriRecord>::iterator iter = leafNodeList_.begin(); iter != leafNodeList_.end(); ++iter) {
 		TriRecord checkTriangle = *iter;
+
+		int pIndex1,pIndex2, pIndex3;
 		pIndex1 = checkTriangle.vi_[0];
 		pIndex2 = checkTriangle.vi_[1];
 		pIndex3 = checkTriangle.vi_[2];
@@ -198,7 +192,10 @@ std::vector<TriRecord> DirectedGraph::findLinkedNodes(int pIdx1) {
 	}
 
 	//
-	TriRecord pickedTri = templist.front(), nextTri, prevTri = templist.front();
+	TriRecord pickedTri = templist.front();
+	TriRecord nextTri;
+	TriRecord prevTri = templist.front();
+
 	outputlist.push_back(pickedTri);
 	int commonvert, nextvert;
 
@@ -211,7 +208,7 @@ std::vector<TriRecord> DirectedGraph::findLinkedNodes(int pIdx1) {
 	}
 
 	while (true) {
-		std::vector<TriRecord> fnextlist= findNodesForEdge(prevTri.vi_[commonvert],prevTri.vi_[nextvert] );
+		vector<TriRecord> fnextlist = findNodesForEdge(prevTri.vi_[commonvert], prevTri.vi_[nextvert]);
 
 		if (fnextlist.front().vi_[0] == prevTri.vi_[0] &&
 		    fnextlist.front().vi_[1] == prevTri.vi_[1] &&
@@ -283,41 +280,38 @@ std::vector<TriRecord> DirectedGraph::findLinkedNodes(int pIdx1) {
 
 // Please note that the edge to be flipped here is the 2nd and 3rd parameters.
 void DirectedGraph::addFlipChildrenNodes(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
-	std::vector<TriRecord> parentTriangles;
-	std::vector<TriRecord>::iterator iter;
-	parentTriangles = findNodesForEdge(pIdx2, pIdx3);
+	vector<TriRecord> parentTriangles = findNodesForEdge(pIdx2, pIdx3);
 
-
-	TriRecord newTri1, newTri2;
+	TriRecord newTri1;
 	newTri1.vi_[0] = pIdx1;
 	newTri1.vi_[1] = pIdx2;
 	newTri1.vi_[2] = pIdx4;
 
+	TriRecord newTri2;
 	newTri2.vi_[0] = pIdx1;
 	newTri2.vi_[1] = pIdx3;
 	newTri2.vi_[2] = pIdx4;
 
-	std::vector<TriRecord> children;
+	vector<TriRecord> children;
 	children.push_back(newTri1);
 	children.push_back(newTri2);
 
-	//Add the new triangles into the leafnodeList
-	leafnodeList.push_back(newTri1);
-	leafnodeList.push_back(newTri2);
+	// Add the new triangles into the leafnodeList
+	leafNodeList_.push_back(newTri1);
+	leafNodeList_.push_back(newTri2);
 
-	for (iter = parentTriangles.begin(); iter != parentTriangles.end(); ) {
+	for (vector<TriRecord>::iterator iter = parentTriangles.begin(); iter != parentTriangles.end(); ++iter) {
 		TriRecord triangle = *iter;
-		dagNode.insert(std::map<TriRecord, std::vector<TriRecord> >::value_type(triangle, children));
-		++iter;
+		dagNode_.insert(map< TriRecord, vector<TriRecord> >::value_type(triangle, children));
 
-		//Remove the new parents from leafnodeList
-		std::vector<TriRecord>::iterator it;
-		for (it = leafnodeList.begin(); it != leafnodeList.end();) {
+		// Remove the new parents from leafnodeList
+		for (vector<TriRecord>::iterator it = leafNodeList_.begin(); it != leafNodeList_.end(); ) {
 			TriRecord tri = *it;
 
-			if (tri.vi_[0]==triangle.vi_[0] && tri.vi_[1]==triangle.vi_[1]
-			    && tri.vi_[2]==triangle.vi_[2]) {
-				it = leafnodeList.erase(it);
+			if (tri.vi_[0] == triangle.vi_[0] &&
+			    tri.vi_[1] == triangle.vi_[1] &&
+			    tri.vi_[2] == triangle.vi_[2]) {
+				it = leafNodeList_.erase(it);
 			} else {
 				++it;
 			}
@@ -329,9 +323,8 @@ void DirectedGraph::addFlipChildrenNodes(int pIdx1, int pIdx2, int pIdx3, int pI
 
 // Removes everything from DAG
 void DirectedGraph::clearDirectedGraph() {
-	dagNode.clear();
-	leafnodeList.clear();
-	orderedkeyList.clear();
-	int temp =1;
+	dagNode_.clear();
+	leafNodeList_.clear();
+	orderedKeyList_.clear();
 }
 

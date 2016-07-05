@@ -1,6 +1,9 @@
 #ifndef DIRECTEDGRAPHH
 #define DIRECTEDGRAPHH
 
+#include <assert.h>
+
+#include <iostream>
 #include <map>
 #include <set>
 
@@ -23,7 +26,7 @@ got deleted.
 
 class DirectedGraph {
 public:
-	DirectedGraph(PointSetArray &);
+	DirectedGraph(PointSetArray);
 
 	// Method to add new children triangles to a parent triangle. Use findLeafNodeforPoint to find parent, and then create child node for this triangle.
 	void addChildrenNodes(int );
@@ -47,14 +50,20 @@ public:
 	std::vector<TriRecord> findLinkedNodes(int );
 
 	const PointSetArray& getPointSet() const {
-		return *triVertices;
+		return triVertices;
 	}
 
 protected:
 	// Keeps the relationship between a parent node and its children.
-	std::map<TriRecord, std::vector<TriRecord> > dagNode;
+	std::map<TriRecord, std::vector<TriRecord> > dagNode_;
 
-	PointSetArray *triVertices;
+	PointSetArray triVertices_;
+
+private:
+	//  Remove if not needed.
+	/// Vector that keeps the order in which keys got inserted into DAG.
+	std::vector<TriRecord> orderedKeyList_;
+	std::vector<TriRecord> leafNodeList_;
 };
 
 #endif
