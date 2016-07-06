@@ -2,6 +2,9 @@
 
 #include <assert.h>
 
+#include "li.h"
+#include "pointsetarray.h"
+
 
 
 TriRecord::TriRecord(int idx1, int idx2, int idx3) {
@@ -44,6 +47,54 @@ void TriRecord::nextEdge(int& commonIdx, int& nextIdx, const TriRecord& nextTri)
 		commonIdx = 0;
 		nextIdx   = 2;
 	}
+}
+
+
+
+// Adds the points to the PointSetArray
+void findBoundingTri(PointSetArray &pSet) {
+	assert(pSet.noPt() > 0);
+
+	LongInt minX, minY;
+	pSet.getPoint(1, minX, minY);
+	LongInt maxX, maxY;
+	pSet.getPoint(1, maxX, maxY);
+
+	// MAGIC value of 2000; may not be enough?
+	LongInt thousand = 2000;
+
+	for (int i = 1; i < pSet.noPt(); i++) {
+		LongInt x, y;
+		pSet.getPoint(i, x, y);
+
+		if (minX > x)
+			minX = x;
+		else if (maxX < x)
+			maxX = x;
+
+		if (minY > y)
+		    minY = y;
+		else if (maxY < y)
+		    maxY = y;
+	}
+
+	LongInt delta = 5;
+
+	minX = minX - delta - thousand;
+	maxX = maxX + delta + thousand;
+	minY = minY - delta - thousand;
+	maxY = maxY + delta + thousand;
+
+	// TODO This seems nonsense. Does it work?
+
+	pSet.addPoint(maxX + (maxY - minY), minY);
+	pSet.addPoint(minX - (maxY - minY), minY);
+
+	maxX = (maxX.doubleValue() - minX.doubleValue()) / 2;
+
+	// some rounding may occur if LongInt is odd
+	pSet.addPoint((LongInt) ((maxX.doubleValue() + minX.doubleValue()) / 2),
+	              maxY + (maxX - minX));
 }
 
 

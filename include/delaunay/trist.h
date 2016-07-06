@@ -6,6 +6,8 @@
 
 #include <vector>
 
+#include "pointsetarray.h"
+
 
 
 /*
@@ -39,6 +41,12 @@ typedef  int FIndex;
 
 
 class Trist;
+
+
+
+/// Method to add new children triangles to a parent triangle.
+/// Call this from tryInsertPoint method in main.cpp
+void findBoundingTri(PointSetArray &);
 
 
 

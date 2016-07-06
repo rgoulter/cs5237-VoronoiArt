@@ -20,10 +20,6 @@
 
 
 
-DirectedGraph dagFromInputPoints(const PointSetArray& inputPointSet);
-
-
-
 std::vector<PointSetArray> createVoronoi(DirectedGraph& dag);
 
 

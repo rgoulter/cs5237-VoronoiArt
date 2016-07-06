@@ -22,48 +22,6 @@ using std::endl;
 
 
 
-// Adds the points to the PointSetArray
-void DelaunayTri::findBoundingTri(PointSetArray &pSet) {
-	LongInt minX = pSet.myPoints[0].x;
-	LongInt maxX = pSet.myPoints[0].x;
-	LongInt minY = pSet.myPoints[0].y;
-	LongInt maxY = pSet.myPoints[0].y;
-	LongInt tempmaxX, tempminX, thousand = 2000;
-
-	for (int i = 1; i < pSet.myPoints.size(); i++) {
-		if (minX > pSet.myPoints[i].x)
-			minX = pSet.myPoints[i].x;
-		else if (maxX < pSet.myPoints[i].x)
-			maxX = pSet.myPoints[i].x;
-
-		if (minY > pSet.myPoints[i].y)
-		    minY = pSet.myPoints[i].y;
-		else if (maxY < pSet.myPoints[i].y)
-		    maxY = pSet.myPoints[i].y;
-	}
-
-	LongInt delta = 5; // used in delaunay.cpp
-
-	minX = minX - delta - thousand;
-	//tempminX = minX;
-	maxX = maxX+delta+thousand;
-	//tempmaxX = maxX;
-	minY = minY-delta-thousand;
-	maxY = maxY+delta+thousand;
-
-	pSet.addPoint(maxX+(maxY-minY),minY);
-	pSet.addPoint(minX-(maxY-minY),minY);
-
-	maxX = (maxX.doubleValue() - minX.doubleValue()) / 2;
-
-	pSet.addPoint((LongInt) ((maxX.doubleValue() + minX.doubleValue()) / 2),
-	              maxY+((maxX-minX))); // some rounding may occur if LongInt is odd
-
-	int temp = 1;
-}
-
-
-
 void DelaunayTri::legalizeEdge(DirectedGraph& dag, int pIdx1, int pIdx2, int pIdx3) {
 	cout << "DTri::legalizeEdge 1" << endl;
 
