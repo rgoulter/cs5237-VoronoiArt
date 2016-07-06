@@ -106,7 +106,7 @@ TEST(BasicsTest, ClipPolyRectCaseNoIsect) {
 	
 	EXPECT_EQ(testPoly.size(), output.size());
 
-	for (int i = 0; i < testPoly.size(); i += 2) {
+	for (unsigned int i = 0; i < testPoly.size(); i += 2) {
 		EXPECT_EQ(testPoly[i], output[i]);
 		EXPECT_EQ(testPoly[i + 1], output[i + 1]);
 	}
@@ -137,14 +137,14 @@ TEST(BasicsTest, ClipPolyRectCaseSimpleIsect) {
 	}
 
 	cout << "Output poly has " << (output.size() / 2) << "points," << endl;
-	for (int i = 0; i < output.size() / 2; i++) {
+	for (unsigned int i = 0; i < output.size() / 2; i++) {
 		cout << output[2 * i] << ","  << output[2 * i + 1]<< endl;
 	}
 
 	// MUST be eq.
 	ASSERT_EQ(expectedPoly.size(), output.size());
 
-	for (int i = 0; i < expectedPoly.size(); i += 2) {
+	for (unsigned int i = 0; i < expectedPoly.size(); i += 2) {
 		EXPECT_EQ(expectedPoly[i], output[i]);
 		EXPECT_EQ(expectedPoly[i + 1], output[i + 1]);
 	}

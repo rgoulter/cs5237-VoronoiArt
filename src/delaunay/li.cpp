@@ -84,7 +84,7 @@ LongInt LongInt::plusHelper(const LongInt& newNumber) const {
 
 	theAnswer.signType = signType;
 
-	int i;
+	unsigned int i;
 
 	if (myLongInt.size() == newNumber.myLongInt.size()) {
 		for (i = 0; i < newNumber.myLongInt.size(); i++) {
@@ -105,7 +105,7 @@ LongInt LongInt::plusHelper(const LongInt& newNumber) const {
 			theAnswer.myLongInt.push_back(resultant);
 		}
 
-		for (int j = i; j < myLongInt.size(); j++) {
+		for (unsigned int j = i; j < myLongInt.size(); j++) {
 			long resultant = myLongInt[j] + carryover;
 			carryover = resultant / DIVISOR;
 			resultant = (resultant % DIVISOR);
@@ -123,7 +123,7 @@ LongInt LongInt::plusHelper(const LongInt& newNumber) const {
 			theAnswer.myLongInt.push_back(resultant);
 		}
 
-		for (int j = i; j < newNumber.myLongInt.size(); j++) {
+		for (unsigned int j = i; j < newNumber.myLongInt.size(); j++) {
 			long resultant = newNumber.myLongInt[j] + carryover;
 			carryover = resultant / DIVISOR;
 			resultant = (resultant % DIVISOR);
@@ -146,7 +146,7 @@ LongInt LongInt::minusHelper(const LongInt& newNumber) const {
 	LongInt theAnswer;
 	theAnswer.signType = type_positive;
 
-	int i;
+	unsigned int i;
 	long resultant;
 
 	if (myLongInt.size() == newNumber.myLongInt.size()) {
@@ -189,7 +189,7 @@ LongInt LongInt::minusHelper(const LongInt& newNumber) const {
 			theAnswer.myLongInt.push_back(resultant);
 		}
 
-		for (int j = i; j < myLongInt.size(); j++) {
+		for (unsigned int j = i; j < myLongInt.size(); j++) {
 			if (carryover == 1L && myLongInt[j] == 0L) {
 				resultant = DIVISOR - carryover;
 				carryover = 1L;
@@ -213,7 +213,7 @@ LongInt LongInt::minusHelper(const LongInt& newNumber) const {
 			theAnswer.myLongInt.push_back(resultant);
 		}
 
-		for (int j = i; j < newNumber.myLongInt.size(); j++) {
+		for (unsigned int j = i; j < newNumber.myLongInt.size(); j++) {
 			if (carryover == 1L && newNumber.myLongInt[j] == 0L) {
 				resultant = DIVISOR - carryover;
 				carryover = 1L;
@@ -389,6 +389,8 @@ void LongInt::changeSign() {
 			break;
 		case type_negative:
 			signType = type_positive;
+			break;
+		default:
 			break;
 	}
 }

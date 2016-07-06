@@ -54,7 +54,7 @@ vector<int> enumerateLeftRightOfSimplePolygon(const vector<int>& poly) {
 void findAverageColor3iv(const ImageData& imData, const vector<MyPoint>& mpPoly, int* colorIv) {
 	vector<int> poly;
 
-	for (int i = 0; i < mpPoly.size(); i++) {
+	for (unsigned int i = 0; i < mpPoly.size(); i++) {
 		poly.push_back((int) mpPoly[i].x.doubleValue());
 		poly.push_back((int) mpPoly[i].y.doubleValue());
 	}
@@ -65,18 +65,18 @@ void findAverageColor3iv(const ImageData& imData, const vector<MyPoint>& mpPoly,
 
 
 void findAverageColor3iv(const ImageData& imData, const vector<int>& poly, int* colorIv) {
-	int loadedImageWidth = imData.width();
-	int loadedImageHeight = imData.height();
+	// int loadedImageWidth = imData.width();
+	// int loadedImageHeight = imData.height();
 
 	// Find bounding box of polygon
 	int minX, maxX, minY, maxY;
 	boundingBox(poly, minX, maxX, minY, maxY);
 
 	// Within this bounding box, search for all the points.
-	int left   = minX;
-	int right  = maxX;
-	int top    = minY;
-	int bottom = maxY;
+	// int left   = minX;
+	// int right  = maxX;
+	// int top    = minY;
+	// int bottom = maxY;
 
 
 
@@ -87,8 +87,8 @@ void findAverageColor3iv(const ImageData& imData, const vector<int>& poly, int* 
 	int height = bottom - top + 1;*/
 	int offsetX = 0;
 	int offsetY = 0;
-	int width  = loadedImageWidth; //right - left + 1;
-	int height = loadedImageHeight; //bottom - top + 1;
+	// int width  = loadedImageWidth; //right - left + 1;
+	// int height = loadedImageHeight; //bottom - top + 1;
 
 	// TODO: Read values from texture itself, so we can save memory
 
@@ -154,7 +154,7 @@ void findAverageColor3iv(const ImageData& imData, const vector<int>& poly, int* 
 void findSomeColor3iv(const ImageData& imData, PointSetArray& psa, int* colorIv) {
 	vector<int> poly = coercePSAPolyToIVecPoly(psa);
 	findSomeColor3iv(imData, poly, colorIv);
-};
+}
 
 
 
@@ -167,10 +167,10 @@ void findSomeColor3iv(const ImageData& imData, const vector<int>& unclippedPoly,
 
 
 	// Read the pixels from the relevant section
-	int offsetX = 0;
-	int offsetY = 0;
-	int width  = loadedImageWidth; //right - left + 1;
-	int height = loadedImageHeight; //bottom - top + 1;
+	// int offsetX = 0;
+	// int offsetY = 0;
+	// int width  = loadedImageWidth; //right - left + 1;
+	// int height = loadedImageHeight; //bottom - top + 1;
 
 
 	// For each point, find the average rgb.
@@ -192,7 +192,7 @@ void findSomeColor3iv(const ImageData& imData, const vector<int>& unclippedPoly,
 		return;
 	}
 
-	GLubyte rb, gb, bb;
+	// GLubyte rb, gb, bb;
 	imData.dataAt(u, v, accR, accG, accB);
 	acc = 1;
 
@@ -228,13 +228,15 @@ void findSomeColor3iv(const ImageData& imData, const vector<int>& unclippedPoly,
 
 
 
-bool isFileOrFolderInDir(string path, string filename) {
+// bool isFileOrFolderInDir(string path, string filename)
+bool isFileOrFolderInDir(string, string) {
 	return false;
 }
 
 
 
-bool findShaderDirectory(string& path, string shaderFilename) {
+// bool findShaderDirectory(string& path, string shaderFilename)
+bool findShaderDirectory(string& path, string) {
 	path = "don't use this for now";
 	return false;
 }

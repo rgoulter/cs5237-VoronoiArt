@@ -54,7 +54,7 @@ int PointSet::inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx) {
 bool PointSet::circumCircle(int p1Idx, int p2Idx, int p3Idx, MyPoint& center) {
 	std::cout << "circumCirle 1" << std::endl;
 	LongInt dA, dB, dC, aux1, aux2, div;
-	int quo1, quo2, aux1Sign, aux2Sign;
+	int quo1, quo2; // aux1Sign, aux2Sign;
 	LongInt two = 2;
 	std::cout << "MyPoints size " << myPoints.size() << std::endl;
 	std::cout << "accessing: " << (p1Idx - 1) << ", " << (p2Idx - 1) << ", " << (p3Idx - 1) << std::endl;

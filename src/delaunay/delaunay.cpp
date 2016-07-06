@@ -29,7 +29,7 @@ void DelaunayTri::legalizeEdge(DirectedGraph& dag, int pIdx1, int pIdx2, int pId
 
 	cout << "DTri::legalizeEdge 2" << endl;
 
-	for (int i = 0; i < triangles.size(); i++) {
+	for (unsigned int i = 0; i < triangles.size(); i++) {
 		for (int j = 0; j < 3; j++) {
 			cout << "loop idx " << i << "," << j << endl;
 			int pointIdx = triangles[i].pointIndexOf(j);
@@ -142,7 +142,7 @@ void tryDelaunayTriangulation(DirectedGraph& dag) {
 
 	// TODO: Shuffle these points of delaunayPointsToProcess
 	srand (time(NULL));
-	for (int i = 0; i < delaunayPointsToProcess.size() / 2; i++) {
+	for (unsigned int i = 0; i < delaunayPointsToProcess.size() / 2; i++) {
 		cout << "tryDelaunayTriangulation loop idx=" << i << endl;
 		int j = rand() % delaunayPointsToProcess.size();
 

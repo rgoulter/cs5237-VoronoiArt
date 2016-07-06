@@ -111,7 +111,8 @@ int Trist::noTri() {
 
 
 // TODO `makeTri` vs TriRecord c'tor. esp. use of `fnext_`
-int Trist::makeTri(int pIndex1, int pIndex2, int pIndex3, bool autoMerge) {
+// int Trist::makeTri(int pIndex1, int pIndex2, int pIndex3, bool autoMerge)
+int Trist::makeTri(int pIndex1, int pIndex2, int pIndex3, bool) {
 	// Add a triangle into the Trist with the three point indices
 	// Moreover, automatically establish the fnext pointers to its neigbhours if autoMerge = true
 
@@ -191,7 +192,7 @@ OrTri Trist::fnext(OrTri ef) {
 void Trist::getVertexIdx(OrTri ef, int& pIdx1, int& pIdx2, int& pIdx3) {
 	// return the three indices of the three vertices by OrTri
 	int tId = ef >> 3;
-	int v = ef & 7; // ef & 00111b ... last 3 bits.
+	// int v = ef & 7; // ef & 00111b ... last 3 bits.
 	TriRecord record = triPoints[tId];
 
 	pIdx1 = record.vi_[0];
@@ -203,9 +204,9 @@ void Trist::getVertexIdx(OrTri ef, int& pIdx1, int& pIdx2, int& pIdx3) {
 
 int Trist::org(OrTri ef) {
 	// the index of the first vertex of OrTri, e.g. org(bcd) => b
-	int tId = ef >> 3;
+	// int tId = ef >> 3;
 	int v = ef & 7; // ef & 00111b ... last 3 bits.
-	TriRecord record = triPoints[tId];
+	// TriRecord record = triPoints[tId];
 
 	// See formula in trist.h
 	return (v < 3) ? v : (v + 1) % 3;
@@ -215,9 +216,9 @@ int Trist::org(OrTri ef) {
 
 int Trist::dest(OrTri ef) {
 	// the index of the second vertex of OrTri, e.g. org(bcd) => c
-	int tId = ef >> 3;
+	// int tId = ef >> 3;
 	int v = ef & 7; // ef & 00111b ... last 3 bits.
-	TriRecord record = triPoints[tId];
+	// TriRecord record = triPoints[tId];
 
 	// See formula in trist.h
 	return (v < 3) ? (v + 1) % 3 : v;

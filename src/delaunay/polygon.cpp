@@ -95,7 +95,7 @@ void boundingBox(const vector<int>& poly, int& minX, int& maxX, int& minY, int& 
 	minY = poly[1];
 	maxY = poly[1];
 
-	for (int i = 2; i < poly.size() - 1; i += 2) {
+	for (unsigned int i = 2; i < poly.size() - 1; i += 2) {
 		int xIdx = i;
 		int yIdx = i + 1;
 
@@ -122,7 +122,7 @@ void boundingBox(const vector<MyPoint>& poly, LongInt& minX, LongInt& maxX, Long
 	minY = poly[0].y;
 	maxY = poly[0].y;
 
-	for (int i = 1; i < poly.size(); i++) {
+	for (unsigned int i = 1; i < poly.size(); i++) {
 		if (poly[i].x < minX) {
 			minX = poly[i].x;
 		}
@@ -296,7 +296,7 @@ vector<int> clipPolygonToRectangle(const vector<int>& poly, int x1, int y1, int 
 
 
 	// Set links within I'sects.
-	for (int i = 0; i < intersections.size(); i++) {
+	for (unsigned int i = 0; i < intersections.size(); i++) {
 		PolygonClippingIntersection *next = intersections[(i + 1) % intersections.size()];
 		intersections[i]->setNextIntersection(*next);
 	}
@@ -312,7 +312,7 @@ vector<int> clipPolygonToRectangle(const vector<int>& poly, int x1, int y1, int 
 	vector<int> output;
 
 	// Go through, adding points to output.
-	for (int i = 0; i < intersections.size(); i++) {
+	for (unsigned int i = 0; i < intersections.size(); i++) {
 		PolygonClippingIntersection& isect = *intersections[i];
 		PolygonClippingIntersection& nextIsect = isect.intersectionNext();
 
