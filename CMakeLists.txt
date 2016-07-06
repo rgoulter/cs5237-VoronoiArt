@@ -146,7 +146,8 @@ if (test)
   ##############
   # Unit Tests
   ##############
-  add_executable(runUnitTests test/basictests.cpp)
+  add_executable(runUnitTests test/basictests.cpp
+                              test/testmain.cpp)
 
   target_link_libraries(runUnitTests gtest gtest_main)
   target_link_libraries(runUnitTests VoronoiArt_lib)

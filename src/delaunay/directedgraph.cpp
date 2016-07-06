@@ -80,7 +80,8 @@ vector<TriRecord> DirectedGraph::findTrianglesWithVertex(int pIdx1) {
 		DAGNode *node = *iter;
 		TriRecord checkTriangle = node->tri_;
 
-		if (checkTriangle.hasPointIndex(pIdx1)) {
+		if (node->isLeaf() &&
+			checkTriangle.hasPointIndex(pIdx1)) {
 			outputlist.push_back(checkTriangle);
 		}
 	}
@@ -102,7 +103,8 @@ vector<TriRecord> DirectedGraph::findTrianglesWithEdge(int pIdx1, int pIdx2) {
 		DAGNode *node = *iter;
 		TriRecord checkTriangle = node->tri_;
 
-		if (checkTriangle.hasPointIndex(pIdx1)) {
+		if (node->isLeaf() &&
+			checkTriangle.hasPointIndex(pIdx1)) {
 			if (checkTriangle.hasPointIndex(pIdx2)) {
 				outputlist.push_back(checkTriangle);
 			}
@@ -166,12 +168,32 @@ TriRecord DirectedGraph::addVertex(int pIdx) {
 
 
 
+bool containsTri(const vector<DAGNode*> nodes, int i, int j, int k) {
+	for (vector<DAGNode*>::const_iterator iter = nodes.begin(); iter != nodes.end(); ++iter) {
+		DAGNode *node = *iter;
+		TriRecord tri = node->tri_;
+
+		if (tri.hasPointIndex(i) &&
+		    tri.hasPointIndex(j) &&
+		    tri.hasPointIndex(k)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
+
 // Please note that the edge to be flipped here is the 2nd and 3rd parameters.
 //
 // flip <abd>,<dbc> adds 2 children to each, <abc>,<acd>
 //
 // the shared edge bd gets replaced with shared edge ac
 void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
+	std::cout << "DAG::flipTris, args=" << pIdx1 << "," << pIdx2 << "," << pIdx3 << "," << pIdx4 << "." << std::endl;
+
+	assert(containsTri(dagNodes_, pIdx1, pIdx2, pIdx3));
+	assert(containsTri(dagNodes_, pIdx2, pIdx3, pIdx4));
 
 	assert(pIdx1 >= 1 && pIdx1 < 1000000); // XXX magic bound
 	assert(pIdx2 >= 1 && pIdx2 < 1000000);
@@ -186,14 +208,25 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 		DAGNode *node = *iter;
 		TriRecord checkTriangle = node->tri_;
 
-		if (checkTriangle.hasPointIndex(pIdx1)) {
-			if (checkTriangle.hasPointIndex(pIdx2)) {
+		if (node->isLeaf() &&
+			checkTriangle.hasPointIndex(pIdx2)) {
+			if (checkTriangle.hasPointIndex(pIdx3)) {
 				nodes.push_back(node);
 			}
 		}
 	}
 
 	// one edge shared by two triangles
+	// => this *won't* be true, due to flipped nodes, duh.
+	std::cout << "DAG::flipTris, before assert, size=" << (nodes.size()) << std::endl;
+	for (vector<DAGNode*>::iterator iter = nodes.begin();
+	     iter != nodes.end();
+	     ++iter) {
+		DAGNode *n = *iter;
+		int i,j,k;
+		n->tri_.get(i,j,k);
+		std::cout << "Tri(" << i << "," << j << "," << k << ")" << std::endl;
+	}
 	assert(nodes.size() == 2);
 
 	DAGNode *abdNode = nodes[0]; // <124>
