@@ -25,7 +25,7 @@ using std::endl;
 void DelaunayTri::legalizeEdge(DirectedGraph& dag, int pIdx1, int pIdx2, int pIdx3) {
 	cout << "DTri::legalizeEdge 1" << endl;
 
-	vector<TriRecord> triangles = dag.findNodesForEdge(pIdx2, pIdx3);
+	vector<TriRecord> triangles = dag.findTrianglesWithEdge(pIdx2, pIdx3);
 
 	cout << "DTri::legalizeEdge 2" << endl;
 
@@ -44,7 +44,7 @@ void DelaunayTri::legalizeEdge(DirectedGraph& dag, int pIdx1, int pIdx2, int pId
 				cout << "about to check inCircle.." << endl;
 				assert(p4 > 0); // check p4!
 				if (pointSet.inCircle(pIdx1, pIdx2, pIdx3, p4) > 0) {
-					dag.addFlipChildrenNodes(pIdx1, pIdx2, pIdx3, p4);
+					dag.flipTriangles(pIdx1, pIdx2, pIdx3, p4);
 					legalizeEdge(dag, pIdx1, pIdx2, p4);
 					legalizeEdge(dag, pIdx1, pIdx3, p4);
 				}
@@ -73,8 +73,8 @@ void delaunayIterationStep(vector<int>& delaunayPointsToProcess,
 
 	cout << "dlyIterStep 2" << endl;
 
-	TriRecord tri = dag.findLeafNodeForPoint(pIdx); // Return the containing triangle for the point i.
-	dag.addChildrenNodes(pIdx);
+	// Return the containing triangle for the point i.
+	TriRecord tri = dag.addVertex(pIdx);
 
 	cout << "dlyIterStep 3" << endl;
 
@@ -119,29 +119,6 @@ void delaunayIterationStep(vector<int>& delaunayPointsToProcess,
 //
 // 	return false;
 // }
-
-
-
-DirectedGraph dagFromInputPoints(const PointSetArray& inputPointSet) {
-	PointSetArray delaunayPointSet;
-
-	// Copy points from the input set to Delaunay point set
-	for (int i = 1; i <= inputPointSet.noPt(); i++) {
-		LongInt x, y;
-		inputPointSet.getPoint(i, x, y);
-		delaunayPointSet.addPoint(x, y);
-	}
-
-	// Add a triangle which bounds all the points.
-	DelaunayTri::findBoundingTri(delaunayPointSet);
-
-	DirectedGraph dag(delaunayPointSet);
-
-	// TODO I've no clue what this does / why it's here.
-	dag.addChildrenNodes(delaunayPointSet.noPt());
-
-	return dag;
-}
 
 
 
@@ -201,8 +178,8 @@ vector<PointSetArray> createVoronoi(DirectedGraph& dag) {
 		cout << "createVoronoi for loop, idx=" << dppIdx << endl;
 
 		// Find delaunay triangles to which this point is linked
-		cout << "dag.findLinkedNodes()" << endl;
-		std::vector<TriRecord> linkedTriangles = dag.findLinkedNodes(dppIdx);
+		cout << "createVoronoi, dag.findTrianglesWithVertex()" << endl;
+		std::vector<TriRecord> linkedTriangles = dag.findTrianglesWithVertex(dppIdx);
 		PointSetArray polygon;
 
 		// findlinkedNodes method gives an ordered list of triangles. Iterate through and find circumcenters.

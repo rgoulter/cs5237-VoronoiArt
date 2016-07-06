@@ -704,7 +704,7 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 		// DELAUNAY
 		qDebug("Do doDelaunay in MPOG::doVoronoi");
 
-		DirectedGraph dag = dagFromInputPoints(inputPointSet_);
+		DirectedGraph dag(inputPointSet_);
 
 		qDebug("MPOG::doVoronoi, created dag");
 
