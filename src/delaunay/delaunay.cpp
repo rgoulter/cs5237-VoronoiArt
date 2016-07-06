@@ -139,7 +139,7 @@ void delaunayIterationStep(vector<int>& delaunayPointsToProcess,
 
 
 
-DirectedGraph dagFromInputPoints(PointSetArray& inputPointSet) {
+DirectedGraph dagFromInputPoints(const PointSetArray& inputPointSet) {
 	PointSetArray delaunayPointSet;
 
 	// Copy points from the input set to Delaunay point set
@@ -208,7 +208,7 @@ vector<PointSetArray> createVoronoi(DirectedGraph& dag) {
 		for (iter1 = linkedTriangles.begin(); iter1 != linkedTriangles.end();) {
 			TriRecord tri = *iter1;
 			MyPoint circum;
-			cout << "circumCircle" << endl;
+            std::cout << "circumCircle" << std::endl;
 			// TODO circumCircle may benefit from using TriRecord
 			int triPIdx1, triPIdx2, triPIdx3;
 			tri.get(triPIdx1, triPIdx2, triPIdx3);
