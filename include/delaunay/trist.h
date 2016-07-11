@@ -102,6 +102,16 @@ public:
 
 
 
+	/// Looser equality than === sign.
+	/// Tri(1,2,3) `sameVertices` Tri(3,2,1) is `true`.
+	bool sameVertices(const TriRecord& di) const {
+		return hasPointIndex(di.vi_[0]) &&
+		       hasPointIndex(di.vi_[1]) &&
+		       hasPointIndex(di.vi_[2]);
+	}
+
+
+
 	void get(int& idx1, int& idx2, int& idx3) const {
 		idx1 = vi_[0];
 		idx2 = vi_[1];

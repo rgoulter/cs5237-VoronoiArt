@@ -50,6 +50,7 @@ DirectedGraph::DirectedGraph(const PointSetArray& inputPointSet) {
 	root_ = new DAGNode(TriRecord(boundingTriPt1,
 	                              boundingTriPt1 + 1,
 	                              boundingTriPt1 + 2));
+	dagNodes_.push_back(root_);
 
 	// TODO I've no clue what this does / why it's here.
 	// addVertex(delaunayPointSet.noPt());
@@ -67,7 +68,7 @@ DirectedGraph::~DirectedGraph() {
 	// root_ never added to dagNodes_
 	// since root_ is the bounding triangle,
 	// and the bounding triangle vertices don't count.
-	delete root_;
+	// delete root_;
 }
 
 
@@ -116,6 +117,31 @@ vector<TriRecord> DirectedGraph::findTrianglesWithEdge(int pIdx1, int pIdx2) {
 
 
 
+// O(n^2),
+// Use for an assert, to check we don't get both Tri(1,2,3) and Tri(3,2,1).
+bool trianglesUnique(const vector<DAGNode*>& nodes) {
+	typedef vector<DAGNode*>::const_iterator const_iter;
+	for (const_iter iter = nodes.begin(); iter != nodes.end(); ++iter) {
+		DAGNode* outerNode = *iter;
+		TriRecord outerTri = outerNode->tri_;
+
+		for (const_iter innerIter = nodes.begin(); innerIter != nodes.end(); ++innerIter) {
+			DAGNode* innerNode = *innerIter;
+			TriRecord innerTri = innerNode->tri_;
+
+			if (!(outerTri == innerTri) &&
+				outerTri.sameVertices(innerTri)) {
+				return false;
+			}
+		}
+
+	}
+
+	return true;
+}
+
+
+
 // This method adds children nodes to the specified parent node.
 // This is only for new point additions and not for flipping.
 // Use findLeafNodeforPoint to find parent,
@@ -151,7 +177,8 @@ TriRecord DirectedGraph::addVertex(int pIdx) {
 	parentTri.get(parentIdx1, parentIdx2, parentIdx3);
 
 	// Construct 3 TriRecords, one for each child triangle
-	DAGNode *child1 = new DAGNode(TriRecord(parentIdx1, parentIdx2, pIdx));
+	// XXX ASSUMPTION that points for TriRecord are CCW
+	DAGNode *child1 = new DAGNode(TriRecord(parentIdx1, parentIdx2, pIdx)); // CCW
 	DAGNode *child2 = new DAGNode(TriRecord(parentIdx2, parentIdx3, pIdx));
 	DAGNode *child3 = new DAGNode(TriRecord(parentIdx3, parentIdx1, pIdx));
 	node->children_.push_back(child1);
@@ -160,15 +187,18 @@ TriRecord DirectedGraph::addVertex(int pIdx) {
 
 	// Add to instance's list of dagNodes
 	dagNodes_.push_back(child1);
+	assert(trianglesUnique(dagNodes_));
 	dagNodes_.push_back(child2);
+	assert(trianglesUnique(dagNodes_));
 	dagNodes_.push_back(child3);
+	assert(trianglesUnique(dagNodes_));
 
 	return parentTri;
 }
 
 
 
-bool containsTri(const vector<DAGNode*> nodes, int i, int j, int k) {
+bool containsTri(const vector<DAGNode*>& nodes, int i, int j, int k) {
 	for (vector<DAGNode*>::const_iterator iter = nodes.begin(); iter != nodes.end(); ++iter) {
 		DAGNode *node = *iter;
 		TriRecord tri = node->tri_;
@@ -192,8 +222,8 @@ bool containsTri(const vector<DAGNode*> nodes, int i, int j, int k) {
 void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 	std::cout << "DAG::flipTris, args=" << pIdx1 << "," << pIdx2 << "," << pIdx3 << "," << pIdx4 << "." << std::endl;
 
-	assert(containsTri(dagNodes_, pIdx1, pIdx2, pIdx3));
-	assert(containsTri(dagNodes_, pIdx2, pIdx3, pIdx4));
+	assert(containsTri(dagNodes_, pIdx1, pIdx2, pIdx4));
+	assert(containsTri(dagNodes_, pIdx4, pIdx2, pIdx3));
 
 	assert(pIdx1 >= 1 && pIdx1 < 1000000); // XXX magic bound
 	assert(pIdx2 >= 1 && pIdx2 < 1000000);
@@ -209,8 +239,8 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 		TriRecord checkTriangle = node->tri_;
 
 		if (node->isLeaf() &&
-			checkTriangle.hasPointIndex(pIdx2)) {
-			if (checkTriangle.hasPointIndex(pIdx3)) {
+			checkTriangle.hasPointIndex(pIdx2)) { // b
+			if (checkTriangle.hasPointIndex(pIdx4)) { // d
 				nodes.push_back(node);
 			}
 		}
@@ -236,6 +266,8 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 	// (as used in DirectedGraph).
 
 	// swap 24 edge with 13 edge
+	// ASSUMPTION that points for TriRecord are CCW
+	// flip <abd>,<dbc> adds 2 children to each, <abc>,<acd> (preserves CCW)
 	DAGNode *abcNode = new DAGNode(TriRecord(pIdx1, pIdx2, pIdx3));
 	DAGNode *acdNode = new DAGNode(TriRecord(pIdx1, pIdx3, pIdx4));
 
@@ -247,6 +279,8 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 
 	// Add to instance's list of dagNodes
 	dagNodes_.push_back(abcNode);
+	assert(trianglesUnique(dagNodes_));
 	dagNodes_.push_back(acdNode);
+	assert(trianglesUnique(dagNodes_));
 }
 

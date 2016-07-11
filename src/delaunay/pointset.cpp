@@ -19,6 +19,7 @@ void PointSet::deleteLastPoint() {
 
 
 
+/// XXX Erm, I assume that p1,p2,p3 must be CCW
 int PointSet::inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx) {
 	std::cout << "inCircle " << p1Idx << "," << p2Idx << "," << p3Idx << ", " << pIdx << "; len=" << (myPoints.size()) << std::endl;
 

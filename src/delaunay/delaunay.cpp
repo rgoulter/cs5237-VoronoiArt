@@ -22,19 +22,25 @@ using std::endl;
 
 
 
+/// Do ??? with dag, and points a,b,c
+/// What use does pIdx1 serve? Freshly inserted point?
+/// => make sure edge bc is Locally Delaunay,
+///    ??? and that the flips we make keep things Locally Delaunay
 void DelaunayTri::legalizeEdge(DirectedGraph& dag, int pIdx1, int pIdx2, int pIdx3) {
 	cout << "DTri::legalizeEdge 1" << endl;
 
+	/// get the triangles with the edge `bc` of given triangle `abc`.
 	vector<TriRecord> triangles = dag.findTrianglesWithEdge(pIdx2, pIdx3);
 
 	cout << "DTri::legalizeEdge 2" << endl;
 
-	for (unsigned int i = 0; i < triangles.size(); i++) {
-		for (int j = 0; j < 3; j++) {
+	for (unsigned int i = 0; i < triangles.size(); i++) { /// "each triangle"
+		for (int j = 0; j < 3; j++) { /// "each point of this triangle.."
 			cout << "loop idx " << i << "," << j << endl;
-			int pointIdx = triangles[i].pointIndexOf(j);
+			int pointIdx = triangles[i].pointIndexOf(j); /// its pointIdx
 
 			if (pointIdx != pIdx1 && pointIdx != pIdx2 && pointIdx != pIdx3) {
+				/// if that triangle point isn't of `abc` in args..
 				int p4 = pointIdx;
 
 				// Presumably delaunayPointSet === dag.getPointSet()
@@ -43,10 +49,20 @@ void DelaunayTri::legalizeEdge(DirectedGraph& dag, int pIdx1, int pIdx2, int pId
 
 				cout << "about to check inCircle.." << endl;
 				assert(p4 > 0); // check p4!
+
+				/// if this point is in the circumcircle of abc triangle..
 				if (pointSet.inCircle(pIdx1, pIdx2, pIdx3, p4) > 0) {
-					dag.flipTriangles(pIdx1, pIdx2, pIdx3, p4);
-					legalizeEdge(dag, pIdx1, pIdx2, p4);
-					legalizeEdge(dag, pIdx1, pIdx3, p4);
+					///> want to replace ij w/ kr
+					// abd, dbc must be triangles.
+					// TRI = pdx1,2,3;
+					// TRI= pidx2,3,4
+					// dag.flipTriangles(pIdx1, pIdx2, pIdx3, p4);
+					dag.flipTriangles(pIdx1, pIdx2, p4, pIdx3);
+					/// abp (by edge bp)
+					legalizeEdge(dag, pIdx1, pIdx2, p4); /// n.b., the triangle mightn't be given in that idx order e.g. cba
+					/// acp (by edge cp)
+					// legalizeEdge(dag, pIdx1, pIdx3, p4);
+					legalizeEdge(dag, pIdx1, p4, pIdx3);
 				}
 				cout << "after check inCircle.." << endl;
 
@@ -60,6 +76,8 @@ void DelaunayTri::legalizeEdge(DirectedGraph& dag, int pIdx1, int pIdx2, int pId
 
 
 
+/// ???
+/// XXX Btw, no need to have dlyPointsToProcess here
 void delaunayIterationStep(vector<int>& delaunayPointsToProcess,
                            DirectedGraph& dag) {
 	if (delaunayPointsToProcess.size() == 0) {
@@ -73,6 +91,8 @@ void delaunayIterationStep(vector<int>& delaunayPointsToProcess,
 
 	cout << "dlyIterStep 2" << endl;
 
+	/// Insert into new Tri into the DAG.
+	/// These new triangles mightn't be Locally Delaunay.
 	// Return the containing triangle for the point i.
 	TriRecord tri = dag.addVertex(pIdx);
 
@@ -83,11 +103,15 @@ void delaunayIterationStep(vector<int>& delaunayPointsToProcess,
 
 	cout << "dlyIterStep 4" << endl;
 
+	/// edges 12, 13, 23 are the "link" of the inserted point.
+	/// So, here we 'flip edges' until things are locally delaunday.
 	DelaunayTri::legalizeEdge(dag, pIdx, triPIdx1, triPIdx2);
 	DelaunayTri::legalizeEdge(dag, pIdx, triPIdx1, triPIdx3);
 	DelaunayTri::legalizeEdge(dag, pIdx, triPIdx2, triPIdx3);
 
 	cout << "dlyIterStep 5" << endl;
+
+	/// Everything is Locally Delaunay by this point.
 
 	// Redisplay
 	// updateGL(); // updateGL is a method of the QGLWidget..
@@ -140,7 +164,7 @@ void tryDelaunayTriangulation(DirectedGraph& dag) {
 
 	cout << "tryDelaunayTriangulation 3" << endl;
 
-	// TODO: Shuffle these points of delaunayPointsToProcess
+	// Shuffle these points of delaunayPointsToProcess
 	srand (time(NULL));
 	for (unsigned int i = 0; i < delaunayPointsToProcess.size() / 2; i++) {
 		cout << "tryDelaunayTriangulation loop idx=" << i << endl;
