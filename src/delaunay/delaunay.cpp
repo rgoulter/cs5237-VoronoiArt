@@ -30,6 +30,8 @@ void DelaunayTri::legalizeEdge(DirectedGraph& dag, int pIdx1, int pIdx2, int pId
 	cout << "DTri::legalizeEdge 1" << endl;
 
 	/// get the triangles with the edge `bc` of given triangle `abc`.
+	/// => We want to find the adjacent triangle to tri<abc>..
+	///    (Can DAG structure do this better? findTri/findTriAdjacentToEdge?)
 	vector<TriRecord> triangles = dag.findTrianglesWithEdge(pIdx2, pIdx3);
 
 	cout << "DTri::legalizeEdge 2" << endl;

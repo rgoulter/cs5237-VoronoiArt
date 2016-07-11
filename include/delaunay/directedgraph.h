@@ -34,10 +34,10 @@ public:
 	~DirectedGraph();
 
 	/// Finds the linked delaunay triangles for the input point index
-	std::vector<TriRecord> findTrianglesWithVertex(int);
+	std::vector<TriRecord> findTrianglesWithVertex(int) const;
 
 	/// Returns a set of triangles for the input point indexes.
-	std::vector<TriRecord> findTrianglesWithEdge(int, int);
+	std::vector<TriRecord> findTrianglesWithEdge(int, int) const;
 
 	/// Method to add new children triangles to a parent triangle.
 	TriRecord addVertex(int);
@@ -54,6 +54,10 @@ protected:
 	// std::map<TriRecord, std::vector<TriRecord> > dagNode_;
 
 private:
+	// For debugging,
+	// check that the DAG is in consistent state.
+	bool checkConsistent() const;
+
 	/// Method to search the DAG for the triangle containing the point.
 	/// This triangle will be subdivided into smaller triangles.
 	// TriRecord findLeafNodeForPoint(int);

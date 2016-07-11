@@ -6,6 +6,8 @@
 
 using std::map;
 using std::vector;
+using std::cout;
+using std::endl;
 
 
 
@@ -18,6 +20,72 @@ public:
 	TriRecord tri_;
 	vector<DAGNode *> children_;
 };
+
+
+
+/// Check that the nodes contains a tri with all vertices i,j,k.
+bool containsTri(const vector<DAGNode*>& nodes, int i, int j, int k) {
+	for (vector<DAGNode*>::const_iterator iter = nodes.begin(); iter != nodes.end(); ++iter) {
+		DAGNode *node = *iter;
+		TriRecord tri = node->tri_;
+
+		if (tri.hasPointIndex(i) &&
+		    tri.hasPointIndex(j) &&
+		    tri.hasPointIndex(k)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
+
+// O(n^2),
+// Use for an assert, to check we don't get both Tri(1,2,3) and Tri(3,2,1).
+bool trianglesUnique(const vector<DAGNode*>& nodes) {
+	typedef vector<DAGNode*>::const_iterator const_iter;
+	for (const_iter iter = nodes.begin(); iter != nodes.end(); ++iter) {
+		DAGNode* outerNode = *iter;
+		TriRecord outerTri = outerNode->tri_;
+
+		for (const_iter innerIter = nodes.begin(); innerIter != nodes.end(); ++innerIter) {
+			DAGNode* innerNode = *innerIter;
+			TriRecord innerTri = innerNode->tri_;
+
+			if (!(outerTri == innerTri) &&
+				outerTri.sameVertices(innerTri)) {
+				return false;
+			}
+		}
+
+	}
+
+	return true;
+}
+
+
+
+// Expensive,
+// but check that the DirectedGraph is in good state.
+bool DirectedGraph::checkConsistent() const {
+	assert(trianglesUnique(dagNodes_));
+
+	for (vector<DAGNode*>::const_iterator iter = dagNodes_.begin(); iter != dagNodes_.end(); ++iter) {
+		DAGNode* node = *iter;
+		TriRecord tri = node->tri_;
+
+		int pIdx1, pIdx2, pIdx3;
+		tri.get(pIdx1, pIdx2, pIdx3);
+
+		if (node->isLeaf()) {
+			assert(findTrianglesWithEdge(pIdx1, pIdx2).size() <= 2);
+			assert(findTrianglesWithEdge(pIdx2, pIdx3).size() <= 2);
+			assert(findTrianglesWithEdge(pIdx1, pIdx3).size() <= 2);
+		}
+	}
+
+	return true;
+}
 
 
 
@@ -74,10 +142,10 @@ DirectedGraph::~DirectedGraph() {
 
 
 // This method returns the set of triangles the input point belongs to.
-vector<TriRecord> DirectedGraph::findTrianglesWithVertex(int pIdx1) {
+vector<TriRecord> DirectedGraph::findTrianglesWithVertex(int pIdx1) const {
 	vector<TriRecord> outputlist;
 
-	for (vector<DAGNode*>::iterator iter = dagNodes_.begin(); iter != dagNodes_.end(); ++iter) {
+	for (vector<DAGNode*>::const_iterator iter = dagNodes_.begin(); iter != dagNodes_.end(); ++iter) {
 		DAGNode *node = *iter;
 		TriRecord checkTriangle = node->tri_;
 
@@ -97,10 +165,10 @@ vector<TriRecord> DirectedGraph::findTrianglesWithVertex(int pIdx1) {
  * w/ list of all DagNodes, (ergo, all triangles),
  * can filter through to return TriRecord
  */
-vector<TriRecord> DirectedGraph::findTrianglesWithEdge(int pIdx1, int pIdx2) {
+vector<TriRecord> DirectedGraph::findTrianglesWithEdge(int pIdx1, int pIdx2) const {
 	vector<TriRecord> outputlist;
 
-	for (vector<DAGNode*>::iterator iter = dagNodes_.begin(); iter != dagNodes_.end(); ++iter) {
+	for (vector<DAGNode*>::const_iterator iter = dagNodes_.begin(); iter != dagNodes_.end(); ++iter) {
 		DAGNode *node = *iter;
 		TriRecord checkTriangle = node->tri_;
 
@@ -112,32 +180,11 @@ vector<TriRecord> DirectedGraph::findTrianglesWithEdge(int pIdx1, int pIdx2) {
 		}
 	}
 
+	cout << "dag.findTrisWEdge: " << pIdx1 << ", " << pIdx2 << endl;
+	cout << "dag.findTrisWEdge, output size = " << outputlist.size() << endl;
+	assert(outputlist.size() == 2 || pIdx1 >= pointSet_.noPt() - 3 || pIdx2 >= pointSet_.noPt() - 3);
+
 	return outputlist;
-}
-
-
-
-// O(n^2),
-// Use for an assert, to check we don't get both Tri(1,2,3) and Tri(3,2,1).
-bool trianglesUnique(const vector<DAGNode*>& nodes) {
-	typedef vector<DAGNode*>::const_iterator const_iter;
-	for (const_iter iter = nodes.begin(); iter != nodes.end(); ++iter) {
-		DAGNode* outerNode = *iter;
-		TriRecord outerTri = outerNode->tri_;
-
-		for (const_iter innerIter = nodes.begin(); innerIter != nodes.end(); ++innerIter) {
-			DAGNode* innerNode = *innerIter;
-			TriRecord innerTri = innerNode->tri_;
-
-			if (!(outerTri == innerTri) &&
-				outerTri.sameVertices(innerTri)) {
-				return false;
-			}
-		}
-
-	}
-
-	return true;
 }
 
 
@@ -150,7 +197,7 @@ bool trianglesUnique(const vector<DAGNode*>& nodes) {
  * From bouding tri (root), find the next tri which contains the point.
  */
 TriRecord DirectedGraph::addVertex(int pIdx) {
-	std::cout << "addVertex 1, pIdx=" << pIdx << std::endl;
+	cout << "DAG.addVertex 1, pIdx=" << pIdx << endl;
 
 	// Seek the lowest DAGNode which contains the point.
 	DAGNode *node = root_;
@@ -187,29 +234,11 @@ TriRecord DirectedGraph::addVertex(int pIdx) {
 
 	// Add to instance's list of dagNodes
 	dagNodes_.push_back(child1);
-	assert(trianglesUnique(dagNodes_));
 	dagNodes_.push_back(child2);
-	assert(trianglesUnique(dagNodes_));
 	dagNodes_.push_back(child3);
-	assert(trianglesUnique(dagNodes_));
+	checkConsistent();
 
 	return parentTri;
-}
-
-
-
-bool containsTri(const vector<DAGNode*>& nodes, int i, int j, int k) {
-	for (vector<DAGNode*>::const_iterator iter = nodes.begin(); iter != nodes.end(); ++iter) {
-		DAGNode *node = *iter;
-		TriRecord tri = node->tri_;
-
-		if (tri.hasPointIndex(i) &&
-		    tri.hasPointIndex(j) &&
-		    tri.hasPointIndex(k)) {
-			return true;
-		}
-	}
-	return false;
 }
 
 
@@ -220,7 +249,7 @@ bool containsTri(const vector<DAGNode*>& nodes, int i, int j, int k) {
 //
 // the shared edge bd gets replaced with shared edge ac
 void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
-	std::cout << "DAG::flipTris, args=" << pIdx1 << "," << pIdx2 << "," << pIdx3 << "," << pIdx4 << "." << std::endl;
+	cout << "DAG::flipTris, args=" << pIdx1 << "," << pIdx2 << "," << pIdx3 << "," << pIdx4 << "." << endl;
 
 	assert(containsTri(dagNodes_, pIdx1, pIdx2, pIdx4));
 	assert(containsTri(dagNodes_, pIdx4, pIdx2, pIdx3));
@@ -248,14 +277,14 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 
 	// one edge shared by two triangles
 	// => this *won't* be true, due to flipped nodes, duh.
-	std::cout << "DAG::flipTris, before assert, size=" << (nodes.size()) << std::endl;
+	cout << "DAG::flipTris, before assert, size=" << (nodes.size()) << endl;
 	for (vector<DAGNode*>::iterator iter = nodes.begin();
 	     iter != nodes.end();
 	     ++iter) {
 		DAGNode *n = *iter;
 		int i,j,k;
 		n->tri_.get(i,j,k);
-		std::cout << "Tri(" << i << "," << j << "," << k << ")" << std::endl;
+		cout << "Tri(" << i << "," << j << "," << k << ")" << endl;
 	}
 	assert(nodes.size() == 2);
 
@@ -279,8 +308,7 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 
 	// Add to instance's list of dagNodes
 	dagNodes_.push_back(abcNode);
-	assert(trianglesUnique(dagNodes_));
 	dagNodes_.push_back(acdNode);
-	assert(trianglesUnique(dagNodes_));
+	checkConsistent();
 }
 
