@@ -23,15 +23,15 @@ public:
 
 	/// return 1 if the point p is inside the triangle p1p2p3,
 	///  by reference of the indices, -1 if outside, 0 if degenerate
-	int inTri(int p1Idx, int p2Idx, int p3Idx, int pIdx);
+	int inTri(int p1Idx, int p2Idx, int p3Idx, int pIdx) const;
 
 	/// return 1 if the point p is inside the circumcircle of p1p2p3,
 	/// -1 if outside,
 	/// 0 if degenerate
-	int inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx);
+	int inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx) const;
 
 	/// returns true if the 3 input points are not co-linear.
-	bool circumCircle(int p1Idx, int p2Idx, int p3Idx, MyPoint& center);
+	bool circumCircle(int p1Idx, int p2Idx, int p3Idx, MyPoint& center) const;
 
 };
 #endif

@@ -3,23 +3,85 @@
 #include <assert.h>
 
 #include <iostream>
+#include <stack>
 
-using std::map;
+using std::stack;
 using std::vector;
 using std::cout;
 using std::endl;
 
 
 
-class DAGNode {
-public:
-	DAGNode(const TriRecord& tri) : tri_(tri) {}
+// O(log n) impl.
+vector<DAGNode*> DAGNode::leafNodesContainingPoint(DAGNode* root, const PointSetArray& pointSet, int pIdx) {
+	vector<DAGNode*> outputList;
 
-	bool isLeaf() const { return children_.empty(); }
+	stack<DAGNode*> stk;
+	stk.push(root);
 
-	TriRecord tri_;
-	vector<DAGNode *> children_;
-};
+	while (!stk.empty()) {
+		DAGNode* node = stk.top();
+		stk.pop();
+
+		if (node->isLeaf()) {
+			outputList.push_back(node);
+		}
+
+		for (vector<DAGNode*>::iterator iter = node->children_.begin();
+		     iter != node->children_.end();
+		     ++iter) {
+			DAGNode *childNode = *iter;
+
+			int p1Idx, p2Idx, p3Idx;
+			childNode->tri_.get(p1Idx, p2Idx, p3Idx);
+
+			// TODO convenient if PSet.inTri used TriRecord
+			if (pointSet.inTri(p1Idx, p2Idx, p3Idx, pIdx) > 0) {
+				stk.push(childNode);
+			} else if (pointSet.inTri(p1Idx, p2Idx, p3Idx, pIdx) == 0) {
+				cout << "DAG.addVertex, CASE: pIdx *on* tri." << endl;
+				stk.push(childNode);
+			}
+		}
+	}
+
+	return outputList;
+}
+
+
+
+vector<DAGNode*> DAGNode::leafNodesContainingEdge(DAGNode* root, const PointSetArray& pointSet, int pIdx1, int pIdx2) {
+	vector<DAGNode*> outputList;
+
+	stack<DAGNode*> stk;
+	stk.push(root);
+
+	while (!stk.empty()) {
+		DAGNode* node = stk.top();
+		stk.pop();
+
+		if (node->isLeaf()) {
+			outputList.push_back(node);
+		}
+
+		for (vector<DAGNode*>::iterator iter = node->children_.begin();
+		     iter != node->children_.end();
+		     ++iter) {
+			DAGNode *childNode = *iter;
+
+			int p1Idx, p2Idx, p3Idx;
+			childNode->tri_.get(p1Idx, p2Idx, p3Idx);
+
+			// TODO convenient if PSet.inTri used TriRecord
+			if (pointSet.inTri(p1Idx, p2Idx, p3Idx, pIdx1) >= 0 &&
+				pointSet.inTri(p1Idx, p2Idx, p3Idx, pIdx2) >= 0) {
+				stk.push(childNode);
+			}
+		}
+	}
+
+	return outputList;
+}
 
 
 
@@ -36,6 +98,19 @@ bool containsTri(const vector<DAGNode*>& nodes, int i, int j, int k) {
 		}
 	}
 	return false;
+}
+
+
+
+void outputTriList(const vector<DAGNode*>& nodes) {
+	for (vector<DAGNode*>::const_iterator iter = nodes.begin();
+	     iter != nodes.end();
+	     ++iter) {
+		DAGNode *n = *iter;
+		int i,j,k;
+		n->tri_.get(i,j,k);
+		cout << "Tri(" << i << "," << j << "," << k << ")" << endl;
+	}
 }
 
 
@@ -145,6 +220,7 @@ DirectedGraph::~DirectedGraph() {
 vector<TriRecord> DirectedGraph::findTrianglesWithVertex(int pIdx1) const {
 	vector<TriRecord> outputlist;
 
+	// O(n)
 	for (vector<DAGNode*>::const_iterator iter = dagNodes_.begin(); iter != dagNodes_.end(); ++iter) {
 		DAGNode *node = *iter;
 		TriRecord checkTriangle = node->tri_;
@@ -168,6 +244,7 @@ vector<TriRecord> DirectedGraph::findTrianglesWithVertex(int pIdx1) const {
 vector<TriRecord> DirectedGraph::findTrianglesWithEdge(int pIdx1, int pIdx2) const {
 	vector<TriRecord> outputlist;
 
+	// O(n)
 	for (vector<DAGNode*>::const_iterator iter = dagNodes_.begin(); iter != dagNodes_.end(); ++iter) {
 		DAGNode *node = *iter;
 		TriRecord checkTriangle = node->tri_;
@@ -200,24 +277,11 @@ TriRecord DirectedGraph::addVertex(int pIdx) {
 	cout << "DAG.addVertex 1, pIdx=" << pIdx << endl;
 
 	// Seek the lowest DAGNode which contains the point.
-	DAGNode *node = root_;
+	vector<DAGNode*> leaves = DAGNode::leafNodesContainingPoint(root_, pointSet_, pIdx);
+	cout << "DAG.addVertex, numLeafNodes containing pt: " << leaves.size() << endl;
 
-	while (!node->isLeaf()) {
-		for (vector<DAGNode*>::iterator iter = node->children_.begin();
-		     iter != node->children_.end();
-		     ++iter) {
-			DAGNode *childNode = *iter;
+	DAGNode *node = leaves[0];  // Am assuming case of multiple is rare...
 
-			int p1Idx, p2Idx, p3Idx;
-			childNode->tri_.get(p1Idx, p2Idx, p3Idx);
-
-			// TODO convenient if PSet.inTri used TriRecord
-			if (pointSet_.inTri(p1Idx, p2Idx, p3Idx, pIdx)) {
-				node = childNode;
-				break; // break from iter loop
-			}
-		}
-	}
 
 	TriRecord parentTri = node->tri_;
 	int parentIdx1, parentIdx2, parentIdx3;
@@ -243,7 +307,7 @@ TriRecord DirectedGraph::addVertex(int pIdx) {
 
 
 
-// Please note that the edge to be flipped here is the 2nd and 3rd parameters.
+// Please note that the edge to be flipped here is the 2nd and 4th parameters.
 //
 // flip <abd>,<dbc> adds 2 children to each, <abc>,<acd>
 //
@@ -254,39 +318,14 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 	assert(containsTri(dagNodes_, pIdx1, pIdx2, pIdx4));
 	assert(containsTri(dagNodes_, pIdx4, pIdx2, pIdx3));
 
-	assert(pIdx1 >= 1 && pIdx1 < 1000000); // XXX magic bound
-	assert(pIdx2 >= 1 && pIdx2 < 1000000);
-	assert(pIdx3 >= 1 && pIdx3 < 1000000);
-	assert(pIdx4 >= 1 && pIdx4 < 1000000);
+	// Seek the lowest DAGNode which contains the point.
+	vector<DAGNode*> nodes = DAGNode::leafNodesContainingEdge(root_, pointSet_, pIdx2, pIdx4);
+	cout << "DAG.flipTriangles, numLeafNodes containing edge: " << nodes.size() << endl;
 
-	// PERF: O(n) to find these two. Should probably be O(log n)
-	// Copy & paste from findTrisWithEdge, since we want the DAGNode*.
-	vector<DAGNode*> nodes;
-
-	for (vector<DAGNode*>::iterator iter = dagNodes_.begin(); iter != dagNodes_.end(); ++iter) {
-		DAGNode *node = *iter;
-		TriRecord checkTriangle = node->tri_;
-
-		if (node->isLeaf() &&
-			checkTriangle.hasPointIndex(pIdx2)) { // b
-			if (checkTriangle.hasPointIndex(pIdx4)) { // d
-				nodes.push_back(node);
-			}
-		}
-	}
-
-	// one edge shared by two triangles
-	// => this *won't* be true, due to flipped nodes, duh.
 	cout << "DAG::flipTris, before assert, size=" << (nodes.size()) << endl;
-	for (vector<DAGNode*>::iterator iter = nodes.begin();
-	     iter != nodes.end();
-	     ++iter) {
-		DAGNode *n = *iter;
-		int i,j,k;
-		n->tri_.get(i,j,k);
-		cout << "Tri(" << i << "," << j << "," << k << ")" << endl;
-	}
+	outputTriList(nodes);
 	assert(nodes.size() == 2);
+
 
 	DAGNode *abdNode = nodes[0]; // <124>
 	DAGNode *dbcNode = nodes[1]; // <423>

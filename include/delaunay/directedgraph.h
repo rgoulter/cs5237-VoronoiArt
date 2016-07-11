@@ -4,8 +4,7 @@
 #include <assert.h>
 
 #include <iostream>
-#include <map>
-#include <set>
+#include <vector>
 
 #include "pointset.h"
 #include "pointsetarray.h"
@@ -13,7 +12,21 @@
 
 
 
-class DAGNode;
+class DAGNode {
+public:
+	static std::vector<DAGNode*> leafNodesContainingPoint(DAGNode* root, const PointSetArray& pointSet, int pIdx);
+
+	/// 'contains edge' iff 'contains both points'.
+	/// Order of points not considered.
+	static std::vector<DAGNode*> leafNodesContainingEdge(DAGNode* root, const PointSetArray& pointSet, int pIdx1, int pIdx2);
+
+	DAGNode(const TriRecord& tri) : tri_(tri) {}
+
+	bool isLeaf() const { return children_.empty(); }
+
+	TriRecord tri_;
+	std::vector<DAGNode *> children_;
+};
 
 
 

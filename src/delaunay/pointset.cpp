@@ -20,7 +20,7 @@ void PointSet::deleteLastPoint() {
 
 
 /// XXX Erm, I assume that p1,p2,p3 must be CCW
-int PointSet::inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx) {
+int PointSet::inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx) const {
 	std::cout << "inCircle " << p1Idx << "," << p2Idx << "," << p3Idx << ", " << pIdx << "; len=" << (myPoints.size()) << std::endl;
 
 	// Indices given are 1-based, but stored as 0-based.
@@ -52,7 +52,7 @@ int PointSet::inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx) {
 
 
 // This method returns the circumcircle center for the three input points.
-bool PointSet::circumCircle(int p1Idx, int p2Idx, int p3Idx, MyPoint& center) {
+bool PointSet::circumCircle(int p1Idx, int p2Idx, int p3Idx, MyPoint& center) const {
 	std::cout << "circumCirle 1" << std::endl;
 	LongInt dA, dB, dC, aux1, aux2, div;
 	int quo1, quo2; // aux1Sign, aux2Sign;
@@ -117,7 +117,7 @@ bool PointSet::circumCircle(int p1Idx, int p2Idx, int p3Idx, MyPoint& center) {
 //this function gives an incorrect response for 1-2 cases per trial.
 //The only possiblity is my orientation function or whatever it depends on has a bug.
 //mainly because this code is stupidly simple.
-int PointSet::inTri(int p1Idx, int p2Idx, int p3Idx, int pIdx) {
+int PointSet::inTri(int p1Idx, int p2Idx, int p3Idx, int pIdx) const {
 	//If v is in the triangle formed by (p1, p2), (p2, p3), (p3, p1)
 	//then v is consistently on the same side of all of those lines.
 
