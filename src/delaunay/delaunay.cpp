@@ -27,7 +27,7 @@ using std::endl;
 /// => make sure edge bc is Locally Delaunay,
 ///    ??? and that the flips we make keep things Locally Delaunay
 void DelaunayTri::legalizeEdge(DirectedGraph& dag, int pIdx1, int pIdx2, int pIdx3) {
-	cout << "DTri::legalizeEdge 1" << endl;
+	cout << "DTri::legalizeEdge 1, " << pIdx1 << ", " << pIdx2 << "," << pIdx3 << endl;
 
 	/// get the triangles with the edge `bc` of given triangle `abc`.
 	/// => We want to find the adjacent triangle to tri<abc>..
@@ -111,7 +111,7 @@ void delaunayIterationStep(vector<int>& delaunayPointsToProcess,
 	DelaunayTri::legalizeEdge(dag, pIdx, triPIdx1, triPIdx3);
 	DelaunayTri::legalizeEdge(dag, pIdx, triPIdx2, triPIdx3);
 
-	cout << "dlyIterStep 5" << endl;
+	cout << "dlyIterStep 5 (AFTER legalizeEdge x3)" << endl;
 
 	/// Everything is Locally Delaunay by this point.
 
