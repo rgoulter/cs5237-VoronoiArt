@@ -146,7 +146,9 @@ if (test)
   ##############
   # Unit Tests
   ##############
-  add_executable(runUnitTests test/basictests.cpp
+  add_executable(runUnitTests test/delaunay/polygontests.cpp
+                              test/delaunay/pointsettests.cpp
+                              test/delaunay/dagtests.cpp
                               test/testmain.cpp)
 
   target_link_libraries(runUnitTests gtest gtest_main)

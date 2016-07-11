@@ -3,38 +3,15 @@
 #include "gtest/gtest.h"
 
 #include "li.h"
-#include "pointset.h"
 #include "polygon.h"
 
 using std::vector;
 using std::cout;
 using std::endl;
 
-TEST(BasicsTest, PointSetInTriSimple) {
-	PointSet ps;
-	
-	int p1 = ps.addPoint(0, 0);   // 1
-	int p2 = ps.addPoint(0, 4);   // 2
-	int p3 = ps.addPoint(4, 0);   // 3
-	int p4 = ps.addPoint(4, 4);   // 4
-	int p5 = ps.addPoint(1, 1);   // 5
 
-	// In case the above goes out of range
-	ps.addPoint(1, 1);   // 6
 
-	// (1, 1) IS in tri 123
-	EXPECT_EQ(1, ps.inTri(p1, p2, p3, p5));
-	
-	// (1, 1) IS in tri 124
-	EXPECT_EQ(0, ps.inTri(p1, p2, p4, p5));
-	
-	// (1, 1) IS NOT in tri 234
-	EXPECT_EQ(-1, ps.inTri(p2, p3, p4, p5));
-}
-
-TEST(BasicsTest, PolyPointInPolygon) {
-	PointSet ps;
-	
+TEST(PointSetTest, MyPointPolyPointInPolygon) {
 	MyPoint p1( 0,  0);   // 1
 	MyPoint p2( 0, 10);   // 2
 	MyPoint p3(10, 10);   // 3
@@ -52,9 +29,9 @@ TEST(BasicsTest, PolyPointInPolygon) {
 	EXPECT_EQ(0, inPoly(poly, p6));
 }
 
-TEST(BasicsTest, PolyPointInIntPolygon) {
-	PointSet ps;
-	
+
+
+TEST(PolygonTest, PolyPointInIntPolygon) {
 	int p1x =  0, p1y =  0;
 	int p2x =  0, p2y = 10;
 	int p3x = 10, p3y = 10;
@@ -72,7 +49,10 @@ TEST(BasicsTest, PolyPointInIntPolygon) {
 	EXPECT_EQ(0, inPoly(poly, p6x, p6y));
 }
 
-TEST(BasicsTest, LineSegIsectIntPointBasic) {
+
+
+
+TEST(PolygonTest, LineSegIsectIntPointBasic) {
 	int ax =   0, ay =  0;
 	int bx =  10, by = 10;
 	int cx =   0, cy =  2;
@@ -83,12 +63,14 @@ TEST(BasicsTest, LineSegIsectIntPointBasic) {
 	int eix =  1, eiy =  1;
 
 	findIntersectionPoint(ax, ay, bx, by, cx, cy, dx, dy, ix, iy);
-	
+
 	EXPECT_EQ(eix, ix);
 	EXPECT_EQ(eiy, iy);
 }
 
-TEST(BasicsTest, ClipPolyRectCaseNoIsect) {
+
+
+TEST(PolygonTest, ClipPolyRectCaseNoIsect) {
 	int x1 =   0, x2 = 100;
 	int y1 =   0, y2 = 100;
 
@@ -100,7 +82,7 @@ TEST(BasicsTest, ClipPolyRectCaseNoIsect) {
 	testPoly.push_back(10); testPoly.push_back(20);
 
 	vector<int> output = clipPolygonToRectangle(testPoly, x1, y1, x2, y2);
-	
+
 	EXPECT_EQ(testPoly.size(), output.size());
 
 	for (unsigned int i = 0; i < testPoly.size(); i += 2) {
@@ -109,7 +91,9 @@ TEST(BasicsTest, ClipPolyRectCaseNoIsect) {
 	}
 }
 
-TEST(BasicsTest, ClipPolyRectCaseSimpleIsect) {
+
+
+TEST(PolygonTest, ClipPolyRectCaseSimpleIsect) {
 	int x1 =   0, x2 = 100;
 	int y1 =   0, y2 = 100;
 
@@ -127,7 +111,7 @@ TEST(BasicsTest, ClipPolyRectCaseSimpleIsect) {
 	expectedPoly.push_back(50);  expectedPoly.push_back(50);
 
 	vector<int> output = clipPolygonToRectangle(testPoly, x1, y1, x2, y2);
-	
+
 	if (expectedPoly.size() != output.size()) {
 		cout << "Expected poly has " << (expectedPoly.size() / 2) << "points," << endl;
 		cout << "Output poly different than expected:" << endl;
