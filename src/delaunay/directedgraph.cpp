@@ -109,7 +109,7 @@ void outputTriList(const vector<DAGNode*>& nodes) {
 		DAGNode *n = *iter;
 		int i,j,k;
 		n->tri_.get(i,j,k);
-		cout << "Tri(" << i << "," << j << "," << k << ")" << endl;
+		cout << n->tri_ << endl;
 	}
 }
 

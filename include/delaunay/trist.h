@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#include <ostream>
 #include <vector>
 
 #include "pointsetarray.h"
@@ -141,6 +142,10 @@ public:
 	/// Find an edge in nextTri that has the common vertex
 	/// but not shared with prevTri
 	void nextEdge(int& commonIdx, int& notIdx, const TriRecord& nextTri) const;
+
+
+
+	friend std::ostream& operator<<(std::ostream& os, const TriRecord& tri);
 
 
 

@@ -51,6 +51,13 @@ void TriRecord::nextEdge(int& commonIdx, int& nextIdx, const TriRecord& nextTri)
 
 
 
+std::ostream& operator<<(std::ostream& os, const TriRecord& tri) {
+	os << "Tri(" << tri.vi_[0] << "," << tri.vi_[1] << "," << tri.vi_[2] << ")" << std::endl;
+	return os;
+}
+
+
+
 // Adds the points to the PointSetArray
 void findBoundingTri(PointSetArray &pSet) {
 	assert(pSet.noPt() > 0);
