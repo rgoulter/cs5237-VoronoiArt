@@ -53,7 +53,7 @@ void DelaunayTri::legalizeEdge(DirectedGraph& dag, int pIdx1, int pIdx2, int pId
 				assert(p4 > 0); // check p4!
 
 				/// if this point is in the circumcircle of abc triangle..
-				if (pointSet.inCircle(pIdx1, pIdx2, pIdx3, p4) > 0) {
+				if (pointSet.inCircle(pIdx1, pIdx2, pIdx3, p4) < 0) {
 					///> want to replace ij w/ kr
 					// abd, dbc must be triangles.
 					// TRI = pdx1,2,3;

@@ -36,17 +36,17 @@ int PointSet::inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx) {
 		return 1;
 	//look here for formula: http://www.cs.cmu.edu/~quake/robust.html
 	LongInt t1x, t1y, t2x, t2y, t3x, t3y;
-	t1x = p1.x-v.x;
-	t1y = p1.y-v.y;
-	t2x = p2.x-v.x;
-	t2y = p2.y-v.y;
-	t3x = p3.x-v.x;
-	t3y = p3.y-v.y;
+	t1x = p1.x - v.x;
+	t1y = p1.y - v.y;
+	t2x = p2.x - v.x;
+	t2y = p2.y - v.y;
+	t3x = p3.x - v.x;
+	t3y = p3.y - v.y;
 
-	//this is a refractoring of the lecturer's solution to be a 3x3 determinant instead.
-	return signDet(t1x, t1y, t1x*(p1.x+v.x) + t1y*(p1.y+v.y),
-	               t2x, t2y, t2x*(p2.x+v.x) + t2y*(p2.y+v.y),
-	               t3x, t3y, t3x*(p3.x+v.x) + t3y*(p3.y+v.y))*orient>=0;
+	// this is a refactoring of the lecturer's solution to be a 3x3 determinant instead.
+	return signDet(t1x, t1y, t1x * (p1.x + v.x) + t1y * (p1.y + v.y),
+	               t2x, t2y, t2x * (p2.x + v.x) + t2y * (p2.y + v.y),
+	               t3x, t3y, t3x * (p3.x + v.x) + t3y * (p3.y + v.y)) * orient;
 }
 
 
