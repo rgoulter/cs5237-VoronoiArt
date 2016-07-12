@@ -37,6 +37,7 @@ set(VORONOI_LIB_SOURCES src/delaunay/li.cpp
                         src/delaunay/trist.cpp
                         src/delaunay/pointset.cpp
                         src/delaunay/pointsetarray.cpp
+                        src/delaunay/dagnode.cpp
                         src/delaunay/directedgraph.cpp
                         src/delaunay/delaunay.cpp
                         src/voronoi/voronoi.cpp
@@ -56,6 +57,7 @@ set(VORONOI_LIB_HEADERS include/delaunay/li.h
                         include/delaunay/trist.h
                         include/delaunay/pointset.h
                         include/delaunay/pointsetarray.h
+                        include/delaunay/dagnode.h
                         include/delaunay/directedgraph.h
                         include/delaunay/delaunay.h
                         include/delaunay/delaunaytri.h
