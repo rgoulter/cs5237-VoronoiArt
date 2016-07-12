@@ -174,6 +174,14 @@ bool DirectedGraph::checkConsistent() const {
 		DAGNode* node = *iter;
 		TriRecord tri = node->tri_;
 
+		assert(isTriangleCCW(pointSet_, tri));
+	}
+
+	// Check, among the leaves, each edge occurs at most twice.
+	for (vector<DAGNode*>::const_iterator iter = dagNodes_.begin(); iter != dagNodes_.end(); ++iter) {
+		DAGNode* node = *iter;
+		TriRecord tri = node->tri_;
+
 		int pIdx1, pIdx2, pIdx3;
 		tri.get(pIdx1, pIdx2, pIdx3);
 

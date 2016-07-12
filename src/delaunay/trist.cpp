@@ -94,8 +94,8 @@ void findBoundingTri(PointSetArray &pSet) {
 
 	// TODO This seems nonsense. Does it work?
 
-	int super1Idx = pSet.addPoint(maxX + (maxY - minY), minY);
-	int super2Idx = pSet.addPoint(minX - (maxY - minY), minY);
+	int super1Idx = pSet.addPoint(minX - (maxY - minY), minY);
+	int super2Idx = pSet.addPoint(maxX + (maxY - minY), minY);
 
 	maxX = (maxX.doubleValue() - minX.doubleValue()) / 2;
 
@@ -104,6 +104,7 @@ void findBoundingTri(PointSetArray &pSet) {
 	                              maxY + (maxX - minX));
 
 	// Assert that all (other) points contained in the 3 super-triangle.
+	assert(isTriangleCCW(pSet, TriRecord(super1Idx, super2Idx, super3Idx)));
 	for (int i = 1; i < pSet.noPt() - 3; i++) {
 		assert(pSet.inTri(super1Idx, super2Idx, super3Idx, i) > 0);
 	}
