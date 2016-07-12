@@ -324,8 +324,8 @@ vector<TriRecord> DirectedGraph::findTrianglesWithEdge(int pIdx1, int pIdx2) con
 		}
 	}
 
-	cout << "dag.findTrisWEdge: " << pIdx1 << ", " << pIdx2 << endl;
-	cout << "dag.findTrisWEdge, output size = " << outputlist.size() << endl;
+	// cout << "dag.findTrisWEdge: " << pIdx1 << ", " << pIdx2 << endl;
+	// cout << "dag.findTrisWEdge, output size = " << outputlist.size() << endl;
 	assert(outputlist.size() == 2 || pIdx1 >= pointSet_.noPt() - 3 || pIdx2 >= pointSet_.noPt() - 3);
 
 	return outputlist;
@@ -338,7 +338,6 @@ int DirectedGraph::findAdjacentTriangle(int pIdx1, int pIdx2, int pIdx3) const {
 
 	for (unsigned int i = 0; i < triangles.size(); i++) { /// "each triangle"
 		for (int j = 0; j < 3; j++) { /// "each point of this triangle.."
-			cout << "loop idx " << i << "," << j << endl;
 			int pointIdx = triangles[i].pointIndexOf(j); /// its pointIdx
 
 			if (pointIdx != pIdx1 && pointIdx != pIdx2 && pointIdx != pIdx3) {
@@ -361,7 +360,7 @@ int DirectedGraph::findAdjacentTriangle(int pIdx1, int pIdx2, int pIdx3) const {
  * From bouding tri (root), find the next tri which contains the point.
  */
 TriRecord DirectedGraph::addVertex(int pIdx) {
-	cout << "DAG.addVertex 1, pIdx=" << pIdx << endl;
+	cout << "DAG.addVertex(" << pIdx << ")" << endl;
 
 	// Seek the lowest DAGNode which contains the point.
 	vector<DAGNode*> leaves = DAGNode::leafNodesContainingPoint(root_, pointSet_, pIdx);
@@ -415,10 +414,8 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 
 	// Seek the lowest DAGNode which contains the point.
 	vector<DAGNode*> nodes = DAGNode::leafNodesContainingEdge(root_, pointSet_, pIdx2, pIdx4);
-	cout << "DAG.flipTriangles, numLeafNodes containing edge: " << nodes.size() << endl;
-
-	cout << "DAG::flipTris, before assert, size=" << (nodes.size()) << endl;
-	outputTriList(nodes);
+	// cout << "DAG.flipTriangles, numLeafNodes containing edge: " << nodes.size() << endl;
+	// outputTriList(nodes);
 	assert(nodes.size() == 2);
 
 
