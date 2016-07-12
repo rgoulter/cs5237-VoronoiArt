@@ -149,6 +149,7 @@ if (test)
   add_executable(runUnitTests test/delaunay/polygontests.cpp
                               test/delaunay/pointsettests.cpp
                               test/delaunay/dagtests.cpp
+                              test/delaunay/triangletests.cpp
                               test/testmain.cpp)
 
   target_link_libraries(runUnitTests gtest gtest_main)

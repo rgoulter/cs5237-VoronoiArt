@@ -20,6 +20,9 @@ public:
 	}
 };
 
+/// Returns 1 if p3 is counter-clockwise to p1p2,
+/// 0 if co-linear,
+/// -1 if clockwise.
 int orientation(const MyPoint& p1, const MyPoint& p2, const MyPoint& p3);
 
 bool intersects(const MyPoint& a, const MyPoint& b, const MyPoint& c, const MyPoint& d);

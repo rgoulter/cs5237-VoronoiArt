@@ -159,6 +159,10 @@ friend Trist;
 
 
 
+bool isTriangleCCW(const PointSetArray& psa, const TriRecord& tri);
+
+
+
 class Trist {
 private:
 	void relableRefsToTri(OrTri oldEF, OrTri newEF);

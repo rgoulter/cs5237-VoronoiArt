@@ -111,6 +111,34 @@ void findBoundingTri(PointSetArray &pSet) {
 
 
 
+bool isTriangleCCW(const PointSetArray& psa, const TriRecord& tri) {
+	int pIdx1, pIdx2, pIdx3;
+	tri.get(pIdx1, pIdx2, pIdx3);
+
+	// TODO: want easy way to get MyPoint from PointSetArray
+	LongInt p1x, p1y;
+	psa.getPoint(pIdx1, p1x, p1y);
+
+	LongInt p2x, p2y;
+	psa.getPoint(pIdx2, p2x, p2y);
+
+	LongInt p3x, p3y;
+	psa.getPoint(pIdx3, p3x, p3y);
+
+	MyPoint p1(p1x, p1y);
+	MyPoint p2(p2x, p2y);
+	MyPoint p3(p3x, p3y);
+
+	// Test that p3 is ccw to p1p2,
+	//           p1 is ccw to p2p3,
+	//           p2 is ccw to p3p1
+	return orientation(p1, p2, p3) == 1 &&
+	       orientation(p2, p3, p1) == 1 &&
+	       orientation(p3, p1, p2) == 1;
+}
+
+
+
 Trist::Trist() {
 }
 
