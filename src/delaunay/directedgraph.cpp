@@ -165,6 +165,36 @@ bool trianglesUnique(const vector<DAGNode*>& nodes) {
 
 
 
+bool leavesDoNotOverlap(const PointSetArray& pointSet, const vector<DAGNode*>& nodes) {
+	// Find the leaf nodes
+	vector<DAGNode*> leafNodes;
+	for (vector<DAGNode*>::const_iterator iter = nodes.begin(); iter != nodes.end(); ++iter) {
+		DAGNode* node = *iter;
+
+		if (node->isLeaf()) {
+			leafNodes.push_back(node);
+		}
+	}
+
+	// Check the leaf nodes never intersect with each other
+	for (vector<DAGNode*>::const_iterator iter = leafNodes.begin(); iter != leafNodes.end(); ++iter) {
+		TriRecord outerTri = (*iter)->tri_;
+
+		for (vector<DAGNode*>::const_iterator innerIter = leafNodes.begin(); innerIter != leafNodes.end(); ++innerIter) {
+			TriRecord innerTri = (*iter)->tri_;
+
+			if (!(outerTri == innerTri) &&
+			    intersectsTriangle(pointSet, outerTri, innerTri)) {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+
+
 // Expensive,
 // but check that the DirectedGraph is in good state.
 bool DirectedGraph::checkConsistent() const {
@@ -176,6 +206,8 @@ bool DirectedGraph::checkConsistent() const {
 
 		assert(isTriangleCCW(pointSet_, tri));
 	}
+
+	assert(leavesDoNotOverlap(pointSet_, dagNodes_));
 
 	// Check, among the leaves, each edge occurs at most twice.
 	for (vector<DAGNode*>::const_iterator iter = dagNodes_.begin(); iter != dagNodes_.end(); ++iter) {
@@ -192,6 +224,8 @@ bool DirectedGraph::checkConsistent() const {
 		}
 	}
 
+
+	cout << "*** Directed Graph checked to be in consistent state ***" << endl;
 	return true;
 }
 
