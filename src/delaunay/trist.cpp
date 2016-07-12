@@ -2,8 +2,13 @@
 
 #include <assert.h>
 
+#include <iostream>
+
 #include "li.h"
 #include "pointsetarray.h"
+
+using std::cout;
+using std::endl;
 
 
 
@@ -133,9 +138,22 @@ bool isTriangleCCW(const PointSetArray& psa, const TriRecord& tri) {
 	// Test that p3 is ccw to p1p2,
 	//           p1 is ccw to p2p3,
 	//           p2 is ccw to p3p1
-	return orientation(p1, p2, p3) == 1 &&
-	       orientation(p2, p3, p1) == 1 &&
-	       orientation(p3, p1, p2) == 1;
+	bool isCCWp2p3 = orientation(p1, p2, p3) == 1;
+	bool isCCWp3p1 = orientation(p2, p3, p1) == 1;
+	bool isCCWp1p2 = orientation(p3, p1, p2) == 1;
+
+	if (!isCCWp2p3 || !isCCWp3p1 || !isCCWp1p2) {
+		cout << "!!! NOT COUNTER-CLOCKWISE: !!!" << endl;
+		cout << " p2p3(p1)? " << isCCWp2p3 << endl;
+		cout << " p3p1(p2)? " << isCCWp3p1 << endl;
+		cout << " p1p2(p3)? " << isCCWp1p2 << endl;
+		cout << "Points:" << endl;
+		cout << " 1: (" << p1x.doubleValue() << "," << p1y.doubleValue() << ")" << endl;
+		cout << " 2: (" << p2x.doubleValue() << "," << p2y.doubleValue() << ")" << endl;
+		cout << " 3: (" << p3x.doubleValue() << "," << p3y.doubleValue() << ")" << endl;
+	}
+
+	return isCCWp2p3 && isCCWp3p1 && isCCWp1p2;
 }
 
 
