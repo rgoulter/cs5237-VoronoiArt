@@ -1,8 +1,12 @@
-#ifndef VParabola_h
-#define VParabola_h
+#ifndef VORONOI_VParabola_h
+#define VORONOI_VParabola_h
 
 #include "vpoint.h"
 #include "vedge.h"
+
+
+
+namespace voronoi {
 
 /*
     Parabolas and events have pointers to each other, so we declare class VEvent, which will be defined later.
@@ -80,6 +84,8 @@ private:
 	VParabola * _left;
 	VParabola * _right;
 };
+
+}
 
 #endif
 

@@ -40,6 +40,11 @@ using delaunay::PointSetArray;
 using delaunay::tryDelaunayTriangulation;
 using delaunay::createVoronoi;
 
+using voronoi::Edges;
+using voronoi::Vertices;
+using voronoi::Voronoi;
+using voronoi::VEdge;
+using voronoi::VPoint;
 
 
 // TODO: the stopwatch code used makes code less readable.
@@ -350,7 +355,7 @@ vector<ColoredPolygon> generateColoredPolygons(vector<PointSetArray>& psas, cons
 // & outputs the voronoiEdges required for the generateColoredPolygons
 //
 // VORONOI, wrapper to voronoiEdges(???)
-vector<PointSetArray> createPolygonsFortune(vor::Edges *voronoiedges) {
+vector<PointSetArray> createPolygonsFortune(Edges *voronoiedges) {
 	vector<PointSetArray> voronoiEdges;
 
 	// The dictionary is indexed by the voronoi points and gives the polygon for each voronoi.
@@ -360,7 +365,7 @@ vector<PointSetArray> createPolygonsFortune(vor::Edges *voronoiedges) {
 	// XXX This should be its own function.
 	// Given a list of VEdges,
 	// construct reverse-lookup of VEdges associated with each VPoint.
-	for (vor::Edges::iterator i = voronoiedges->begin(); i != voronoiedges->end(); ++i) {
+	for (Edges::iterator i = voronoiedges->begin(); i != voronoiedges->end(); ++i) {
 		VEdge *edge = *i;
 		VPoint *leftPt = edge->left;
 		VPoint *rightPt = edge->right;
@@ -740,8 +745,8 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 		voronoiVertices_->push_back(new VPoint(-10000.0 + ((double)rand()*15.0 / (double)RAND_MAX),
 		                                       -10000.0 + ((double)rand()*15.0 / (double)RAND_MAX) ));
 
-		vor::Voronoi voronoi;
-		vor::Edges *voronoiEdges = voronoi.getEdges(voronoiVertices_, 10000, 10000);
+		Voronoi voronoi;
+		Edges *voronoiEdges = voronoi.getEdges(voronoiVertices_, 10000, 10000);
 
 		voroSW.pause();
 		double timeFortune = voroSW.ms();
@@ -943,7 +948,7 @@ void MyPanelOpenGL::clearAll() {
 	// Clear all the Voronoi computations
 	// Reset voronoi components for Fortune's algorithm
 	// XXX this is clearly not memory safe
-	voronoiVertices_ = new vor::Vertices();
+	voronoiVertices_ = new Vertices();
 
 	// Clear all the points.
 	inputPointSet_.eraseAllPoints();

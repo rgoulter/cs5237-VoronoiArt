@@ -1,19 +1,19 @@
-#ifndef Voronoi_h
-#define Voronoi_h
+#ifndef VORONOI_Voronoi_h
+#define VORONOI_Voronoi_h
 
 #include <functional>
 #include <list>
 #include <queue>
 #include <set>
 
-#include "vpoint.h"
-#include "vedge.h"
-#include "vparabola.h"
-#include "vevent.h"
+#include "voronoi/vpoint.h"
+#include "voronoi/vedge.h"
+#include "voronoi/vparabola.h"
+#include "voronoi/vevent.h"
 
 
 
-namespace vor {
+namespace voronoi {
 
 /*
     Useful data containers for Vertices (places) and Edges of Voronoi diagram

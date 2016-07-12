@@ -1,8 +1,10 @@
-#include "vparabola.h"
+#include "voronoi/vparabola.h"
 
-#include "vpoint.h"
+#include "voronoi/vpoint.h"
 
 
+
+namespace voronoi {
 
 /*
     Constructors
@@ -103,5 +105,7 @@ VParabola * VParabola::getRightChild(VParabola *p) {
 		par = par->left();
 
 	return par;
+}
+
 }
 

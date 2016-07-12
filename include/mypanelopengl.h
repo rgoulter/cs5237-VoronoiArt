@@ -13,8 +13,8 @@
 #include "generatepoints.h"
 
 // Imports as part of implementing Fortune's algorithm
-#include "voronoi.h"
-#include "vpoint.h"
+#include "voronoi/voronoi.h"
+#include "voronoi/vpoint.h"
 
 
 
@@ -114,7 +114,7 @@ private:
 
 	// VORONOI
 	/// Vertices for Fortune's algorithm
-	vor::Vertices * voronoiVertices_ = new vor::Vertices();
+	voronoi::Vertices * voronoiVertices_ = new voronoi::Vertices();
 };
 
 #endif // MYPANELOPENGL_H

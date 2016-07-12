@@ -67,8 +67,7 @@ set(VORONOI_LIB_HEADERS include/delaunay/li.h
 set (VORONOI_HEADERS include/mypanelopengl.h
                      include/mainqt.h)
 
-include_directories(include
-                    include/voronoi)
+include_directories(include)
 
 
 IF (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
