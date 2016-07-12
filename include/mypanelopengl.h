@@ -7,13 +7,14 @@
 #include <QGLWidget>
 #include <QString>
 
-#include "pointsetarray.h"
+#include "delaunay/pointsetarray.h"
+
 #include "polypixel.h"
 #include "generatepoints.h"
 
 // Imports as part of implementing Fortune's algorithm
-#include "voronoi.h"
-#include "vpoint.h"
+#include "voronoi/voronoi.h"
+#include "voronoi/vpoint.h"
 
 
 
@@ -82,7 +83,7 @@ protected:
 	void keyPressEvent(QKeyEvent *event);
 
 private:
-	void insertPoint(LongInt x, LongInt y);
+	void insertPoint(delaunay::LongInt x, delaunay::LongInt y);
 	bool hasLoadedImage() { return imData_ != NULL; }
 
 	// TODO Probably could do without these?
@@ -103,17 +104,17 @@ private:
 	int numPDFPoints_ = 75;
 
 	/// The 'bare-bones' Voronoi regions, represented using `PointSetArray`s.
-	std::vector<PointSetArray> voronoiPolygons_;
+	std::vector<delaunay::PointSetArray> voronoiPolygons_;
 
 	/// The `ColoredPolygon`s we use to render the "stain-glass" effect.
 	std::vector<ColoredPolygon> renderedPolygons_;
 
 	// DELAUNAY
-	PointSetArray inputPointSet_;
+    delaunay::PointSetArray inputPointSet_;
 
 	// VORONOI
 	/// Vertices for Fortune's algorithm
-	vor::Vertices * voronoiVertices_ = new vor::Vertices();
+	voronoi::Vertices * voronoiVertices_ = new voronoi::Vertices();
 };
 
 #endif // MYPANELOPENGL_H

@@ -10,6 +10,8 @@ option(test "Build all tests." OFF)
 
 project(VoronoiArt)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
+
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -29,10 +31,11 @@ find_package(OpenGL REQUIRED)
 # Lib for Non-Qt code
 set(VORONOI_LIB_SOURCES src/delaunay/li.cpp
                         src/delaunay/lmath.cpp
+                        src/delaunay/point.cpp
                         src/delaunay/polygon.cpp
-                        src/delaunay/trist.cpp
-                        src/delaunay/pointset.cpp
+                        src/delaunay/triangle.cpp
                         src/delaunay/pointsetarray.cpp
+                        src/delaunay/dagnode.cpp
                         src/delaunay/directedgraph.cpp
                         src/delaunay/delaunay.cpp
                         src/voronoi/voronoi.cpp
@@ -46,13 +49,13 @@ set(VORONOI_SOURCES src/mypanelopengl.cpp
 
 set(VORONOI_LIB_HEADERS include/delaunay/li.h
                         include/delaunay/lmath.h
+                        include/delaunay/point.h
                         include/delaunay/polygon.h
-                        include/delaunay/trist.h
-                        include/delaunay/pointset.h
+                        include/delaunay/triangle.h
                         include/delaunay/pointsetarray.h
+                        include/delaunay/dagnode.h
                         include/delaunay/directedgraph.h
                         include/delaunay/delaunay.h
-                        include/delaunay/delaunaytri.h
                         include/voronoi/vedge.h
                         include/voronoi/vevent.h
                         include/voronoi/vparabola.h
@@ -64,9 +67,7 @@ set(VORONOI_LIB_HEADERS include/delaunay/li.h
 set (VORONOI_HEADERS include/mypanelopengl.h
                      include/mainqt.h)
 
-include_directories(include
-                    include/delaunay
-                    include/voronoi)
+include_directories(include)
 
 
 IF (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -144,7 +145,11 @@ if (test)
   ##############
   # Unit Tests
   ##############
-  add_executable(runUnitTests test/basictests.cpp)
+  add_executable(runUnitTests test/delaunay/polygontests.cpp
+                              test/delaunay/pointsettests.cpp
+                              test/delaunay/dagtests.cpp
+                              test/delaunay/triangletests.cpp
+                              test/testmain.cpp)
 
   target_link_libraries(runUnitTests gtest gtest_main)
   target_link_libraries(runUnitTests VoronoiArt_lib)

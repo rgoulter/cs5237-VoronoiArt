@@ -1,12 +1,15 @@
-#ifndef LIH
-#define LIH
+#ifndef DELAUNAY_LIH
+#define DELAUNAY_LIH
 
 #include <cstdio>
 
+#include <ostream>
 #include <string>
 #include <vector>
 
 
+
+namespace delaunay {
 
 //Const definitions
 const long DIVISOR = 1000000000;
@@ -62,10 +65,13 @@ public:
 
 	double doubleValue() const; // return a double approximation (you can assume that it will not be out of bound)
 
+friend std::ostream& operator<<(std::ostream& os, const LongInt& li);
 friend LongInt operator-(LongInt&);
 };
 
 LongInt operator-(LongInt&); // negative sign
 
+
+}
 
 #endif

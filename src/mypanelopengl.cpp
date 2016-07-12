@@ -20,14 +20,10 @@
 #include "platform.h"
 #include "stopwatch.h"
 
-#include "li.h"
-#include "lmath.h"
-#include "pointset.h"
-#include "pointsetarray.h"
-#include "trist.h"
-#include "delaunaytri.h"
-#include "directedgraph.h"
-#include "delaunay.h"
+#include "delaunay/li.h"
+#include "delaunay/pointsetarray.h"
+#include "delaunay/directedgraph.h"
+#include "delaunay/delaunay.h"
 
 #include "imagedata.h"
 
@@ -37,6 +33,18 @@ using cv::imread;
 using std::string;
 using std::vector;
 
+using delaunay::DirectedGraph;
+using delaunay::LongInt;
+using delaunay::MyPoint;
+using delaunay::PointSetArray;
+using delaunay::tryDelaunayTriangulation;
+using delaunay::createVoronoi;
+
+using voronoi::Edges;
+using voronoi::Vertices;
+using voronoi::Voronoi;
+using voronoi::VEdge;
+using voronoi::VPoint;
 
 
 // TODO: the stopwatch code used makes code less readable.
@@ -157,13 +165,13 @@ void drawColoredPolygons(const vector<ColoredPolygon>& renderedPolygons) {
 	glEnable(GL_COLOR_MATERIAL);
 	glEnable(GL_SCISSOR_TEST);
 
-	for (int i = 0; i < renderedPolygons.size(); i++) {
+	for (unsigned int i = 0; i < renderedPolygons.size(); i++) {
 		ColoredPolygon coloredPoly = renderedPolygons[i];
 
 		glBegin(GL_POLYGON);
 		glColor3fv(coloredPoly.rgb); // rgb?
 
-		for(int j = 0; j < coloredPoly.poly.size() / 2; j++) {
+		for(unsigned int j = 0; j < coloredPoly.poly.size() / 2; j++) {
 			double x = coloredPoly.poly[2 * j];
 			double y = coloredPoly.poly[2 * j + 1];
 
@@ -271,7 +279,7 @@ vector<ColoredPolygon> generateColoredPolygons(vector< vector<int> >& polys, con
 	StopWatch allSW;
 	allSW.resume();
 
-	for (int i = 0; i < polys.size(); i++) {
+	for (unsigned int i = 0; i < polys.size(); i++) {
 		// Clip polygon to ensure we have nothing out of bounds
 		// vector<int> unclippedPoly = polys[i];
 		// vector<int> poly = clipPolygonToRectangle(unclippedPoly, 0, 0, loadedImageWidth, loadedImageHeight);
@@ -311,11 +319,11 @@ vector<ColoredPolygon> generateColoredPolygons(vector< vector<MyPoint> >& myPoin
 	// Coerce the PSAs to vec<int> poly representation
 	vector< vector<int> > ivPolys;
 
-	for (int i = 0; i < myPointPolys.size(); i++) {
+	for (unsigned int i = 0; i < myPointPolys.size(); i++) {
 		vector<MyPoint> mpPoly = myPointPolys[i];
 		vector<int> poly;
 
-		for (int ptIdx = 0; ptIdx < mpPoly.size(); ptIdx++) {
+		for (unsigned int ptIdx = 0; ptIdx < mpPoly.size(); ptIdx++) {
 			MyPoint pt = mpPoly[ptIdx];
 			poly.push_back((int) pt.x.doubleValue());
 			poly.push_back((int) pt.y.doubleValue());
@@ -334,7 +342,7 @@ vector<ColoredPolygon> generateColoredPolygons(vector<PointSetArray>& psas, cons
 	// Coerce the PSAs to vec<int> poly representation
 	vector< vector<int> > ivPolys;
 
-	for (int i = 0; i < psas.size(); i++) {
+	for (unsigned int i = 0; i < psas.size(); i++) {
 		ivPolys.push_back(coercePSAPolyToIVecPoly(psas[i]));
 	}
 
@@ -347,7 +355,7 @@ vector<ColoredPolygon> generateColoredPolygons(vector<PointSetArray>& psas, cons
 // & outputs the voronoiEdges required for the generateColoredPolygons
 //
 // VORONOI, wrapper to voronoiEdges(???)
-vector<PointSetArray> createPolygonsFortune(vor::Edges *voronoiedges) {
+vector<PointSetArray> createPolygonsFortune(Edges *voronoiedges) {
 	vector<PointSetArray> voronoiEdges;
 
 	// The dictionary is indexed by the voronoi points and gives the polygon for each voronoi.
@@ -357,7 +365,7 @@ vector<PointSetArray> createPolygonsFortune(vor::Edges *voronoiedges) {
 	// XXX This should be its own function.
 	// Given a list of VEdges,
 	// construct reverse-lookup of VEdges associated with each VPoint.
-	for (vor::Edges::iterator i = voronoiedges->begin(); i != voronoiedges->end(); ++i) {
+	for (Edges::iterator i = voronoiedges->begin(); i != voronoiedges->end(); ++i) {
 		VEdge *edge = *i;
 		VPoint *leftPt = edge->left;
 		VPoint *rightPt = edge->right;
@@ -546,7 +554,7 @@ vector<PointSetArray> createPolygonsFortune(vor::Edges *voronoiedges) {
 // DELAUNAY & VORONOI
 void MyPanelOpenGL::insertPoint(LongInt x, LongInt y) {
 	// DELAUNAY
-	int ptIndex = inputPointSet_.addPoint(x, y);
+	inputPointSet_.addPoint(x, y);
 
 	// VORONOI
 	VPoint *vp = new VPoint(x.doubleValue()+((double)rand()*15.0/(double)RAND_MAX),
@@ -587,9 +595,6 @@ void MyPanelOpenGL::paintGL() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glPushMatrix();
-
-	int w = hasLoadedImage() ? imData_->width() : -1;
-	int h = hasLoadedImage() ? imData_->height() : -1;
 
 	switch (currentRenderType_) {
 		case EFFECT:
@@ -702,10 +707,12 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 
 	if (useOldVoronoiAlgo) {
 		// DELAUNAY
+		qDebug("Do doDelaunay in MPOG::doVoronoi");
 
-		DirectedGraph dag = dagFromInputPoints(inputPointSet_);
+		DirectedGraph dag(inputPointSet_);
 
-		qDebug("Do doDelaunay in MPOG::doVoronoi\n");
+		qDebug("MPOG::doVoronoi, created dag");
+
 		tryDelaunayTriangulation(dag);
 		//generateDelaunayColoredPolygons(); // too slow.
 
@@ -717,6 +724,7 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 		voroSW.reset();
 		voroSW.resume();
 
+		qDebug("MPOG::doVoronoi, about to createVoronoi");
 		voronoiPolygons_ = createVoronoi(dag); // in `delaunay`
 
 		voroSW.pause();
@@ -737,8 +745,8 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 		voronoiVertices_->push_back(new VPoint(-10000.0 + ((double)rand()*15.0 / (double)RAND_MAX),
 		                                       -10000.0 + ((double)rand()*15.0 / (double)RAND_MAX) ));
 
-		vor::Voronoi voronoi;
-		vor::Edges *voronoiEdges = voronoi.getEdges(voronoiVertices_, 10000, 10000);
+		Voronoi voronoi;
+		Edges *voronoiEdges = voronoi.getEdges(voronoiVertices_, 10000, 10000);
 
 		voroSW.pause();
 		double timeFortune = voroSW.ms();
@@ -894,7 +902,7 @@ void MyPanelOpenGL::doGenerateUniformRandomPoints() {
 	int height = imData_->height();
 	vector<int> points = generateUniformRandomPoints(width, height, numPDFPoints_);
 
-	for (int i = 0; i < points.size() / 2; i++) {
+	for (unsigned int i = 0; i < points.size() / 2; i++) {
 		int x = points[i * 2];
 		int y = points[i * 2 + 1];
 
@@ -914,7 +922,7 @@ void MyPanelOpenGL::doPDF() {
 	// Returns {x0, y0, x1, y1,...}
 	vector<int> points = generatePointsWithPDF(loadedImageFilename_, numPDFPoints_, &pdfTextures_);
 
-	for (int i = 0; i < points.size() / 2; i++) {
+	for (unsigned int i = 0; i < points.size() / 2; i++) {
 		int x = points[i * 2];
 		int y = points[i * 2 + 1];
 
@@ -940,7 +948,7 @@ void MyPanelOpenGL::clearAll() {
 	// Clear all the Voronoi computations
 	// Reset voronoi components for Fortune's algorithm
 	// XXX this is clearly not memory safe
-	voronoiVertices_ = new vor::Vertices();
+	voronoiVertices_ = new Vertices();
 
 	// Clear all the points.
 	inputPointSet_.eraseAllPoints();
@@ -957,7 +965,7 @@ void MyPanelOpenGL::clearAll() {
 
 
 
-void MyPanelOpenGL::mouseMoveEvent(QMouseEvent *event) {
+void MyPanelOpenGL::mouseMoveEvent(QMouseEvent *) {
 }
 
 

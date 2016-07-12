@@ -1,11 +1,13 @@
-#ifndef VEdge_h
-#define VEdge_h
+#ifndef VORONOI_VEdge_h
+#define VORONOI_VEdge_h
 
 #include <iostream>
 
-#include "vpoint.h"
+#include "voronoi/vpoint.h"
 
 
+
+namespace voronoi {
 
 /*
     A class that stores an edge in Voronoi diagram
@@ -69,5 +71,7 @@ public:
 		delete direction;
 	}
 };
+
+}
 
 #endif

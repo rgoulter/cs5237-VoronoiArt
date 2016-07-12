@@ -1,10 +1,13 @@
-#ifndef VEvent_h
-#define VEvent_h
+#ifndef VORONOI_VEvent_h
+#define VORONOI_VEvent_h
 
 #include <iostream>
 
-#include "vpoint.h"
-#include "vparabola.h"
+#include "voronoi/vpoint.h"
+#include "voronoi/vparabola.h"
+
+
+namespace voronoi {
 
 /*
 	The class for storing place / circle event in event queue.
@@ -47,5 +50,7 @@ public:
 		}
 	};
 };
+
+}
 
 #endif

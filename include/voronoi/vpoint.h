@@ -1,5 +1,9 @@
-#ifndef VPoint_h
-#define VPoint_h
+#ifndef VORONOI_VPoint_h
+#define VORONOI_VPoint_h
+
+
+
+namespace voronoi {
 
 /*
     A structure that stores 2D point
@@ -18,6 +22,8 @@ public:
 		y = ny;
 	}
 };
+
+}
 
 #endif
 

@@ -1,4 +1,4 @@
-#include "voronoi.h"
+#include "voronoi/voronoi.h"
 
 #include <cmath>
 
@@ -6,10 +6,9 @@
 #include <iostream>
 #include <set>
 
-using vor::Voronoi;
-using vor::Edges;
 
 
+namespace voronoi {
 
 Voronoi::Voronoi() {
 	edges = 0;
@@ -352,5 +351,7 @@ VPoint * Voronoi::getEdgeIntersection(VEdge *a, VEdge *b) {
 	points.push_back(p);
 
 	return p;
+}
+
 }
 

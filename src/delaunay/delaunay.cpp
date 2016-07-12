@@ -1,92 +1,61 @@
-#include "delaunay.h"
+#include "delaunay/delaunay.h"
 
 #include <stdlib.h>
 #include <time.h>
+#include <assert.h>
 
-#include "li.h"
-#include "lmath.h"
-#include "pointset.h"
+#include <iostream>
 
-#include "pointsetarray.h"
-#include "trist.h"
+#include "delaunay/li.h"
+#include "delaunay/lmath.h"
+#include "delaunay/pointsetarray.h"
+#include "delaunay/triangle.h"
 
-#include "delaunaytri.h"
-#include "directedgraph.h"
+#include "delaunay/directedgraph.h"
 
 using std::vector;
+using std::cout;
+using std::endl;
 
 
 
-// Adds the points to the PointSetArray
-void DelaunayTri::findBoundingTri(PointSetArray &pSet) {
-	LongInt minX = pSet.myPoints[0].x;
-	LongInt maxX = pSet.myPoints[0].x;
-	LongInt minY = pSet.myPoints[0].y;
-	LongInt maxY = pSet.myPoints[0].y;
-	LongInt tempmaxX, tempminX, thousand = 2000;
+namespace delaunay {
 
-	for (int i = 1; i < pSet.myPoints.size(); i++) {
-		if (minX > pSet.myPoints[i].x)
-			minX = pSet.myPoints[i].x;
-		else if (maxX < pSet.myPoints[i].x)
-			maxX = pSet.myPoints[i].x;
+/// Do ??? with dag, and points a,b,c
+/// What use does pIdx1 serve? Freshly inserted point?
+/// => make sure edge bc is Locally Delaunay,
+///    ??? and that the flips we make keep things Locally Delaunay
+void legalizeEdge(DirectedGraph& dag, int pIdx1, int pIdx2, int pIdx3) {
+	cout << "DTri::legalizeEdge, " << pIdx1 << ", " << pIdx2 << "," << pIdx3 << endl;
 
-		if (minY > pSet.myPoints[i].y)
-		    minY = pSet.myPoints[i].y;
-		else if (maxY < pSet.myPoints[i].y)
-		    maxY = pSet.myPoints[i].y;
-	}
+	int p4 = dag.findAdjacentTriangle(pIdx1, pIdx2, pIdx3);
 
-	LongInt delta = 5; // used in delaunay.cpp
+	if (p4 > 0) {
+		// Presumably delaunayPointSet === dag.getPointSet()
+		// so this is legit
+		PointSetArray pointSet = dag.getPointSet();
 
-	minX = minX - delta - thousand;
-	//tempminX = minX;
-	maxX = maxX+delta+thousand;
-	//tempmaxX = maxX;
-	minY = minY-delta-thousand;
-	maxY = maxY+delta+thousand;
-
-	pSet.addPoint(maxX+(maxY-minY),minY);
-	pSet.addPoint(minX-(maxY-minY),minY);
-
-	maxX = (maxX.doubleValue() - minX.doubleValue()) / 2;
-
-	pSet.addPoint((LongInt) ((maxX.doubleValue() + minX.doubleValue()) / 2),
-	              maxY+((maxX-minX))); // some rounding may occur if LongInt is odd
-
-	int temp = 1;
-}
-
-
-
-void DelaunayTri::legalizeEdge(DirectedGraph& dag, int pIdx1, int pIdx2, int pIdx3) {
-	vector<TriRecord> triangles = dag.findNodesForEdge(pIdx2, pIdx3);
-
-	for (int i = 0; i < triangles.size(); i++) {
-		for (int j = 0; j < 3; j++) {
-			int pointIdx = triangles[i].pointIndexOf(j);
-
-			if (pointIdx != pIdx1 && pointIdx != pIdx2 && pointIdx != pIdx3) {
-				int p4 = pointIdx;
-
-				// Presumably delaunayPointSet === dag.getPointSet()
-				// so this is legit
-				PointSetArray pointSet = dag.getPointSet();
-
-				if (pointSet.inCircle(pIdx1, pIdx2, pIdx3, p4) > 0) {
-					dag.addFlipChildrenNodes(pIdx1, pIdx2, pIdx3, p4);
-					legalizeEdge(dag, pIdx1, pIdx2, p4);
-					legalizeEdge(dag, pIdx1, pIdx3, p4);
-				}
-
-				return;
-			}
+		/// if this point is in the circumcircle of abc triangle..
+		if (pointSet.inCircle(pIdx1, pIdx2, pIdx3, p4) < 0) {
+			///> want to replace ij w/ kr
+			// abd, dbc must be triangles.
+			// TRI = pidx1,2,3;
+			// TRI = pidx2,3,4
+			// dag.flipTriangles(pIdx1, pIdx2, pIdx3, p4);
+			dag.flipTriangles(pIdx1, pIdx2, p4, pIdx3);
+			/// abp (by edge bp)
+			legalizeEdge(dag, pIdx1, pIdx2, p4); /// n.b., the triangle mightn't be given in that idx order e.g. cba
+			/// acp (by edge cp)
+			// legalizeEdge(dag, pIdx1, pIdx3, p4);
+			legalizeEdge(dag, pIdx1, p4, pIdx3);
 		}
 	}
 }
 
 
 
+/// ???
+/// XXX Btw, no need to have dlyPointsToProcess here
 void delaunayIterationStep(vector<int>& delaunayPointsToProcess,
                            DirectedGraph& dag) {
 	if (delaunayPointsToProcess.size() == 0) {
@@ -96,15 +65,21 @@ void delaunayIterationStep(vector<int>& delaunayPointsToProcess,
 	int pIdx = delaunayPointsToProcess[0];
 	delaunayPointsToProcess.erase(delaunayPointsToProcess.begin());
 
-	TriRecord tri = dag.findLeafNodeForPoint(pIdx); // Return the containing triangle for the point i.
-	dag.addChildrenNodes(pIdx);
+	/// Insert into new Tri into the DAG.
+	/// These new triangles mightn't be Locally Delaunay.
+	// Return the containing triangle for the point i.
+	TriRecord tri = dag.addVertex(pIdx);
 
 	int triPIdx1, triPIdx2, triPIdx3;
 	tri.get(triPIdx1, triPIdx2, triPIdx3);
 
-	DelaunayTri::legalizeEdge(dag, pIdx, triPIdx1, triPIdx2);
-	DelaunayTri::legalizeEdge(dag, pIdx, triPIdx1, triPIdx3);
-	DelaunayTri::legalizeEdge(dag, pIdx, triPIdx2, triPIdx3);
+	/// edges 12, 13, 23 are the "link" of the inserted point.
+	/// So, here we 'flip edges' until things are locally delaunday.
+	legalizeEdge(dag, pIdx, triPIdx1, triPIdx2);
+	legalizeEdge(dag, pIdx, triPIdx1, triPIdx3);
+	legalizeEdge(dag, pIdx, triPIdx2, triPIdx3);
+
+	/// Everything is Locally Delaunay by this point.
 
 	// Redisplay
 	// updateGL(); // updateGL is a method of the QGLWidget..
@@ -139,29 +114,6 @@ void delaunayIterationStep(vector<int>& delaunayPointsToProcess,
 
 
 
-DirectedGraph dagFromInputPoints(const PointSetArray& inputPointSet) {
-	PointSetArray delaunayPointSet;
-
-	// Copy points from the input set to Delaunay point set
-	for (int i = 1; i <= inputPointSet.noPt(); i++) {
-		LongInt x, y;
-		inputPointSet.getPoint(i, x, y);
-		delaunayPointSet.addPoint(x, y);
-	}
-
-	// Add a triangle which bounds all the points.
-	DelaunayTri::findBoundingTri(delaunayPointSet);
-
-	DirectedGraph dag(delaunayPointSet);
-
-	// TODO I've no clue what this does / why it's here.
-	dag.addChildrenNodes(delaunayPointSet.noPt());
-
-	return dag;
-}
-
-
-
 void tryDelaunayTriangulation(DirectedGraph& dag) {
 	vector<int> delaunayPointsToProcess;
 
@@ -173,9 +125,9 @@ void tryDelaunayTriangulation(DirectedGraph& dag) {
 		delaunayPointsToProcess.push_back(i);
 	}
 
-	// TODO: Shuffle these points of delaunayPointsToProcess
+	// Shuffle these points of delaunayPointsToProcess
 	srand (time(NULL));
-	for (int i = 0; i < delaunayPointsToProcess.size() / 2; i++) {
+	for (unsigned int i = 0; i < delaunayPointsToProcess.size() / 2; i++) {
 		int j = rand() % delaunayPointsToProcess.size();
 
 		// swap
@@ -200,21 +152,19 @@ vector<PointSetArray> createVoronoi(DirectedGraph& dag) {
 
 	for (int dppIdx = 1; dppIdx <= delaunayPointSet.noPt() - 3; dppIdx++) {
 		// Find delaunay triangles to which this point is linked
-		std::vector<TriRecord> linkedTriangles = dag.findLinkedNodes(dppIdx);
+		std::vector<TriRecord> linkedTriangles = dag.findTrianglesWithVertex(dppIdx);
 		PointSetArray polygon;
 
 		// findlinkedNodes method gives an ordered list of triangles. Iterate through and find circumcenters.
 		std::vector<TriRecord>::iterator iter1;
-		for (iter1 = linkedTriangles.begin(); iter1 != linkedTriangles.end();) {
+		for (iter1 = linkedTriangles.begin(); iter1 != linkedTriangles.end(); ++iter1) {
 			TriRecord tri = *iter1;
 			MyPoint circum;
-            std::cout << "circumCircle" << std::endl;
 			// TODO circumCircle may benefit from using TriRecord
 			int triPIdx1, triPIdx2, triPIdx3;
 			tri.get(triPIdx1, triPIdx2, triPIdx3);
 			delaunayPointSet.circumCircle(triPIdx1, triPIdx2,triPIdx3, circum);
 			polygon.addPoint(circum.x,circum.y);
-			++iter1;
 		}
 
 		voronoiEdges.push_back(polygon);
@@ -222,4 +172,7 @@ vector<PointSetArray> createVoronoi(DirectedGraph& dag) {
 
 	return voronoiEdges;
 }
+
+}
+
 
