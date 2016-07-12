@@ -1,6 +1,7 @@
 #ifndef CS5237_POLGYONH
 #define CS5237_POLGYONH
 
+#include <ostream>
 #include <vector>
 
 #include "li.h"
@@ -18,6 +19,8 @@ public:
 	bool operator==(const MyPoint& otherPoint) {
 		return x == otherPoint.x && y == otherPoint.y;
 	}
+
+	friend std::ostream& operator<<(std::ostream& os, const MyPoint& pt);
 };
 
 /// Returns 1 if p3 is counter-clockwise to p1p2,

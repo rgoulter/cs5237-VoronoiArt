@@ -1,5 +1,7 @@
 #include "pointsetarray.h"
 
+#include <assert.h>
+
 #include <vector>
 
 using std::vector;
@@ -46,5 +48,13 @@ vector<int> coercePSAPolyToIVecPoly(PointSetArray& psa) {
 	}
 
 	return poly;
+}
+
+
+
+const MyPoint& PointSetArray::operator[](int idx) const {
+	assert(1 <= idx && idx <= noPt());
+
+	return myPoints[idx - 1];
 }
 

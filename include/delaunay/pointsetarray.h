@@ -11,6 +11,8 @@ public:
 	int getPoint (int pIndex, LongInt& x1,LongInt& y1) const;
 	int noPt() const;                                         // return the number of points
 	void eraseAllPoints();                              // erase all points in this array
+
+	const MyPoint& operator[](int idx) const;
 };
 
 std::vector<int> coercePSAPolyToIVecPoly(PointSetArray& psa);

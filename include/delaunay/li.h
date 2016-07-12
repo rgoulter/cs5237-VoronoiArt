@@ -3,6 +3,7 @@
 
 #include <cstdio>
 
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -62,6 +63,7 @@ public:
 
 	double doubleValue() const; // return a double approximation (you can assume that it will not be out of bound)
 
+friend std::ostream& operator<<(std::ostream& os, const LongInt& li);
 friend LongInt operator-(LongInt&);
 };
 

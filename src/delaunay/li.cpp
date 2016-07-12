@@ -662,6 +662,13 @@ double LongInt::doubleValue() const {
 
 
 
+std::ostream& operator<<(std::ostream& os, const LongInt& li) {
+	os << li.doubleValue();
+	return os;
+}
+
+
+
 /* ---------------------------
     Unary Operator
 --------------------------- */
