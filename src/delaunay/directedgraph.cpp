@@ -85,6 +85,31 @@ vector<DAGNode*> DAGNode::leafNodesContainingEdge(DAGNode* root, const PointSetA
 
 
 
+int DAGNode::findAdjacentTriangle(DAGNode* root, const PointSetArray& pointSet, int pIdx1, int pIdx2, int pIdx3) {
+	vector<DAGNode*> nodes = DAGNode::leafNodesContainingEdge(root, pointSet, pIdx2, pIdx3);
+
+	for (vector<DAGNode*>::const_iterator iter = nodes.begin(); iter != nodes.end(); ++iter) {
+		DAGNode* node = *iter;
+		const TriRecord& tri = node->tri_;
+
+		for (int j = 0; j < 3; j++) { /// "each point of tri"
+			int pointIdx = tri.pointIndexOf(j); /// its pointIdx
+
+			if (pointIdx != pIdx1 &&
+				pointIdx != pIdx2 &&
+				pointIdx != pIdx3) {
+				/// if that triangle point isn't of `abc` in args..
+				return pointIdx;
+			}
+		}
+	}
+
+	return 0;
+}
+
+
+
+
 /// Check that the nodes contains a tri with all vertices i,j,k.
 bool containsTri(const vector<DAGNode*>& nodes, int i, int j, int k) {
 	for (vector<DAGNode*>::const_iterator iter = nodes.begin(); iter != nodes.end(); ++iter) {
