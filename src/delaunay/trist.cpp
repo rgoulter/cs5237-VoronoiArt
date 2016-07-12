@@ -142,18 +142,48 @@ bool isTriangleCCW(const PointSetArray& psa, const TriRecord& tri) {
 	bool isCCWp3p1 = orientation(p2, p3, p1) == 1;
 	bool isCCWp1p2 = orientation(p3, p1, p2) == 1;
 
-	if (!isCCWp2p3 || !isCCWp3p1 || !isCCWp1p2) {
-		cout << "!!! NOT COUNTER-CLOCKWISE: !!!" << endl;
-		cout << " p2p3(p1)? " << isCCWp2p3 << endl;
-		cout << " p3p1(p2)? " << isCCWp3p1 << endl;
-		cout << " p1p2(p3)? " << isCCWp1p2 << endl;
-		cout << "Points:" << endl;
-		cout << " 1: (" << p1x.doubleValue() << "," << p1y.doubleValue() << ")" << endl;
-		cout << " 2: (" << p2x.doubleValue() << "," << p2y.doubleValue() << ")" << endl;
-		cout << " 3: (" << p3x.doubleValue() << "," << p3y.doubleValue() << ")" << endl;
-	}
-
 	return isCCWp2p3 && isCCWp3p1 && isCCWp1p2;
+}
+
+
+
+inline bool isects(const MyPoint& a, const MyPoint& b, const MyPoint& c, const MyPoint& d) {
+	// Incidental (touching) returns false.
+	return (orientation(a, b, c) * orientation(a, b, d) < 0) &&
+	       (orientation(c, d, a) * orientation(c, d, b) < 0);
+}
+
+
+
+bool intersectsTriangle(const PointSetArray& psa, const TriRecord& tri, int pIdx1, int pIdx2) {
+	int idx1, idx2, idx3;
+	tri.get(idx1, idx2, idx3);
+
+	MyPoint p1 = psa[idx1];
+	MyPoint p2 = psa[idx2];
+	MyPoint p3 = psa[idx3];
+
+	MyPoint e1 = psa[pIdx1];
+	MyPoint e2 = psa[pIdx2];
+
+	bool isects12 = isects(p1, p2, e1, e2);
+	bool isects23 = isects(p2, p3, e1, e2);
+	bool isects31 = isects(p3, p1, e1, e2);
+
+	return isects12 || isects23 || isects31;
+}
+
+
+
+bool intersectsTriangle(const PointSetArray& psa, const TriRecord& tri1, const TriRecord& tri2) {
+	int idx1, idx2, idx3;
+	tri2.get(idx1, idx2, idx3);
+
+	bool isects12 = intersectsTriangle(psa, tri1, idx1, idx2);
+	bool isects23 = intersectsTriangle(psa, tri1, idx2, idx3);
+	bool isects31 = intersectsTriangle(psa, tri1, idx3, idx1);
+
+	return isects12 || isects23 || isects31;
 }
 
 

@@ -117,10 +117,10 @@ TEST(PolygonTest, ClipPolyRectCaseSimpleIsect) {
 		cout << "Output poly different than expected:" << endl;
 	}
 
-	cout << "Output poly has " << (output.size() / 2) << "points," << endl;
-	for (unsigned int i = 0; i < output.size() / 2; i++) {
-		cout << output[2 * i] << ","  << output[2 * i + 1]<< endl;
-	}
+	// cout << "Output poly has " << (output.size() / 2) << "points," << endl;
+	// for (unsigned int i = 0; i < output.size() / 2; i++) {
+	// 	cout << output[2 * i] << ","  << output[2 * i + 1]<< endl;
+	// }
 
 	// MUST be eq.
 	ASSERT_EQ(expectedPoly.size(), output.size());

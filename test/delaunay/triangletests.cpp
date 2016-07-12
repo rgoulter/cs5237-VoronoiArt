@@ -13,8 +13,6 @@ using std::endl;
 
 
 TEST(DelaunayTriangleTest, OrientationTest) {
-	PointSetArray pointSet;
-
 	MyPoint originPt(0, 0);
 	MyPoint endPt(100, 0);
 
@@ -35,8 +33,6 @@ TEST(DelaunayTriangleTest, OrientationTest) {
 
 
 TEST(DelaunayTriangleTest, OrientationTest2) {
-	PointSetArray pointSet;
-
 	MyPoint originPt(1000, 1000);
 	MyPoint    endPt(1100, 1000);
 
@@ -53,6 +49,29 @@ TEST(DelaunayTriangleTest, OrientationTest2) {
 	// Test CW
 	EXPECT_EQ(-1, orientation(originPt, endPt, cwPt));
 }
+
+
+
+TEST(DelaunayTriangleTest, IntersectsSegSegTest) {
+	MyPoint p1(-10, 0);
+	MyPoint p2(0, 0);
+	MyPoint p3(10, 0);
+	MyPoint p4(0, -10);
+	MyPoint p5(0, 10);
+	MyPoint p6(0, 20);
+
+	EXPECT_EQ(true, intersects(p1, p3, p4, p5));
+
+	// Incident, but not intersecting
+	EXPECT_EQ(true, intersects(p1, p3, p2, p5));
+	EXPECT_EQ(true, intersects(p1, p3, p4, p2));
+
+	// Completele not touching
+	EXPECT_EQ(false, intersects(p1, p3, p5, p6));
+}
+
+
+
 
 
 
@@ -126,3 +145,52 @@ TEST(DelaunayTriangleTest, IsCCW3) {
 	EXPECT_EQ(false, isTriangleCCW(pointSet, triCW3));
 }
 
+
+
+TEST(DelaunayTriangleTest, IntersectsTriSegTest) {
+	PointSetArray pointSet;
+
+	// A simple right-angled triangle
+	int pIdx1 = pointSet.addPoint(0, 0);
+	int pIdx2 = pointSet.addPoint(100, 0);
+	int pIdx3 = pointSet.addPoint(0, 100);
+
+	TriRecord tri(pIdx1, pIdx2, pIdx3);
+
+	// hypotenuse of the tri slopes through (50, 50)
+	int segPtIdx1 = pointSet.addPoint (40, 40);
+	int segPtIdx2 = pointSet.addPoint (60, 60);
+	int segPtIdx3 = pointSet.addPoint (100, 100);
+
+	// Test CCW,
+	EXPECT_EQ(true, intersectsTriangle(pointSet, tri, segPtIdx1, segPtIdx2));
+
+	// Incident, but not intersecting
+	EXPECT_EQ(false, intersectsTriangle(pointSet, tri, segPtIdx2, segPtIdx3));
+}
+
+
+
+TEST(DelaunayTriangleTest, IntersectsTriTriTest) {
+	PointSetArray pointSet;
+
+	// Two simple right-angled triangles
+	int pIdx1 = pointSet.addPoint(0, 0);      // left
+	int pIdx2 = pointSet.addPoint(100, 0);    // mid-low
+	int pIdx3 = pointSet.addPoint(100, 100);  // mid-high
+	int pIdx4 = pointSet.addPoint(200, 0);    // right
+
+	// these two touch (adjacent along p2p3),
+	// but don't overlap
+	TriRecord triLeft(pIdx1, pIdx2, pIdx3);
+	TriRecord triRight(pIdx2, pIdx4, pIdx3);
+
+	EXPECT_EQ(false, intersectsTriangle(pointSet, triLeft, triRight));
+
+
+	int pIdx5 = pointSet.addPoint(200, 100);    // right-high
+
+	// intersects triRight
+	TriRecord triBad(pIdx2, pIdx4, pIdx5);
+	EXPECT_EQ(true,  intersectsTriangle(pointSet, triRight, triBad));
+}
