@@ -94,14 +94,19 @@ void findBoundingTri(PointSetArray &pSet) {
 
 	// TODO This seems nonsense. Does it work?
 
-	pSet.addPoint(maxX + (maxY - minY), minY);
-	pSet.addPoint(minX - (maxY - minY), minY);
+	int super1Idx = pSet.addPoint(maxX + (maxY - minY), minY);
+	int super2Idx = pSet.addPoint(minX - (maxY - minY), minY);
 
 	maxX = (maxX.doubleValue() - minX.doubleValue()) / 2;
 
 	// some rounding may occur if LongInt is odd
-	pSet.addPoint((LongInt) ((maxX.doubleValue() + minX.doubleValue()) / 2),
-	              maxY + (maxX - minX));
+	int super3Idx = pSet.addPoint((LongInt) ((maxX.doubleValue() + minX.doubleValue()) / 2),
+	                              maxY + (maxX - minX));
+
+	// Assert that all (other) points contained in the 3 super-triangle.
+	for (int i = 1; i < pSet.noPt() - 3; i++) {
+		assert(pSet.inTri(super1Idx, super2Idx, super3Idx, i) > 0);
+	}
 }
 
 
