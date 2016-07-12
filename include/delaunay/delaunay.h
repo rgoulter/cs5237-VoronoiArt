@@ -5,8 +5,6 @@
 
 #include "li.h"
 #include "lmath.h"
-#include "pointset.h"
-
 #include "pointsetarray.h"
 #include "triangle.h"
 

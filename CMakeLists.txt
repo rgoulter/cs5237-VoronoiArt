@@ -34,7 +34,6 @@ set(VORONOI_LIB_SOURCES src/delaunay/li.cpp
                         src/delaunay/point.cpp
                         src/delaunay/polygon.cpp
                         src/delaunay/triangle.cpp
-                        src/delaunay/pointset.cpp
                         src/delaunay/pointsetarray.cpp
                         src/delaunay/dagnode.cpp
                         src/delaunay/directedgraph.cpp
@@ -53,7 +52,6 @@ set(VORONOI_LIB_HEADERS include/delaunay/li.h
                         include/delaunay/point.h
                         include/delaunay/polygon.h
                         include/delaunay/triangle.h
-                        include/delaunay/pointset.h
                         include/delaunay/pointsetarray.h
                         include/delaunay/dagnode.h
                         include/delaunay/directedgraph.h

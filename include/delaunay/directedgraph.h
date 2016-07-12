@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "dagnode.h"
-#include "pointset.h"
 #include "pointsetarray.h"
 #include "triangle.h"
 

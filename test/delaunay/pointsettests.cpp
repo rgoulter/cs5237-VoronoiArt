@@ -12,7 +12,7 @@ using std::endl;
 
 
 TEST(PointSetTest, PointSetInTriSimple) {
-	PointSet ps;
+	PointSetArray ps;
 
 	int p1 = ps.addPoint(0, 0);   // 1
 	int p2 = ps.addPoint(0, 4);   // 2

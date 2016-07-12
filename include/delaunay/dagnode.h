@@ -3,7 +3,6 @@
 
 #include <vector>
 
-#include "pointset.h"
 #include "pointsetarray.h"
 #include "triangle.h"
 
