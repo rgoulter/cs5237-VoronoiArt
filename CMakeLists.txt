@@ -31,7 +31,9 @@ find_package(OpenGL REQUIRED)
 # Lib for Non-Qt code
 set(VORONOI_LIB_SOURCES src/delaunay/li.cpp
                         src/delaunay/lmath.cpp
+                        src/delaunay/point.cpp
                         src/delaunay/polygon.cpp
+                        src/delaunay/triangle.cpp
                         src/delaunay/trist.cpp
                         src/delaunay/pointset.cpp
                         src/delaunay/pointsetarray.cpp
@@ -48,7 +50,9 @@ set(VORONOI_SOURCES src/mypanelopengl.cpp
 
 set(VORONOI_LIB_HEADERS include/delaunay/li.h
                         include/delaunay/lmath.h
+                        include/delaunay/point.h
                         include/delaunay/polygon.h
+                        include/delaunay/triangle.h
                         include/delaunay/trist.h
                         include/delaunay/pointset.h
                         include/delaunay/pointsetarray.h

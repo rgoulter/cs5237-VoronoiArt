@@ -8,7 +8,7 @@
 
 #include "pointset.h"
 #include "pointsetarray.h"
-#include "trist.h"
+#include "triangle.h"
 
 
 

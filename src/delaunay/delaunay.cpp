@@ -11,7 +11,7 @@
 #include "pointset.h"
 
 #include "pointsetarray.h"
-#include "trist.h"
+#include "triangle.h"
 
 #include "delaunaytri.h"
 #include "directedgraph.h"

@@ -9,27 +9,6 @@ using std::vector;
 
 
 
-MyPoint::MyPoint() {
-	this->x = 0;
-	this->y = 0;
-}
-
-
-
-MyPoint::MyPoint(LongInt x, LongInt y) {
-	this->x = x;
-	this->y = y;
-}
-
-
-
-std::ostream& operator<<(std::ostream& os, const MyPoint& pt) {
-	os << "(" << pt.x << "," << pt.y << ")";
-	return os;
-}
-
-
-
 int orientation(const MyPoint& p1, const MyPoint& p2, const MyPoint& p3) {
 	return signDet(p1.x, p1.y, LongInt(1),
 	               p2.x, p2.y, LongInt(1),

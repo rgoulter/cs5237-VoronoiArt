@@ -1,9 +1,6 @@
 #ifndef DELAUNAYH
 #define DELAUNAYH
 
-#include "pointset.h"
-#include "pointsetarray.h"
-#include "trist.h"
 #include "directedgraph.h"
 
 
