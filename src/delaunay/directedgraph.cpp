@@ -368,6 +368,12 @@ TriRecord DirectedGraph::addVertex(int pIdx) {
 void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 	cout << "DAG::flipTris, args=" << pIdx1 << "," << pIdx2 << "," << pIdx3 << "," << pIdx4 << "." << endl;
 
+	cout << "Points: " << endl;
+	cout << " 1. " << pointSet_[pIdx1] << endl;
+	cout << " 2. " << pointSet_[pIdx2] << endl;
+	cout << " 3. " << pointSet_[pIdx3] << endl;
+	cout << " 4. " << pointSet_[pIdx4] << endl;
+
 	assert(containsTri(dagNodes_, pIdx1, pIdx2, pIdx4));
 	assert(isTriangleCCW(pointSet_, TriRecord(pIdx1, pIdx2, pIdx4)));
 	assert(containsTri(dagNodes_, pIdx4, pIdx2, pIdx3));
