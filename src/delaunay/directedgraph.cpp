@@ -266,6 +266,26 @@ vector<TriRecord> DirectedGraph::findTrianglesWithEdge(int pIdx1, int pIdx2) con
 
 
 
+int DirectedGraph::findAdjacentTriangle(int pIdx1, int pIdx2, int pIdx3) const {
+	vector<TriRecord> triangles = findTrianglesWithEdge(pIdx2, pIdx3);
+
+	for (unsigned int i = 0; i < triangles.size(); i++) { /// "each triangle"
+		for (int j = 0; j < 3; j++) { /// "each point of this triangle.."
+			cout << "loop idx " << i << "," << j << endl;
+			int pointIdx = triangles[i].pointIndexOf(j); /// its pointIdx
+
+			if (pointIdx != pIdx1 && pointIdx != pIdx2 && pointIdx != pIdx3) {
+				/// if that triangle point isn't of `abc` in args..
+				return pointIdx;
+			}
+		}
+	}
+
+	return 0; // 0 is a 'bad index'; i.e. not found.
+}
+
+
+
 // This method adds children nodes to the specified parent node.
 // This is only for new point additions and not for flipping.
 // Use findLeafNodeforPoint to find parent,

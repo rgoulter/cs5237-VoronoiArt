@@ -29,48 +29,33 @@ using std::endl;
 void DelaunayTri::legalizeEdge(DirectedGraph& dag, int pIdx1, int pIdx2, int pIdx3) {
 	cout << "DTri::legalizeEdge 1, " << pIdx1 << ", " << pIdx2 << "," << pIdx3 << endl;
 
-	/// get the triangles with the edge `bc` of given triangle `abc`.
-	/// => We want to find the adjacent triangle to tri<abc>..
-	///    (Can DAG structure do this better? findTri/findTriAdjacentToEdge?)
-	vector<TriRecord> triangles = dag.findTrianglesWithEdge(pIdx2, pIdx3);
+	int p4 = dag.findAdjacentTriangle(pIdx1, pIdx2, pIdx3);
 
 	cout << "DTri::legalizeEdge 2" << endl;
 
-	for (unsigned int i = 0; i < triangles.size(); i++) { /// "each triangle"
-		for (int j = 0; j < 3; j++) { /// "each point of this triangle.."
-			cout << "loop idx " << i << "," << j << endl;
-			int pointIdx = triangles[i].pointIndexOf(j); /// its pointIdx
+	if (p4 > 0) {
+		// Presumably delaunayPointSet === dag.getPointSet()
+		// so this is legit
+		PointSetArray pointSet = dag.getPointSet();
 
-			if (pointIdx != pIdx1 && pointIdx != pIdx2 && pointIdx != pIdx3) {
-				/// if that triangle point isn't of `abc` in args..
-				int p4 = pointIdx;
+		cout << "about to check inCircle.." << endl;
 
-				// Presumably delaunayPointSet === dag.getPointSet()
-				// so this is legit
-				PointSetArray pointSet = dag.getPointSet();
-
-				cout << "about to check inCircle.." << endl;
-				assert(p4 > 0); // check p4!
-
-				/// if this point is in the circumcircle of abc triangle..
-				if (pointSet.inCircle(pIdx1, pIdx2, pIdx3, p4) < 0) {
-					///> want to replace ij w/ kr
-					// abd, dbc must be triangles.
-					// TRI = pdx1,2,3;
-					// TRI= pidx2,3,4
-					// dag.flipTriangles(pIdx1, pIdx2, pIdx3, p4);
-					dag.flipTriangles(pIdx1, pIdx2, p4, pIdx3);
-					/// abp (by edge bp)
-					legalizeEdge(dag, pIdx1, pIdx2, p4); /// n.b., the triangle mightn't be given in that idx order e.g. cba
-					/// acp (by edge cp)
-					// legalizeEdge(dag, pIdx1, pIdx3, p4);
-					legalizeEdge(dag, pIdx1, p4, pIdx3);
-				}
-				cout << "after check inCircle.." << endl;
-
-				return;
-			}
+		/// if this point is in the circumcircle of abc triangle..
+		if (pointSet.inCircle(pIdx1, pIdx2, pIdx3, p4) < 0) {
+			///> want to replace ij w/ kr
+			// abd, dbc must be triangles.
+			// TRI = pidx1,2,3;
+			// TRI = pidx2,3,4
+			// dag.flipTriangles(pIdx1, pIdx2, pIdx3, p4);
+			dag.flipTriangles(pIdx1, pIdx2, p4, pIdx3);
+			/// abp (by edge bp)
+			legalizeEdge(dag, pIdx1, pIdx2, p4); /// n.b., the triangle mightn't be given in that idx order e.g. cba
+			/// acp (by edge cp)
+			// legalizeEdge(dag, pIdx1, pIdx3, p4);
+			legalizeEdge(dag, pIdx1, p4, pIdx3);
 		}
+
+		cout << "after check inCircle.." << endl;
 	}
 
 	cout << "DTri::legalizeEdge end" << endl;
