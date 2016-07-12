@@ -2,13 +2,15 @@
 
 #include "gtest/gtest.h"
 
-#include "polygon.h"
-#include "pointsetarray.h"
-#include "triangle.h"
+#include "delaunay/polygon.h"
+#include "delaunay/pointsetarray.h"
+#include "delaunay/triangle.h"
 
 using std::vector;
 using std::cout;
 using std::endl;
+
+using namespace delaunay;
 
 
 

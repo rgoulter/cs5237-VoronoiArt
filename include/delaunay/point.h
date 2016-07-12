@@ -1,11 +1,13 @@
-#ifndef POINTH
-#define POINTH
+#ifndef DELAUNAY_POINTH
+#define DELAUNAY_POINTH
 
 #include <ostream>
 
-#include "li.h"
+#include "delaunay/li.h"
 
 
+
+namespace delaunay {
 
 class MyPoint {
 public:
@@ -22,5 +24,7 @@ public:
 	friend std::ostream& operator<<(std::ostream& os, const MyPoint& pt);
 };
 
+
+}
 
 #endif

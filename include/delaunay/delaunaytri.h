@@ -1,9 +1,11 @@
-#ifndef DELAUNAYH
-#define DELAUNAYH
+#ifndef DELAUNAY_DELAUNAYTRIH
+#define DELAUNAY_DELAUNAYTRIH
 
-#include "directedgraph.h"
+#include "delaunay/directedgraph.h"
 
 
+
+namespace delaunay {
 
 // XXX WTF is this even doing? Impl. in delaunay.cpp
 class DelaunayTri {
@@ -13,5 +15,7 @@ public:
 
 	static void legalizeEdge(DirectedGraph&, int, int, int);
 };
+
+}
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef LIH
-#define LIH
+#ifndef DELAUNAY_LIH
+#define DELAUNAY_LIH
 
 #include <cstdio>
 
@@ -8,6 +8,8 @@
 #include <vector>
 
 
+
+namespace delaunay {
 
 //Const definitions
 const long DIVISOR = 1000000000;
@@ -69,5 +71,7 @@ friend LongInt operator-(LongInt&);
 
 LongInt operator-(LongInt&); // negative sign
 
+
+}
 
 #endif

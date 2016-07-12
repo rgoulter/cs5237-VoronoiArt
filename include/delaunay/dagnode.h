@@ -1,12 +1,14 @@
-#ifndef DAGNODEH
-#define DAGNODEH
+#ifndef DELAUNAY_DAGNODEH
+#define DELAUNAY_DAGNODEH
 
 #include <vector>
 
-#include "pointsetarray.h"
-#include "triangle.h"
+#include "delaunay/pointsetarray.h"
+#include "delaunay/triangle.h"
 
 
+
+namespace delaunay {
 
 class DAGNode {
 public:
@@ -25,5 +27,7 @@ public:
 	TriRecord tri_;
 	std::vector<DAGNode *> children_;
 };
+
+}
 
 #endif

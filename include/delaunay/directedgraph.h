@@ -1,16 +1,18 @@
-#ifndef DIRECTEDGRAPHH
-#define DIRECTEDGRAPHH
+#ifndef DELAUNAY_DIRECTEDGRAPHH
+#define DELAUNAY_DIRECTEDGRAPHH
 
 #include <assert.h>
 
 #include <iostream>
 #include <vector>
 
-#include "dagnode.h"
-#include "pointsetarray.h"
-#include "triangle.h"
+#include "delaunay/dagnode.h"
+#include "delaunay/pointsetarray.h"
+#include "delaunay/triangle.h"
 
 
+
+namespace delaunay {
 
 /* This Directed acyclic graph maintains a point location structure, which helps us find out the triangle in which
 the current point under consideration is.
@@ -72,5 +74,7 @@ private:
 	std::vector<DAGNode*> dagNodes_;
 	DAGNode* root_;
 };
+
+}
 
 #endif

@@ -1,8 +1,10 @@
-#include "lmath.h"
+#include "delaunay/lmath.h"
 
 #include <iostream>
 
 
+
+namespace delaunay {
 
 LongInt determinant(LongInt x1, LongInt y1, LongInt w1,
                     LongInt x2, LongInt y2, LongInt w2,
@@ -26,5 +28,7 @@ int signDet(LongInt x1, LongInt y1, LongInt w1,
 	if (det < 0)
 		return -1;
 	return 0;
+}
+
 }
 

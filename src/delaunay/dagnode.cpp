@@ -1,4 +1,4 @@
-#include "dagnode.h"
+#include "delaunay/dagnode.h"
 
 #include <assert.h>
 
@@ -11,6 +11,8 @@ using std::cout;
 using std::endl;
 
 
+
+namespace delaunay {
 
 // O(log n) impl.
 vector<DAGNode*> DAGNode::leafNodesContainingPoint(DAGNode* root, const PointSetArray& pointSet, int pIdx) {
@@ -105,5 +107,7 @@ int DAGNode::findAdjacentTriangle(DAGNode* root, const PointSetArray& pointSet, 
 	}
 
 	return 0;
+}
+
 }
 

@@ -1,13 +1,15 @@
-#include "polygon.h"
+#include "delaunay/polygon.h"
 
 #include <vector>
 
-#include "lmath.h"
-#include "pointsetarray.h"
+#include "delaunay/lmath.h"
+#include "delaunay/pointsetarray.h"
 
 using std::vector;
 
 
+
+namespace delaunay {
 
 int orientation(const MyPoint& p1, const MyPoint& p2, const MyPoint& p3) {
 	return signDet(p1.x, p1.y, LongInt(1),
@@ -435,5 +437,7 @@ int inPoly(const vector<int>& poly, int x, int y) {
 	}
 
 	return (numIntersections % 2) == 1;
+}
+
 }
 

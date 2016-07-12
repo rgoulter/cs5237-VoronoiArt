@@ -2,12 +2,14 @@
 
 #include "gtest/gtest.h"
 
-#include "pointsetarray.h"
-#include "directedgraph.h"
+#include "delaunay/pointsetarray.h"
+#include "delaunay/directedgraph.h"
 
 using std::vector;
 using std::cout;
 using std::endl;
+
+using namespace delaunay;
 
 
 

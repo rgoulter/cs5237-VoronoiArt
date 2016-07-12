@@ -7,6 +7,12 @@
 using std::string;
 using std::vector;
 
+using delaunay::MyPoint;
+using delaunay::PointSetArray;
+using delaunay::boundingBox;
+using delaunay::clipPolygonToRectangle;
+using delaunay::inPoly;
+
 
 
 vector<int> enumerateLeftRightOfSimplePolygon(const vector<int>& poly) {

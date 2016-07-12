@@ -1,4 +1,4 @@
-#include "li.h"
+#include "delaunay/li.h"
 
 #include <cstdlib>
 
@@ -6,6 +6,8 @@
 #include <sstream>
 
 
+
+namespace delaunay {
 
 /*********************************************************CONSTRUCTORS*********************************************************/
 LongInt::LongInt() {
@@ -676,5 +678,7 @@ LongInt operator-(LongInt& theLongInt) {
 	LongInt theAnswer = LongInt(theLongInt);
 	theAnswer.changeSign();
 	return theAnswer;
+}
+
 }
 

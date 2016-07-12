@@ -1,13 +1,15 @@
-#ifndef POINTSETARRAYH
-#define POINTSETARRAYH
+#ifndef DELAUNAY_POINTSETARRAYH
+#define DELAUNAY_POINTSETARRAYH
 
 #include <vector>
 
-#include "li.h"
-#include "lmath.h"
-#include "polygon.h"
+#include "delaunay/li.h"
+#include "delaunay/lmath.h"
+#include "delaunay/polygon.h"
 
 
+
+namespace delaunay {
 
 class PointSetArray {
 public:
@@ -45,5 +47,7 @@ private:
 
 
 std::vector<int> coercePSAPolyToIVecPoly(PointSetArray& psa);
+
+}
 
 #endif

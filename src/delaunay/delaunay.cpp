@@ -1,4 +1,4 @@
-#include "delaunay.h"
+#include "delaunay/delaunay.h"
 
 #include <stdlib.h>
 #include <time.h>
@@ -6,19 +6,21 @@
 
 #include <iostream>
 
-#include "li.h"
-#include "lmath.h"
-#include "pointsetarray.h"
-#include "triangle.h"
+#include "delaunay/li.h"
+#include "delaunay/lmath.h"
+#include "delaunay/pointsetarray.h"
+#include "delaunay/triangle.h"
 
-#include "delaunaytri.h"
-#include "directedgraph.h"
+#include "delaunay/delaunaytri.h"
+#include "delaunay/directedgraph.h"
 
 using std::vector;
 using std::cout;
 using std::endl;
 
 
+
+namespace delaunay {
 
 /// Do ??? with dag, and points a,b,c
 /// What use does pIdx1 serve? Freshly inserted point?
@@ -171,4 +173,7 @@ vector<PointSetArray> createVoronoi(DirectedGraph& dag) {
 
 	return voronoiEdges;
 }
+
+}
+
 

@@ -1,4 +1,4 @@
-#include "directedgraph.h"
+#include "delaunay/directedgraph.h"
 
 #include <assert.h>
 
@@ -11,6 +11,8 @@ using std::cout;
 using std::endl;
 
 
+
+namespace delaunay {
 
 /// Check that the nodes contains a tri with all vertices i,j,k.
 bool containsTri(const vector<DAGNode*>& nodes, int i, int j, int k) {
@@ -348,5 +350,7 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 	dagNodes_.push_back(abcNode);
 	dagNodes_.push_back(acdNode);
 	checkConsistent();
+}
+
 }
 

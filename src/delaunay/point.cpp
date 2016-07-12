@@ -1,6 +1,8 @@
-#include "point.h"
+#include "delaunay/point.h"
 
 
+
+namespace delaunay {
 
 MyPoint::MyPoint() {
 	this->x = 0;
@@ -19,5 +21,7 @@ MyPoint::MyPoint(LongInt x, LongInt y) {
 std::ostream& operator<<(std::ostream& os, const MyPoint& pt) {
 	os << "(" << pt.x << "," << pt.y << ")";
 	return os;
+}
+
 }
 

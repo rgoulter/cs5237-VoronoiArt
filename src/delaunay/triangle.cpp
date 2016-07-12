@@ -1,16 +1,18 @@
-#include "triangle.h"
+#include "delaunay/triangle.h"
 
 #include <assert.h>
 
 #include <iostream>
 
-#include "li.h"
-#include "pointsetarray.h"
+#include "delaunay/li.h"
+#include "delaunay/pointsetarray.h"
 
 using std::cout;
 using std::endl;
 
 
+
+namespace delaunay {
 
 TriRecord::TriRecord(int idx1, int idx2, int idx3) {
 	assert(idx1 >= 1 && idx1 < 1000000);
@@ -185,4 +187,7 @@ bool intersectsTriangle(const PointSetArray& psa, const TriRecord& tri1, const T
 
 	return isects12 || isects23 || isects31;
 }
+
+}
+
 

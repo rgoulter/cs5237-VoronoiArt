@@ -69,7 +69,6 @@ set (VORONOI_HEADERS include/mypanelopengl.h
                      include/mainqt.h)
 
 include_directories(include
-                    include/delaunay
                     include/voronoi)
 
 

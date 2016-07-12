@@ -1,12 +1,14 @@
-#ifndef CS5237_POLGYONH
-#define CS5237_POLGYONH
+#ifndef DELAUNAY_POLGYONH
+#define DELAUNAY_POLGYONH
 
 #include <vector>
 
-#include "li.h"
-#include "point.h"
+#include "delaunay/li.h"
+#include "delaunay/point.h"
 
 
+
+namespace delaunay {
 
 /// Returns 1 if p3 is counter-clockwise to p1p2,
 /// 0 if co-linear,
@@ -26,5 +28,6 @@ std::vector<int> clipPolygonToRectangle(const std::vector<int>& poly, int x1, in
 int inPoly(const std::vector<int>& poly, int x, int y);
 int inPoly(const std::vector<MyPoint>& poly, const MyPoint & p);
 
+}
 
 #endif

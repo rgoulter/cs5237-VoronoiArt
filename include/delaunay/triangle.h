@@ -1,5 +1,5 @@
-#ifndef TRIANGLE_H
-#define TRIANGLE_H
+#ifndef DELAUNAY_TRIANGLEH
+#define DELAUNAY_TRIANGLEH
 
 #include <assert.h>
 #include <stdlib.h>
@@ -7,9 +7,11 @@
 #include <ostream>
 #include <vector>
 
-#include "pointsetarray.h"
+#include "delaunay/pointsetarray.h"
 
 
+
+namespace delaunay {
 
 /// The OrTri data structure for an Oriented Triangle
 typedef  int OrTri;
@@ -148,5 +150,7 @@ bool intersectsTriangle(const PointSetArray& psa, const TriRecord& tri, int pIdx
 bool intersectsTriangle(const PointSetArray& psa, const TriRecord& tri1, const TriRecord& tri2);
 
 
+
+}
 
 #endif

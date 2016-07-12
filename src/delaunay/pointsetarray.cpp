@@ -1,4 +1,4 @@
-#include "pointsetarray.h"
+#include "delaunay/pointsetarray.h"
 
 #include <assert.h>
 
@@ -8,6 +8,8 @@
 using std::vector;
 
 
+
+namespace delaunay {
 
 int PointSetArray::addPoint(LongInt x1, LongInt y1) {
 	MyPoint thisPoint(x1, y1);
@@ -187,5 +189,7 @@ vector<int> coercePSAPolyToIVecPoly(PointSetArray& psa) {
 	}
 
 	return poly;
+}
+
 }
 

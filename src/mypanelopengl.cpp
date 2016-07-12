@@ -20,13 +20,10 @@
 #include "platform.h"
 #include "stopwatch.h"
 
-#include "li.h"
-#include "lmath.h"
-#include "pointsetarray.h"
-#include "triangle.h"
-#include "delaunaytri.h"
-#include "directedgraph.h"
-#include "delaunay.h"
+#include "delaunay/li.h"
+#include "delaunay/pointsetarray.h"
+#include "delaunay/directedgraph.h"
+#include "delaunay/delaunay.h"
 
 #include "imagedata.h"
 
@@ -35,6 +32,13 @@ using cv::imread;
 
 using std::string;
 using std::vector;
+
+using delaunay::DirectedGraph;
+using delaunay::LongInt;
+using delaunay::MyPoint;
+using delaunay::PointSetArray;
+using delaunay::tryDelaunayTriangulation;
+using delaunay::createVoronoi;
 
 
 

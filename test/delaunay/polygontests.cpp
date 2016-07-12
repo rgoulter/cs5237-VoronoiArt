@@ -2,12 +2,14 @@
 
 #include "gtest/gtest.h"
 
-#include "li.h"
-#include "polygon.h"
+#include "delaunay/li.h"
+#include "delaunay/polygon.h"
 
 using std::vector;
 using std::cout;
 using std::endl;
+
+using namespace delaunay;
 
 
 
