@@ -3,13 +3,11 @@
 
 #include <vector>
 
+#include "delaunay/directedgraph.h"
 #include "delaunay/li.h"
 #include "delaunay/lmath.h"
 #include "delaunay/pointsetarray.h"
 #include "delaunay/triangle.h"
-
-#include "delaunay/delaunaytri.h"
-#include "delaunay/directedgraph.h"
 
 
 
@@ -26,6 +24,10 @@ std::vector<PointSetArray> createVoronoi(DirectedGraph& dag);
 
 // Call this function when the user pushes the button to do Delaunay Triangulation
 void tryDelaunayTriangulation(DirectedGraph&);
+
+
+
+void legalizeEdge(DirectedGraph&, int, int, int);
 
 }
 

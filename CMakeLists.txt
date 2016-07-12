@@ -56,7 +56,6 @@ set(VORONOI_LIB_HEADERS include/delaunay/li.h
                         include/delaunay/dagnode.h
                         include/delaunay/directedgraph.h
                         include/delaunay/delaunay.h
-                        include/delaunay/delaunaytri.h
                         include/voronoi/vedge.h
                         include/voronoi/vevent.h
                         include/voronoi/vparabola.h

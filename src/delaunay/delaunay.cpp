@@ -11,7 +11,6 @@
 #include "delaunay/pointsetarray.h"
 #include "delaunay/triangle.h"
 
-#include "delaunay/delaunaytri.h"
 #include "delaunay/directedgraph.h"
 
 using std::vector;
@@ -26,7 +25,7 @@ namespace delaunay {
 /// What use does pIdx1 serve? Freshly inserted point?
 /// => make sure edge bc is Locally Delaunay,
 ///    ??? and that the flips we make keep things Locally Delaunay
-void DelaunayTri::legalizeEdge(DirectedGraph& dag, int pIdx1, int pIdx2, int pIdx3) {
+void legalizeEdge(DirectedGraph& dag, int pIdx1, int pIdx2, int pIdx3) {
 	cout << "DTri::legalizeEdge, " << pIdx1 << ", " << pIdx2 << "," << pIdx3 << endl;
 
 	int p4 = dag.findAdjacentTriangle(pIdx1, pIdx2, pIdx3);
@@ -76,9 +75,9 @@ void delaunayIterationStep(vector<int>& delaunayPointsToProcess,
 
 	/// edges 12, 13, 23 are the "link" of the inserted point.
 	/// So, here we 'flip edges' until things are locally delaunday.
-	DelaunayTri::legalizeEdge(dag, pIdx, triPIdx1, triPIdx2);
-	DelaunayTri::legalizeEdge(dag, pIdx, triPIdx1, triPIdx3);
-	DelaunayTri::legalizeEdge(dag, pIdx, triPIdx2, triPIdx3);
+	legalizeEdge(dag, pIdx, triPIdx1, triPIdx2);
+	legalizeEdge(dag, pIdx, triPIdx1, triPIdx3);
+	legalizeEdge(dag, pIdx, triPIdx2, triPIdx3);
 
 	/// Everything is Locally Delaunay by this point.
 
