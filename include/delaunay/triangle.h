@@ -139,6 +139,11 @@ friend class Trist;
 
 
 
+int inTriangle(const PointSetArray& psa, const TriRecord& tri, int pIdx);
+
+
+
+/// positive-y points UP.
 bool isTriangleCCW(const PointSetArray& psa, const TriRecord& tri);
 
 

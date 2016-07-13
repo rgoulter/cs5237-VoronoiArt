@@ -2,9 +2,11 @@
 
 #include <assert.h>
 
+#include <algorithm>
 #include <iostream>
 #include <stack>
 
+using std::find;
 using std::stack;
 using std::vector;
 using std::cout;
@@ -62,7 +64,10 @@ vector<DAGNode*> DAGNode::leafNodesContainingEdge(DAGNode* root, const PointSetA
 		DAGNode* node = stk.top();
 		stk.pop();
 
-		if (node->isLeaf()) {
+		if (node->isLeaf() &&
+		    inTriangle(pointSet, node->tri_, pIdx1) >= 0 &&
+		    inTriangle(pointSet, node->tri_, pIdx2) >= 0 &&
+		    find(outputList.begin(), outputList.end(), node) == outputList.end()) {
 			outputList.push_back(node);
 		}
 
@@ -75,7 +80,7 @@ vector<DAGNode*> DAGNode::leafNodesContainingEdge(DAGNode* root, const PointSetA
 			childNode->tri_.get(p1Idx, p2Idx, p3Idx);
 
 			// TODO convenient if PSet.inTri used TriRecord
-			if (pointSet.inTri(p1Idx, p2Idx, p3Idx, pIdx1) >= 0 &&
+			if (pointSet.inTri(p1Idx, p2Idx, p3Idx, pIdx1) >= 0 ||
 				pointSet.inTri(p1Idx, p2Idx, p3Idx, pIdx2) >= 0) {
 				stk.push(childNode);
 			}

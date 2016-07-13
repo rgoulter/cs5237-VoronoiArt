@@ -97,12 +97,34 @@ TEST(PointSetTest, InCircleOutsideDelaunayLegal) {
 	// abd doesn't contain c,
 	// dbc doesn't contain a
 	int p1 = pointSet.addPoint(374, 112);
-	int p2 = pointSet.addPoint(-6514,-2005);
+	int p2 = pointSet.addPoint(-6514, -2005);
 	int p3 = pointSet.addPoint(128, 6768);
 	int p4 = pointSet.addPoint(147, 376);
 
-	// (200,200) is *outside* the circum-circle of <p1,p2,p4>
+	// Both triangles legal.
 	EXPECT_EQ(-1, pointSet.inCircle(p1, p2, p4, p3));
 	EXPECT_EQ(-1, pointSet.inCircle(p4, p2, p3, p1));
 }
 
+
+// Delaunay algorithm breaking, e.g. of invalid:
+//  1. (425,342)
+//  2. (306,57)
+//  3. (120,31)
+//  4. (396,483)
+//  *both* abd, dbc are illegal
+TEST(PointSetTest, InCircleOutsideDelaunayIllegal) {
+	PointSetArray pointSet;
+
+	// abd is a tri, as is dbc.
+	// abd doesn't contain c,
+	// dbc doesn't contain a
+	int p1 = pointSet.addPoint(425, 342);
+	int p2 = pointSet.addPoint(306, 57);
+	int p3 = pointSet.addPoint(120, 31);
+	int p4 = pointSet.addPoint(396, 483);
+
+	// Both triangles illegal. (i.e. contains point)
+	EXPECT_EQ(1, pointSet.inCircle(p1, p2, p4, p3));
+	EXPECT_EQ(1, pointSet.inCircle(p4, p2, p3, p1));
+}
