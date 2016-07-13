@@ -244,16 +244,14 @@ vector<TriRecord> DirectedGraph::findTrianglesWithEdge(int pIdx1, int pIdx2) con
 
 
 int DirectedGraph::findAdjacentTriangle(int pIdx1, int pIdx2, int pIdx3) const {
+	TriRecord tri(pIdx1, pIdx2, pIdx3);
 	vector<TriRecord> triangles = findTrianglesWithEdge(pIdx2, pIdx3);
 
 	for (unsigned int i = 0; i < triangles.size(); i++) { /// "each triangle"
-		for (int j = 0; j < 3; j++) { /// "each point of this triangle.."
-			int pointIdx = triangles[i].pointIndexOf(j); /// its pointIdx
+		int pIdx = tri.vertexNotSharedWith(triangles[i]);
 
-			if (pointIdx != pIdx1 && pointIdx != pIdx2 && pointIdx != pIdx3) {
-				/// if that triangle point isn't of `abc` in args..
-				return pointIdx;
-			}
+		if (pIdx > 0) {
+			return pIdx;
 		}
 	}
 

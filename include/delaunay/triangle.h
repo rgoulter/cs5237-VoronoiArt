@@ -87,9 +87,18 @@ public:
 
 
 
-	// Sometimes do need to access `vi_`.
-	int pointIndexOf(int vertIdx) const {
-		return vi_[vertIdx];
+	int vertexNotSharedWith(const TriRecord& other) {
+		int pIdx1, pIdx2, pIdx3;
+		other.get(pIdx1, pIdx2, pIdx3);
+		if (!hasPointIndex(pIdx1)) {
+			return pIdx1;
+		} else if (!hasPointIndex(pIdx2)) {
+			return pIdx2;
+		} else if (!hasPointIndex(pIdx3)) {
+			return pIdx3;
+		} else {
+			return 0;
+		}
 	}
 
 
