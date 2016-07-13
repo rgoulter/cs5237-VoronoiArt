@@ -28,6 +28,8 @@ namespace delaunay {
 void legalizeEdge(DirectedGraph& dag, int pIdx1, int pIdx2, int pIdx3) {
 	cout << "DTri::legalizeEdge, " << pIdx1 << ", " << pIdx2 << "," << pIdx3 << endl;
 
+	assert(isTriangleCCW(dag.getPointSet(), TriRecord(pIdx1, pIdx2, pIdx3)));
+
 	int p4 = dag.findAdjacentTriangle(pIdx1, pIdx2, pIdx3);
 
 	if (p4 > 0) {
@@ -36,7 +38,7 @@ void legalizeEdge(DirectedGraph& dag, int pIdx1, int pIdx2, int pIdx3) {
 		PointSetArray pointSet = dag.getPointSet();
 
 		/// if this point is in the circumcircle of abc triangle..
-		if (pointSet.inCircle(pIdx1, pIdx2, pIdx3, p4) < 0) {
+		if (pointSet.inCircle(pIdx1, pIdx2, pIdx3, p4) > 0) {
 			///> want to replace ij w/ kr
 			// abd, dbc must be triangles.
 			// TRI = pidx1,2,3;
@@ -76,7 +78,7 @@ void delaunayIterationStep(vector<int>& delaunayPointsToProcess,
 	/// edges 12, 13, 23 are the "link" of the inserted point.
 	/// So, here we 'flip edges' until things are locally delaunday.
 	legalizeEdge(dag, pIdx, triPIdx1, triPIdx2);
-	legalizeEdge(dag, pIdx, triPIdx1, triPIdx3);
+	legalizeEdge(dag, pIdx, triPIdx3, triPIdx1);
 	legalizeEdge(dag, pIdx, triPIdx2, triPIdx3);
 
 	/// Everything is Locally Delaunay by this point.
