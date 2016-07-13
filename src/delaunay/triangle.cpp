@@ -1,4 +1,5 @@
 #include "delaunay/triangle.h"
+#include "delaunay/trianglegeometry.h"
 
 #include <assert.h>
 

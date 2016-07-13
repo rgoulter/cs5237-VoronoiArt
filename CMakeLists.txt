@@ -52,6 +52,7 @@ set(VORONOI_LIB_HEADERS include/delaunay/li.h
                         include/delaunay/point.h
                         include/delaunay/polygon.h
                         include/delaunay/triangle.h
+                        include/delaunay/trianglegeometry.h
                         include/delaunay/pointsetarray.h
                         include/delaunay/dagnode.h
                         include/delaunay/directedgraph.h

@@ -4,6 +4,8 @@
 #include <iostream>
 #include <stack>
 
+#include "delaunay/trianglegeometry.h"
+
 using std::find;
 using std::stack;
 using std::vector;

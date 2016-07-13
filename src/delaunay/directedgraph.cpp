@@ -5,6 +5,8 @@
 #include <iostream>
 #include <stack>
 
+#include "delaunay/trianglegeometry.h"
+
 #ifndef NDEBUG
 #define DIRECTEDGRAPH_CHECK
 #endif

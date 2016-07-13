@@ -6,8 +6,6 @@
 #include <ostream>
 #include <vector>
 
-#include "delaunay/pointsetarray.h"
-
 
 
 namespace delaunay {
@@ -18,15 +16,6 @@ typedef  int OrTri;
 /// The index of a triangle Hint: NOT a triangle if it's negative
 /// You should be able to make all the triangle indices to be from 0 to n - 1 (n = number of triangles)
 typedef  int FIndex;
-
-
-class Trist;
-
-
-
-/// Method to add new children triangles to a parent triangle.
-/// Call this from tryInsertPoint method in main.cpp
-void findBoundingTri(PointSetArray &);
 
 
 
@@ -65,8 +54,6 @@ public:
 			vi_[0] = rhs.vi_[0];
 			vi_[1] = rhs.vi_[1];
 			vi_[2] = rhs.vi_[2];
-
-			// Do we need to worry about fnext_?
 		}
 
 		return *this;
@@ -127,30 +114,7 @@ public:
 
 private:
 	int vi_[3];
-
-	OrTri fnext_[6];
-
-friend class Trist;
 };
-
-
-
-int inTriangle(const PointSetArray& psa, const TriRecord& tri, int pIdx);
-
-
-
-/// positive-y points UP.
-bool isTriangleCCW(const PointSetArray& psa, const TriRecord& tri);
-
-
-
-bool intersectsTriangle(const PointSetArray& psa, const TriRecord& tri, int pIdx1, int pIdx2);
-
-
-
-bool intersectsTriangle(const PointSetArray& psa, const TriRecord& tri1, const TriRecord& tri2);
-
-
 
 }
 
