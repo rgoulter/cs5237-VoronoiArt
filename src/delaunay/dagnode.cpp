@@ -43,7 +43,7 @@ vector<DAGNode*> DAGNode::leafNodesContainingPoint(DAGNode* root, const PointSet
 			if (pointSet.inTri(p1Idx, p2Idx, p3Idx, pIdx) > 0) {
 				stk.push(childNode);
 			} else if (pointSet.inTri(p1Idx, p2Idx, p3Idx, pIdx) == 0) {
-				cout << "DAG.addVertex, CASE: pIdx *on* tri." << endl;
+				// cout << "DAG.addVertex, CASE: pIdx *on* tri." << endl;
 				stk.push(childNode);
 			}
 		}

@@ -25,10 +25,6 @@ std::vector<PointSetArray> createVoronoi(DirectedGraph& dag);
 // Call this function when the user pushes the button to do Delaunay Triangulation
 void tryDelaunayTriangulation(DirectedGraph&);
 
-
-
-void legalizeEdge(DirectedGraph&, int, int, int);
-
 }
 
 #endif

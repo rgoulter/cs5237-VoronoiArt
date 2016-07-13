@@ -217,14 +217,39 @@ int DirectedGraph::findAdjacentTriangle(int pIdx1, int pIdx2, int pIdx3) const {
 
 
 
-// This method adds children nodes to the specified parent node.
-// This is only for new point additions and not for flipping.
-// Use findLeafNodeforPoint to find parent,
-// and then create child node for this triangle.
-/*
- * From bouding tri (root), find the next tri which contains the point.
- */
-TriRecord DirectedGraph::addVertex(int pIdx) {
+/// Do ??? with dag, and points a,b,c
+/// What use does pIdx1 serve? Freshly inserted point?
+/// => make sure edge bc is Locally Delaunay,
+///    ??? and that the flips we make keep things Locally Delaunay
+void DirectedGraph::legalizeEdge(int pIdx1, int pIdx2, int pIdx3) {
+// TODO: legalizeEdge could be even quicker if we know adj. tri already
+#ifdef DELAUNAY_CHECK
+	cout << "DTri::legalizeEdge, " << pIdx1 << ", " << pIdx2 << "," << pIdx3 << endl;
+
+	assert(isTriangleCCW(pointSet_, TriRecord(pIdx1, pIdx2, pIdx3)));
+#endif
+
+	int p4 = findAdjacentTriangle(pIdx1, pIdx2, pIdx3);
+
+	if (p4 > 0) {
+		// Presumably delaunayPointSet === dag.getPointSet()
+		// so this is legit
+
+		/// if this point is in the circumcircle of abc triangle..
+		if (pointSet_.inCircle(pIdx1, pIdx2, pIdx3, p4) > 0) {
+			///> want to replace ij w/ kr
+			// abd, dbc must be triangles.
+			// TRI = pidx1,2,3;
+			// TRI = pidx2,3,4
+			// dag.flipTriangles(pIdx1, pIdx2, pIdx3, p4);
+			flipTriangles(pIdx1, pIdx2, p4, pIdx3);
+		}
+	}
+}
+
+
+
+void DirectedGraph::addVertex(int pIdx) {
 #ifdef DIRECTEDGRAPH_CHECK
 	cout << "DAG.addVertex(" << pIdx << ")" << endl;
 #endif
@@ -234,34 +259,83 @@ TriRecord DirectedGraph::addVertex(int pIdx) {
 
 #ifdef DIRECTEDGRAPH_CHECK
 	cout << "DAG.addVertex, numLeafNodes containing pt: " << leaves.size() << endl;
+	assert(leaves.size() == 1 || leaves.size() == 2);
 #endif
 
-	DAGNode *node = leaves[0];  // Am assuming case of multiple is rare...
+	if (leaves.size() == 1) {
+		// New point fits cleanly within another triangle,
+		// split the triangle into three.
 
+		DAGNode *node = leaves[0];
 
-	TriRecord parentTri = node->tri_;
-	int parentIdx1, parentIdx2, parentIdx3;
-	parentTri.get(parentIdx1, parentIdx2, parentIdx3);
+		TriRecord parentTri = node->tri_;
+		int parentIdx1, parentIdx2, parentIdx3;
+		parentTri.get(parentIdx1, parentIdx2, parentIdx3);
 
-	// Construct 3 TriRecords, one for each child triangle
-	// ASSUMPTION that points for TriRecord are CCW
-	DAGNode *child1 = new DAGNode(TriRecord(parentIdx1, parentIdx2, pIdx)); // CCW
-	DAGNode *child2 = new DAGNode(TriRecord(parentIdx2, parentIdx3, pIdx));
-	DAGNode *child3 = new DAGNode(TriRecord(parentIdx3, parentIdx1, pIdx));
-	node->children_.push_back(child1);
-	node->children_.push_back(child2);
-	node->children_.push_back(child3);
+		// Construct 3 TriRecords, one for each child triangle
+		// ASSUMPTION that points for TriRecord are CCW
+		DAGNode *child1 = new DAGNode(TriRecord(parentIdx1, parentIdx2, pIdx)); // CCW
+		DAGNode *child2 = new DAGNode(TriRecord(parentIdx2, parentIdx3, pIdx));
+		DAGNode *child3 = new DAGNode(TriRecord(parentIdx3, parentIdx1, pIdx));
+		node->children_.push_back(child1);
+		node->children_.push_back(child2);
+		node->children_.push_back(child3);
 
-	// Add to instance's list of dagNodes
-	dagNodes_.push_back(child1);
-	dagNodes_.push_back(child2);
-	dagNodes_.push_back(child3);
+		// Add to instance's list of dagNodes
+		dagNodes_.push_back(child1);
+		dagNodes_.push_back(child2);
+		dagNodes_.push_back(child3);
 
 #ifdef DIRECTEDGRAPH_CHECK
-	checkConsistent();
+		checkConsistent();
 #endif
 
-	return parentTri;
+		// legalizeEdge[ADDVERT(A)]
+
+		/// edges 12, 13, 23 are the "link" of the inserted point.
+		/// So, here we 'flip edges' until things are locally delaunday.
+		legalizeEdge(pIdx, parentIdx1, parentIdx2);
+		legalizeEdge(pIdx, parentIdx2, parentIdx3);
+		legalizeEdge(pIdx, parentIdx3, parentIdx1);
+	} else if (leaves.size() == 2) {
+		// New point on the edge of other triangles,
+		// split the two triangles to get four triangles total.
+
+		// new point R lies on edge IJ
+		DAGNode* nodeIJK = leaves[0];
+		DAGNode* nodeILJ = leaves[1];
+
+		// need to sort out the point indices
+		int iIdx, jIdx, kIdx, lIdx;
+		getIndicesKIJL(nodeIJK->tri_, nodeILJ->tri_, kIdx, iIdx, jIdx, lIdx);
+
+		// Create triangles RKI, RJK, RIL, RLJ
+		DAGNode *nodeRKI = new DAGNode(TriRecord(pIdx, kIdx, iIdx));
+		DAGNode *nodeRJK = new DAGNode(TriRecord(pIdx, jIdx, kIdx));
+		DAGNode *nodeRIL = new DAGNode(TriRecord(pIdx, iIdx, lIdx));
+		DAGNode *nodeRLJ = new DAGNode(TriRecord(pIdx, lIdx, jIdx));
+
+		nodeIJK->children_.push_back(nodeRJK);
+		nodeIJK->children_.push_back(nodeRKI);
+		nodeILJ->children_.push_back(nodeRIL);
+		nodeILJ->children_.push_back(nodeRLJ);
+
+		dagNodes_.push_back(nodeRKI);
+		dagNodes_.push_back(nodeRJK);
+		dagNodes_.push_back(nodeRIL);
+		dagNodes_.push_back(nodeRLJ);
+
+#ifdef DIRECTEDGRAPH_CHECK
+		checkConsistent();
+#endif
+
+		// legalizeEdge[ADDVERT(B)]
+		// legalize il, lj, jk, ki
+		legalizeEdge(pIdx, iIdx, lIdx);
+		legalizeEdge(pIdx, lIdx, jIdx);
+		legalizeEdge(pIdx, jIdx, kIdx);
+		legalizeEdge(pIdx, kIdx, iIdx);
+	}
 }
 
 
@@ -328,6 +402,11 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 #ifdef DIRECTEDGRAPH_CHECK
 	checkConsistent();
 #endif
+
+	// legalizeEdge[FLIPTRIANGLE]
+
+	legalizeEdge(pIdx1, pIdx2, pIdx3);
+	legalizeEdge(pIdx1, pIdx3, pIdx4);
 }
 
 }

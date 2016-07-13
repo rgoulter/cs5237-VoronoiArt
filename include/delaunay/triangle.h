@@ -10,15 +10,6 @@
 
 namespace delaunay {
 
-/// The OrTri data structure for an Oriented Triangle
-typedef  int OrTri;
-
-/// The index of a triangle Hint: NOT a triangle if it's negative
-/// You should be able to make all the triangle indices to be from 0 to n - 1 (n = number of triangles)
-typedef  int FIndex;
-
-
-
 class TriRecord {
 public:
 	TriRecord(int idx1, int idx2, int idx3);
@@ -87,7 +78,7 @@ public:
 
 
 
-	int vertexNotSharedWith(const TriRecord& other) {
+	int vertexNotSharedWith(const TriRecord& other) const {
 		int pIdx1, pIdx2, pIdx3;
 		other.get(pIdx1, pIdx2, pIdx3);
 		if (!hasPointIndex(pIdx1)) {
@@ -124,6 +115,13 @@ public:
 private:
 	int vi_[3];
 };
+
+
+
+/// Assuming tri1, tri2 share an edge,
+/// get the point indices from the two triangles.
+void getIndicesKIJL(const TriRecord& triIJK, const TriRecord& triILJ,
+                    int& kIdx, int& iIdx, int& jIdx, int& lIdx);
 
 }
 
