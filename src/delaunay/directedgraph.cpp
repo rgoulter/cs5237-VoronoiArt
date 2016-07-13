@@ -5,6 +5,10 @@
 #include <iostream>
 #include <stack>
 
+#ifndef NDEBUG
+#define DIRECTEDGRAPH_CHECK
+#endif
+
 using std::stack;
 using std::vector;
 using std::cout;
@@ -264,11 +268,16 @@ int DirectedGraph::findAdjacentTriangle(int pIdx1, int pIdx2, int pIdx3) const {
  * From bouding tri (root), find the next tri which contains the point.
  */
 TriRecord DirectedGraph::addVertex(int pIdx) {
+#ifdef DIRECTEDGRAPH_CHECK
 	cout << "DAG.addVertex(" << pIdx << ")" << endl;
+#endif
 
 	// Seek the lowest DAGNode which contains the point.
 	vector<DAGNode*> leaves = DAGNode::leafNodesContainingPoint(root_, pointSet_, pIdx);
+
+#ifdef DIRECTEDGRAPH_CHECK
 	cout << "DAG.addVertex, numLeafNodes containing pt: " << leaves.size() << endl;
+#endif
 
 	DAGNode *node = leaves[0];  // Am assuming case of multiple is rare...
 
@@ -278,7 +287,7 @@ TriRecord DirectedGraph::addVertex(int pIdx) {
 	parentTri.get(parentIdx1, parentIdx2, parentIdx3);
 
 	// Construct 3 TriRecords, one for each child triangle
-	// XXX ASSUMPTION that points for TriRecord are CCW
+	// ASSUMPTION that points for TriRecord are CCW
 	DAGNode *child1 = new DAGNode(TriRecord(parentIdx1, parentIdx2, pIdx)); // CCW
 	DAGNode *child2 = new DAGNode(TriRecord(parentIdx2, parentIdx3, pIdx));
 	DAGNode *child3 = new DAGNode(TriRecord(parentIdx3, parentIdx1, pIdx));
@@ -290,7 +299,10 @@ TriRecord DirectedGraph::addVertex(int pIdx) {
 	dagNodes_.push_back(child1);
 	dagNodes_.push_back(child2);
 	dagNodes_.push_back(child3);
+
+#ifdef DIRECTEDGRAPH_CHECK
 	checkConsistent();
+#endif
 
 	return parentTri;
 }
@@ -303,6 +315,7 @@ TriRecord DirectedGraph::addVertex(int pIdx) {
 //
 // the shared edge bd gets replaced with shared edge ac
 void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
+#ifdef DIRECTEDGRAPH_CHECK
 	cout << "DAG::flipTris, args=" << pIdx1 << "," << pIdx2 << "," << pIdx3 << "," << pIdx4 << "." << endl;
 
 	cout << "Points: " << endl;
@@ -315,12 +328,15 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 	assert(isTriangleCCW(pointSet_, TriRecord(pIdx1, pIdx2, pIdx4)));
 	assert(containsTri(dagNodes_, pIdx4, pIdx2, pIdx3));
 	assert(isTriangleCCW(pointSet_, TriRecord(pIdx4, pIdx2, pIdx3)));
+#endif
 
 	// Seek the lowest DAGNode which contains the point.
 	vector<DAGNode*> nodes = DAGNode::leafNodesContainingEdge(root_, pointSet_, pIdx2, pIdx4);
+#ifdef DIRECTEDGRAPH_CHECK
 	// cout << "DAG.flipTriangles, numLeafNodes containing edge: " << nodes.size() << endl;
 	// outputTriList(nodes);
 	assert(nodes.size() == 2);
+#endif
 
 
 	DAGNode *abdNode = nodes[0]; // <124>
@@ -333,9 +349,11 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 	// ASSUMPTION that points for TriRecord are CCW
 	// flip <abd>,<dbc> adds 2 children to each, <abc>,<acd> (preserves CCW)
 	TriRecord abcTri(pIdx1, pIdx2, pIdx3);
-	assert(isTriangleCCW(pointSet_, abcTri));
 	TriRecord acdTri(pIdx1, pIdx3, pIdx4);
+#ifdef DIRECTEDGRAPH_CHECK
+	assert(isTriangleCCW(pointSet_, abcTri));
 	assert(isTriangleCCW(pointSet_, acdTri));
+#endif
 
 	DAGNode *abcNode = new DAGNode(abcTri);
 	DAGNode *acdNode = new DAGNode(acdTri);
@@ -349,7 +367,10 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 	// Add to instance's list of dagNodes
 	dagNodes_.push_back(abcNode);
 	dagNodes_.push_back(acdNode);
+
+#ifdef DIRECTEDGRAPH_CHECK
 	checkConsistent();
+#endif
 }
 
 }

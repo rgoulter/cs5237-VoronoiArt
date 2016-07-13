@@ -13,6 +13,10 @@
 
 #include "delaunay/directedgraph.h"
 
+#ifndef NDEBUG
+#define DELAUNAY_CHECK
+#endif
+
 using std::vector;
 using std::cout;
 using std::endl;
@@ -26,9 +30,11 @@ namespace delaunay {
 /// => make sure edge bc is Locally Delaunay,
 ///    ??? and that the flips we make keep things Locally Delaunay
 void legalizeEdge(DirectedGraph& dag, int pIdx1, int pIdx2, int pIdx3) {
+#ifdef DELAUNAY_CHECK
 	cout << "DTri::legalizeEdge, " << pIdx1 << ", " << pIdx2 << "," << pIdx3 << endl;
 
 	assert(isTriangleCCW(dag.getPointSet(), TriRecord(pIdx1, pIdx2, pIdx3)));
+#endif
 
 	int p4 = dag.findAdjacentTriangle(pIdx1, pIdx2, pIdx3);
 

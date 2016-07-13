@@ -1,7 +1,6 @@
 #ifndef DELAUNAY_TRIANGLEH
 #define DELAUNAY_TRIANGLEH
 
-#include <assert.h>
 #include <stdlib.h>
 
 #include <ostream>
@@ -109,9 +108,6 @@ public:
 
 
 	void set(int idx1, int idx2, int idx3) {
-		assert(idx1 >= 0 && idx1 < 1000000);
-		assert(idx2 >= 0 && idx2 < 1000000);
-		assert(idx3 >= 0 && idx3 < 1000000);
 		vi_[0] = idx1;
 		vi_[1] = idx2;
 		vi_[2] = idx3;

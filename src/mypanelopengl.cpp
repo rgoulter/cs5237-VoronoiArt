@@ -703,7 +703,7 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 	voroSW.reset();
 	voroSW.resume();
 
-	bool useOldVoronoiAlgo = false;
+	bool useOldVoronoiAlgo = true;
 
 	if (useOldVoronoiAlgo) {
 		// DELAUNAY

@@ -1,7 +1,5 @@
 #include "delaunay/dagnode.h"
 
-#include <assert.h>
-
 #include <algorithm>
 #include <iostream>
 #include <stack>

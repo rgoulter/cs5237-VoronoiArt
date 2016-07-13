@@ -1,8 +1,6 @@
 #ifndef DELAUNAY_DIRECTEDGRAPHH
 #define DELAUNAY_DIRECTEDGRAPHH
 
-#include <assert.h>
-
 #include <iostream>
 #include <vector>
 

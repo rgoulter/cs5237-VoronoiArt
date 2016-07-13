@@ -7,6 +7,10 @@
 #include "delaunay/li.h"
 #include "delaunay/pointsetarray.h"
 
+#ifndef NDEBUG
+#define TRIANGLE_CHECK
+#endif
+
 using std::cout;
 using std::endl;
 
@@ -15,9 +19,11 @@ using std::endl;
 namespace delaunay {
 
 TriRecord::TriRecord(int idx1, int idx2, int idx3) {
+#ifdef TRIANGLE_CHECK
 	assert(idx1 >= 1 && idx1 < 1000000);
 	assert(idx2 >= 1 && idx2 < 1000000);
 	assert(idx3 >= 1 && idx3 < 1000000);
+#endif
 	vi_[0] = idx1;
 	vi_[1] = idx2;
 	vi_[2] = idx3;
@@ -110,11 +116,13 @@ void findBoundingTri(PointSetArray &pSet) {
 	int super3Idx = pSet.addPoint((LongInt) ((maxX.doubleValue() + minX.doubleValue()) / 2),
 	                              maxY + (maxX - minX));
 
+#ifdef TRIANGLE_CHECK
 	// Assert that all (other) points contained in the 3 super-triangle.
 	assert(isTriangleCCW(pSet, TriRecord(super1Idx, super2Idx, super3Idx)));
 	for (int i = 1; i < pSet.noPt() - 3; i++) {
 		assert(pSet.inTri(super1Idx, super2Idx, super3Idx, i) > 0);
 	}
+#endif
 }
 
 
