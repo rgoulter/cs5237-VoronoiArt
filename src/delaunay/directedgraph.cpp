@@ -128,9 +128,9 @@ bool DirectedGraph::checkConsistent() const {
 		tri.get(pIdx1, pIdx2, pIdx3);
 
 		if (node->isLeaf()) {
-			assert(findTrianglesWithEdge(pIdx1, pIdx2).size() <= 2);
-			assert(findTrianglesWithEdge(pIdx2, pIdx3).size() <= 2);
-			assert(findTrianglesWithEdge(pIdx1, pIdx3).size() <= 2);
+			// assert(findTrianglesWithEdge(pIdx1, pIdx2).size() <= 2);
+			// assert(findTrianglesWithEdge(pIdx2, pIdx3).size() <= 2);
+			// assert(findTrianglesWithEdge(pIdx1, pIdx3).size() <= 2);
 		}
 	}
 
@@ -171,84 +171,41 @@ DirectedGraph::DirectedGraph(const PointSetArray& inputPointSet) {
 	                              boundingTriPt1 + 1,
 	                              boundingTriPt1 + 2));
 	dagNodes_.push_back(root_);
-
-	// TODO I've no clue what this does / why it's here.
-	// addVertex(delaunayPointSet.noPt());
 }
 
 
 
 DirectedGraph::~DirectedGraph() {
-	// Go through 
 	for (vector<DAGNode*>::iterator iter = dagNodes_.begin(); iter != dagNodes_.end(); ++iter) {
 		DAGNode *ptr = *iter;
 		delete ptr;
 	}
-
-	// root_ never added to dagNodes_
-	// since root_ is the bounding triangle,
-	// and the bounding triangle vertices don't count.
-	// delete root_;
 }
 
 
 
 // This method returns the set of triangles the input point belongs to.
+// Used by createVoronoi; I'd rather deprecate it.
 vector<TriRecord> DirectedGraph::findTrianglesWithVertex(int pIdx1) const {
-	vector<TriRecord> outputlist;
+	vector<DAGNode*> nodes = DAGNode::leafNodesContainingPoint(root_, pointSet_, pIdx1);
 
-	// O(n)
-	for (vector<DAGNode*>::const_iterator iter = dagNodes_.begin(); iter != dagNodes_.end(); ++iter) {
-		DAGNode *node = *iter;
-		TriRecord checkTriangle = node->tri_;
+	vector<TriRecord> outputList;
 
-		if (node->isLeaf() &&
-			checkTriangle.hasPointIndex(pIdx1)) {
-			outputlist.push_back(checkTriangle);
-		}
+	for (vector<DAGNode*>::iterator iter = nodes.begin(); iter != nodes.end(); ++iter) {
+		outputList.push_back((*iter)->tri_);
 	}
 
-	return outputlist;
-}
-
-
-
-// This method returns the set of 2 triangles the input edge belongs to.
-/*
- * w/ list of all DagNodes, (ergo, all triangles),
- * can filter through to return TriRecord
- */
-vector<TriRecord> DirectedGraph::findTrianglesWithEdge(int pIdx1, int pIdx2) const {
-	vector<TriRecord> outputlist;
-
-	// O(n)
-	for (vector<DAGNode*>::const_iterator iter = dagNodes_.begin(); iter != dagNodes_.end(); ++iter) {
-		DAGNode *node = *iter;
-		TriRecord checkTriangle = node->tri_;
-
-		if (node->isLeaf() &&
-			checkTriangle.hasPointIndex(pIdx1)) {
-			if (checkTriangle.hasPointIndex(pIdx2)) {
-				outputlist.push_back(checkTriangle);
-			}
-		}
-	}
-
-	// cout << "dag.findTrisWEdge: " << pIdx1 << ", " << pIdx2 << endl;
-	// cout << "dag.findTrisWEdge, output size = " << outputlist.size() << endl;
-	assert(outputlist.size() == 2 || pIdx1 >= pointSet_.noPt() - 3 || pIdx2 >= pointSet_.noPt() - 3);
-
-	return outputlist;
+	return outputList;
 }
 
 
 
 int DirectedGraph::findAdjacentTriangle(int pIdx1, int pIdx2, int pIdx3) const {
 	TriRecord tri(pIdx1, pIdx2, pIdx3);
-	vector<TriRecord> triangles = findTrianglesWithEdge(pIdx2, pIdx3);
+	vector<DAGNode*> triangles = DAGNode::leafNodesContainingEdge(root_, pointSet_, pIdx2, pIdx3);
 
 	for (unsigned int i = 0; i < triangles.size(); i++) { /// "each triangle"
-		int pIdx = tri.vertexNotSharedWith(triangles[i]);
+		int pIdx = tri.vertexNotSharedWith(triangles[i]->tri_);
 
 		if (pIdx > 0) {
 			return pIdx;

@@ -56,7 +56,7 @@ private:
 	bool checkConsistent() const;
 
 	/// Returns a set of triangles for the input point indexes.
-	std::vector<TriRecord> findTrianglesWithEdge(int, int) const;
+	// std::vector<TriRecord> findTrianglesWithEdge(int, int) const;
 
 	/// Method to search the DAG for the triangle containing the point.
 	/// This triangle will be subdivided into smaller triangles.
