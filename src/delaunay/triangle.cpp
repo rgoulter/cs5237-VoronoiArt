@@ -119,6 +119,15 @@ void findBoundingTri(PointSetArray &pSet) {
 
 
 
+int inTriangle(const PointSetArray& psa, const TriRecord& tri, int pIdx) {
+	int pIdx1, pIdx2, pIdx3;
+	tri.get(pIdx1, pIdx2, pIdx3);
+
+	return psa.inTri(pIdx1, pIdx2, pIdx3, pIdx);
+}
+
+
+
 // again, positive-y points UP.
 bool isTriangleCCW(const PointSetArray& psa, const TriRecord& tri) {
 	int pIdx1, pIdx2, pIdx3;
