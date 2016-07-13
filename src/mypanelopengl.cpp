@@ -908,7 +908,6 @@ void MyPanelOpenGL::doGenerateUniformRandomPoints() {
 	}
 
 	updateNumPoints(inputPointSet_.noPt());
-	setUsePDF(true);
 
 	updateGL();
 }
