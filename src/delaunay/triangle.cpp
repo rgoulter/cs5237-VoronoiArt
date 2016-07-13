@@ -72,6 +72,33 @@ std::ostream& operator<<(std::ostream& os, const TriRecord& tri) {
 
 
 
+// Assuming tri1, tri2 share an edge,
+// get the point indices from the two triangles.
+void getIndicesKIJL(const TriRecord& triIJK, const TriRecord& triILJ,
+                    int& kIdx, int& iIdx, int& jIdx, int& lIdx) {
+	lIdx = triIJK.vertexNotSharedWith(triILJ);
+
+	int pIdx1, pIdx2, pIdx3;
+	triIJK.get(pIdx1, pIdx2, pIdx3);
+
+	if (!triILJ.hasPointIndex(pIdx1)) {
+		iIdx = pIdx2;
+		jIdx = pIdx3;
+		kIdx = pIdx1;
+	} else if (!triILJ.hasPointIndex(pIdx2)) {
+		iIdx = pIdx3;
+		jIdx = pIdx1;
+		kIdx = pIdx2;
+	} else if (!triILJ.hasPointIndex(pIdx3)) {
+		iIdx = pIdx1;
+		jIdx = pIdx2;
+		kIdx = pIdx3;
+	} else {
+	}
+}
+
+
+
 // Adds the points to the PointSetArray
 void findBoundingTri(PointSetArray &pSet) {
 	assert(pSet.noPt() > 0);

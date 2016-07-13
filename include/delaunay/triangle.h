@@ -78,7 +78,7 @@ public:
 
 
 
-	int vertexNotSharedWith(const TriRecord& other) {
+	int vertexNotSharedWith(const TriRecord& other) const {
 		int pIdx1, pIdx2, pIdx3;
 		other.get(pIdx1, pIdx2, pIdx3);
 		if (!hasPointIndex(pIdx1)) {
@@ -115,6 +115,13 @@ public:
 private:
 	int vi_[3];
 };
+
+
+
+/// Assuming tri1, tri2 share an edge,
+/// get the point indices from the two triangles.
+void getIndicesKIJL(const TriRecord& triIJK, const TriRecord& triILJ,
+                    int& kIdx, int& iIdx, int& jIdx, int& lIdx);
 
 }
 

@@ -32,7 +32,7 @@ public:
 	std::vector<TriRecord> findTrianglesWithVertex(int) const;
 
 	/// Method to add new children triangles to a parent triangle.
-	TriRecord addVertex(int);
+	void addVertex(int);
 
 	/// Create children nodes with 2 parents in case of edge flipping.
 	void flipTriangles(int, int, int, int);
