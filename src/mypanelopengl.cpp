@@ -30,6 +30,7 @@
 using cv::Mat;
 using cv::imread;
 
+using std::endl;
 using std::string;
 using std::vector;
 
@@ -793,7 +794,7 @@ void MyPanelOpenGL::doOpenImage() {
 
 	string filenameStr = qStr_fileName.toStdString();
 
-	updateFilename(qStr_fileName); // to Qt textbox
+	emit updateFilename(qStr_fileName); // to Qt textbox
 
 	imData_ = loadImageData(filenameStr);
 	loadedImageFilename_ = filenameStr;
@@ -802,7 +803,10 @@ void MyPanelOpenGL::doOpenImage() {
 	refreshProjection(widgetSize.width(), widgetSize.height(),
 	                  canvasOffsetX_, canvasOffsetY_,
 	                  imData_);
-	imageLoaded();
+	emit imageLoaded();
+
+	currentRenderType_ = IMAGE;
+	updateGL();
 }
 
 
