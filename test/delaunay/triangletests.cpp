@@ -149,6 +149,32 @@ TEST(DelaunayTriangleTest, IsCCW3) {
 
 
 
+TEST(DelaunayTriangleTest, IsCCWFlipTri) {
+	PointSetArray pointSet;
+
+	// abd, dbc are CCW.
+	// so,
+	// abc, acd should be also
+	int pIdx1 = pointSet.addPoint(425, 342);
+	int pIdx2 = pointSet.addPoint(396, 483);
+	int pIdx3 = pointSet.addPoint(120, 31);
+	int pIdx4 = pointSet.addPoint(306, 57);
+
+	TriRecord triABD(pIdx1, pIdx2, pIdx4);
+	TriRecord triDBC(pIdx4, pIdx2, pIdx3);
+
+	EXPECT_EQ(true, isTriangleCCW(pointSet, triABD));
+	EXPECT_EQ(true, isTriangleCCW(pointSet, triDBC));
+
+	TriRecord triABC(pIdx1, pIdx2, pIdx3);
+	TriRecord triACD(pIdx1, pIdx3, pIdx4);
+
+	EXPECT_EQ(true, isTriangleCCW(pointSet, triABC));
+	EXPECT_EQ(true, isTriangleCCW(pointSet, triACD));
+}
+
+
+
 TEST(DelaunayTriangleTest, IntersectsTriSegTest) {
 	PointSetArray pointSet;
 
