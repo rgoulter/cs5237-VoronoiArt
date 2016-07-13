@@ -217,6 +217,41 @@ int DirectedGraph::findAdjacentTriangle(int pIdx1, int pIdx2, int pIdx3) const {
 
 
 
+/// Do ??? with dag, and points a,b,c
+/// What use does pIdx1 serve? Freshly inserted point?
+/// => make sure edge bc is Locally Delaunay,
+///    ??? and that the flips we make keep things Locally Delaunay
+void DirectedGraph::legalizeEdge(int pIdx1, int pIdx2, int pIdx3) {
+// TODO: legalizeEdge could be even quicker if we know adj. tri already
+#ifdef DELAUNAY_CHECK
+	cout << "DTri::legalizeEdge, " << pIdx1 << ", " << pIdx2 << "," << pIdx3 << endl;
+
+	assert(isTriangleCCW(pointSet_, TriRecord(pIdx1, pIdx2, pIdx3)));
+#endif
+
+	int p4 = findAdjacentTriangle(pIdx1, pIdx2, pIdx3);
+
+	if (p4 > 0) {
+		// Presumably delaunayPointSet === dag.getPointSet()
+		// so this is legit
+
+		/// if this point is in the circumcircle of abc triangle..
+		if (pointSet_.inCircle(pIdx1, pIdx2, pIdx3, p4) > 0) {
+			///> want to replace ij w/ kr
+			// abd, dbc must be triangles.
+			// TRI = pidx1,2,3;
+			// TRI = pidx2,3,4
+			// dag.flipTriangles(pIdx1, pIdx2, pIdx3, p4);
+			flipTriangles(pIdx1, pIdx2, p4, pIdx3);
+		}
+	}
+}
+
+
+
+
+
+
 // This method adds children nodes to the specified parent node.
 // This is only for new point additions and not for flipping.
 // Use findLeafNodeforPoint to find parent,
@@ -260,6 +295,14 @@ TriRecord DirectedGraph::addVertex(int pIdx) {
 #ifdef DIRECTEDGRAPH_CHECK
 	checkConsistent();
 #endif
+
+	// legalizeEdge[ADDVERT(A)]
+
+	/// edges 12, 13, 23 are the "link" of the inserted point.
+	/// So, here we 'flip edges' until things are locally delaunday.
+	legalizeEdge(pIdx, parentIdx1, parentIdx2);
+	legalizeEdge(pIdx, parentIdx2, parentIdx3);
+	legalizeEdge(pIdx, parentIdx3, parentIdx1);
 
 	return parentTri;
 }
@@ -328,6 +371,11 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 #ifdef DIRECTEDGRAPH_CHECK
 	checkConsistent();
 #endif
+
+	// legalizeEdge[FLIPTRIANGLE]
+
+	legalizeEdge(pIdx1, pIdx2, pIdx3);
+	legalizeEdge(pIdx1, pIdx3, pIdx4);
 }
 
 }

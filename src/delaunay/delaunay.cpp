@@ -26,43 +26,6 @@ using std::endl;
 
 namespace delaunay {
 
-/// Do ??? with dag, and points a,b,c
-/// What use does pIdx1 serve? Freshly inserted point?
-/// => make sure edge bc is Locally Delaunay,
-///    ??? and that the flips we make keep things Locally Delaunay
-void legalizeEdge(DirectedGraph& dag, int pIdx1, int pIdx2, int pIdx3) {
-#ifdef DELAUNAY_CHECK
-	cout << "DTri::legalizeEdge, " << pIdx1 << ", " << pIdx2 << "," << pIdx3 << endl;
-
-	assert(isTriangleCCW(dag.getPointSet(), TriRecord(pIdx1, pIdx2, pIdx3)));
-#endif
-
-	int p4 = dag.findAdjacentTriangle(pIdx1, pIdx2, pIdx3);
-
-	if (p4 > 0) {
-		// Presumably delaunayPointSet === dag.getPointSet()
-		// so this is legit
-		PointSetArray pointSet = dag.getPointSet();
-
-		/// if this point is in the circumcircle of abc triangle..
-		if (pointSet.inCircle(pIdx1, pIdx2, pIdx3, p4) > 0) {
-			///> want to replace ij w/ kr
-			// abd, dbc must be triangles.
-			// TRI = pidx1,2,3;
-			// TRI = pidx2,3,4
-			// dag.flipTriangles(pIdx1, pIdx2, pIdx3, p4);
-			dag.flipTriangles(pIdx1, pIdx2, p4, pIdx3);
-			/// abp (by edge bp)
-			legalizeEdge(dag, pIdx1, pIdx2, p4); /// n.b., the triangle mightn't be given in that idx order e.g. cba
-			/// acp (by edge cp)
-			// legalizeEdge(dag, pIdx1, pIdx3, p4);
-			legalizeEdge(dag, pIdx1, p4, pIdx3);
-		}
-	}
-}
-
-
-
 /// ???
 /// XXX Btw, no need to have dlyPointsToProcess here
 void delaunayIterationStep(vector<int>& delaunayPointsToProcess,
@@ -77,16 +40,7 @@ void delaunayIterationStep(vector<int>& delaunayPointsToProcess,
 	/// Insert into new Tri into the DAG.
 	/// These new triangles mightn't be Locally Delaunay.
 	// Return the containing triangle for the point i.
-	TriRecord tri = dag.addVertex(pIdx);
-
-	int triPIdx1, triPIdx2, triPIdx3;
-	tri.get(triPIdx1, triPIdx2, triPIdx3);
-
-	/// edges 12, 13, 23 are the "link" of the inserted point.
-	/// So, here we 'flip edges' until things are locally delaunday.
-	legalizeEdge(dag, pIdx, triPIdx1, triPIdx2);
-	legalizeEdge(dag, pIdx, triPIdx3, triPIdx1);
-	legalizeEdge(dag, pIdx, triPIdx2, triPIdx3);
+	dag.addVertex(pIdx);
 
 	/// Everything is Locally Delaunay by this point.
 

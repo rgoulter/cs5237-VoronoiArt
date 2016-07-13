@@ -10,15 +10,6 @@
 
 namespace delaunay {
 
-/// The OrTri data structure for an Oriented Triangle
-typedef  int OrTri;
-
-/// The index of a triangle Hint: NOT a triangle if it's negative
-/// You should be able to make all the triangle indices to be from 0 to n - 1 (n = number of triangles)
-typedef  int FIndex;
-
-
-
 class TriRecord {
 public:
 	TriRecord(int idx1, int idx2, int idx3);

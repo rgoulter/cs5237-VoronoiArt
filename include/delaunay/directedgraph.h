@@ -31,11 +31,6 @@ public:
 	/// Finds the linked delaunay triangles for the input point index
 	std::vector<TriRecord> findTrianglesWithVertex(int) const;
 
-	/// Return a pointIdx for a triangle which shares pIdx2, pIdx3,
-	/// but not pIdx1.
-	/// Returns `0` if couldn't find an adjacent triangle.
-	int findAdjacentTriangle(int pIdx1, int pIdx2, int pIdx3) const;
-
 	/// Method to add new children triangles to a parent triangle.
 	TriRecord addVertex(int);
 
@@ -54,6 +49,13 @@ private:
 	// For debugging,
 	// check that the DAG is in consistent state.
 	bool checkConsistent() const;
+
+	/// Return a pointIdx for a triangle which shares pIdx2, pIdx3,
+	/// but not pIdx1.
+	/// Returns `0` if couldn't find an adjacent triangle.
+	int findAdjacentTriangle(int pIdx1, int pIdx2, int pIdx3) const;
+
+	void legalizeEdge(int, int, int);
 
 	/// Returns a set of triangles for the input point indexes.
 	// std::vector<TriRecord> findTrianglesWithEdge(int, int) const;
