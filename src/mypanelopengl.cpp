@@ -703,9 +703,7 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 	voroSW.reset();
 	voroSW.resume();
 
-	bool useOldVoronoiAlgo = true;
-
-	if (useOldVoronoiAlgo) {
+	if (algorithm_ == kDelaunayAlgorithm) {
 		// DELAUNAY
 		qDebug("Do doDelaunay in MPOG::doVoronoi");
 
@@ -999,6 +997,18 @@ void MyPanelOpenGL::setNumPoints5k() {
 void MyPanelOpenGL::setNumPoints(int n) {
 	numPDFPoints_ = n;
 	updateNumPointsToGenerate(n);
+}
+
+
+
+void MyPanelOpenGL::useDelaunayAlgorithm() {
+	algorithm_ = kDelaunayAlgorithm;
+}
+
+
+
+void MyPanelOpenGL::useVoronoiAlgorithm() {
+	algorithm_ = kVoronoiAlgorithm;
 }
 
 

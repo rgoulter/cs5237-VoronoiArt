@@ -30,6 +30,13 @@ enum ShowImageType {
 
 
 
+enum VoronoiAlgorithm {
+	kDelaunayAlgorithm,
+	kVoronoiAlgorithm
+};
+
+
+
 // As per http://doc.qt.io/qt-5/qglwidget.html
 // XXX QGLWidget is legacy, should use QOpenGLWidget instead.
 class MyPanelOpenGL : public QGLWidget
@@ -37,7 +44,7 @@ class MyPanelOpenGL : public QGLWidget
     Q_OBJECT
 public:
 	explicit MyPanelOpenGL(QWidget *parent = 0);
-	
+
 signals:
 	void updateFilename(QString);
 	void updateNumPoints(int);
@@ -60,16 +67,19 @@ public slots:
 	void doVoronoiDiagram();
 	void doGenerateUniformRandomPoints();
 	void doPDF();
-	
+
 	void setNumPoints1k();
 	void setNumPoints5k();
 	void setNumPoints(int);
-	
+
 	void doSaveImage();
 	void clearAll();
-	
+
 	void setShowVoronoiSites(bool b);
 	void setShowVoronoiEdges(bool b);
+
+	void useDelaunayAlgorithm();
+	void useVoronoiAlgorithm();
 
 protected:
 	// overloaded
@@ -115,6 +125,8 @@ private:
 	// VORONOI
 	/// Vertices for Fortune's algorithm
 	voronoi::Vertices * voronoiVertices_ = new voronoi::Vertices();
+
+	VoronoiAlgorithm algorithm_ = kVoronoiAlgorithm;
 };
 
 #endif // MYPANELOPENGL_H
