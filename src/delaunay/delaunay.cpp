@@ -10,6 +10,7 @@
 #include "delaunay/lmath.h"
 #include "delaunay/pointsetarray.h"
 #include "delaunay/triangle.h"
+#include "delaunay/trianglegeometry.h"
 
 #include "delaunay/directedgraph.h"
 
