@@ -309,9 +309,9 @@ void DirectedGraph::addVertex(int pIdx) {
 		int iIdx, jIdx, kIdx, lIdx;
 		getIndicesKIJL(nodeIJK->tri_, nodeILJ->tri_, kIdx, iIdx, jIdx, lIdx);
 
-		// Create triangles RKI, RJK, RIL, RLJ
-		DAGNode *nodeRKI = new DAGNode(TriRecord(pIdx, kIdx, iIdx));
+		// Create triangles RJK, RKI, RIL, RLJ
 		DAGNode *nodeRJK = new DAGNode(TriRecord(pIdx, jIdx, kIdx));
+		DAGNode *nodeRKI = new DAGNode(TriRecord(pIdx, kIdx, iIdx));
 		DAGNode *nodeRIL = new DAGNode(TriRecord(pIdx, iIdx, lIdx));
 		DAGNode *nodeRLJ = new DAGNode(TriRecord(pIdx, lIdx, jIdx));
 
@@ -320,8 +320,8 @@ void DirectedGraph::addVertex(int pIdx) {
 		nodeILJ->children_.push_back(nodeRIL);
 		nodeILJ->children_.push_back(nodeRLJ);
 
-		dagNodes_.push_back(nodeRKI);
 		dagNodes_.push_back(nodeRJK);
+		dagNodes_.push_back(nodeRKI);
 		dagNodes_.push_back(nodeRIL);
 		dagNodes_.push_back(nodeRLJ);
 
@@ -331,10 +331,10 @@ void DirectedGraph::addVertex(int pIdx) {
 
 		// legalizeEdge[ADDVERT(B)]
 		// legalize il, lj, jk, ki
-		legalizeEdge(pIdx, iIdx, lIdx);
-		legalizeEdge(pIdx, lIdx, jIdx);
 		legalizeEdge(pIdx, jIdx, kIdx);
 		legalizeEdge(pIdx, kIdx, iIdx);
+		legalizeEdge(pIdx, iIdx, lIdx);
+		legalizeEdge(pIdx, lIdx, jIdx);
 	}
 }
 
