@@ -7,6 +7,7 @@
 #include "delaunay/dagnode.h"
 #include "delaunay/pointsetarray.h"
 #include "delaunay/triangle.h"
+#include "delaunay/triangulation.h"
 
 
 
@@ -74,6 +75,34 @@ private:
 	std::vector<DAGNode*> dagNodes_;
 	DAGNode* root_;
 };
+
+
+
+// DAGNode* is used so that we can update its FIndex
+
+void addVertexInTri(Triangulation& trist,
+                    FIndex triIJK,
+                    DAGNode* triRIJ,
+                    DAGNode* triRJK,
+                    DAGNode* triRKI);
+
+
+
+void addVertexOnEdge(Triangulation& trist,
+                     FIndex triIJK,
+                     FIndex triILJ,
+                     DAGNode* triRJK,
+                     DAGNode* triRKI,
+                     DAGNode* triRIL,
+                     DAGNode* triRLJ);
+
+
+
+void flipTriangles(Triangulation& trist,
+                   FIndex triIJK,
+                   FIndex triJIL,
+                   DAGNode* triILK,
+                   DAGNode* triLJK);
 
 }
 

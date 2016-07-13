@@ -1,31 +1,25 @@
-#ifndef TRISTH
-#define TRISTH
-
-#include <assert.h>
-#include <stdlib.h>
+#ifndef DELAUNAY_TRIANGULATIONH
+#define DELAUNAY_TRIANGULATIONH
 
 #include <ostream>
 #include <vector>
 
-#include "pointsetarray.h"
-#include "triangle.h"
+#include "delaunay/pointsetarray.h"
+#include "delaunay/triangle.h"
 
 
 
-/// The OrTri data structure for an Oriented Triangle
-typedef  int OrTri;
+namespace delaunay {
 
-
-
-/// The index of a triangle Hint: NOT a triangle if it's negative
-/// You should be able to make all the triangle indices to be from 0 to n - 1 (n = number of triangles)
-typedef  int FIndex;
+/// The triangle indices are from
+/// 1 to n (n = number of triangles)
+typedef int FIndex;
 
 
 
 /*
 
-  For a triangle abc, if version 0 is abc
+  For a triangle abc, if version 1 is abc
 
   version 0 abc     (v:012)
   version 1 bca     (v:120)
@@ -46,49 +40,46 @@ const int kEdgeNext[6] = { 1, 2, 0, 5, 3, 4 };
 
 
 class LinkedTriangle {
+public:
+	LinkedTriangle(const TriRecord& tri) : tri_(tri) {
+		links_[0] = 0;
+		links_[1] = 0;
+		links_[2] = 0;
+	}
+
+	void getEdgeIndices(int iIndex, int& edgeIJ, int& edgeJK, int& edgeKI) const;
+
 	TriRecord tri_;
 
 	FIndex links_[3];
-}
+};
 
 
 
 class Triangulation {
-private:
-	void relableRefsToTri(OrTri oldEF, OrTri newEF);
-
-	std::vector<TriRecord> triPoints;
-
-
-
 public:
 	Triangulation();
-	int noTri() const; // return the number of triangles
-	int makeTri(int pIndex1,int pIndex2,int pIndex3,bool autoMerge = false); // Add a triangle into the Triangulation with the three point indices
-	// Moreover, automatically establish the fnext pointers to its neigbhours if autoMerge = true
 
-	void delTri(OrTri); // Delete a triangle, but you can assume that this is ONLY used by the IP operation
-		                // You may want to make sure all its neighbours are detached (below)
+	FIndex addLinkedTri(const TriRecord& tri);
 
-	OrTri enext(OrTri ef);
-	OrTri sym(OrTri ef);
-	OrTri fnext(OrTri ef);
+	bool isLinkedTri(FIndex idx) const { return 1 <= idx && idx <= linkedTriangles_.size(); }
 
-	void getVertexIdx(OrTri, int& pIdx1,int& pIdx2,int& pIdx3); // return the three indices of the three vertices by OrTri
+	const LinkedTriangle& operator[](FIndex idx) const;
 
-	int org(OrTri);  // the index of the first vertex of OrTri, e.g. org(bcd) => b
-	int dest(OrTri); // the index of the second vertex of OrTri, e.g. org(bcd) => c
+	LinkedTriangle& operator[](FIndex idx);
 
-	void fmerge(OrTri abc, OrTri abd); // glue two neighbouring triangles, result abd = fnext(abc)
-	void fdetach(OrTri abc); // detach triangle abc with all its neighbours (undo fmerge)
+	/// Both triIJK, otherTri need to be linked-triangles in this triangulation.
+	void setLink(FIndex triIJK, int edgeIdx, FIndex otherTri, int otherEdgeIdx);
 
-	void eraseAllTriangles();
+	/// triIJK needs to be a linked-triangle in this triangulation,
+	/// otherTri does not.
+	void setLink(FIndex triIJK, int edgeIdx, FIndex otherTri);
 
-	void incidentTriangles(int ptIndex,int& noOrTri, OrTri* otList); // A suggested function: you may want this function to return all the OrTri
-		                                                             // that are incident to this point
-		                                                             // Ignore this if you don't feel a need
+private:
+	std::vector<LinkedTriangle> linkedTriangles_;
+
 };
 
-
+}
 
 #endif

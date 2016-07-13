@@ -409,5 +409,68 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 	legalizeEdge(pIdx1, pIdx3, pIdx4);
 }
 
+
+
+void addVertexInTri(Triangulation& trist,
+                    FIndex triIJK,
+                    DAGNode* triRIJ,
+                    DAGNode* triRJK,
+                    DAGNode* triRKI) {
+	// Add the new triangles
+	triRIJ->fIndex_ = trist.addLinkedTri(triRIJ->tri_);
+	triRJK->fIndex_ = trist.addLinkedTri(triRJK->tri_);
+	triRKI->fIndex_ = trist.addLinkedTri(triRKI->tri_);
+
+	// It can be assumed that call to this fn,
+	// the given DAGNode* contain points in order.
+	//
+	// But, no knowledge about the triangle referenced
+	// by triIJK
+	const LinkedTriangle& ltriIJK = trist[triIJK];
+	int rIdx, iIdx, jIdx;
+	triRIJ->tri_.get(rIdx, iIdx, jIdx);
+
+	int edgeIdxIJ, edgeIdxJK, edgeIdxKI;
+	ltriIJK.getEdgeIndices(iIdx, edgeIdxIJ, edgeIdxJK, edgeIdxKI);
+
+	// Get reference to adjacent triangles,
+	// (might not actually be triangles)
+	FIndex adjIndexIJ = ltriIJK.links_[edgeIdxIJ];
+	FIndex adjIndexJK = ltriIJK.links_[edgeIdxJK];
+	FIndex adjIndexKI = ltriIJK.links_[edgeIdxKI];
+
+	// unlink ... not necessary.
+
+	// internal links (3x: RI, RJ, RK)
+	trist.setLink(triRIJ->fIndex_, 2, triRJK->fIndex_); // RJ
+	trist.setLink(triRJK->fIndex_, 2, triRKI->fIndex_); // RK
+	trist.setLink(triRKI->fIndex_, 2, triRIJ->fIndex_); // RI
+
+	// external links (3x: IJ, JK, KI)
+	trist.setLink(triRIJ->fIndex_, 1, adjIndexIJ); // RJ
+	trist.setLink(triRJK->fIndex_, 1, adjIndexJK); // RK
+	trist.setLink(triRKI->fIndex_, 1, adjIndexKI); // RI
+}
+
+
+
+void addVertexOnEdge(Triangulation& trist,
+                     FIndex triIJK,
+                     FIndex triILJ,
+                     DAGNode* triRJK,
+                     DAGNode* triRKI,
+                     DAGNode* triRIL,
+                     DAGNode* triRLJ) {
+}
+
+
+
+void flipTriangles(Triangulation& trist,
+                   FIndex triIJK,
+                   FIndex triJIL,
+                   DAGNode* triILK,
+                   DAGNode* triLJK) {
+}
+
 }
 

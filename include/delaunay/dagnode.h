@@ -5,6 +5,7 @@
 
 #include "delaunay/pointsetarray.h"
 #include "delaunay/triangle.h"
+#include "delaunay/triangulation.h"
 
 
 
@@ -26,6 +27,7 @@ public:
 
 	TriRecord tri_;
 	std::vector<DAGNode *> children_;
+	FIndex fIndex_;
 };
 
 }
