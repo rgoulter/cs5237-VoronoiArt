@@ -85,4 +85,24 @@ TEST(PointSetTest, InCircleTrivialOutside) {
 
 
 
+// Delaunay algorithm breaking, e.g. of invalid:
+//  1. (374,112)
+//  2. (-6514,-2005)
+//  3. (128,6768)
+//  4. (147,376)
+TEST(PointSetTest, InCircleOutsideDelaunayLegal) {
+	PointSetArray pointSet;
+
+	// abd is a tri, as is dbc.
+	// abd doesn't contain c,
+	// dbc doesn't contain a
+	int p1 = pointSet.addPoint(374, 112);
+	int p2 = pointSet.addPoint(-6514,-2005);
+	int p3 = pointSet.addPoint(128, 6768);
+	int p4 = pointSet.addPoint(147, 376);
+
+	// (200,200) is *outside* the circum-circle of <p1,p2,p4>
+	EXPECT_EQ(-1, pointSet.inCircle(p1, p2, p4, p3));
+	EXPECT_EQ(-1, pointSet.inCircle(p4, p2, p3, p1));
+}
 
