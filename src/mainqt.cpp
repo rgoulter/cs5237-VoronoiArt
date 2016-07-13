@@ -62,10 +62,6 @@ void mainqt::setVoronoiComputed(bool b) {
 
 
 int main(int argc, char *argv[]) {
-	QTextStream out(stdout);
-	out << "Running QT now.." << endl << flush;
-	qDebug()<<"debug output"<<endl;
-
 	QApplication a(argc, argv);
 	mainqt w;
 	w.show();
