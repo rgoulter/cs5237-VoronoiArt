@@ -72,11 +72,11 @@ public:
 		       linkedTriangles_[idx - 1] != nullptr;
 	}
 
-	const LinkedTriangle& operator[](FIndex idx) const;
+	const LinkedTriangle* operator[](FIndex idx) const;
+
+	LinkedTriangle* operator[](FIndex idx);
 
 	int size() const { return linkedTriangles_.size(); }
-
-	LinkedTriangle& operator[](FIndex idx);
 
 	/// Both triIJK, otherTri need to be linked-triangles in this triangulation.
 	void setLink(FIndex triIJK, int edgeIdx, FIndex otherTri, int otherEdgeIdx);
@@ -89,10 +89,16 @@ public:
 	/// O(n), for n triangles added to / removed from the triangulation.
 	std::vector<FIndex> getLinkedTriangles() const;
 
+	bool checkConsistent() const;
+
 private:
 	std::vector<LinkedTriangle*> linkedTriangles_;
 
 };
+
+
+
+bool hasValidLinks(const Triangulation& trist, const LinkedTriangle* ltri);
 
 }
 

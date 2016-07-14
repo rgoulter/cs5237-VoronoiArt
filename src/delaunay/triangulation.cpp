@@ -131,20 +131,20 @@ void Triangulation::setLink(FIndex triIJK, int edgeIdx, FIndex otherTri) {
 
 
 
-const LinkedTriangle& Triangulation::operator[](FIndex idx) const {
+const LinkedTriangle* Triangulation::operator[](FIndex idx) const {
 	assert(1 <= idx && idx <= linkedTriangles_.size());
 	assert(linkedTriangles_[idx - 1] != nullptr);
 
-	return *(linkedTriangles_[idx - 1]);
+	return linkedTriangles_[idx - 1];
 }
 
 
 
-LinkedTriangle& Triangulation::operator[](FIndex idx) {
+LinkedTriangle* Triangulation::operator[](FIndex idx) {
 	assert(1 <= idx && idx <= linkedTriangles_.size());
 	assert(linkedTriangles_[idx - 1] != nullptr);
 
-	return *(linkedTriangles_[idx - 1]);
+	return linkedTriangles_[idx - 1];
 }
 
 
@@ -153,12 +153,53 @@ vector<FIndex> Triangulation::getLinkedTriangles() const {
 	vector<FIndex> notDeleted;
 
 	for (FIndex fIdx = 1; fIdx <= linkedTriangles_.size(); ++fIdx) {
-		if (linkedTriangles_[fIdx - 1] != nullptr) {
+		if (linkedTriangles_[fIdx - 1] != nullptr &&
+		    hasValidLinks(*this, linkedTriangles_[fIdx - 1])) {
 			notDeleted.push_back(fIdx);
 		}
 	}
 
 	return notDeleted;
+}
+
+
+
+bool Triangulation::checkConsistent() const {
+	int numLinksTo0 = 0;
+	for (vector<LinkedTriangle*>::const_iterator iter = linkedTriangles_.begin();
+	     iter != linkedTriangles_.end();
+	     ++iter) {
+		LinkedTriangle *tri = *iter;
+
+		if (tri != nullptr) {
+			// An link is consistent if it's 0, or a valid Tri.
+			for (int idx = 0; idx < 3; idx++) {
+				if (tri->links_[idx] == 0) {
+					++numLinksTo0;
+				} else if (!isLinkedTri(tri->links_[idx])) {
+					// link doesn't point to valid tri.
+					cout << "Triangulation::checkConsistent(): Bad link exists!" << endl;
+					return false;
+				}
+			}
+		}
+	}
+
+	// Should be no more than 3 links to outside.
+	if (numLinksTo0 > 3) {
+		cout << "Triangulation::checkConsistent(): Too many links to 0!" << endl;
+		return false;
+	}
+
+	return true;
+}
+
+
+
+bool hasValidLinks(const Triangulation& trist, const LinkedTriangle* ltri) {
+	return trist.isLinkedTri(ltri->links_[0]) &&
+	       trist.isLinkedTri(ltri->links_[1]) &&
+	       trist.isLinkedTri(ltri->links_[2]);
 }
 
 }
