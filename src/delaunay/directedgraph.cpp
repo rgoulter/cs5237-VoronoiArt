@@ -411,7 +411,7 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 
 
 
-vector<LinkedTriangle> DirectedGraph::getLinkedTrianglesLookup() {
+vector<LinkedTriangle> DirectedGraph::getLinkedTrianglesLookup() const {
 	// All the existing tris from trist_
 	vector<FIndex> tristTris = trist_.getLinkedTriangles();
 

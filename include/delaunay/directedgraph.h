@@ -44,7 +44,7 @@ public:
 
 	/// Returns an array such-that each pointIdx refers to
 	/// some LinkedTri which contains that pointIdx
-	std::vector<LinkedTriangle> getLinkedTrianglesLookup();
+	std::vector<LinkedTriangle> getLinkedTrianglesLookup() const;
 
 protected:
 	// Keeps the relationship between a parent node and its children.
