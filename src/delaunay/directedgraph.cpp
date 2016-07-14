@@ -411,6 +411,42 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 
 
 
+vector<LinkedTriangle> DirectedGraph::getLinkedTrianglesLookup() {
+	// All the existing tris from trist_
+	vector<FIndex> tristTris = trist_.getLinkedTriangles();
+
+	// PtIdx -> FIdx lookup
+	vector<FIndex> fIndices(pointSet_.noPt());
+
+	for (vector<FIndex>::const_iterator iter = tristTris.begin();
+	     iter != tristTris.end();
+	     ++iter) {
+		FIndex triIdx = *iter;
+		const LinkedTriangle& tri = trist_[triIdx];
+
+		int pIdx1, pIdx2, pIdx3;
+		tri.tri_.get(pIdx1, pIdx2, pIdx3);
+
+		// Copy the linked tri
+		fIndices[pIdx1 - 1] = triIdx;
+		fIndices[pIdx2 - 1] = triIdx;
+		fIndices[pIdx3 - 1] = triIdx;
+	}
+
+	// Convert `PtIdx -> FIdx` lookup to `PtIdx -> LinkedTriangle`.
+	vector<LinkedTriangle> triangles;
+
+	for (vector<FIndex>::const_iterator iter = fIndices.begin(); iter != fIndices.end(); ++iter) {
+		// Copy to new LinkedTriangle
+		FIndex triIdx = *iter;
+		triangles.push_back(trist_[triIdx]);
+	}
+
+	return triangles;
+}
+
+
+
 void addVertexInTri(Triangulation& trist,
                     FIndex triIJK,
                     DAGNode* triRIJ,

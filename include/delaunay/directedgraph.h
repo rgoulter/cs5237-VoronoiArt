@@ -42,6 +42,10 @@ public:
 		return pointSet_;
 	}
 
+	/// Returns an array such-that each pointIdx refers to
+	/// some LinkedTri which contains that pointIdx
+	std::vector<LinkedTriangle> getLinkedTrianglesLookup();
+
 protected:
 	// Keeps the relationship between a parent node and its children.
 	// std::map<TriRecord, std::vector<TriRecord> > dagNode_;
@@ -71,6 +75,7 @@ private:
 
 	/// The directed graph's pointSet.
 	PointSetArray pointSet_;
+	Triangulation trist_;
 
 	std::vector<DAGNode*> dagNodes_;
 	DAGNode* root_;
