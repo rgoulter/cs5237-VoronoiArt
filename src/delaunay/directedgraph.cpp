@@ -411,7 +411,7 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 
 
 
-vector<LinkedTriangle> DirectedGraph::getLinkedTrianglesLookup() const {
+vector<FIndex> DirectedGraph::getLinkedTrianglesLookup() const {
 	// All the existing tris from trist_
 	vector<FIndex> tristTris = trist_.getLinkedTriangles();
 
@@ -433,16 +433,7 @@ vector<LinkedTriangle> DirectedGraph::getLinkedTrianglesLookup() const {
 		fIndices[pIdx3 - 1] = triIdx;
 	}
 
-	// Convert `PtIdx -> FIdx` lookup to `PtIdx -> LinkedTriangle`.
-	vector<LinkedTriangle> triangles;
-
-	for (vector<FIndex>::const_iterator iter = fIndices.begin(); iter != fIndices.end(); ++iter) {
-		// Copy to new LinkedTriangle
-		FIndex triIdx = *iter;
-		triangles.push_back(trist_[triIdx]);
-	}
-
-	return triangles;
+	return fIndices;
 }
 
 

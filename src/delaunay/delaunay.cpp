@@ -108,32 +108,72 @@ void tryDelaunayTriangulation(DirectedGraph& dag) {
 
 
 
-vector<PointSetArray> createVoronoi(DirectedGraph& dag) {
-	vector<PointSetArray> voronoiEdges; // Data structure to hold voronoi edges.
+// e.g. for point I, tri IJK/JKI/KIJ, finds tri adj. to IJ.
+FIndex nextTriangle(int iIdx, const LinkedTriangle& ltriIJK) {
+	int edgeIdxIJ, edgeIdxJK, edgeIdxKI;
+	ltriIJK.getEdgeIndices(iIdx, edgeIdxIJ, edgeIdxJK, edgeIdxKI);
 
-	PointSetArray delaunayPointSet = dag.getPointSet();
+	return ltriIJK.links_[edgeIdxIJ];
+}
+
+
+
+MyPoint pointForTri(const PointSetArray& pointSet, const LinkedTriangle& ltri) {
+	int triPIdx1, triPIdx2, triPIdx3;
+	ltri.tri_.get(triPIdx1, triPIdx2, triPIdx3);
+
+	// TODO circumCircle may benefit from using TriRecord
+	MyPoint circum;
+	pointSet.circumCircle(triPIdx1, triPIdx2, triPIdx3, circum);
+
+	return circum;
+}
+
+
+
+vector<PointSetArray> createVoronoi(DirectedGraph& dag) {
+	vector<PointSetArray> voronoiPolygons; // Data structure to hold voronoi edges.
+
+	vector<FIndex> lookupLinkedTri = dag.getLinkedTrianglesLookup();
+
+	const PointSetArray& delaunayPointSet = dag.getPointSet();
+	const Triangulation& trist = dag.getTriangulation();
+
+	// n.b. Voronoi complexes are dual to Delaunay complexes:
+	//   In Voronoi: = In Delaunay
+	//     Point     =   Triangle
+	//     Edge      =   Edge
+	//     Polygon   =   Point
+	// To construct the Voronoi polygons, we construct a polygon for each point
+	// in the Delaunay triangulation (excepting the super-tri vertices).
 
 	for (int dppIdx = 1; dppIdx <= delaunayPointSet.noPt() - 3; dppIdx++) {
+		// ltri is *some* triangle which contains the point.
+		FIndex triIdx = lookupLinkedTri[dppIdx - 1];
+		const LinkedTriangle& ltri = trist[triIdx];
+
 		// Find delaunay triangles to which this point is linked
-		std::vector<TriRecord> linkedTriangles = dag.findTrianglesWithVertex(dppIdx);
+		// POLYREP:POINTSETARRAY
 		PointSetArray polygon;
 
-		// findlinkedNodes method gives an ordered list of triangles. Iterate through and find circumcenters.
-		std::vector<TriRecord>::iterator iter1;
-		for (iter1 = linkedTriangles.begin(); iter1 != linkedTriangles.end(); ++iter1) {
-			TriRecord tri = *iter1;
-			MyPoint circum;
-			// TODO circumCircle may benefit from using TriRecord
-			int triPIdx1, triPIdx2, triPIdx3;
-			tri.get(triPIdx1, triPIdx2, triPIdx3);
-			delaunayPointSet.circumCircle(triPIdx1, triPIdx2,triPIdx3, circum);
-			polygon.addPoint(circum.x,circum.y);
+		// TODO May be convenient if PointSetArray had addPoint(MyPoint)
+		const MyPoint& initPt = pointForTri(delaunayPointSet, ltri);
+		polygon.addPoint(initPt.x, initPt.y);
+
+		const FIndex initTriIdx = triIdx;
+		triIdx = nextTriangle(dppIdx, ltri);
+		while (triIdx != initTriIdx) {
+			const LinkedTriangle& ltri = trist[triIdx];
+			const MyPoint& voronoiPt = pointForTri(delaunayPointSet, ltri);
+			polygon.addPoint(voronoiPt.x, voronoiPt.y);
+
+			triIdx = nextTriangle(dppIdx, ltri);
 		}
 
-		voronoiEdges.push_back(polygon);
+		voronoiPolygons.push_back(polygon);
 	}
 
-	return voronoiEdges;
+	return voronoiPolygons;
 }
 
 }
