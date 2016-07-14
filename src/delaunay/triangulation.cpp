@@ -147,7 +147,7 @@ LinkedTriangle& Triangulation::operator[](FIndex idx) {
 
 
 
-vector<FIndex> Triangulation::getLinkedTriangles() {
+vector<FIndex> Triangulation::getLinkedTriangles() const {
 	vector<FIndex> notDeleted(linkedTriangles_.size());
 
 	for (FIndex fIdx = 1; fIdx <= linkedTriangles_.size(); ++fIdx) {

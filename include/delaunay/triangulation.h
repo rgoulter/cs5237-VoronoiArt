@@ -87,7 +87,7 @@ public:
 
 	/// Return a vector of the existing LinkedTriangles.
 	/// O(n), for n triangles added to / removed from the triangulation.
-	std::vector<FIndex> getLinkedTriangles();
+	std::vector<FIndex> getLinkedTriangles() const;
 
 private:
 	std::vector<LinkedTriangle*> linkedTriangles_;
