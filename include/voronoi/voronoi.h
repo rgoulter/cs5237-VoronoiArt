@@ -6,6 +6,9 @@
 #include <queue>
 #include <set>
 
+#include "delaunay/point.h"
+#include "delaunay/pointsetarray.h"
+
 #include "voronoi/vpoint.h"
 #include "voronoi/vedge.h"
 #include "voronoi/vparabola.h"
@@ -92,6 +95,24 @@ private:
 	void checkCircle(VParabola *b);
 	VPoint * getEdgeIntersection(VEdge *a, VEdge *b);
 };
+
+
+//
+// Helper functions for running the algorithm
+//
+
+Vertices* verticesForInputPoints(const delaunay::PointSetArray& inputPoints);
+
+
+
+// POLYREP:POINTSETARRAY
+/// Use the constructed Voronoi edges to make Polygons to display
+std::vector<delaunay::PointSetArray> createPolygonsFortune(Edges *voronoiedges);
+
+
+
+// POLYREP:POINTSETARRAY
+std::vector<delaunay::PointSetArray> runVoronoiAlgorithm(const delaunay::PointSetArray& inputPoints);
 
 }
 

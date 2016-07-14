@@ -122,10 +122,6 @@ private:
 	// DELAUNAY
     delaunay::PointSetArray inputPointSet_;
 
-	// VORONOI
-	/// Vertices for Fortune's algorithm
-	voronoi::Vertices * voronoiVertices_ = new voronoi::Vertices();
-
 	VoronoiAlgorithm algorithm_ = kVoronoiAlgorithm;
 };
 
