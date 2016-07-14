@@ -59,12 +59,22 @@ public:
 class Triangulation {
 public:
 	Triangulation();
+	~Triangulation();
 
 	FIndex addLinkedTri(const TriRecord& tri);
 
-	bool isLinkedTri(FIndex idx) const { return 1 <= idx && idx <= linkedTriangles_.size(); }
+	/// Merely remove the triangle, don't unlink it.
+	void removeLinkedTri(FIndex triIdx);
+
+	bool isLinkedTri(FIndex idx) const {
+		return 1 <= idx &&
+		       idx <= linkedTriangles_.size() &&
+		       linkedTriangles_[idx - 1] != nullptr;
+	}
 
 	const LinkedTriangle& operator[](FIndex idx) const;
+
+	int size() const { return linkedTriangles_.size(); }
 
 	LinkedTriangle& operator[](FIndex idx);
 
@@ -75,8 +85,12 @@ public:
 	/// otherTri does not.
 	void setLink(FIndex triIJK, int edgeIdx, FIndex otherTri);
 
+	/// Return a vector of the existing LinkedTriangles.
+	/// O(n), for n triangles added to / removed from the triangulation.
+	std::vector<FIndex> getLinkedTriangles();
+
 private:
-	std::vector<LinkedTriangle> linkedTriangles_;
+	std::vector<LinkedTriangle*> linkedTriangles_;
 
 };
 

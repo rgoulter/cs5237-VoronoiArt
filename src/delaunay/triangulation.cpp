@@ -9,6 +9,7 @@
 
 using std::cout;
 using std::endl;
+using std::vector;
 
 
 
@@ -44,8 +45,22 @@ Triangulation::Triangulation() {
 
 
 
+Triangulation::~Triangulation() {
+	// Delete any triangles which aren't null
+	for (vector<LinkedTriangle*>::iterator iter = linkedTriangles_.begin();
+	     iter != linkedTriangles_.end();
+	     ++iter) {
+		LinkedTriangle* tri = *iter;
+		if (tri != nullptr) {
+			delete tri;
+		}
+	}
+}
+
+
+
 FIndex Triangulation::addLinkedTri(const TriRecord& tri) {
-	LinkedTriangle ltri(tri);
+	LinkedTriangle* ltri = new LinkedTriangle(tri);
 	linkedTriangles_.push_back(ltri);
 
 	// FIndex starts from 1.
@@ -54,15 +69,26 @@ FIndex Triangulation::addLinkedTri(const TriRecord& tri) {
 
 
 
+void Triangulation::removeLinkedTri(FIndex triIdx) {
+	LinkedTriangle* ltri = linkedTriangles_[triIdx - 1];
+
+	if (ltri != nullptr) {
+		delete ltri;
+		linkedTriangles_[triIdx - 1] = nullptr;
+	}
+}
+
+
+
 void Triangulation::setLink(FIndex triIJK, int edgeIdx, FIndex otherTri, int otherEdgeIdx) {
 	assert(isLinkedTri(triIJK));
 	assert(isLinkedTri(otherTri));
 
-	LinkedTriangle& ltriIJK   = linkedTriangles_[triIJK - 1];
-	ltriIJK.links_[edgeIdx] = otherTri;
+	LinkedTriangle* ltriIJK   = linkedTriangles_[triIJK - 1];
+	ltriIJK->links_[edgeIdx] = otherTri;
 
-	LinkedTriangle& ltriOther = linkedTriangles_[otherTri - 1];
-	ltriOther.links_[otherEdgeIdx] = triIJK;
+	LinkedTriangle* ltriOther = linkedTriangles_[otherTri - 1];
+	ltriOther->links_[otherEdgeIdx] = triIJK;
 }
 
 
@@ -74,30 +100,30 @@ void Triangulation::setLink(FIndex triIJK, int edgeIdx, FIndex otherTri) {
 	}
 
 	// find the index of i,j,k
-	LinkedTriangle ltriIJK = linkedTriangles_[triIJK - 1];
+	LinkedTriangle* ltriIJK = linkedTriangles_[triIJK - 1];
 	int iIdx, jIdx, kIdx;
-	ltriIJK.tri_.get(iIdx, jIdx, kIdx);
+	ltriIJK->tri_.get(iIdx, jIdx, kIdx);
 
 
 	if (edgeIdx == 0) {
 		// otherTri shares edge IJ
-		LinkedTriangle ltriXJI = linkedTriangles_[otherTri - 1];
+		LinkedTriangle* ltriXJI = linkedTriangles_[otherTri - 1];
 		int edgeIdxJI, edgeIdxIX, edgeIdxXJ;
-		ltriXJI.getEdgeIndices(jIdx, edgeIdxJI, edgeIdxIX, edgeIdxXJ);
+		ltriXJI->getEdgeIndices(jIdx, edgeIdxJI, edgeIdxIX, edgeIdxXJ);
 
 		setLink(triIJK, edgeIdx, otherTri, edgeIdxJI);
 	} else if (edgeIdx == 1) {
 		// otherTri shares edge JK
-		LinkedTriangle ltriXKJ = linkedTriangles_[otherTri - 1];
+		LinkedTriangle* ltriXKJ = linkedTriangles_[otherTri - 1];
 		int edgeIdxKJ, edgeIdxJX, edgeIdxXK;
-		ltriXKJ.getEdgeIndices(kIdx, edgeIdxKJ, edgeIdxJX, edgeIdxXK);
+		ltriXKJ->getEdgeIndices(kIdx, edgeIdxKJ, edgeIdxJX, edgeIdxXK);
 
 		setLink(triIJK, edgeIdx, otherTri, edgeIdxKJ);
 	} else if (edgeIdx == 2) {
 		// otherTri shares edge KI
-		LinkedTriangle ltriXIK = linkedTriangles_[otherTri - 1];
+		LinkedTriangle* ltriXIK = linkedTriangles_[otherTri - 1];
 		int edgeIdxIK, edgeIdxKX, edgeIdxXI;
-		ltriXIK.getEdgeIndices(iIdx, edgeIdxIK, edgeIdxKX, edgeIdxXI);
+		ltriXIK->getEdgeIndices(iIdx, edgeIdxIK, edgeIdxKX, edgeIdxXI);
 
 		setLink(triIJK, edgeIdx, otherTri, edgeIdxIK);
 	}
@@ -108,7 +134,7 @@ void Triangulation::setLink(FIndex triIJK, int edgeIdx, FIndex otherTri) {
 const LinkedTriangle& Triangulation::operator[](FIndex idx) const {
 	assert(1 <= idx && idx <= linkedTriangles_.size());
 
-	return linkedTriangles_[idx - 1];
+	return *(linkedTriangles_[idx - 1]);
 }
 
 
@@ -116,7 +142,19 @@ const LinkedTriangle& Triangulation::operator[](FIndex idx) const {
 LinkedTriangle& Triangulation::operator[](FIndex idx) {
 	assert(1 <= idx && idx <= linkedTriangles_.size());
 
-	return linkedTriangles_[idx - 1];
+	return *(linkedTriangles_[idx - 1]);
+}
+
+
+
+vector<FIndex> Triangulation::getLinkedTriangles() {
+	vector<FIndex> notDeleted(linkedTriangles_.size());
+
+	for (FIndex fIdx = 1; fIdx <= linkedTriangles_.size(); ++fIdx) {
+		if (linkedTriangles_[fIdx] != nullptr) {
+			notDeleted.push_back(fIdx);
+		}
+	}
 }
 
 }
