@@ -362,8 +362,13 @@ VPoint * Voronoi::getEdgeIntersection(VEdge *a, VEdge *b) {
 
 // Helper function
 void addPointWithJitter(Vertices* vertices, double x, double y) {
-	double dx = ((double)rand()*15.0/(double)RAND_MAX);
-	double dy = ((double)rand()*15.0/(double)RAND_MAX);
+	// Program hangs if jitter size is too small, oddly.
+	// (Because of limitation in the Fortune algorithm/implementation).
+
+	// const double kJitterSize = 15.0;
+	const double kJitterSize = 5;
+	double dx = ((double)rand() * kJitterSize / (double)RAND_MAX);
+	double dy = ((double)rand() * kJitterSize / (double)RAND_MAX);
 
 	VPoint *vp = new VPoint(x + dx, y + dy);
 	vertices->push_back(vp);
