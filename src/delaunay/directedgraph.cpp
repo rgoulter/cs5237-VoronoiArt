@@ -446,12 +446,8 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 
 
 vector<FIndex> DirectedGraph::getLinkedTrianglesLookup() const {
-	cout << "DirGraph.getLinkedTrianglesLookup 1" << endl;
-
 	// All the existing tris from trist_
 	vector<FIndex> tristTris = trist_.getLinkedTriangles();
-
-	cout << "DirGraph.getLinkedTrianglesLookup 2" << endl;
 
 	// PtIdx -> FIdx lookup
 	vector<FIndex> fIndices(pointSet_.noPt());
@@ -460,10 +456,10 @@ vector<FIndex> DirectedGraph::getLinkedTrianglesLookup() const {
 	     iter != tristTris.end();
 	     ++iter) {
 		FIndex triIdx = *iter;
+#ifdef TRIANGULATION_CHECK
 		assert(trist_.isLinkedTri(triIdx));
+#endif
 		const LinkedTriangle* tri = trist_[triIdx];
-
-		assert(hasValidLinks(trist_, tri));
 
 		int pIdx1, pIdx2, pIdx3;
 		tri->tri_.get(pIdx1, pIdx2, pIdx3);
@@ -523,7 +519,9 @@ void addVertexInTri(Triangulation& trist,
 	// remove old triangles
 	trist.removeLinkedTri(triIJK);
 
+#ifdef TRIANGULATION_CHECK
 	assert(trist.checkConsistent());
+#endif
 }
 
 
@@ -576,7 +574,9 @@ void addVertexOnEdge(Triangulation& trist,
 	trist.removeLinkedTri(triIJK);
 	trist.removeLinkedTri(triILJ);
 
+#ifdef TRIANGULATION_CHECK
 	assert(trist.checkConsistent());
+#endif
 }
 
 
@@ -622,7 +622,9 @@ void flipTriangles(Triangulation& trist,
 	trist.removeLinkedTri(triIJK);
 	trist.removeLinkedTri(triJIL);
 
+#ifdef TRIANGULATION_CHECK
 	assert(trist.checkConsistent());
+#endif
 }
 
 }

@@ -134,11 +134,7 @@ MyPoint pointForTri(const PointSetArray& pointSet, const LinkedTriangle* ltri) {
 vector<PointSetArray> createVoronoi(DirectedGraph& dag) {
 	vector<PointSetArray> voronoiPolygons; // Data structure to hold voronoi edges.
 
-	cout << "createVoronoi 1" << endl;
-
 	vector<FIndex> lookupLinkedTri = dag.getLinkedTrianglesLookup();
-
-	cout << "createVoronoi 2" << endl;
 
 	const PointSetArray& delaunayPointSet = dag.getPointSet();
 	const Triangulation& trist = dag.getTriangulation();
@@ -154,7 +150,6 @@ vector<PointSetArray> createVoronoi(DirectedGraph& dag) {
 	for (int dppIdx = 1; dppIdx <= delaunayPointSet.noPt() - 3; dppIdx++) {
 		// ltri is *some* triangle which contains the point.
 		FIndex triIdx = lookupLinkedTri[dppIdx - 1];
-		cout << "createVoronoi 3a, loop, pIdx=" << dppIdx << ", triIdx=" << triIdx << ", isLinkedTri?=" << trist.isLinkedTri(triIdx) << endl;
 		const LinkedTriangle* ltri = trist[triIdx];
 
 		// Find delaunay triangles to which this point is linked
@@ -168,8 +163,6 @@ vector<PointSetArray> createVoronoi(DirectedGraph& dag) {
 		const FIndex initTriIdx = triIdx;
 		triIdx = nextTriangle(dppIdx, ltri);
 		while (triIdx != initTriIdx) {
-			cout << "createVoronoi 3b" << endl;
-			cout << "createVoronoi 3b, loop, pIdx=" << dppIdx << ", next triIdx=" << triIdx << ", isLinkedTri?=" << trist.isLinkedTri(triIdx) << endl;
 			const LinkedTriangle* ltri = trist[triIdx];
 			const MyPoint& voronoiPt = pointForTri(delaunayPointSet, ltri);
 			polygon.addPoint(voronoiPt.x, voronoiPt.y);

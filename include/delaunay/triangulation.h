@@ -7,6 +7,10 @@
 #include "delaunay/pointsetarray.h"
 #include "delaunay/triangle.h"
 
+#ifndef NDEBUG
+#define TRIANGULATION_CHECK
+#endif
+
 
 
 namespace delaunay {
