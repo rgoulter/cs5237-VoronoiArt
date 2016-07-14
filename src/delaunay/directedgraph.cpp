@@ -443,8 +443,12 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 
 
 vector<FIndex> DirectedGraph::getLinkedTrianglesLookup() const {
+	cout << "DirGraph.getLinkedTrianglesLookup 1" << endl;
+
 	// All the existing tris from trist_
 	vector<FIndex> tristTris = trist_.getLinkedTriangles();
+
+	cout << "DirGraph.getLinkedTrianglesLookup 2" << endl;
 
 	// PtIdx -> FIdx lookup
 	vector<FIndex> fIndices(pointSet_.noPt());
@@ -453,6 +457,7 @@ vector<FIndex> DirectedGraph::getLinkedTrianglesLookup() const {
 	     iter != tristTris.end();
 	     ++iter) {
 		FIndex triIdx = *iter;
+		assert(trist_.isLinkedTri(triIdx));
 		const LinkedTriangle& tri = trist_[triIdx];
 
 		int pIdx1, pIdx2, pIdx3;

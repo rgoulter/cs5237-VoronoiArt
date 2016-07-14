@@ -133,6 +133,7 @@ void Triangulation::setLink(FIndex triIJK, int edgeIdx, FIndex otherTri) {
 
 const LinkedTriangle& Triangulation::operator[](FIndex idx) const {
 	assert(1 <= idx && idx <= linkedTriangles_.size());
+	assert(linkedTriangles_[idx - 1] != nullptr);
 
 	return *(linkedTriangles_[idx - 1]);
 }
@@ -141,6 +142,7 @@ const LinkedTriangle& Triangulation::operator[](FIndex idx) const {
 
 LinkedTriangle& Triangulation::operator[](FIndex idx) {
 	assert(1 <= idx && idx <= linkedTriangles_.size());
+	assert(linkedTriangles_[idx - 1] != nullptr);
 
 	return *(linkedTriangles_[idx - 1]);
 }
@@ -148,13 +150,15 @@ LinkedTriangle& Triangulation::operator[](FIndex idx) {
 
 
 vector<FIndex> Triangulation::getLinkedTriangles() const {
-	vector<FIndex> notDeleted(linkedTriangles_.size());
+	vector<FIndex> notDeleted;
 
 	for (FIndex fIdx = 1; fIdx <= linkedTriangles_.size(); ++fIdx) {
-		if (linkedTriangles_[fIdx] != nullptr) {
+		if (linkedTriangles_[fIdx - 1] != nullptr) {
 			notDeleted.push_back(fIdx);
 		}
 	}
+
+	return notDeleted;
 }
 
 }
