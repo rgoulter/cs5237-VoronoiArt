@@ -393,9 +393,12 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 	assert(nodes.size() == 2);
 #endif
 
+	// Ensure nodeIJK is the one with kIdx
+	int nodesIJKIdx = (nodes[0]->tri_.hasPointIndex(kIdx)) ? 0 : 1;
+	int nodesJILIdx = 1 - nodesIJKIdx;
 
-	DAGNode *nodeIJK = nodes[0];
-	DAGNode *nodeJIL = nodes[1];
+	DAGNode *nodeIJK = nodes[nodesIJKIdx];
+	DAGNode *nodeJIL = nodes[nodesJILIdx];
 
 	// impl ASSUMPTION that TriR(x,y,z) == TriR(x,z,y), etc.
 	// (as used in DirectedGraph).
