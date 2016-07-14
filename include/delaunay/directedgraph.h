@@ -7,6 +7,7 @@
 #include "delaunay/dagnode.h"
 #include "delaunay/pointsetarray.h"
 #include "delaunay/triangle.h"
+#include "delaunay/triangulation.h"
 
 
 
@@ -41,6 +42,12 @@ public:
 		return pointSet_;
 	}
 
+	/// Returns an array such-that each pointIdx refers to
+	/// some LinkedTri which contains that pointIdx
+	std::vector<FIndex> getLinkedTrianglesLookup() const;
+
+	const Triangulation& getTriangulation() const { return trist_; }
+
 protected:
 	// Keeps the relationship between a parent node and its children.
 	// std::map<TriRecord, std::vector<TriRecord> > dagNode_;
@@ -70,10 +77,39 @@ private:
 
 	/// The directed graph's pointSet.
 	PointSetArray pointSet_;
+	Triangulation trist_;
 
 	std::vector<DAGNode*> dagNodes_;
 	DAGNode* root_;
 };
+
+
+
+// DAGNode* is used so that we can update its FIndex
+
+void addVertexInTri(Triangulation& trist,
+                    FIndex triIJK,
+                    DAGNode* triRIJ,
+                    DAGNode* triRJK,
+                    DAGNode* triRKI);
+
+
+
+void addVertexOnEdge(Triangulation& trist,
+                     FIndex triIJK,
+                     FIndex triILJ,
+                     DAGNode* triRJK,
+                     DAGNode* triRKI,
+                     DAGNode* triRIL,
+                     DAGNode* triRLJ);
+
+
+
+void flipTriangles(Triangulation& trist,
+                   FIndex triIJK,
+                   FIndex triJIL,
+                   DAGNode* triILK,
+                   DAGNode* triLJK);
 
 }
 

@@ -34,6 +34,7 @@ set(VORONOI_LIB_SOURCES src/delaunay/li.cpp
                         src/delaunay/point.cpp
                         src/delaunay/polygon.cpp
                         src/delaunay/triangle.cpp
+                        src/delaunay/triangulation.cpp
                         src/delaunay/pointsetarray.cpp
                         src/delaunay/dagnode.cpp
                         src/delaunay/directedgraph.cpp
@@ -53,6 +54,7 @@ set(VORONOI_LIB_HEADERS include/delaunay/li.h
                         include/delaunay/polygon.h
                         include/delaunay/triangle.h
                         include/delaunay/trianglegeometry.h
+                        include/delaunay/triangulation.h
                         include/delaunay/pointsetarray.h
                         include/delaunay/dagnode.h
                         include/delaunay/directedgraph.h
@@ -150,6 +152,7 @@ if (test)
                               test/delaunay/pointsettests.cpp
                               test/delaunay/dagtests.cpp
                               test/delaunay/triangletests.cpp
+                              test/delaunay/triangulationtests.cpp
                               test/testmain.cpp)
 
   target_link_libraries(runUnitTests gtest gtest_main)

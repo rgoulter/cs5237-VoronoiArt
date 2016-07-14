@@ -167,9 +167,11 @@ DirectedGraph::DirectedGraph(const PointSetArray& inputPointSet) {
 	// Points of bounding tri are the last three,
 	// so, numPoints+1, numPoints+2, numPoints+3
 	int boundingTriPt1 = numPoints + 1;
-	root_ = new DAGNode(TriRecord(boundingTriPt1,
-	                              boundingTriPt1 + 1,
-	                              boundingTriPt1 + 2));
+	TriRecord boundingTri(boundingTriPt1,
+	                      boundingTriPt1 + 1,
+	                      boundingTriPt1 + 2);
+	root_ = new DAGNode(boundingTri);
+	root_->fIndex_ = trist_.addLinkedTri(boundingTri);
 	dagNodes_.push_back(root_);
 }
 
@@ -266,7 +268,7 @@ void DirectedGraph::addVertex(int pIdx) {
 		// New point fits cleanly within another triangle,
 		// split the triangle into three.
 
-		DAGNode *node = leaves[0];
+		DAGNode *node = leaves[0];  // IJK
 
 		TriRecord parentTri = node->tri_;
 		int parentIdx1, parentIdx2, parentIdx3;
@@ -274,9 +276,9 @@ void DirectedGraph::addVertex(int pIdx) {
 
 		// Construct 3 TriRecords, one for each child triangle
 		// ASSUMPTION that points for TriRecord are CCW
-		DAGNode *child1 = new DAGNode(TriRecord(parentIdx1, parentIdx2, pIdx)); // CCW
-		DAGNode *child2 = new DAGNode(TriRecord(parentIdx2, parentIdx3, pIdx));
-		DAGNode *child3 = new DAGNode(TriRecord(parentIdx3, parentIdx1, pIdx));
+		DAGNode *child1 = new DAGNode(TriRecord(pIdx, parentIdx1, parentIdx2));  // RIJ
+		DAGNode *child2 = new DAGNode(TriRecord(pIdx, parentIdx2, parentIdx3));  // RJK
+		DAGNode *child3 = new DAGNode(TriRecord(pIdx, parentIdx3, parentIdx1));  // RKI
 		node->children_.push_back(child1);
 		node->children_.push_back(child2);
 		node->children_.push_back(child3);
@@ -285,6 +287,13 @@ void DirectedGraph::addVertex(int pIdx) {
 		dagNodes_.push_back(child1);
 		dagNodes_.push_back(child2);
 		dagNodes_.push_back(child3);
+
+		// Update triangulation
+		addVertexInTri(trist_,
+		               node->fIndex_,
+		               child1,
+		               child2,
+		               child3);
 
 #ifdef DIRECTEDGRAPH_CHECK
 		checkConsistent();
@@ -309,9 +318,9 @@ void DirectedGraph::addVertex(int pIdx) {
 		int iIdx, jIdx, kIdx, lIdx;
 		getIndicesKIJL(nodeIJK->tri_, nodeILJ->tri_, kIdx, iIdx, jIdx, lIdx);
 
-		// Create triangles RKI, RJK, RIL, RLJ
-		DAGNode *nodeRKI = new DAGNode(TriRecord(pIdx, kIdx, iIdx));
+		// Create triangles RJK, RKI, RIL, RLJ
 		DAGNode *nodeRJK = new DAGNode(TriRecord(pIdx, jIdx, kIdx));
+		DAGNode *nodeRKI = new DAGNode(TriRecord(pIdx, kIdx, iIdx));
 		DAGNode *nodeRIL = new DAGNode(TriRecord(pIdx, iIdx, lIdx));
 		DAGNode *nodeRLJ = new DAGNode(TriRecord(pIdx, lIdx, jIdx));
 
@@ -320,10 +329,19 @@ void DirectedGraph::addVertex(int pIdx) {
 		nodeILJ->children_.push_back(nodeRIL);
 		nodeILJ->children_.push_back(nodeRLJ);
 
-		dagNodes_.push_back(nodeRKI);
 		dagNodes_.push_back(nodeRJK);
+		dagNodes_.push_back(nodeRKI);
 		dagNodes_.push_back(nodeRIL);
 		dagNodes_.push_back(nodeRLJ);
+
+		// Update triangulation
+		addVertexOnEdge(trist_,
+		                nodeIJK->fIndex_,
+		                nodeILJ->fIndex_,
+		                nodeRJK,
+		                nodeRKI,
+		                nodeRIL,
+		                nodeRLJ);
 
 #ifdef DIRECTEDGRAPH_CHECK
 		checkConsistent();
@@ -331,10 +349,10 @@ void DirectedGraph::addVertex(int pIdx) {
 
 		// legalizeEdge[ADDVERT(B)]
 		// legalize il, lj, jk, ki
-		legalizeEdge(pIdx, iIdx, lIdx);
-		legalizeEdge(pIdx, lIdx, jIdx);
 		legalizeEdge(pIdx, jIdx, kIdx);
 		legalizeEdge(pIdx, kIdx, iIdx);
+		legalizeEdge(pIdx, iIdx, lIdx);
+		legalizeEdge(pIdx, lIdx, jIdx);
 	}
 }
 
@@ -346,6 +364,12 @@ void DirectedGraph::addVertex(int pIdx) {
 //
 // the shared edge bd gets replaced with shared edge ac
 void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
+	// XXX finish rename in DGraph::flipTri
+	// shared edge ij; 124=kij is ccw, 423=jil is ccw.
+	int kIdx = pIdx1;
+	int iIdx = pIdx2;
+	int lIdx = pIdx3;
+	int jIdx = pIdx4;
 #ifdef DIRECTEDGRAPH_CHECK
 	cout << "DAG::flipTris, args=" << pIdx1 << "," << pIdx2 << "," << pIdx3 << "," << pIdx4 << "." << endl;
 
@@ -369,9 +393,12 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 	assert(nodes.size() == 2);
 #endif
 
+	// Ensure nodeIJK is the one with kIdx
+	int nodesIJKIdx = (nodes[0]->tri_.hasPointIndex(kIdx)) ? 0 : 1;
+	int nodesJILIdx = 1 - nodesIJKIdx;
 
-	DAGNode *abdNode = nodes[0]; // <124>
-	DAGNode *dbcNode = nodes[1]; // <423>
+	DAGNode *nodeIJK = nodes[nodesIJKIdx];
+	DAGNode *nodeJIL = nodes[nodesJILIdx];
 
 	// impl ASSUMPTION that TriR(x,y,z) == TriR(x,z,y), etc.
 	// (as used in DirectedGraph).
@@ -379,25 +406,32 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 	// swap 24 edge with 13 edge
 	// ASSUMPTION that points for TriRecord are CCW
 	// flip <abd>,<dbc> adds 2 children to each, <abc>,<acd> (preserves CCW)
-	TriRecord abcTri(pIdx1, pIdx2, pIdx3);
-	TriRecord acdTri(pIdx1, pIdx3, pIdx4);
+	TriRecord triILK(iIdx, lIdx, kIdx);
+	TriRecord triLJK(lIdx, jIdx, kIdx);
 #ifdef DIRECTEDGRAPH_CHECK
-	assert(isTriangleCCW(pointSet_, abcTri));
-	assert(isTriangleCCW(pointSet_, acdTri));
+	assert(isTriangleCCW(pointSet_, triILK));
+	assert(isTriangleCCW(pointSet_, triLJK));
 #endif
 
-	DAGNode *abcNode = new DAGNode(abcTri);
-	DAGNode *acdNode = new DAGNode(acdTri);
+	DAGNode *nodeILK = new DAGNode(triILK);
+	DAGNode *nodeLJK = new DAGNode(triLJK);
 
-	abdNode->children_.push_back(abcNode);
-	abdNode->children_.push_back(acdNode);
+	nodeIJK->children_.push_back(nodeILK);
+	nodeIJK->children_.push_back(nodeLJK);
 
-	dbcNode->children_.push_back(abcNode);
-	dbcNode->children_.push_back(acdNode);
+	nodeJIL->children_.push_back(nodeILK);
+	nodeJIL->children_.push_back(nodeLJK);
 
 	// Add to instance's list of dagNodes
-	dagNodes_.push_back(abcNode);
-	dagNodes_.push_back(acdNode);
+	dagNodes_.push_back(nodeILK);
+	dagNodes_.push_back(nodeLJK);
+
+	// Update triangulation
+	delaunay::flipTriangles(trist_,
+	                        nodeIJK->fIndex_,
+	                        nodeJIL->fIndex_,
+	                        nodeILK,
+	                        nodeLJK);
 
 #ifdef DIRECTEDGRAPH_CHECK
 	checkConsistent();
@@ -407,6 +441,190 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 
 	legalizeEdge(pIdx1, pIdx2, pIdx3);
 	legalizeEdge(pIdx1, pIdx3, pIdx4);
+}
+
+
+
+vector<FIndex> DirectedGraph::getLinkedTrianglesLookup() const {
+	// All the existing tris from trist_
+	vector<FIndex> tristTris = trist_.getLinkedTriangles();
+
+	// PtIdx -> FIdx lookup
+	vector<FIndex> fIndices(pointSet_.noPt());
+
+	for (vector<FIndex>::const_iterator iter = tristTris.begin();
+	     iter != tristTris.end();
+	     ++iter) {
+		FIndex triIdx = *iter;
+#ifdef TRIANGULATION_CHECK
+		assert(trist_.isLinkedTri(triIdx));
+#endif
+		const LinkedTriangle* tri = trist_[triIdx];
+
+		int pIdx1, pIdx2, pIdx3;
+		tri->tri_.get(pIdx1, pIdx2, pIdx3);
+
+		// Copy the linked tri
+		fIndices[pIdx1 - 1] = triIdx;
+		fIndices[pIdx2 - 1] = triIdx;
+		fIndices[pIdx3 - 1] = triIdx;
+	}
+
+	return fIndices;
+}
+
+
+
+void addVertexInTri(Triangulation& trist,
+                    FIndex triIJK,
+                    DAGNode* triRIJ,
+                    DAGNode* triRJK,
+                    DAGNode* triRKI) {
+	// Add the new triangles
+	triRIJ->fIndex_ = trist.addLinkedTri(triRIJ->tri_);
+	triRJK->fIndex_ = trist.addLinkedTri(triRJK->tri_);
+	triRKI->fIndex_ = trist.addLinkedTri(triRKI->tri_);
+
+	// It can be assumed that call to this fn,
+	// the given DAGNode* contain points in order.
+	//
+	// But, no knowledge about the triangle referenced
+	// by triIJK
+	int rIdx, iIdx, jIdx;
+	triRIJ->tri_.get(rIdx, iIdx, jIdx);
+
+	const LinkedTriangle* ltriIJK = trist[triIJK];
+	int edgeIdxIJ, edgeIdxJK, edgeIdxKI;
+	ltriIJK->getEdgeIndices(iIdx, edgeIdxIJ, edgeIdxJK, edgeIdxKI);
+
+	// Get reference to adjacent triangles,
+	// (might not actually be triangles)
+	FIndex adjIndexIJ = ltriIJK->links_[edgeIdxIJ];
+	FIndex adjIndexJK = ltriIJK->links_[edgeIdxJK];
+	FIndex adjIndexKI = ltriIJK->links_[edgeIdxKI];
+
+	// unlink ... not necessary.
+
+	// internal links (3x: RI, RJ, RK)
+	trist.setLink(triRIJ->fIndex_, 2, triRJK->fIndex_); // RJ
+	trist.setLink(triRJK->fIndex_, 2, triRKI->fIndex_); // RK
+	trist.setLink(triRKI->fIndex_, 2, triRIJ->fIndex_); // RI
+
+	// external links (3x: IJ, JK, KI)
+	// PERF: if store what the other edge idx is, could save lookup.
+	trist.setLink(triRIJ->fIndex_, 1, adjIndexIJ); // RJ
+	trist.setLink(triRJK->fIndex_, 1, adjIndexJK); // RK
+	trist.setLink(triRKI->fIndex_, 1, adjIndexKI); // RI
+
+	// remove old triangles
+	trist.removeLinkedTri(triIJK);
+
+#ifdef TRIANGULATION_CHECK
+	assert(trist.checkConsistent());
+#endif
+}
+
+
+
+void addVertexOnEdge(Triangulation& trist,
+                     FIndex triIJK,
+                     FIndex triILJ,
+                     DAGNode* triRJK,
+                     DAGNode* triRKI,
+                     DAGNode* triRIL,
+                     DAGNode* triRLJ) {
+	// Add the new triangles
+	triRJK->fIndex_ = trist.addLinkedTri(triRJK->tri_);
+	triRKI->fIndex_ = trist.addLinkedTri(triRKI->tri_);
+	triRIL->fIndex_ = trist.addLinkedTri(triRIL->tri_);
+	triRLJ->fIndex_ = trist.addLinkedTri(triRLJ->tri_);
+
+	// Get the edge indicies (at least iIdx)
+	int rIdx, iIdx, lIdx;
+	triRIL->tri_.get(rIdx, iIdx, lIdx);
+
+	const LinkedTriangle* ltriIJK = trist[triIJK];
+	int ijkEdgeIdxIJ, ijkEdgeIdxJK, ijkEdgeIdxKI;
+	ltriIJK->getEdgeIndices(iIdx, ijkEdgeIdxIJ, ijkEdgeIdxJK, ijkEdgeIdxKI);
+
+	const LinkedTriangle* ltriILJ = trist[triILJ];
+	int iljEdgeIdxIL, iljEdgeIdxLJ, iljEdgeIdxJI;
+	ltriILJ->getEdgeIndices(iIdx, iljEdgeIdxIL, iljEdgeIdxLJ, iljEdgeIdxJI);
+
+	// Get reference to adjacent triangles
+	FIndex adjIndexKI = ltriIJK->links_[ijkEdgeIdxKI];
+	FIndex adjIndexIL = ltriILJ->links_[iljEdgeIdxIL];
+	FIndex adjIndexLJ = ltriILJ->links_[iljEdgeIdxLJ];
+	FIndex adjIndexJK = ltriIJK->links_[ijkEdgeIdxJK];
+
+	// internal links (4x: RK, RI, RL, RJ)
+	trist.setLink(triRJK->fIndex_, 2, triRKI->fIndex_);  // RK
+	trist.setLink(triRKI->fIndex_, 2, triRIL->fIndex_);  // RI
+	trist.setLink(triRIL->fIndex_, 2, triRLJ->fIndex_);  // RL
+	trist.setLink(triRLJ->fIndex_, 2, triRJK->fIndex_);  // RL
+
+	// external links (4x: JK, KI, IL, LJ)
+	// PERF: if store what the other edge idx is, could save lookup.
+	trist.setLink(triRJK->fIndex_, 1, adjIndexJK);
+	trist.setLink(triRKI->fIndex_, 1, adjIndexKI);
+	trist.setLink(triRIL->fIndex_, 1, adjIndexIL);
+	trist.setLink(triRLJ->fIndex_, 1, adjIndexLJ);
+
+	// remove old triangles
+	trist.removeLinkedTri(triIJK);
+	trist.removeLinkedTri(triILJ);
+
+#ifdef TRIANGULATION_CHECK
+	assert(trist.checkConsistent());
+#endif
+}
+
+
+
+void flipTriangles(Triangulation& trist,
+                   FIndex triIJK,
+                   FIndex triJIL,
+                   DAGNode* triILK,
+                   DAGNode* triLJK) {
+	// Add the new triangles
+	triILK->fIndex_ = trist.addLinkedTri(triILK->tri_);
+	triLJK->fIndex_ = trist.addLinkedTri(triLJK->tri_);
+
+	// Get the edge indicies (at least iIdx)
+	int iIdx, lIdx, kIdx;
+	triILK->tri_.get(iIdx, lIdx, kIdx);
+
+	const LinkedTriangle* ltriIJK = trist[triIJK];
+	int ijkEdgeIdxIJ, ijkEdgeIdxJK, ijkEdgeIdxKI;
+	ltriIJK->getEdgeIndices(iIdx, ijkEdgeIdxIJ, ijkEdgeIdxJK, ijkEdgeIdxKI);
+
+	const LinkedTriangle* ltriJIL = trist[triJIL];
+	int jilEdgeIdxJI, jilEdgeIdxIL, jilEdgeIdxLJ;
+	ltriJIL->getEdgeIndices(iIdx, jilEdgeIdxIL, jilEdgeIdxLJ, jilEdgeIdxJI);
+
+	// Get reference to adjacent triangles
+	FIndex adjIndexKI = ltriIJK->links_[ijkEdgeIdxKI];
+	FIndex adjIndexIL = ltriJIL->links_[jilEdgeIdxIL];
+	FIndex adjIndexLJ = ltriJIL->links_[jilEdgeIdxLJ];
+	FIndex adjIndexJK = ltriIJK->links_[ijkEdgeIdxJK];
+
+	// internal links (1x: KL)
+	trist.setLink(triLJK->fIndex_, 2, triILK->fIndex_);
+
+	// external links (4x: JK, KI, IL, LJ)
+	// PERF: if store what the other edge idx is, could save lookup.
+	trist.setLink(triLJK->fIndex_, 0, adjIndexLJ);  // LJ
+	trist.setLink(triLJK->fIndex_, 1, adjIndexJK);  // JK
+	trist.setLink(triILK->fIndex_, 0, adjIndexIL);  // IL
+	trist.setLink(triILK->fIndex_, 2, adjIndexKI);  // KI
+
+	// remove old triangles
+	trist.removeLinkedTri(triIJK);
+	trist.removeLinkedTri(triJIL);
+
+#ifdef TRIANGULATION_CHECK
+	assert(trist.checkConsistent());
+#endif
 }
 
 }
