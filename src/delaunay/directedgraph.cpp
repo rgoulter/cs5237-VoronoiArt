@@ -426,10 +426,10 @@ void addVertexInTri(Triangulation& trist,
 	//
 	// But, no knowledge about the triangle referenced
 	// by triIJK
-	const LinkedTriangle& ltriIJK = trist[triIJK];
 	int rIdx, iIdx, jIdx;
 	triRIJ->tri_.get(rIdx, iIdx, jIdx);
 
+	const LinkedTriangle& ltriIJK = trist[triIJK];
 	int edgeIdxIJ, edgeIdxJK, edgeIdxKI;
 	ltriIJK.getEdgeIndices(iIdx, edgeIdxIJ, edgeIdxJK, edgeIdxKI);
 
@@ -447,6 +447,7 @@ void addVertexInTri(Triangulation& trist,
 	trist.setLink(triRKI->fIndex_, 2, triRIJ->fIndex_); // RI
 
 	// external links (3x: IJ, JK, KI)
+	// PERF: if store what the other edge idx is, could save lookup.
 	trist.setLink(triRIJ->fIndex_, 1, adjIndexIJ); // RJ
 	trist.setLink(triRJK->fIndex_, 1, adjIndexJK); // RK
 	trist.setLink(triRKI->fIndex_, 1, adjIndexKI); // RI
@@ -461,6 +462,42 @@ void addVertexOnEdge(Triangulation& trist,
                      DAGNode* triRKI,
                      DAGNode* triRIL,
                      DAGNode* triRLJ) {
+	// Add the new triangles
+	triRJK->fIndex_ = trist.addLinkedTri(triRJK->tri_);
+	triRKI->fIndex_ = trist.addLinkedTri(triRKI->tri_);
+	triRIL->fIndex_ = trist.addLinkedTri(triRIL->tri_);
+	triRLJ->fIndex_ = trist.addLinkedTri(triRLJ->tri_);
+
+	// Get the edge indicies (at least iIdx)
+	int rIdx, iIdx, lIdx;
+	triRIL->tri_.get(rIdx, iIdx, lIdx);
+
+	const LinkedTriangle& ltriIJK = trist[triIJK];
+	int ijkEdgeIdxIJ, ijkEdgeIdxJK, ijkEdgeIdxKI;
+	ltriIJK.getEdgeIndices(iIdx, ijkEdgeIdxIJ, ijkEdgeIdxJK, ijkEdgeIdxKI);
+
+	const LinkedTriangle& ltriILJ = trist[triILJ];
+	int iljEdgeIdxIL, iljEdgeIdxLJ, iljEdgeIdxJI;
+	ltriILJ.getEdgeIndices(iIdx, iljEdgeIdxIL, iljEdgeIdxLJ, iljEdgeIdxJI);
+
+	// Get reference to adjacent triangles
+	FIndex adjIndexKI = ltriIJK.links_[ijkEdgeIdxKI];
+	FIndex adjIndexIL = ltriILJ.links_[iljEdgeIdxIL];
+	FIndex adjIndexLJ = ltriILJ.links_[iljEdgeIdxLJ];
+	FIndex adjIndexJK = ltriIJK.links_[ijkEdgeIdxJK];
+
+	// internal links (4x: RK, RI, RL, RJ)
+	trist.setLink(triRJK->fIndex_, 2, triRKI->fIndex_);  // RK
+	trist.setLink(triRKI->fIndex_, 2, triRIL->fIndex_);  // RI
+	trist.setLink(triRIL->fIndex_, 2, triRLJ->fIndex_);  // RL
+	trist.setLink(triRLJ->fIndex_, 2, triRJK->fIndex_);  // RL
+
+	// external links (4x: JK, KI, IL, LJ)
+	// PERF: if store what the other edge idx is, could save lookup.
+	trist.setLink(triRJK->fIndex_, 1, adjIndexJK);
+	trist.setLink(triRKI->fIndex_, 1, adjIndexKI);
+	trist.setLink(triRIL->fIndex_, 1, adjIndexIL);
+	trist.setLink(triRLJ->fIndex_, 1, adjIndexLJ);
 }
 
 
@@ -470,6 +507,37 @@ void flipTriangles(Triangulation& trist,
                    FIndex triJIL,
                    DAGNode* triILK,
                    DAGNode* triLJK) {
+	// Add the new triangles
+	triILK->fIndex_ = trist.addLinkedTri(triILK->tri_);
+	triLJK->fIndex_ = trist.addLinkedTri(triLJK->tri_);
+
+	// Get the edge indicies (at least iIdx)
+	int iIdx, lIdx, kIdx;
+	triILK->tri_.get(iIdx, lIdx, kIdx);
+
+	const LinkedTriangle& ltriIJK = trist[triIJK];
+	int ijkEdgeIdxIJ, ijkEdgeIdxJK, ijkEdgeIdxKI;
+	ltriIJK.getEdgeIndices(iIdx, ijkEdgeIdxIJ, ijkEdgeIdxJK, ijkEdgeIdxKI);
+
+	const LinkedTriangle& ltriJIL = trist[triJIL];
+	int jilEdgeIdxJI, jilEdgeIdxIL, jilEdgeIdxLJ;
+	ltriJIL.getEdgeIndices(iIdx, jilEdgeIdxIL, jilEdgeIdxLJ, jilEdgeIdxJI);
+
+	// Get reference to adjacent triangles
+	FIndex adjIndexKI = ltriIJK.links_[ijkEdgeIdxKI];
+	FIndex adjIndexIL = ltriJIL.links_[jilEdgeIdxIL];
+	FIndex adjIndexLJ = ltriJIL.links_[jilEdgeIdxLJ];
+	FIndex adjIndexJK = ltriIJK.links_[ijkEdgeIdxJK];
+
+	// internal links (1x: KL)
+	trist.setLink(triLJK->fIndex_, 2, triILK->fIndex_);
+
+	// external links (4x: JK, KI, IL, LJ)
+	// PERF: if store what the other edge idx is, could save lookup.
+	trist.setLink(triLJK->fIndex_, 0, adjIndexLJ);  // LJ
+	trist.setLink(triLJK->fIndex_, 1, adjIndexJK);  // JK
+	trist.setLink(triILK->fIndex_, 0, adjIndexIL);  // IL
+	trist.setLink(triILK->fIndex_, 2, adjIndexKI);  // KI
 }
 
 }
