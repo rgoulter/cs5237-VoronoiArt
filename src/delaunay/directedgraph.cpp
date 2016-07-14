@@ -167,9 +167,11 @@ DirectedGraph::DirectedGraph(const PointSetArray& inputPointSet) {
 	// Points of bounding tri are the last three,
 	// so, numPoints+1, numPoints+2, numPoints+3
 	int boundingTriPt1 = numPoints + 1;
-	root_ = new DAGNode(TriRecord(boundingTriPt1,
-	                              boundingTriPt1 + 1,
-	                              boundingTriPt1 + 2));
+	TriRecord boundingTri(boundingTriPt1,
+	                      boundingTriPt1 + 1,
+	                      boundingTriPt1 + 2);
+	root_ = new DAGNode(boundingTri);
+	root_->fIndex_ = trist_.addLinkedTri(boundingTri);
 	dagNodes_.push_back(root_);
 }
 
@@ -266,7 +268,7 @@ void DirectedGraph::addVertex(int pIdx) {
 		// New point fits cleanly within another triangle,
 		// split the triangle into three.
 
-		DAGNode *node = leaves[0];
+		DAGNode *node = leaves[0];  // IJK
 
 		TriRecord parentTri = node->tri_;
 		int parentIdx1, parentIdx2, parentIdx3;
@@ -274,9 +276,9 @@ void DirectedGraph::addVertex(int pIdx) {
 
 		// Construct 3 TriRecords, one for each child triangle
 		// ASSUMPTION that points for TriRecord are CCW
-		DAGNode *child1 = new DAGNode(TriRecord(parentIdx1, parentIdx2, pIdx)); // CCW
-		DAGNode *child2 = new DAGNode(TriRecord(parentIdx2, parentIdx3, pIdx));
-		DAGNode *child3 = new DAGNode(TriRecord(parentIdx3, parentIdx1, pIdx));
+		DAGNode *child1 = new DAGNode(TriRecord(pIdx, parentIdx1, parentIdx2));  // RIJ
+		DAGNode *child2 = new DAGNode(TriRecord(pIdx, parentIdx2, parentIdx3));  // RJK
+		DAGNode *child3 = new DAGNode(TriRecord(pIdx, parentIdx3, parentIdx1));  // RKI
 		node->children_.push_back(child1);
 		node->children_.push_back(child2);
 		node->children_.push_back(child3);
@@ -285,6 +287,13 @@ void DirectedGraph::addVertex(int pIdx) {
 		dagNodes_.push_back(child1);
 		dagNodes_.push_back(child2);
 		dagNodes_.push_back(child3);
+
+		// Update triangulation
+		addVertexInTri(trist_,
+		               node->fIndex_,
+		               child1,
+		               child2,
+		               child3);
 
 #ifdef DIRECTEDGRAPH_CHECK
 		checkConsistent();
@@ -325,6 +334,15 @@ void DirectedGraph::addVertex(int pIdx) {
 		dagNodes_.push_back(nodeRIL);
 		dagNodes_.push_back(nodeRLJ);
 
+		// Update triangulation
+		addVertexOnEdge(trist_,
+		                nodeIJK->fIndex_,
+		                nodeILJ->fIndex_,
+		                nodeRJK,
+		                nodeRKI,
+		                nodeRIL,
+		                nodeRLJ);
+
 #ifdef DIRECTEDGRAPH_CHECK
 		checkConsistent();
 #endif
@@ -346,6 +364,12 @@ void DirectedGraph::addVertex(int pIdx) {
 //
 // the shared edge bd gets replaced with shared edge ac
 void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
+	// XXX finish rename in DGraph::flipTri
+	// shared edge ij; 124=kij is ccw, 423=jil is ccw.
+	int kIdx = pIdx1;
+	int iIdx = pIdx2;
+	int lIdx = pIdx3;
+	int jIdx = pIdx4;
 #ifdef DIRECTEDGRAPH_CHECK
 	cout << "DAG::flipTris, args=" << pIdx1 << "," << pIdx2 << "," << pIdx3 << "," << pIdx4 << "." << endl;
 
@@ -370,8 +394,8 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 #endif
 
 
-	DAGNode *abdNode = nodes[0]; // <124>
-	DAGNode *dbcNode = nodes[1]; // <423>
+	DAGNode *nodeIJK = nodes[0];
+	DAGNode *nodeJIL = nodes[1];
 
 	// impl ASSUMPTION that TriR(x,y,z) == TriR(x,z,y), etc.
 	// (as used in DirectedGraph).
@@ -379,25 +403,32 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 	// swap 24 edge with 13 edge
 	// ASSUMPTION that points for TriRecord are CCW
 	// flip <abd>,<dbc> adds 2 children to each, <abc>,<acd> (preserves CCW)
-	TriRecord abcTri(pIdx1, pIdx2, pIdx3);
-	TriRecord acdTri(pIdx1, pIdx3, pIdx4);
+	TriRecord triILK(iIdx, lIdx, kIdx);
+	TriRecord triLJK(lIdx, jIdx, kIdx);
 #ifdef DIRECTEDGRAPH_CHECK
-	assert(isTriangleCCW(pointSet_, abcTri));
-	assert(isTriangleCCW(pointSet_, acdTri));
+	assert(isTriangleCCW(pointSet_, triILK));
+	assert(isTriangleCCW(pointSet_, triLJK));
 #endif
 
-	DAGNode *abcNode = new DAGNode(abcTri);
-	DAGNode *acdNode = new DAGNode(acdTri);
+	DAGNode *nodeILK = new DAGNode(triILK);
+	DAGNode *nodeLJK = new DAGNode(triLJK);
 
-	abdNode->children_.push_back(abcNode);
-	abdNode->children_.push_back(acdNode);
+	nodeIJK->children_.push_back(nodeILK);
+	nodeIJK->children_.push_back(nodeLJK);
 
-	dbcNode->children_.push_back(abcNode);
-	dbcNode->children_.push_back(acdNode);
+	nodeJIL->children_.push_back(nodeILK);
+	nodeJIL->children_.push_back(nodeLJK);
 
 	// Add to instance's list of dagNodes
-	dagNodes_.push_back(abcNode);
-	dagNodes_.push_back(acdNode);
+	dagNodes_.push_back(nodeILK);
+	dagNodes_.push_back(nodeLJK);
+
+	// Update triangulation
+	delaunay::flipTriangles(trist_,
+	                        nodeIJK->fIndex_,
+	                        nodeJIL->fIndex_,
+	                        nodeILK,
+	                        nodeLJK);
 
 #ifdef DIRECTEDGRAPH_CHECK
 	checkConsistent();
