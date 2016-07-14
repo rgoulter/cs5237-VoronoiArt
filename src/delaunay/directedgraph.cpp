@@ -451,6 +451,9 @@ void addVertexInTri(Triangulation& trist,
 	trist.setLink(triRIJ->fIndex_, 1, adjIndexIJ); // RJ
 	trist.setLink(triRJK->fIndex_, 1, adjIndexJK); // RK
 	trist.setLink(triRKI->fIndex_, 1, adjIndexKI); // RI
+
+	// remove old triangles
+	trist.removeLinkedTri(triIJK);
 }
 
 
@@ -498,6 +501,10 @@ void addVertexOnEdge(Triangulation& trist,
 	trist.setLink(triRKI->fIndex_, 1, adjIndexKI);
 	trist.setLink(triRIL->fIndex_, 1, adjIndexIL);
 	trist.setLink(triRLJ->fIndex_, 1, adjIndexLJ);
+
+	// remove old triangles
+	trist.removeLinkedTri(triIJK);
+	trist.removeLinkedTri(triILJ);
 }
 
 
@@ -538,6 +545,10 @@ void flipTriangles(Triangulation& trist,
 	trist.setLink(triLJK->fIndex_, 1, adjIndexJK);  // JK
 	trist.setLink(triILK->fIndex_, 0, adjIndexIL);  // IL
 	trist.setLink(triILK->fIndex_, 2, adjIndexKI);  // KI
+
+	// remove old triangles
+	trist.removeLinkedTri(triIJK);
+	trist.removeLinkedTri(triJIL);
 }
 
 }
