@@ -14,10 +14,8 @@ using std::vector;
 using delaunay::PointSetArray;
 
 
+
 namespace voronoi {
-
-
-
 
 /// WingedEdge returned won't be linked together.
 /// List of WingedEdges won't be sorted, either.
@@ -119,12 +117,6 @@ vector<HalfWingedEdge*> linkEdges(const Edges& edges) {
 
 
 
-// POLY polyFromEdge(WingedEdge wedge) {
-	// might return unbounded,
-
-	// if not closed
-	// might have to backtrack and construct clockwise..
-// }
 // POLYREP:POINTSETARRAY
 PointSetArray* polygonFromLinkedEdge(HalfWingedEdge *edge) {
 	// Need *pointer* to polygon, so that edges know whether
@@ -172,10 +164,38 @@ PointSetArray* polygonFromLinkedEdge(HalfWingedEdge *edge) {
 
 
 
-// vec<POLY> polygonsFromEdges(Edges *edges) {
-//   iter through list<WingedEdge>,
-//   shouldn't need to use each edge more than 2x
-// }
+// POLYREP:POINTSETARRAY
+vector<PointSetArray> polygonsFromEdges(const Edges& edges) {
+	vector<HalfWingedEdge*> linkedEdges = linkEdges(edges);
+
+	vector<PointSetArray*> polygonPtrs;
+
+	for (HalfWingedEdge *linkedEdge : linkedEdges) {
+		// face_ member is non-null if the edge has been visited before.
+		if (linkedEdge->face_ != nullptr) {
+			continue;
+		}
+
+		PointSetArray *polyPtr = polygonFromLinkedEdge(linkedEdge);
+		polygonPtrs.push_back(polyPtr);
+	}
+
+	// Now de-reference + copy the pointers,
+	// delete the polygons from the heap.
+	vector<PointSetArray> result;
+
+	for (PointSetArray *polyPtr : polygonPtrs) {
+		result.push_back(*polyPtr); // copy
+		delete polyPtr;
+	}
+
+	// also clean up the HalfWingedEdge
+	for (HalfWingedEdge* edge : linkedEdges) {
+		delete edge;
+	}
+
+	return result;
+}
 
 }
 

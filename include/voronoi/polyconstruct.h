@@ -55,6 +55,10 @@ std::vector<HalfWingedEdge*> linkEdges(const Edges& edges);
 delaunay::PointSetArray* polygonFromLinkedEdge(HalfWingedEdge *edge);
 
 
+
+std::vector<delaunay::PointSetArray> polygonsFromEdges(const Edges& edges);
+
+
 }
 
 #endif
