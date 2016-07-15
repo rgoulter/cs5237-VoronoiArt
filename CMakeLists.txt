@@ -39,6 +39,7 @@ set(VORONOI_LIB_SOURCES src/delaunay/li.cpp
                         src/delaunay/dagnode.cpp
                         src/delaunay/directedgraph.cpp
                         src/delaunay/delaunay.cpp
+                        src/voronoi/polyconstruct.cpp
                         src/voronoi/voronoi.cpp
                         src/voronoi/vparabola.cpp
                         src/imagedata.cpp
@@ -59,6 +60,7 @@ set(VORONOI_LIB_HEADERS include/delaunay/li.h
                         include/delaunay/dagnode.h
                         include/delaunay/directedgraph.h
                         include/delaunay/delaunay.h
+                        include/voronoi/polyconstruct.h
                         include/voronoi/vedge.h
                         include/voronoi/vevent.h
                         include/voronoi/vparabola.h
@@ -153,6 +155,7 @@ if (test)
                               test/delaunay/dagtests.cpp
                               test/delaunay/triangletests.cpp
                               test/delaunay/triangulationtests.cpp
+                              test/voronoi/polyconstructtests.cpp
                               test/testmain.cpp)
 
   target_link_libraries(runUnitTests gtest gtest_main)

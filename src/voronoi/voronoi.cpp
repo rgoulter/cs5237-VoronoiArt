@@ -1,10 +1,18 @@
 #include "voronoi/voronoi.h"
 
+#include <cassert>
 #include <cmath>
 
 #include <algorithm>
 #include <iostream>
+#include <map>
 #include <set>
+
+#include "voronoi/polyconstruct.h"
+#include "stopwatch.h"
+
+using std::unordered_map;
+using std::vector;
 
 
 
@@ -352,6 +360,232 @@ VPoint * Voronoi::getEdgeIntersection(VEdge *a, VEdge *b) {
 
 	return p;
 }
+
+
+
+// Helper function
+void addPointWithJitter(Vertices* vertices, double x, double y) {
+	// Program hangs if jitter size is too small, oddly.
+	// (Because of limitation in the Fortune algorithm/implementation).
+
+	// const double kJitterSize = 15.0;
+	const double kJitterSize = 5;
+	double dx = ((double)rand() * kJitterSize / (double)RAND_MAX);
+	double dy = ((double)rand() * kJitterSize / (double)RAND_MAX);
+
+	VPoint *vp = new VPoint(x + dx, y + dy);
+	vertices->push_back(vp);
+}
+
+
+
+Vertices* verticesForInputPoints(const delaunay::PointSetArray& inputPoints) {
+	Vertices *voronoiVertices = new Vertices();
+
+	// Iterate over PointSetArray's points
+	delaunay::LongInt x, y;
+	for (int ptIdx = 1; ptIdx <= inputPoints.noPt(); ++ptIdx) {
+		inputPoints.getPoint(ptIdx, x, y);
+
+		addPointWithJitter(voronoiVertices, x.doubleValue(), y.doubleValue());
+	}
+
+	// Bounding Points for Fortune's
+	addPointWithJitter(voronoiVertices, -10000.0,  10000.0);
+	addPointWithJitter(voronoiVertices,  10000.0,  10000.0);
+	addPointWithJitter(voronoiVertices,  10000.0, -10000.0);
+	addPointWithJitter(voronoiVertices, -10000.0, -10000.0);
+
+	return voronoiVertices;
+}
+
+
+
+// POLYREP:POINTSETARRAY
+/// Use the constructed Voronoi edges to make Polygons to display
+vector<delaunay::PointSetArray> createPolygonsFortune(Edges *voronoiedges) {
+	using delaunay::LongInt;
+	using delaunay::PointSetArray;
+
+	vector<PointSetArray> voronoiEdges;
+
+	// The dictionary is indexed by the voronoi points and gives the polygon for each voronoi.
+	// The border polygons are unbounded, so need to be careful.
+	std::map< VPoint *, vector<VEdge *> > dictionary;
+
+	// XXX This should be its own function.
+	// Given a list of VEdges,
+	// construct reverse-lookup of VEdges associated with each VPoint.
+	for (Edges::iterator i = voronoiedges->begin(); i != voronoiedges->end(); ++i) {
+		VEdge *edge = *i;
+		VPoint *leftPt = edge->left;
+		VPoint *rightPt = edge->right;
+
+		//Check if the dictionary has leftpoint
+		std::map< VPoint *, vector<VEdge *> >::iterator it = dictionary.find(leftPt);
+
+		if (it != dictionary.end()) {
+			it->second.push_back(edge);
+		} else {
+			vector<VEdge *> listofedges;
+			listofedges.push_back(edge);
+			dictionary.insert(std::map<VPoint *,vector<VEdge *> >::value_type(leftPt,listofedges));
+		}
+
+		//Check if the dictionary has rightpoint
+		std::map< VPoint *, vector<VEdge *> >::iterator it2 = dictionary.find(rightPt);
+
+		if (it2 != dictionary.end()) {
+			it2->second.push_back(edge);
+		} else {
+			vector<VEdge *> listofedges2;
+			listofedges2.push_back(edge);
+			dictionary.insert(std::map<VPoint *,vector<VEdge *> >::value_type(rightPt,listofedges2));
+		}
+	}
+
+
+	// What follows is *supposed* to yield polygons from edges,
+	// but doesn't manage to always do what it's intended to.
+
+	// Convert each of the dictionary values (unsorted edges associated with vertex)
+	// into ordered list of PointSetArray vertex set.
+	std::map< VPoint *, vector<VEdge *> >::iterator dictioniter;
+
+	for (dictioniter = dictionary.begin(); dictioniter != dictionary.end(); ++dictioniter) {
+		vector<VEdge *> polygonEdges = dictioniter->second;
+		PointSetArray polygonvertices;
+		vector<VPoint *> revvector;
+
+		// polygonEdges has a set of edges, create an ordered list of points from this.
+		// Take the first edge, store its start and end points into pointsetarray.
+		VEdge * firstedge = *polygonEdges.begin();
+		polygonvertices.addPoint( (LongInt)firstedge->start->x, (LongInt)firstedge->start->y );
+		polygonvertices.addPoint( (LongInt)firstedge->end->x, (LongInt)firstedge->end->y );
+
+		// Store the start and end point of this edge for later use.
+		// When the last edge is found, its end edge will be the same as
+		// the first edge's starting point. This signifies completion of polygon.
+		//
+		// The ending point will be updated as each subsequent edge is found.
+		VPoint *startpoint = new VPoint(firstedge->start->x, firstedge->start->y);
+		VPoint *endpoint   = new VPoint(firstedge->end->x, firstedge->end->y); // XXX CpyCtor
+		polygonEdges.erase(polygonEdges.begin()); // NB remove firstedge, as we've consumed it
+
+		int edgeCount = polygonEdges.size(); // Why would *this* matter? WRONG, surely.
+
+
+		while (edgeCount > 0) {
+			vector<VEdge *>::iterator polygonedgeiter;
+			int exitflag = 0;
+
+			// Iterate throught the remaining list of edges to find the subsequent edge
+			for (polygonedgeiter = polygonEdges.begin(); polygonedgeiter != polygonEdges.end(); ++polygonedgeiter) {
+				VEdge * eachedge = *polygonedgeiter;
+
+				if (eachedge->start->x == endpoint->x &&
+				    eachedge->start->y == endpoint->y) {
+					polygonvertices.addPoint( (LongInt)eachedge->end->x, (LongInt)eachedge->end->y );
+					endpoint->x = eachedge->end->x; // Check if this pointer assignment works...
+					endpoint->y = eachedge->end->y; // XXX Copy-Assignment operator
+					polygonEdges.erase(polygonedgeiter); // Delete the edge that has been added to the pointset array
+					edgeCount--;
+					exitflag = 1;
+
+					break;
+				} else if (eachedge->end->x == endpoint->x &&
+				           eachedge->end->y == endpoint->y) {
+					polygonvertices.addPoint( (LongInt)eachedge->start->x, (LongInt)eachedge->start->y );
+					endpoint->x = eachedge->start->x;
+					endpoint->y = eachedge->start->y;
+					polygonEdges.erase(polygonedgeiter); // Delete the edge that has been added to the pointset array
+					edgeCount--;
+					exitflag = 1;
+
+					break;
+				}
+			}
+
+			//If edge has not been found, the following break executes and while exits with incomplete polygon(border condition).
+			if (edgeCount > 0 && exitflag == 0) {
+				//PointSetArray revpolygonvertices;
+				for (polygonedgeiter = polygonEdges.begin(); polygonedgeiter != polygonEdges.end(); ++polygonedgeiter) {
+					VEdge * eachedge = *polygonedgeiter;
+
+					if (eachedge->start->x == startpoint->x &&
+					    eachedge->start->y == startpoint->y) {
+						//revpolygonvertices.addPoint( (LongInt)eachedge->end->x, (LongInt)eachedge->end->y );
+						revvector.push_back(eachedge->end);
+						startpoint->x = eachedge->end->x; // Check if this pointer assignment works...
+						startpoint->y = eachedge->end->y;
+						polygonEdges.erase(polygonedgeiter);
+						edgeCount--;
+						exitflag = 1;
+
+						break;
+					} else if (eachedge->end->x == startpoint->x &&
+					           eachedge->end->y == startpoint->y) {
+						//revpolygonvertices.addPoint( (LongInt)eachedge->start->x, (LongInt)eachedge->start->y );
+						revvector.push_back(eachedge->start);
+						startpoint->x = eachedge->start->x;
+						startpoint->y = eachedge->start->y;
+						polygonEdges.erase(polygonedgeiter);
+						edgeCount--;
+						exitflag = 1;
+
+						break;
+					}
+				} // End of for
+			}
+		} //End of while- Current polygon has been found
+
+		//Push the polygon into the list of polygons.
+		while (revvector.size() != 0) {
+			VPoint * point = revvector.back();
+			polygonvertices.addPoint( (LongInt)point->x, (LongInt)point->y );
+			revvector.pop_back();
+		}
+
+		voronoiEdges.push_back(polygonvertices);
+	}// All polygons have been found
+
+	return voronoiEdges;
+}
+
+
+
+// POLYREP:POINTSETARRAY
+
+vector<delaunay::PointSetArray> runVoronoiAlgorithm(const delaunay::PointSetArray& inputPoints) {
+	StopWatch voroSW;
+	voroSW.reset();
+	voroSW.resume();
+
+	Vertices *voronoiVertices_ = verticesForInputPoints(inputPoints);
+
+	Voronoi voronoi;
+	Edges *voronoiEdges = voronoi.getEdges(voronoiVertices_, 10000, 10000);
+	voroSW.pause();
+	double timeFortune = voroSW.ms();
+	std::cout << "TIME: voronoi->GetEdges(..) is " << timeFortune << std::endl;
+	voroSW.reset();
+	voroSW.resume();
+
+	vector<delaunay::PointSetArray> voronoiPolygons =
+	    polygonsFromEdges(*voronoiEdges);
+
+	voroSW.pause();
+	double timePolyConstruct = voroSW.ms();
+	std::cout << "TIME: polygonsFromEdges() is " << timePolyConstruct << std::endl;;
+	voroSW.reset();
+	voroSW.resume();
+
+	// XXX cleanup voronoiVertices, etc.
+
+	return voronoiPolygons;
+}
+
+
 
 }
 
