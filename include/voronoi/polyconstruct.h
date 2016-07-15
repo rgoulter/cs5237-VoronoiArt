@@ -50,6 +50,11 @@ std::unordered_map< const VPoint*, std::vector<HalfWingedEdge *> > buildEdgeLook
 
 std::vector<HalfWingedEdge*> linkEdges(const Edges& edges);
 
+
+
+delaunay::PointSetArray* polygonFromLinkedEdge(HalfWingedEdge *edge);
+
+
 }
 
 #endif

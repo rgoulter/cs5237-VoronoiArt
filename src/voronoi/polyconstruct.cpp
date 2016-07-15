@@ -5,9 +5,13 @@
 
 #include <algorithm>
 #include <iostream>
+#include <list>
 
+using std::list;
 using std::unordered_map;
 using std::vector;
+
+using delaunay::PointSetArray;
 
 
 namespace voronoi {
@@ -121,6 +125,50 @@ vector<HalfWingedEdge*> linkEdges(const Edges& edges) {
 	// if not closed
 	// might have to backtrack and construct clockwise..
 // }
+// POLYREP:POINTSETARRAY
+PointSetArray* polygonFromLinkedEdge(HalfWingedEdge *edge) {
+	// Need *pointer* to polygon, so that edges know whether
+	// they've been 'visited'.
+	PointSetArray *poly = new PointSetArray();
+
+	list<const VPoint*> polyPoints;
+
+	HalfWingedEdge *startingEdge = edge;
+	const VPoint *startingPt = startingEdge->pointIdxA_;
+
+	// walk CCW
+	polyPoints.push_back(edge->pointIdxA_);
+	edge = edge->nextEdge_;
+	while (edge != nullptr &&
+	       edge->pointIdxA_ != startingPt) {
+		polyPoints.push_back(edge->pointIdxA_);
+		edge->face_ = poly;
+		edge = edge->nextEdge_;
+	}
+
+	// ran out of edges walking CCW without closing the polygon,
+	// so go CW from the start.
+	if (edge == nullptr) {
+		edge = startingEdge->prevEdge_;
+
+		// Since every time we assigned a next/prev edge,
+		// the corresponding link was assigned;
+		// and we ran into a not-set edge in CCW direction,
+		// must run into a not-set edge in CW direction.
+		while (edge != nullptr) {
+			polyPoints.push_front(edge->pointIdxA_);
+			edge->face_ = poly;
+			edge = startingEdge->prevEdge_;
+		}
+	}
+
+	// Coerce the vector of VPoint* to a POLYREP:PointSetArray
+	for (const VPoint* pt : polyPoints) {
+		poly->addPoint((int) pt->x, (int) pt->y);
+	}
+
+	return poly;
+}
 
 
 
