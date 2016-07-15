@@ -572,11 +572,11 @@ vector<delaunay::PointSetArray> runVoronoiAlgorithm(const delaunay::PointSetArra
 	voroSW.resume();
 
 	vector<delaunay::PointSetArray> voronoiPolygons =
-	    createPolygonsFortune(voronoiEdges);
+	    polygonsFromEdges(*voronoiEdges);
 
 	voroSW.pause();
 	double timePolyConstruct = voroSW.ms();
-	std::cout << "TIME: createPolygonsFortune() is " << timePolyConstruct << std::endl;;
+	std::cout << "TIME: polygonsFromEdges() is " << timePolyConstruct << std::endl;;
 	voroSW.reset();
 	voroSW.resume();
 
