@@ -1,5 +1,6 @@
 #include "voronoi/voronoi.h"
 
+#include <cassert>
 #include <cmath>
 
 #include <algorithm>
@@ -7,8 +8,10 @@
 #include <map>
 #include <set>
 
+#include "voronoi/polyconstruct.h"
 #include "stopwatch.h"
 
+using std::unordered_map;
 using std::vector;
 
 
