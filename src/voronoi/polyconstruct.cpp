@@ -7,6 +7,8 @@
 #include <iostream>
 #include <list>
 
+using std::cout;
+using std::endl;
 using std::list;
 using std::unordered_map;
 using std::vector;
@@ -40,14 +42,18 @@ unordered_map< const VPoint*, vector<HalfWingedEdge *> > buildEdgeLookup(const E
 		                           leftPt->x - rightPt->x);
 
 		// n.b. unordered_map uses default c'tor in case where key not present
-		vector<HalfWingedEdge *>& leftEdges = edgeMap[leftPt];
 		HalfWingedEdge *leftHWE =
 			new HalfWingedEdge(leftPt, rightPt, leftRAngle, rightLAngle);
-		leftEdges.push_back(leftHWE);
 
-		vector<HalfWingedEdge *>& rightEdges = edgeMap[rightPt];
 		HalfWingedEdge *rightHWE =
 			new HalfWingedEdge(rightPt, leftPt, rightLAngle, leftRAngle);
+
+		vector<HalfWingedEdge *>& leftEdges = edgeMap[leftPt];
+		leftEdges.push_back(leftHWE);
+		leftEdges.push_back(rightHWE);
+
+		vector<HalfWingedEdge *>& rightEdges = edgeMap[rightPt];
+		rightEdges.push_back(leftHWE);
 		rightEdges.push_back(rightHWE);
 	}
 
@@ -95,6 +101,8 @@ vector<HalfWingedEdge*> linkEdges(const Edges& edges) {
 		edges.push_back(edges.front());
 		edges.erase(edges.begin());
 
+		assert(edges.size() % 2 == 0);
+
 		// Now link the edges
 		// (Since it's sorted 
 		for (vector<HalfWingedEdge*>::iterator sortedEdgeIter = edges.begin();
@@ -103,12 +111,20 @@ vector<HalfWingedEdge*> linkEdges(const Edges& edges) {
 			HalfWingedEdge *outgoingEdge = *(sortedEdgeIter);
 			HalfWingedEdge *incomingEdge = *(sortedEdgeIter + 1);
 
-			incomingEdge->nextEdge_ = outgoingEdge;
-			outgoingEdge->prevEdge_ = incomingEdge;
+			assert(outgoingEdge->pointIdxA_ == pt);
+			assert(incomingEdge->pointIdxB_ == pt);
 
 			// Push only the outgoing edge.
 			// (Edges incoming to pt are outgoing from another pt).
 			allEdges.push_back(outgoingEdge);
+
+			// If the other-pt of incoming is the same as
+			// the other-ppt of the outgoing edge..
+			if (incomingEdge->pointIdxA_ !=
+			    outgoingEdge->pointIdxB_) {
+				incomingEdge->nextEdge_ = outgoingEdge;
+				outgoingEdge->prevEdge_ = incomingEdge;
+			}
 		}
 	}
 

@@ -155,6 +155,7 @@ if (test)
                               test/delaunay/dagtests.cpp
                               test/delaunay/triangletests.cpp
                               test/delaunay/triangulationtests.cpp
+                              test/voronoi/polyconstructtests.cpp
                               test/testmain.cpp)
 
   target_link_libraries(runUnitTests gtest gtest_main)

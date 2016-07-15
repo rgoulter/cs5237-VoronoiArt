@@ -24,6 +24,7 @@ struct HalfWingedEdge {
 	    nextEdge_(nullptr), prevEdge_(nullptr), face_(nullptr) {
 	}
 
+	/// angle *from*..
 	double angle(const VPoint *p) const {
 		return (p == pointIdxA_) ? abAngle_ : baAngle_;
 	}
