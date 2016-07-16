@@ -2,6 +2,7 @@
 #define DELAUNAY_DIRECTEDGRAPHH
 
 #include <iostream>
+#include <memory>
 #include <vector>
 
 #include "delaunay/dagnode.h"
@@ -27,7 +28,6 @@ got deleted.
 class DirectedGraph {
 public:
 	DirectedGraph(const PointSetArray&);
-	~DirectedGraph();
 
 	/// Finds the linked delaunay triangles for the input point index
 	std::vector<TriRecord> findTrianglesWithVertex(int) const;
@@ -79,37 +79,37 @@ private:
 	PointSetArray pointSet_;
 	Triangulation trist_;
 
-	std::vector<DAGNode*> dagNodes_;
-	DAGNode* root_;
+	std::vector<std::shared_ptr<DAGNode>> dagNodes_;
+	std::shared_ptr<DAGNode> root_;
 };
 
 
 
-// DAGNode* is used so that we can update its FIndex
+// std::shared_ptr<DAGNode> is used so that we can update its FIndex
 
 void addVertexInTri(Triangulation& trist,
                     FIndex triIJK,
-                    DAGNode* triRIJ,
-                    DAGNode* triRJK,
-                    DAGNode* triRKI);
+                    std::shared_ptr<DAGNode> triRIJ,
+                    std::shared_ptr<DAGNode> triRJK,
+                    std::shared_ptr<DAGNode> triRKI);
 
 
 
 void addVertexOnEdge(Triangulation& trist,
                      FIndex triIJK,
                      FIndex triILJ,
-                     DAGNode* triRJK,
-                     DAGNode* triRKI,
-                     DAGNode* triRIL,
-                     DAGNode* triRLJ);
+                     std::shared_ptr<DAGNode> triRJK,
+                     std::shared_ptr<DAGNode> triRKI,
+                     std::shared_ptr<DAGNode> triRIL,
+                     std::shared_ptr<DAGNode> triRLJ);
 
 
 
 void flipTriangles(Triangulation& trist,
                    FIndex triIJK,
                    FIndex triJIL,
-                   DAGNode* triILK,
-                   DAGNode* triLJK);
+                   std::shared_ptr<DAGNode> triILK,
+                   std::shared_ptr<DAGNode> triLJK);
 
 }
 

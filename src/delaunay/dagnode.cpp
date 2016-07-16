@@ -7,6 +7,7 @@
 #include "delaunay/trianglegeometry.h"
 
 using std::find;
+using std::shared_ptr;
 using std::stack;
 using std::vector;
 using std::cout;
@@ -17,25 +18,21 @@ using std::endl;
 namespace delaunay {
 
 // O(log n) impl.
-vector<DAGNode*> DAGNode::leafNodesContainingPoint(DAGNode* root, const PointSetArray& pointSet, int pIdx) {
-	vector<DAGNode*> outputList;
+vector<shared_ptr<DAGNode>> DAGNode::leafNodesContainingPoint(shared_ptr<DAGNode> root, const PointSetArray& pointSet, int pIdx) {
+	vector<shared_ptr<DAGNode>> outputList;
 
-	stack<DAGNode*> stk;
+	stack<shared_ptr<DAGNode>> stk;
 	stk.push(root);
 
 	while (!stk.empty()) {
-		DAGNode* node = stk.top();
+		shared_ptr<DAGNode> node = stk.top();
 		stk.pop();
 
 		if (node->isLeaf()) {
 			outputList.push_back(node);
 		}
 
-		for (vector<DAGNode*>::iterator iter = node->children_.begin();
-		     iter != node->children_.end();
-		     ++iter) {
-			DAGNode *childNode = *iter;
-
+		for (shared_ptr<DAGNode> childNode : node->children_) {
 			int p1Idx, p2Idx, p3Idx;
 			childNode->tri_.get(p1Idx, p2Idx, p3Idx);
 
@@ -54,14 +51,14 @@ vector<DAGNode*> DAGNode::leafNodesContainingPoint(DAGNode* root, const PointSet
 
 
 
-vector<DAGNode*> DAGNode::leafNodesContainingEdge(DAGNode* root, const PointSetArray& pointSet, int pIdx1, int pIdx2) {
-	vector<DAGNode*> outputList;
+vector<shared_ptr<DAGNode>> DAGNode::leafNodesContainingEdge(shared_ptr<DAGNode> root, const PointSetArray& pointSet, int pIdx1, int pIdx2) {
+	vector<shared_ptr<DAGNode>> outputList;
 
-	stack<DAGNode*> stk;
+	stack<shared_ptr<DAGNode>> stk;
 	stk.push(root);
 
 	while (!stk.empty()) {
-		DAGNode* node = stk.top();
+		shared_ptr<DAGNode> node = stk.top();
 		stk.pop();
 
 		if (node->isLeaf() &&
@@ -71,11 +68,7 @@ vector<DAGNode*> DAGNode::leafNodesContainingEdge(DAGNode* root, const PointSetA
 			outputList.push_back(node);
 		}
 
-		for (vector<DAGNode*>::iterator iter = node->children_.begin();
-		     iter != node->children_.end();
-		     ++iter) {
-			DAGNode *childNode = *iter;
-
+		for (shared_ptr<DAGNode> childNode : node->children_) {
 			int p1Idx, p2Idx, p3Idx;
 			childNode->tri_.get(p1Idx, p2Idx, p3Idx);
 
@@ -92,12 +85,11 @@ vector<DAGNode*> DAGNode::leafNodesContainingEdge(DAGNode* root, const PointSetA
 
 
 
-int DAGNode::findAdjacentTriangle(DAGNode* root, const PointSetArray& pointSet, int pIdx1, int pIdx2, int pIdx3) {
+int DAGNode::findAdjacentTriangle(shared_ptr<DAGNode> root, const PointSetArray& pointSet, int pIdx1, int pIdx2, int pIdx3) {
 	TriRecord outerTri(pIdx1, pIdx2, pIdx3);
-	vector<DAGNode*> nodes = DAGNode::leafNodesContainingEdge(root, pointSet, pIdx2, pIdx3);
+	vector<shared_ptr<DAGNode>> nodes = DAGNode::leafNodesContainingEdge(root, pointSet, pIdx2, pIdx3);
 
-	for (vector<DAGNode*>::const_iterator iter = nodes.begin(); iter != nodes.end(); ++iter) {
-		DAGNode* node = *iter;
+	for (const shared_ptr<DAGNode>& node : nodes) {
 		const TriRecord& tri = node->tri_;
 
 		int pIdx = outerTri.vertexNotSharedWith(tri);
