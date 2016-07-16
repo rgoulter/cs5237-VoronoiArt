@@ -133,24 +133,24 @@ void Triangulation::setLink(FIndex triIJK, int edgeIdx, FIndex otherTri) {
 
 
 
-const LinkedTriangle* Triangulation::operator[](FIndex idx) const {
+const LinkedTriangle& Triangulation::operator[](FIndex idx) const {
 #ifdef TRIANGULATION_CHECK
 	assert(1 <= idx && idx <= linkedTriangles_.size());
 	assert(linkedTriangles_[idx - 1] != nullptr);
 #endif
 
-	return linkedTriangles_[idx - 1];
+	return *(linkedTriangles_[idx - 1]);
 }
 
 
 
-LinkedTriangle* Triangulation::operator[](FIndex idx) {
+LinkedTriangle& Triangulation::operator[](FIndex idx) {
 #ifdef TRIANGULATION_CHECK
 	assert(1 <= idx && idx <= linkedTriangles_.size());
 	assert(linkedTriangles_[idx - 1] != nullptr);
 #endif
 
-	return linkedTriangles_[idx - 1];
+	return *(linkedTriangles_[idx - 1]);
 }
 
 

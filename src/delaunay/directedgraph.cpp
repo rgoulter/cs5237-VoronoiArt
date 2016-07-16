@@ -459,10 +459,10 @@ vector<FIndex> DirectedGraph::getLinkedTrianglesLookup() const {
 #ifdef TRIANGULATION_CHECK
 		assert(trist_.isLinkedTri(triIdx));
 #endif
-		const LinkedTriangle* tri = trist_[triIdx];
+		const LinkedTriangle& tri = trist_[triIdx];
 
 		int pIdx1, pIdx2, pIdx3;
-		tri->tri_.get(pIdx1, pIdx2, pIdx3);
+		tri.tri_.get(pIdx1, pIdx2, pIdx3);
 
 		// Copy the linked tri
 		fIndices[pIdx1 - 1] = triIdx;
@@ -493,15 +493,15 @@ void addVertexInTri(Triangulation& trist,
 	int rIdx, iIdx, jIdx;
 	triRIJ->tri_.get(rIdx, iIdx, jIdx);
 
-	const LinkedTriangle* ltriIJK = trist[triIJK];
+	const LinkedTriangle& ltriIJK = trist[triIJK];
 	int edgeIdxIJ, edgeIdxJK, edgeIdxKI;
-	ltriIJK->getEdgeIndices(iIdx, edgeIdxIJ, edgeIdxJK, edgeIdxKI);
+	ltriIJK.getEdgeIndices(iIdx, edgeIdxIJ, edgeIdxJK, edgeIdxKI);
 
 	// Get reference to adjacent triangles,
 	// (might not actually be triangles)
-	FIndex adjIndexIJ = ltriIJK->links_[edgeIdxIJ];
-	FIndex adjIndexJK = ltriIJK->links_[edgeIdxJK];
-	FIndex adjIndexKI = ltriIJK->links_[edgeIdxKI];
+	FIndex adjIndexIJ = ltriIJK.links_[edgeIdxIJ];
+	FIndex adjIndexJK = ltriIJK.links_[edgeIdxJK];
+	FIndex adjIndexKI = ltriIJK.links_[edgeIdxKI];
 
 	// unlink ... not necessary.
 
@@ -543,19 +543,19 @@ void addVertexOnEdge(Triangulation& trist,
 	int rIdx, iIdx, lIdx;
 	triRIL->tri_.get(rIdx, iIdx, lIdx);
 
-	const LinkedTriangle* ltriIJK = trist[triIJK];
+	const LinkedTriangle& ltriIJK = trist[triIJK];
 	int ijkEdgeIdxIJ, ijkEdgeIdxJK, ijkEdgeIdxKI;
-	ltriIJK->getEdgeIndices(iIdx, ijkEdgeIdxIJ, ijkEdgeIdxJK, ijkEdgeIdxKI);
+	ltriIJK.getEdgeIndices(iIdx, ijkEdgeIdxIJ, ijkEdgeIdxJK, ijkEdgeIdxKI);
 
-	const LinkedTriangle* ltriILJ = trist[triILJ];
+	const LinkedTriangle& ltriILJ = trist[triILJ];
 	int iljEdgeIdxIL, iljEdgeIdxLJ, iljEdgeIdxJI;
-	ltriILJ->getEdgeIndices(iIdx, iljEdgeIdxIL, iljEdgeIdxLJ, iljEdgeIdxJI);
+	ltriILJ.getEdgeIndices(iIdx, iljEdgeIdxIL, iljEdgeIdxLJ, iljEdgeIdxJI);
 
 	// Get reference to adjacent triangles
-	FIndex adjIndexKI = ltriIJK->links_[ijkEdgeIdxKI];
-	FIndex adjIndexIL = ltriILJ->links_[iljEdgeIdxIL];
-	FIndex adjIndexLJ = ltriILJ->links_[iljEdgeIdxLJ];
-	FIndex adjIndexJK = ltriIJK->links_[ijkEdgeIdxJK];
+	FIndex adjIndexKI = ltriIJK.links_[ijkEdgeIdxKI];
+	FIndex adjIndexIL = ltriILJ.links_[iljEdgeIdxIL];
+	FIndex adjIndexLJ = ltriILJ.links_[iljEdgeIdxLJ];
+	FIndex adjIndexJK = ltriIJK.links_[ijkEdgeIdxJK];
 
 	// internal links (4x: RK, RI, RL, RJ)
 	trist.setLink(triRJK->fIndex_, 2, triRKI->fIndex_);  // RK
@@ -594,19 +594,19 @@ void flipTriangles(Triangulation& trist,
 	int iIdx, lIdx, kIdx;
 	triILK->tri_.get(iIdx, lIdx, kIdx);
 
-	const LinkedTriangle* ltriIJK = trist[triIJK];
+	const LinkedTriangle& ltriIJK = trist[triIJK];
 	int ijkEdgeIdxIJ, ijkEdgeIdxJK, ijkEdgeIdxKI;
-	ltriIJK->getEdgeIndices(iIdx, ijkEdgeIdxIJ, ijkEdgeIdxJK, ijkEdgeIdxKI);
+	ltriIJK.getEdgeIndices(iIdx, ijkEdgeIdxIJ, ijkEdgeIdxJK, ijkEdgeIdxKI);
 
-	const LinkedTriangle* ltriJIL = trist[triJIL];
+	const LinkedTriangle& ltriJIL = trist[triJIL];
 	int jilEdgeIdxJI, jilEdgeIdxIL, jilEdgeIdxLJ;
-	ltriJIL->getEdgeIndices(iIdx, jilEdgeIdxIL, jilEdgeIdxLJ, jilEdgeIdxJI);
+	ltriJIL.getEdgeIndices(iIdx, jilEdgeIdxIL, jilEdgeIdxLJ, jilEdgeIdxJI);
 
 	// Get reference to adjacent triangles
-	FIndex adjIndexKI = ltriIJK->links_[ijkEdgeIdxKI];
-	FIndex adjIndexIL = ltriJIL->links_[jilEdgeIdxIL];
-	FIndex adjIndexLJ = ltriJIL->links_[jilEdgeIdxLJ];
-	FIndex adjIndexJK = ltriIJK->links_[ijkEdgeIdxJK];
+	FIndex adjIndexKI = ltriIJK.links_[ijkEdgeIdxKI];
+	FIndex adjIndexIL = ltriJIL.links_[jilEdgeIdxIL];
+	FIndex adjIndexLJ = ltriJIL.links_[jilEdgeIdxLJ];
+	FIndex adjIndexJK = ltriIJK.links_[ijkEdgeIdxJK];
 
 	// internal links (1x: KL)
 	trist.setLink(triLJK->fIndex_, 2, triILK->fIndex_);

@@ -32,11 +32,11 @@ TEST(TriangulationTest, TrivialLinkTrisCase) {
 
 	trist.setLink(ijkIdx, 0, iljIdx); // link by edge IJ
 
-	const LinkedTriangle* ltriIJK = trist[ijkIdx];
-	const LinkedTriangle* ltriILJ = trist[iljIdx];
+	const LinkedTriangle& ltriIJK = trist[ijkIdx];
+	const LinkedTriangle& ltriILJ = trist[iljIdx];
 
-	EXPECT_EQ(iljIdx, ltriIJK->links_[0]);
-	EXPECT_EQ(ijkIdx, ltriILJ->links_[2]);
+	EXPECT_EQ(iljIdx, ltriIJK.links_[0]);
+	EXPECT_EQ(ijkIdx, ltriILJ.links_[2]);
 }
 
 
@@ -59,10 +59,10 @@ TEST(TriangulationTest, TrivialLinkTrisCase2) {
 
 	trist.setLink(ijkIdx, 0, ljiIdx); // link by edge IJ
 
-	const LinkedTriangle* ltriIJK = trist[ijkIdx];
-	const LinkedTriangle* ltriLJI = trist[ljiIdx];
+	const LinkedTriangle& ltriIJK = trist[ijkIdx];
+	const LinkedTriangle& ltriLJI = trist[ljiIdx];
 
-	EXPECT_EQ(ljiIdx, ltriIJK->links_[0]);
-	EXPECT_EQ(ijkIdx, ltriLJI->links_[1]);
+	EXPECT_EQ(ljiIdx, ltriIJK.links_[0]);
+	EXPECT_EQ(ijkIdx, ltriLJI.links_[1]);
 }
 

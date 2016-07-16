@@ -76,9 +76,9 @@ public:
 		       linkedTriangles_[idx - 1] != nullptr;
 	}
 
-	const LinkedTriangle* operator[](FIndex idx) const;
+	const LinkedTriangle& operator[](FIndex idx) const;
 
-	LinkedTriangle* operator[](FIndex idx);
+	LinkedTriangle& operator[](FIndex idx);
 
 	int size() const { return linkedTriangles_.size(); }
 

@@ -65,18 +65,18 @@ void runDelaunayTriangulationOn(DirectedGraph& dag) {
 
 
 // e.g. for point I, tri IJK/JKI/KIJ, finds tri adj. to IJ.
-FIndex nextTriangle(int iIdx, const LinkedTriangle* ltriIJK) {
+FIndex nextTriangle(int iIdx, const LinkedTriangle& ltriIJK) {
 	int edgeIdxIJ, edgeIdxJK, edgeIdxKI;
-	ltriIJK->getEdgeIndices(iIdx, edgeIdxIJ, edgeIdxJK, edgeIdxKI);
+	ltriIJK.getEdgeIndices(iIdx, edgeIdxIJ, edgeIdxJK, edgeIdxKI);
 
-	return ltriIJK->links_[edgeIdxIJ];
+	return ltriIJK.links_[edgeIdxIJ];
 }
 
 
 
-MyPoint pointForTri(const PointSetArray& pointSet, const LinkedTriangle* ltri) {
+MyPoint pointForTri(const PointSetArray& pointSet, const LinkedTriangle& ltri) {
 	int triPIdx1, triPIdx2, triPIdx3;
-	ltri->tri_.get(triPIdx1, triPIdx2, triPIdx3);
+	ltri.tri_.get(triPIdx1, triPIdx2, triPIdx3);
 
 	// TODO circumCircle may benefit from using TriRecord
 	MyPoint circum;
@@ -106,7 +106,7 @@ vector<PointSetArray> createVoronoi(const DirectedGraph& dag) {
 	for (int dppIdx = 1; dppIdx <= delaunayPointSet.noPt() - 3; dppIdx++) {
 		// ltri is *some* triangle which contains the point.
 		FIndex triIdx = lookupLinkedTri[dppIdx - 1];
-		const LinkedTriangle* ltri = trist[triIdx];
+		const LinkedTriangle& ltri = trist[triIdx];
 
 		// Find delaunay triangles to which this point is linked
 		// POLYREP:POINTSETARRAY
@@ -119,7 +119,7 @@ vector<PointSetArray> createVoronoi(const DirectedGraph& dag) {
 		const FIndex initTriIdx = triIdx;
 		triIdx = nextTriangle(dppIdx, ltri);
 		while (triIdx != initTriIdx) {
-			const LinkedTriangle* ltri = trist[triIdx];
+			const LinkedTriangle& ltri = trist[triIdx];
 			const MyPoint& voronoiPt = pointForTri(delaunayPointSet, ltri);
 			polygon.addPoint(voronoiPt.x, voronoiPt.y);
 
