@@ -14,6 +14,8 @@
 
 #include "delaunay/directedgraph.h"
 
+#include "stopwatch.h"
+
 #ifndef NDEBUG
 #define DELAUNAY_CHECK
 #endif
@@ -26,58 +28,7 @@ using std::endl;
 
 namespace delaunay {
 
-/// ???
-/// XXX Btw, no need to have dlyPointsToProcess here
-void delaunayIterationStep(vector<int>& delaunayPointsToProcess,
-                           DirectedGraph& dag) {
-	if (delaunayPointsToProcess.size() == 0) {
-		return;
-	}
-
-	int pIdx = delaunayPointsToProcess[0];
-	delaunayPointsToProcess.erase(delaunayPointsToProcess.begin());
-
-	/// Insert into new Tri into the DAG.
-	/// These new triangles mightn't be Locally Delaunay.
-	// Return the containing triangle for the point i.
-	dag.addVertex(pIdx);
-
-	/// Everything is Locally Delaunay by this point.
-
-	// Redisplay
-	// updateGL(); // updateGL is a method of the QGLWidget..
-}
-
-
-
-// This method checks whether the voronoi edge identified already exists in the existing voronoi edge set.
-// bool checkedgeExists(PointSetArray voronoiEdge) {
-// 	MyPoint dA, dB;
-// 	std::vector<PointSetArray>::iterator iter1;
-// 	for (iter1 = voronoiEdges.begin(); iter1 != voronoiEdges.end();) {
-// 		PointSetArray vEdge = *iter1;
-// 		LongInt x1, y1, x2, y2, vx1, vy1, vx2, vy2;
-// 		x1 = vEdge.myPoints[0].x;
-// 		y1 = vEdge.myPoints[0].y;
-// 		x2 = vEdge.myPoints[1].x;
-// 		y2 = vEdge.myPoints[1].y;
-// 		vx1 = voronoiEdge.myPoints[0].x;
-// 		vy1 = voronoiEdge.myPoints[0].y;
-// 		vx2 = voronoiEdge.myPoints[1].x;
-// 		vy2 = voronoiEdge.myPoints[1].y;
-//
-// 		if ((x1==vx1 && y1==vy1 && x2==vx2 && y2==vy2) ||
-// 		    (x1==vx2 && y1==vy2 && x2==vx1 && y2==vy1))
-// 			return true;
-// 		++iter1;
-// 	}
-//
-// 	return false;
-// }
-
-
-
-void tryDelaunayTriangulation(DirectedGraph& dag) {
+void runDelaunayTriangulationOn(DirectedGraph& dag) {
 	vector<int> delaunayPointsToProcess;
 
 	PointSetArray delaunayPointSet = dag.getPointSet();
@@ -101,8 +52,13 @@ void tryDelaunayTriangulation(DirectedGraph& dag) {
 
 	// Iterate through the points we need to process.
 	// NO ANIMATION, just run each step immediately.
-	while (delaunayPointsToProcess.size() > 0) {
-		delaunayIterationStep(delaunayPointsToProcess, dag);
+	for (int pIdx : delaunayPointsToProcess) {
+		/// Insert into new Tri into the DAG.
+		/// These new triangles mightn't be Locally Delaunay.
+		// Return the containing triangle for the point i.
+		dag.addVertex(pIdx);
+
+		/// Everything is Locally Delaunay by this point.
 	}
 }
 
@@ -131,7 +87,7 @@ MyPoint pointForTri(const PointSetArray& pointSet, const LinkedTriangle* ltri) {
 
 
 
-vector<PointSetArray> createVoronoi(DirectedGraph& dag) {
+vector<PointSetArray> createVoronoi(const DirectedGraph& dag) {
 	vector<PointSetArray> voronoiPolygons; // Data structure to hold voronoi edges.
 
 	vector<FIndex> lookupLinkedTri = dag.getLinkedTrianglesLookup();
@@ -172,6 +128,39 @@ vector<PointSetArray> createVoronoi(DirectedGraph& dag) {
 
 		voronoiPolygons.push_back(polygon);
 	}
+
+	return voronoiPolygons;
+}
+
+
+
+// POLYREP:POINTSETARRAY
+vector<PointSetArray> runDelaunayAlgorithm(const PointSetArray& inputPoints) {
+	StopWatch voroSW;
+
+	voroSW.reset();
+	voroSW.resume();
+
+	DirectedGraph dag(inputPoints);
+
+	cout << "MPOG::doVoronoi, created dag" << endl;
+
+	runDelaunayTriangulationOn(dag);
+	//generateDelaunayColoredPolygons(); // too slow.
+
+	voroSW.pause();
+	double timeDelaunay = voroSW.ms();
+	cout << "TIME: doDelaunayTriangulation() is " << timeDelaunay << endl;
+	voroSW.reset();
+	voroSW.resume();
+
+	const vector<PointSetArray>& voronoiPolygons = createVoronoi(dag); // in `delaunay`
+
+	voroSW.pause();
+	double timeCreateVoronoi = voroSW.ms();
+	cout << "TIME: createVoronoi() is " << timeCreateVoronoi << endl;
+	voroSW.reset();
+	voroSW.resume();
 
 	return voronoiPolygons;
 }

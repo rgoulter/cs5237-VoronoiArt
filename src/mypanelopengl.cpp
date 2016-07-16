@@ -22,7 +22,6 @@
 
 #include "delaunay/li.h"
 #include "delaunay/pointsetarray.h"
-#include "delaunay/directedgraph.h"
 #include "delaunay/delaunay.h"
 
 #include "imagedata.h"
@@ -34,18 +33,10 @@ using std::endl;
 using std::string;
 using std::vector;
 
-using delaunay::DirectedGraph;
 using delaunay::LongInt;
 using delaunay::MyPoint;
 using delaunay::PointSetArray;
-using delaunay::tryDelaunayTriangulation;
-using delaunay::createVoronoi;
 
-using voronoi::Edges;
-using voronoi::Vertices;
-using voronoi::Voronoi;
-using voronoi::VEdge;
-using voronoi::VPoint;
 
 
 // TODO: the stopwatch code used makes code less readable.
@@ -502,29 +493,7 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 		// DELAUNAY
 		qDebug("Do doDelaunay in MPOG::doVoronoi");
 
-		DirectedGraph dag(inputPointSet_);
-
-		qDebug("MPOG::doVoronoi, created dag");
-
-		tryDelaunayTriangulation(dag);
-		//generateDelaunayColoredPolygons(); // too slow.
-
-		updateGL();
-
-		voroSW.pause();
-		double timeDelaunay = voroSW.ms();
-		qDebug("TIME: doDelaunayTriangulation() is %f", timeDelaunay);
-		voroSW.reset();
-		voroSW.resume();
-
-		qDebug("MPOG::doVoronoi, about to createVoronoi");
-		voronoiPolygons_ = createVoronoi(dag); // in `delaunay`
-
-		voroSW.pause();
-		double timeCreateVoronoi = voroSW.ms();
-		qDebug("TIME: createVoronoi() is %f", timeCreateVoronoi);
-		voroSW.reset();
-		voroSW.resume();
+		voronoiPolygons_ = delaunay::runDelaunayAlgorithm(inputPointSet_);
 	} else {
 		// VORONOI
 		voronoiPolygons_ = voronoi::runVoronoiAlgorithm(inputPointSet_);

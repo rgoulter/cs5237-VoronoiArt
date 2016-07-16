@@ -13,17 +13,21 @@
 
 namespace delaunay {
 
-// This method checks whether the voronoi edge identified already exists in the existing voronoi edge set.
-// bool checkedgeExists(PointSetArray voronoiEdge);
+// POLYREP:POINTSETARRAY
+/// Construct Voronoi polygons for a the triangulation of a DirectedGraph which
+/// (after Delaunay Triangulation generated for it).
+std::vector<PointSetArray> createVoronoi(const DirectedGraph& dag);
 
 
 
-std::vector<PointSetArray> createVoronoi(DirectedGraph& dag);
+/// Run the delaunay triangulation on a Directed Graph.
+void runDelaunayTriangulationOn(DirectedGraph&);
 
 
 
-// Call this function when the user pushes the button to do Delaunay Triangulation
-void tryDelaunayTriangulation(DirectedGraph&);
+// POLYREP:POINTSETARRAY
+/// Returns set of Voronoi polygons.
+std::vector<PointSetArray> runDelaunayAlgorithm(const PointSetArray& inputPoints);
 
 }
 
