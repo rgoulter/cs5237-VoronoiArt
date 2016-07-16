@@ -50,6 +50,8 @@ set(VORONOI_LIB_SOURCES src/delaunay/li.cpp
 set(VORONOI_SOURCES src/mypanelopengl.cpp
                     src/mainqt.cpp)
 
+set(VORONOI_CLI_SOURCES src/main_cli.cpp)
+
 set(VORONOI_LIB_HEADERS include/delaunay/li.h
                         include/delaunay/lmath.h
                         include/delaunay/point.h
@@ -115,10 +117,17 @@ add_executable(VoronoiArt ${GUI_TYPE}
                           ${PLATFORM_HEADERS}
                           ${PLATFORM_SOURCES}
                           ${UI_HEADERS})
-
 target_link_libraries(VoronoiArt VoronoiArt_lib)
 target_link_libraries(VoronoiArt ${OpenCV_LIBS})
 target_link_libraries(VoronoiArt ${OPENGL_LIBRARIES})
+
+add_executable(VoronoiCLI ${VORONOI_CLI_SOURCES}
+                          ${PLATFORM_HEADERS}
+                          ${PLATFORM_SOURCES})
+
+target_link_libraries(VoronoiCLI VoronoiArt_lib)
+target_link_libraries(VoronoiCLI ${OpenCV_LIBS})
+target_link_libraries(VoronoiCLI ${OPENGL_LIBRARIES})
 
 IF (APPLE)
 ENDIF (APPLE)
