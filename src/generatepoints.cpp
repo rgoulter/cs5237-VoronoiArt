@@ -47,7 +47,7 @@ vector< pair<int,int> > generateUniformRandomPoints(int width, int height, int n
 	default_random_engine generator(seed);
 	uniform_int_distribution<int> distribution(0, width * height - 1);
 
-	while (generated.size() < numPoints) {
+	while (generated.size() < (unsigned) numPoints) {
 		int coord = distribution(generator);
 
 		generated.insert(coord);

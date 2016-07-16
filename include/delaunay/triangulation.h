@@ -70,7 +70,7 @@ public:
 
 	bool isLinkedTri(FIndex idx) const {
 		return 1 <= idx &&
-		       idx <= linkedTriangles_.size() &&
+		       (unsigned) idx <= linkedTriangles_.size() &&
 		       linkedTriangles_[idx - 1];
 	}
 

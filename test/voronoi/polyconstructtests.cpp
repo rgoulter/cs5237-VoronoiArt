@@ -142,14 +142,14 @@ TEST(VoronoiPolyConstructTest, PolygonsFromEdgesTrivialCase) {
 	vector<PointSetArray> polygons = polygonsFromEdges(edges);
 	bool isCCW[2];
 
-	ASSERT_EQ(2, polygons.size());
+	ASSERT_EQ((unsigned) 2, polygons.size());
 
 	// The following is *really* awkward,
 	// partly since atm we don't have good abstractions
 	// for dealing with polygons.
 
 	// Need to check that got CCW order.
-	for (int polyIdx = 0; polyIdx < polygons.size(); ++polyIdx) {
+	for (int polyIdx = 0; (unsigned) polyIdx < polygons.size(); ++polyIdx) {
 		const PointSetArray& poly = polygons[polyIdx];
 		for (int ptIdx = 1; ptIdx <= poly.noPt(); ++ptIdx) {
 			const MyPoint& p1 = poly[ptIdx];
