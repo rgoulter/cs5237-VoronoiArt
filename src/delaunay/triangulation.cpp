@@ -7,9 +7,10 @@
 #include "delaunay/li.h"
 #include "delaunay/pointsetarray.h"
 
+using std::unique_ptr;
+using std::vector;
 using std::cout;
 using std::endl;
-using std::vector;
 
 
 
@@ -40,28 +41,9 @@ void LinkedTriangle::getEdgeIndices(int iIndex, int& edgeIJ, int& edgeJK, int& e
 
 
 
-Triangulation::Triangulation() {
-}
-
-
-
-Triangulation::~Triangulation() {
-	// Delete any triangles which aren't null
-	for (vector<LinkedTriangle*>::iterator iter = linkedTriangles_.begin();
-	     iter != linkedTriangles_.end();
-	     ++iter) {
-		LinkedTriangle* tri = *iter;
-		if (tri != nullptr) {
-			delete tri;
-		}
-	}
-}
-
-
-
 FIndex Triangulation::addLinkedTri(const TriRecord& tri) {
-	LinkedTriangle* ltri = new LinkedTriangle(tri);
-	linkedTriangles_.push_back(ltri);
+	unique_ptr<LinkedTriangle> ltri(new LinkedTriangle(tri));
+	linkedTriangles_.push_back(move(ltri));
 
 	// FIndex starts from 1.
 	return linkedTriangles_.size();
@@ -70,11 +52,10 @@ FIndex Triangulation::addLinkedTri(const TriRecord& tri) {
 
 
 void Triangulation::removeLinkedTri(FIndex triIdx) {
-	LinkedTriangle* ltri = linkedTriangles_[triIdx - 1];
+	unique_ptr<LinkedTriangle>& ltri = linkedTriangles_[triIdx - 1];
 
-	if (ltri != nullptr) {
-		delete ltri;
-		linkedTriangles_[triIdx - 1] = nullptr;
+	if (ltri) {
+		ltri.reset();
 	}
 }
 
@@ -86,10 +67,10 @@ void Triangulation::setLink(FIndex triIJK, int edgeIdx, FIndex otherTri, int oth
 	assert(isLinkedTri(otherTri));
 #endif
 
-	LinkedTriangle* ltriIJK   = linkedTriangles_[triIJK - 1];
+	unique_ptr<LinkedTriangle>& ltriIJK  = linkedTriangles_[triIJK - 1];
 	ltriIJK->links_[edgeIdx] = otherTri;
 
-	LinkedTriangle* ltriOther = linkedTriangles_[otherTri - 1];
+	unique_ptr<LinkedTriangle>& ltriOther = linkedTriangles_[otherTri - 1];
 	ltriOther->links_[otherEdgeIdx] = triIJK;
 }
 
@@ -102,28 +83,31 @@ void Triangulation::setLink(FIndex triIJK, int edgeIdx, FIndex otherTri) {
 	}
 
 	// find the index of i,j,k
-	LinkedTriangle* ltriIJK = linkedTriangles_[triIJK - 1];
+	const unique_ptr<LinkedTriangle>& ltriIJK = linkedTriangles_[triIJK - 1];
 	int iIdx, jIdx, kIdx;
 	ltriIJK->tri_.get(iIdx, jIdx, kIdx);
 
 
 	if (edgeIdx == 0) {
 		// otherTri shares edge IJ
-		LinkedTriangle* ltriXJI = linkedTriangles_[otherTri - 1];
+		const unique_ptr<LinkedTriangle>& ltriXJI =
+			linkedTriangles_[otherTri - 1];
 		int edgeIdxJI, edgeIdxIX, edgeIdxXJ;
 		ltriXJI->getEdgeIndices(jIdx, edgeIdxJI, edgeIdxIX, edgeIdxXJ);
 
 		setLink(triIJK, edgeIdx, otherTri, edgeIdxJI);
 	} else if (edgeIdx == 1) {
 		// otherTri shares edge JK
-		LinkedTriangle* ltriXKJ = linkedTriangles_[otherTri - 1];
+		const unique_ptr<LinkedTriangle>& ltriXKJ =
+			linkedTriangles_[otherTri - 1];
 		int edgeIdxKJ, edgeIdxJX, edgeIdxXK;
 		ltriXKJ->getEdgeIndices(kIdx, edgeIdxKJ, edgeIdxJX, edgeIdxXK);
 
 		setLink(triIJK, edgeIdx, otherTri, edgeIdxKJ);
 	} else if (edgeIdx == 2) {
 		// otherTri shares edge KI
-		LinkedTriangle* ltriXIK = linkedTriangles_[otherTri - 1];
+		const unique_ptr<LinkedTriangle>& ltriXIK =
+			linkedTriangles_[otherTri - 1];
 		int edgeIdxIK, edgeIdxKX, edgeIdxXI;
 		ltriXIK->getEdgeIndices(iIdx, edgeIdxIK, edgeIdxKX, edgeIdxXI);
 
@@ -136,7 +120,7 @@ void Triangulation::setLink(FIndex triIJK, int edgeIdx, FIndex otherTri) {
 const LinkedTriangle& Triangulation::operator[](FIndex idx) const {
 #ifdef TRIANGULATION_CHECK
 	assert(1 <= idx && idx <= linkedTriangles_.size());
-	assert(linkedTriangles_[idx - 1] != nullptr);
+	assert(linkedTriangles_[idx - 1]);
 #endif
 
 	return *(linkedTriangles_[idx - 1]);
@@ -147,7 +131,7 @@ const LinkedTriangle& Triangulation::operator[](FIndex idx) const {
 LinkedTriangle& Triangulation::operator[](FIndex idx) {
 #ifdef TRIANGULATION_CHECK
 	assert(1 <= idx && idx <= linkedTriangles_.size());
-	assert(linkedTriangles_[idx - 1] != nullptr);
+	assert(linkedTriangles_[idx - 1]);
 #endif
 
 	return *(linkedTriangles_[idx - 1]);
@@ -159,7 +143,7 @@ vector<FIndex> Triangulation::getLinkedTriangles() const {
 	vector<FIndex> notDeleted;
 
 	for (FIndex fIdx = 1; fIdx <= linkedTriangles_.size(); ++fIdx) {
-		if (linkedTriangles_[fIdx - 1] != nullptr) {
+		if (linkedTriangles_[fIdx - 1]) {
 			notDeleted.push_back(fIdx);
 		}
 	}
@@ -171,12 +155,9 @@ vector<FIndex> Triangulation::getLinkedTriangles() const {
 
 bool Triangulation::checkConsistent() const {
 	int numLinksTo0 = 0;
-	for (vector<LinkedTriangle*>::const_iterator iter = linkedTriangles_.begin();
-	     iter != linkedTriangles_.end();
-	     ++iter) {
-		LinkedTriangle *tri = *iter;
 
-		if (tri != nullptr) {
+	for (const unique_ptr<LinkedTriangle>& tri : linkedTriangles_) {
+		if (tri) {
 			// An link is consistent if it's 0, or a valid Tri.
 			for (int idx = 0; idx < 3; idx++) {
 				if (tri->links_[idx] == 0) {

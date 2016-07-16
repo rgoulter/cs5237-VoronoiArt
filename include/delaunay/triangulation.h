@@ -1,6 +1,7 @@
 #ifndef DELAUNAY_TRIANGULATIONH
 #define DELAUNAY_TRIANGULATIONH
 
+#include <memory>
 #include <ostream>
 #include <vector>
 
@@ -62,9 +63,6 @@ public:
 
 class Triangulation {
 public:
-	Triangulation();
-	~Triangulation();
-
 	FIndex addLinkedTri(const TriRecord& tri);
 
 	/// Merely remove the triangle, don't unlink it.
@@ -73,7 +71,7 @@ public:
 	bool isLinkedTri(FIndex idx) const {
 		return 1 <= idx &&
 		       idx <= linkedTriangles_.size() &&
-		       linkedTriangles_[idx - 1] != nullptr;
+		       linkedTriangles_[idx - 1];
 	}
 
 	const LinkedTriangle& operator[](FIndex idx) const;
@@ -96,7 +94,7 @@ public:
 	bool checkConsistent() const;
 
 private:
-	std::vector<LinkedTriangle*> linkedTriangles_;
+	std::vector<std::unique_ptr<LinkedTriangle>> linkedTriangles_;
 
 };
 
