@@ -13,9 +13,8 @@
 #include "opencv2/imgproc/imgproc.hpp"
 
 #include <iostream>
-#include <fstream>
 #include <string>
-#include <sstream>
+#include <utility>
 
 #include "platform.h"
 #include "stopwatch.h"
@@ -29,7 +28,7 @@
 using cv::Mat;
 using cv::imread;
 
-using std::endl;
+using std::pair;
 using std::string;
 using std::vector;
 
@@ -639,11 +638,11 @@ void MyPanelOpenGL::doGenerateUniformRandomPoints() {
 	// Returns {x0, y0, x1, y1,...}
 	int width = imData_->width();
 	int height = imData_->height();
-	vector<int> points = generateUniformRandomPoints(width, height, numPDFPoints_);
+	vector< pair<int,int> > points = generateUniformRandomPoints(width, height, numPDFPoints_);
 
-	for (unsigned int i = 0; i < points.size() / 2; i++) {
-		int x = points[i * 2];
-		int y = points[i * 2 + 1];
+	for (pair<int,int> pt : points) {
+		int x = pt.first;
+		int y = pt.second;
 
 		insertPoint(x, y);
 	}
@@ -658,11 +657,11 @@ void MyPanelOpenGL::doGenerateUniformRandomPoints() {
 void MyPanelOpenGL::doPDF() {
 	// POINTREP:INTVEC
 	// Returns {x0, y0, x1, y1,...}
-	vector<int> points = generatePointsWithPDF(loadedImageFilename_, numPDFPoints_, &pdfTextures_);
+	vector< pair<int,int> > points = generatePointsWithPDF(loadedImageFilename_, numPDFPoints_, &pdfTextures_);
 
-	for (unsigned int i = 0; i < points.size() / 2; i++) {
-		int x = points[i * 2];
-		int y = points[i * 2 + 1];
+	for (pair<int,int> pt : points) {
+		int x = pt.first;
+		int y = pt.second;
 
 		insertPoint(x, y);
 	}

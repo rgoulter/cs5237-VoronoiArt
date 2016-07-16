@@ -2,6 +2,7 @@
 #define CS5237_GENPROBDISTH
 
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "imagedata.h"
@@ -24,7 +25,7 @@ struct PDFTextures {
 
 
 
-std::vector<int> generateUniformRandomPoints(int width, int height, int numPoints);
-std::vector<int> generatePointsWithPDF(std::string filename, int numPoints, PDFTextures* tex, int cannyRatio = 3, int kernelSize = 3);
+std::vector< std::pair<int,int> > generateUniformRandomPoints(int width, int height, int numPoints);
+std::vector< std::pair<int,int> > generatePointsWithPDF(std::string filename, int numPoints, PDFTextures* tex, int cannyRatio = 3, int kernelSize = 3);
 
 #endif

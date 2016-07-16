@@ -1,8 +1,9 @@
 #include "generatepoints.h"
 
-#include <stdlib.h>
-#include <time.h>
-
+#include <algorithm>
+#include <chrono>
+#include <random>
+#include <set>
 #include <vector>
 
 #include "opencv2/highgui/highgui.hpp"
@@ -11,8 +12,16 @@
 #include "imagedata.h"
 #include "platform.h"
 
+using std::default_random_engine;
+using std::uniform_int_distribution;
+
+using std::pair;
+using std::set;
 using std::string;
 using std::vector;
+using std::make_pair;
+
+using std::min;
 
 using cv::COLOR_BGR2GRAY;
 using cv::Mat;
@@ -25,22 +34,31 @@ using cv::imread;
 // It would be nice to abstract these details and have some kind of "constant" PDF / mat,
 // and generate points from that. Oh well.
 //
-// POINTREP:INTVEC
-vector<int> generateUniformRandomPoints(int width, int height, int numPoints) {
-	vector<int> outputPts;
+// POINTREP:INTPAIRVEC
+vector< pair<int,int> > generateUniformRandomPoints(int width, int height, int numPoints) {
+	set<int> generated;
 
-	// Now generate random points
-	srand((unsigned) time(0));
+	// shouldn't call generateUniformRandomPoints with too many numPoints,
+	// but since we want to generate unique, there's an upper limit.
+	numPoints = min(numPoints, width * height - 1);
 
-	for (int i = 0; i < numPoints; i++) {
-		double rndX = double(rand()) / RAND_MAX;
-		double rndY = double(rand()) / RAND_MAX;
 
-		int x = (int) (rndX * width);
-		int y = (int) (rndY * height);
+	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+	default_random_engine generator(seed);
+	uniform_int_distribution<int> distribution(0, width * height - 1);
 
-		outputPts.push_back(x);
-		outputPts.push_back(y);
+	while (generated.size() < numPoints) {
+		int coord = distribution(generator);
+
+		generated.insert(coord);
+	}
+
+	vector< pair<int,int> > outputPts;
+
+	for (int coord : generated) {
+		int x = coord / width;
+		int y = coord % width;
+		outputPts.push_back(make_pair(x, y));
 	}
 
 	return outputPts;
@@ -48,15 +66,15 @@ vector<int> generateUniformRandomPoints(int width, int height, int numPoints) {
 
 
 
-// POINTREP:INTVEC
+// POINTREP:INTPAIRVEC
 // TODO: generatePointsWithPDF could do with a tidyup
-vector<int> generatePointsWithPDF(string imageFilename, int numPDFPoints, PDFTextures *oglTextures, int cannyRatio, int kernelSize) {
+vector< pair<int,int> > generatePointsWithPDF(string imageFilename, int numPDFPoints, PDFTextures *oglTextures, int cannyRatio, int kernelSize) {
 	Mat src = imread(imageFilename);
 
 	int width = src.cols;
 
 	if (!src.data) {
-		return vector<int>();
+		return vector< pair<int,int> >();
 	}
 
 	// Create a matrix of the same type and size as src (for dst)
@@ -123,7 +141,7 @@ vector<int> generatePointsWithPDF(string imageFilename, int numPDFPoints, PDFTex
 
 	cdf.push_back(sum); // don't forget the last value.
 
-	vector<int> outputPts;
+	vector< pair<int,int> > outputPts;
 
 	// Now generate random points
 	srand((unsigned) time(0));
@@ -156,28 +174,9 @@ vector<int> generatePointsWithPDF(string imageFilename, int numPDFPoints, PDFTex
 		int x = idx % width;
 		int y = idx / width;
 
-		outputPts.push_back(x);
-		outputPts.push_back(y);
+		outputPts.push_back(make_pair(x,y));
 	}
 
 	return outputPts;
-
-	// The following is kindof a mis-interpretation, I feel?
-	// Doesn't look like what should be happening (e.g. magic 150??).
-
-	/*
-	unsigned char *input = (unsigned char*) (dst.data);
-	vector<MyPoint> goodPoints;
-
-	for(int i = 0; i < dst.cols; i++){
-		for(int j = 0; j < dst.rows; j++){
-			if((int)input[dst.cols * j + i] > 150){
-				MyPoint point((LongInt)(i), (LongInt)(j));
-				goodPoints.push_back(point);
-			}
-		}
-	}
-
-	// */
 }
 
