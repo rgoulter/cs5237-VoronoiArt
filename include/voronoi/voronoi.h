@@ -6,7 +6,6 @@
 #include <queue>
 #include <set>
 
-#include "delaunay/point.h"
 #include "delaunay/pointsetarray.h"
 
 #include "voronoi/vpoint.h"

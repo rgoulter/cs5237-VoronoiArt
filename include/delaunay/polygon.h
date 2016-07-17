@@ -4,11 +4,17 @@
 #include <vector>
 
 #include "delaunay/li.h"
-#include "delaunay/point.h"
+#include "geometry/point.h"
 
 
 
 namespace delaunay {
+
+/// Refactoring MyPoint to a general template Point<I>;
+/// this alias serves as an intermediate.
+using MyPoint = geometry::Point<LongInt>;
+
+
 
 /// Returns 1 if p3 is counter-clockwise to p1p2,
 /// 0 if co-linear,

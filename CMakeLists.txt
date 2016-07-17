@@ -31,7 +31,6 @@ find_package(OpenGL REQUIRED)
 # Lib for Non-Qt code
 set(VORONOI_LIB_SOURCES src/delaunay/li.cpp
                         src/delaunay/lmath.cpp
-                        src/delaunay/point.cpp
                         src/delaunay/polygon.cpp
                         src/delaunay/triangle.cpp
                         src/delaunay/triangulation.cpp
@@ -54,7 +53,6 @@ set(VORONOI_CLI_SOURCES src/main_cli.cpp)
 
 set(VORONOI_LIB_HEADERS include/delaunay/li.h
                         include/delaunay/lmath.h
-                        include/delaunay/point.h
                         include/delaunay/polygon.h
                         include/delaunay/triangle.h
                         include/delaunay/trianglegeometry.h
@@ -70,6 +68,7 @@ set(VORONOI_LIB_HEADERS include/delaunay/li.h
                         include/voronoi/vparabola.h
                         include/voronoi/vpoint.h
                         include/voronoi/voronoi.h
+                        include/geometry/point.h
                         include/imagedata.h
                         include/generatepoints.h
                         include/polypixel.h)
