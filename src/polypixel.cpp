@@ -15,6 +15,8 @@ using delaunay::inPoly;
 
 
 
+// TODO: enumerateLROfSimplePoly would be clearer as a list of pairs.
+// TODO: there's probably a more effecient geometry algo. to compute this.
 vector<int> enumerateLeftRightOfSimplePolygon(const vector<int>& poly) {
 	vector<int> result;
 

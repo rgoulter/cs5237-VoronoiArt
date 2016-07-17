@@ -11,6 +11,9 @@ using std::vector;
 
 namespace delaunay {
 
+bool intersects(int ax, int ay, int bx, int by, int cx, int cy, int dx, int dy);
+
+
 int orientation(const MyPoint& p1, const MyPoint& p2, const MyPoint& p3) {
 	return signDet(p1.x, p1.y, LongInt(1),
 	               p2.x, p2.y, LongInt(1),
