@@ -10,6 +10,7 @@
 using std::cout;
 using std::endl;
 using std::list;
+using std::shared_ptr;
 using std::unordered_map;
 using std::vector;
 
@@ -134,10 +135,10 @@ vector<HalfWingedEdge*> linkEdges(const Edges& edges) {
 
 
 // POLYREP:POINTSETARRAY
-PointSetArray* polygonFromLinkedEdge(HalfWingedEdge *edge) {
+shared_ptr<PointSetArray> polygonFromLinkedEdge(HalfWingedEdge *edge) {
 	// Need *pointer* to polygon, so that edges know whether
 	// they've been 'visited'.
-	PointSetArray *poly = new PointSetArray();
+	shared_ptr<PointSetArray> poly(new PointSetArray());
 
 	list<const VPoint*> polyPoints;
 
@@ -184,7 +185,7 @@ PointSetArray* polygonFromLinkedEdge(HalfWingedEdge *edge) {
 vector<PointSetArray> polygonsFromEdges(const Edges& edges) {
 	vector<HalfWingedEdge*> linkedEdges = linkEdges(edges);
 
-	vector<PointSetArray*> polygonPtrs;
+	vector<shared_ptr<PointSetArray>> polygonPtrs;
 
 	for (HalfWingedEdge *linkedEdge : linkedEdges) {
 		// face_ member is non-null if the edge has been visited before.
@@ -192,7 +193,7 @@ vector<PointSetArray> polygonsFromEdges(const Edges& edges) {
 			continue;
 		}
 
-		PointSetArray *polyPtr = polygonFromLinkedEdge(linkedEdge);
+		shared_ptr<PointSetArray> polyPtr = polygonFromLinkedEdge(linkedEdge);
 		polygonPtrs.push_back(polyPtr);
 	}
 
@@ -200,14 +201,15 @@ vector<PointSetArray> polygonsFromEdges(const Edges& edges) {
 	// delete the polygons from the heap.
 	vector<PointSetArray> result;
 
-	for (PointSetArray *polyPtr : polygonPtrs) {
-		result.push_back(*polyPtr); // copy
-		delete polyPtr;
-	}
-
 	// also clean up the HalfWingedEdge
 	for (HalfWingedEdge* edge : linkedEdges) {
 		delete edge;
+	}
+
+	for (shared_ptr<PointSetArray>& polyPtr : polygonPtrs) {
+		result.push_back(*polyPtr); // copy
+
+		assert(polyPtr.unique());
 	}
 
 	return result;

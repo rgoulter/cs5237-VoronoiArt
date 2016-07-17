@@ -1,8 +1,9 @@
 #ifndef VORONOI_POLYCONSTRUCTH
 #define VORONOI_POLYCONSTRUCTH
 
-#include <vector>
+#include <memory>
 #include <unordered_map>
+#include <vector>
 
 #include "delaunay/pointsetarray.h"
 
@@ -21,7 +22,7 @@ struct HalfWingedEdge {
 	               double baAngle)
 	  : pointIdxA_(idxA), pointIdxB_(idxB),
 	    abAngle_(abAngle), baAngle_(baAngle),
-	    nextEdge_(nullptr), prevEdge_(nullptr), face_(nullptr) {
+	    nextEdge_(nullptr), prevEdge_(nullptr) {
 	}
 
 	/// angle *from*..
@@ -38,7 +39,7 @@ struct HalfWingedEdge {
 	HalfWingedEdge *nextEdge_; // edge b connects to
 	HalfWingedEdge *prevEdge_; // edge a connects to
 	// POLYREP:POINTSETARRAY
-	delaunay::PointSetArray *face_;
+	std::shared_ptr<delaunay::PointSetArray> face_;
 };
 
 
@@ -53,7 +54,7 @@ std::vector<HalfWingedEdge*> linkEdges(const Edges& edges);
 
 
 
-delaunay::PointSetArray* polygonFromLinkedEdge(HalfWingedEdge *edge);
+std::shared_ptr<delaunay::PointSetArray> polygonFromLinkedEdge(HalfWingedEdge *edge);
 
 
 
