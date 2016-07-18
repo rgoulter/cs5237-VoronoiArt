@@ -11,6 +11,9 @@
 #include "voronoi/vpoint.h"
 #include "voronoi/voronoi.h" // for Edges typedef
 
+#include "geometry/polygon.h"
+
+
 
 namespace voronoi {
 
@@ -38,8 +41,7 @@ struct HalfWingedEdge {
 	double baAngle_;
 	HalfWingedEdge *nextEdge_; // edge b connects to
 	HalfWingedEdge *prevEdge_; // edge a connects to
-	// POLYREP:POINTSETARRAY
-	std::shared_ptr<delaunay::PointSetArray> face_;
+	std::shared_ptr<geometry::Polygon> face_;
 };
 
 
@@ -54,11 +56,11 @@ std::vector<HalfWingedEdge*> linkEdges(const Edges& edges);
 
 
 
-std::shared_ptr<delaunay::PointSetArray> polygonFromLinkedEdge(HalfWingedEdge *edge);
+std::shared_ptr<geometry::Polygon> polygonFromLinkedEdge(HalfWingedEdge *edge);
 
 
 
-std::vector<delaunay::PointSetArray> polygonsFromEdges(const Edges& edges);
+std::vector<geometry::Polygon> polygonsFromEdges(const Edges& edges);
 
 
 }

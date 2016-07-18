@@ -8,12 +8,16 @@
 #include "delaunay/li.h"
 #include "delaunay/pointsetarray.h"
 
+#include "geometry/linesegment.h"
+
 #ifndef NDEBUG
 #define TRIANGLE_CHECK
 #endif
 
 using std::cout;
 using std::endl;
+
+using geometry::orientation;
 
 
 
@@ -186,9 +190,9 @@ bool isTriangleCCW(const PointSetArray& psa, const TriRecord& tri) {
 	// Test that p3 is ccw to p1p2,
 	//           p1 is ccw to p2p3,
 	//           p2 is ccw to p3p1
-	bool isCCWp2p3 = orientation(p1, p2, p3) == 1;
-	bool isCCWp3p1 = orientation(p2, p3, p1) == 1;
-	bool isCCWp1p2 = orientation(p3, p1, p2) == 1;
+	bool isCCWp2p3 = orientation({p1, p2}, p3) == 1;
+	bool isCCWp3p1 = orientation({p2, p3}, p1) == 1;
+	bool isCCWp1p2 = orientation({p3, p1}, p2) == 1;
 
 	return isCCWp2p3 && isCCWp3p1 && isCCWp1p2;
 }
@@ -197,8 +201,8 @@ bool isTriangleCCW(const PointSetArray& psa, const TriRecord& tri) {
 
 inline bool isects(const MyPoint& a, const MyPoint& b, const MyPoint& c, const MyPoint& d) {
 	// Incidental (touching) returns false.
-	return (orientation(a, b, c) * orientation(a, b, d) < 0) &&
-	       (orientation(c, d, a) * orientation(c, d, b) < 0);
+	return (orientation({a, b}, c) * orientation({a, b}, d) < 0) &&
+	       (orientation({c, d}, a) * orientation({c, d}, b) < 0);
 }
 
 

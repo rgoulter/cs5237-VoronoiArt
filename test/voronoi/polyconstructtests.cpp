@@ -11,6 +11,8 @@
 
 #include "voronoi/polyconstruct.h"
 
+#include "geometry/polygon.h"
+
 using std::set;
 using std::vector;
 using std::cout;
@@ -18,7 +20,10 @@ using std::endl;
 
 using delaunay::MyPoint;
 using delaunay::PointSetArray;
-using delaunay::orientation;
+
+using geometry::Point;
+using geometry::Polygon;
+using geometry::orientation;
 
 using namespace voronoi;
 
@@ -139,7 +144,7 @@ TEST(VoronoiPolyConstructTest, PolygonsFromEdgesTrivialCase) {
 	edges.push_back(ca);
 
 	// Should return tri<abc> and tri<cba>
-	vector<PointSetArray> polygons = polygonsFromEdges(edges);
+	vector<geometry::Polygon> polygons = polygonsFromEdges(edges);
 	bool isCCW[2];
 
 	ASSERT_EQ((unsigned) 2, polygons.size());
@@ -150,20 +155,20 @@ TEST(VoronoiPolyConstructTest, PolygonsFromEdgesTrivialCase) {
 
 	// Need to check that got CCW order.
 	for (int polyIdx = 0; (unsigned) polyIdx < polygons.size(); ++polyIdx) {
-		const PointSetArray& poly = polygons[polyIdx];
-		for (int ptIdx = 1; ptIdx <= poly.noPt(); ++ptIdx) {
-			const MyPoint& p1 = poly[ptIdx];
+		const geometry::Polygon& poly = polygons[polyIdx];
+		for (int ptIdx = 0; ptIdx < poly.numPoints(); ++ptIdx) {
+			const Point<int>& p1 = poly[ptIdx];
 
 			// Looking for the starting point, (10, 10)
-			if (abs(p1.x.doubleValue() - 10) < 1) {
-				// next 1=>2, 2=>3, 3=>1
-				const MyPoint& p2 = poly[(ptIdx) % 3 + 1];
-				// next 1=>3, 2=>1, 3=>2
-				const MyPoint& p3 = poly[(ptIdx + 1) % 3 + 1];
+			if (p1.x == 10) {
+				// next 0=>1, 1=>2, 2=>0
+				const Point<int>& p2 = poly[(ptIdx + 1) % 3];
+				// next 0=>2, 1=>0, 2=>1
+				const Point<int>& p3 = poly[(ptIdx + 2) % 3];
 
-				int or1 = orientation(p1, p2, p3);
-				int or2 = orientation(p2, p3, p1);
-				int or3 = orientation(p3, p1, p2);
+				int or1 = orientation({p1, p2}, p3);
+				int or2 = orientation({p2, p3}, p1);
+				int or3 = orientation({p3, p1}, p2);
 				EXPECT_TRUE(or1 == or2 && or2 == or3);
 
 				isCCW[polyIdx] = (or1 == 1);
@@ -186,3 +191,4 @@ TEST(VoronoiPolyConstructTest, PolygonsFromEdgesTrivialCase) {
 	delete b;
 	delete c;
 }
+

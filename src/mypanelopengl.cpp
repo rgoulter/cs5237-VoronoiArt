@@ -36,6 +36,8 @@ using delaunay::LongInt;
 using delaunay::MyPoint;
 using delaunay::PointSetArray;
 
+using geometry::Polygon;
+
 
 
 // TODO: the stopwatch code used makes code less readable.
@@ -52,7 +54,7 @@ void drawAPoint(double x,double y) {
 	glPointSize(1);
 }
 
-void drawALine(double x1,double y1, double x2, double y2) {
+void drawALine(double x1, double y1, double x2, double y2) {
 	glPointSize(1);
 	glBegin(GL_LINE_LOOP);
 	glColor3f(0,0,1);
@@ -127,25 +129,13 @@ void drawPointSetArray(const PointSetArray& pointSet) {
 
 
 // DELAUNAY (it uses voronoiEdges)
-void drawVoronoiPolygons(vector<PointSetArray>& voronoiPolys) {
-	vector<PointSetArray>::iterator iter1;
+void drawVoronoiPolygons(vector<Polygon>& voronoiPolys) {
+	for (const Polygon& polygon : voronoiPolys) {
+		glColor3f(0,0,1); // blue
 
-	for (iter1 = voronoiPolys.begin(); iter1 != voronoiPolys.end(); ++iter1) {
-		PointSetArray polygon = *iter1;
-
-		for (int i = 1; i <= polygon.noPt(); i++) {
-			int indexval;
-			LongInt x1, y1, x2, y2;
-
-			if (i+1 > polygon.noPt())
-				indexval = 1;
-			else
-				indexval = i+1;
-
-			polygon.getPoint(i,x1, y1);
-			polygon.getPoint(indexval, x2, y2);
-			drawALine(x1.doubleValue(), y1.doubleValue(),
-			          x2.doubleValue(), y2.doubleValue());
+		for(const geometry::Edge& edge : polygon.edges()) {
+			drawALine(edge.first.x, edge.first.y,
+			          edge.second.x, edge.second.y);
 		}
 	}
 }
@@ -156,17 +146,17 @@ void drawColoredPolygons(const vector<ColoredPolygon>& renderedPolygons) {
 	glEnable(GL_COLOR_MATERIAL);
 	glEnable(GL_SCISSOR_TEST);
 
+	// TODO: Could prob'ly do a re-useable drawPolygon(const Polygon&)
 	for (unsigned int i = 0; i < renderedPolygons.size(); i++) {
 		ColoredPolygon coloredPoly = renderedPolygons[i];
 
 		glBegin(GL_POLYGON);
 		glColor3fv(coloredPoly.rgb); // rgb?
 
-		for(unsigned int j = 0; j < coloredPoly.poly.size() / 2; j++) {
-			double x = coloredPoly.poly[2 * j];
-			double y = coloredPoly.poly[2 * j + 1];
+		const Polygon& poly = coloredPoly.poly;
 
-			glVertex2d(x, y);
+		for(const geometry::Point<int>& pt : poly.points()) {
+			glVertex2d(pt.x, pt.y);
 		}
 
 		glEnd();
@@ -264,7 +254,7 @@ ImageData* loadImageData(string imgFilename) {
 
 // POLYREP:INTVEC
 // also uses polypixel's ColoredPolygon
-vector<ColoredPolygon> generateColoredPolygons(vector< vector<int> >& polys, const ImageData& imData) {
+vector<ColoredPolygon> generateColoredPolygons(vector<Polygon>& polys, const ImageData& imData) {
 	vector<ColoredPolygon> renderedPolygons;
 
 	StopWatch allSW;
@@ -274,7 +264,7 @@ vector<ColoredPolygon> generateColoredPolygons(vector< vector<int> >& polys, con
 		// Clip polygon to ensure we have nothing out of bounds
 		// vector<int> unclippedPoly = polys[i];
 		// vector<int> poly = clipPolygonToRectangle(unclippedPoly, 0, 0, loadedImageWidth, loadedImageHeight);
-		vector<int> poly = polys[i];
+		const Polygon& poly = polys[i];
 
 		// TODO: Would be nice to be able to inject another function
 		// instead of `findSomeColor3iv`.
@@ -301,43 +291,6 @@ vector<ColoredPolygon> generateColoredPolygons(vector< vector<int> >& polys, con
 	qDebug("TIME: Average: %f for %d polygons. Total: %f", timeAvg, n, timeFindSomeColor);
 
 	return renderedPolygons;
-}
-
-
-
-// POLYREP:MYPOINTVEC => :INTVEC
-vector<ColoredPolygon> generateColoredPolygons(vector< vector<MyPoint> >& myPointPolys, const ImageData& imData) {
-	// Coerce the PSAs to vec<int> poly representation
-	vector< vector<int> > ivPolys;
-
-	for (unsigned int i = 0; i < myPointPolys.size(); i++) {
-		vector<MyPoint> mpPoly = myPointPolys[i];
-		vector<int> poly;
-
-		for (unsigned int ptIdx = 0; ptIdx < mpPoly.size(); ptIdx++) {
-			MyPoint pt = mpPoly[ptIdx];
-			poly.push_back((int) pt.x.doubleValue());
-			poly.push_back((int) pt.y.doubleValue());
-		}
-
-		ivPolys.push_back(poly);
-	}
-
-	return generateColoredPolygons(ivPolys, imData);
-}
-
-
-
-// POLYREP:POINTSETARRAY => :INTVEC
-vector<ColoredPolygon> generateColoredPolygons(vector<PointSetArray>& psas, const ImageData& imData) {
-	// Coerce the PSAs to vec<int> poly representation
-	vector< vector<int> > ivPolys;
-
-	for (unsigned int i = 0; i < psas.size(); i++) {
-		ivPolys.push_back(coercePSAPolyToIVecPoly(psas[i]));
-	}
-
-	return generateColoredPolygons(ivPolys, imData);
 }
 
 

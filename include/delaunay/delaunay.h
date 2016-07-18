@@ -9,14 +9,15 @@
 #include "delaunay/pointsetarray.h"
 #include "delaunay/triangle.h"
 
+#include "geometry/polygon.h"
+
 
 
 namespace delaunay {
 
-// POLYREP:POINTSETARRAY
 /// Construct Voronoi polygons for a the triangulation of a DirectedGraph which
 /// (after Delaunay Triangulation generated for it).
-std::vector<PointSetArray> createVoronoi(const DirectedGraph& dag);
+std::vector<geometry::Polygon> createVoronoi(const DirectedGraph& dag);
 
 
 
@@ -27,7 +28,7 @@ void runDelaunayTriangulationOn(DirectedGraph&);
 
 // POLYREP:POINTSETARRAY
 /// Returns set of Voronoi polygons.
-std::vector<PointSetArray> runDelaunayAlgorithm(const PointSetArray& inputPoints);
+std::vector<geometry::Polygon> runDelaunayAlgorithm(const PointSetArray& inputPoints);
 
 }
 

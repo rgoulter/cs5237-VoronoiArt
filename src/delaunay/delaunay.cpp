@@ -24,6 +24,8 @@ using std::vector;
 using std::cout;
 using std::endl;
 
+using geometry::Polygon;
+
 
 
 namespace delaunay {
@@ -87,8 +89,8 @@ MyPoint pointForTri(const PointSetArray& pointSet, const LinkedTriangle& ltri) {
 
 
 
-vector<PointSetArray> createVoronoi(const DirectedGraph& dag) {
-	vector<PointSetArray> voronoiPolygons; // Data structure to hold voronoi edges.
+vector<Polygon> createVoronoi(const DirectedGraph& dag) {
+	vector<Polygon> voronoiPolygons; // Data structure to hold voronoi edges.
 
 	vector<FIndex> lookupLinkedTri = dag.getLinkedTrianglesLookup();
 
@@ -109,19 +111,20 @@ vector<PointSetArray> createVoronoi(const DirectedGraph& dag) {
 		const LinkedTriangle& ltri = trist[triIdx];
 
 		// Find delaunay triangles to which this point is linked
-		// POLYREP:POINTSETARRAY
-		PointSetArray polygon;
+		Polygon polygon;
 
 		// TODO May be convenient if PointSetArray had addPoint(MyPoint)
 		const MyPoint& initPt = pointForTri(delaunayPointSet, ltri);
-		polygon.addPoint(initPt.x, initPt.y);
+		polygon.addPoint((int) initPt.x.doubleValue(),
+		                 (int) initPt.y.doubleValue());
 
 		const FIndex initTriIdx = triIdx;
 		triIdx = nextTriangle(dppIdx, ltri);
 		while (triIdx != initTriIdx) {
 			const LinkedTriangle& ltri = trist[triIdx];
 			const MyPoint& voronoiPt = pointForTri(delaunayPointSet, ltri);
-			polygon.addPoint(voronoiPt.x, voronoiPt.y);
+			polygon.addPoint((int) voronoiPt.x.doubleValue(),
+			                 (int) voronoiPt.y.doubleValue());
 
 			triIdx = nextTriangle(dppIdx, ltri);
 		}
@@ -134,8 +137,7 @@ vector<PointSetArray> createVoronoi(const DirectedGraph& dag) {
 
 
 
-// POLYREP:POINTSETARRAY
-vector<PointSetArray> runDelaunayAlgorithm(const PointSetArray& inputPoints) {
+vector<Polygon> runDelaunayAlgorithm(const PointSetArray& inputPoints) {
 	StopWatch voroSW;
 
 	voroSW.reset();
@@ -154,7 +156,7 @@ vector<PointSetArray> runDelaunayAlgorithm(const PointSetArray& inputPoints) {
 	voroSW.reset();
 	voroSW.resume();
 
-	const vector<PointSetArray>& voronoiPolygons = createVoronoi(dag); // in `delaunay`
+	const vector<Polygon>& voronoiPolygons = createVoronoi(dag); // in `delaunay`
 
 	voroSW.pause();
 	double timeCreateVoronoi = voroSW.ms();

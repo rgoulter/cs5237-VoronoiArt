@@ -1,28 +1,38 @@
 #include "polypixel.h"
 
+#include <iostream>
 #include <string>
+#include <utility>
 
-#include "imagedata.h"
-
+using std::pair;
 using std::string;
 using std::vector;
+using std::cout;
+using std::endl;
 
 using delaunay::MyPoint;
 using delaunay::PointSetArray;
-using delaunay::boundingBox;
-using delaunay::clipPolygonToRectangle;
-using delaunay::inPoly;
+
+using geometry::Polygon;
+using geometry::Rect;
+using geometry::boundingBox;
+using geometry::clipPolygonToRectangle;
+using geometry::inPoly;
 
 
 
 // TODO: enumerateLROfSimplePoly would be clearer as a list of pairs.
 // TODO: there's probably a more effecient geometry algo. to compute this.
-vector<int> enumerateLeftRightOfSimplePolygon(const vector<int>& poly) {
-	vector<int> result;
+vector<pair<int,int>> enumerateLeftRightOfSimplePolygon(const Polygon& poly) {
+	vector<pair<int,int>> result;
 
 	// Find bounding box of polygon
-	int minX, maxX, minY, maxY;
-	boundingBox(poly, minX, maxX, minY, maxY);
+	// COORD CONFUSION again. we're using top() ~ y1
+	const Rect& boundingRect = boundingBox(poly);
+	int minX = boundingRect.left();
+	int maxX = boundingRect.left();
+	int minY = boundingRect.top();
+	int maxY = boundingRect.bottom();
 
 
 	// Within this bounding box, search for all the points.
@@ -36,20 +46,19 @@ vector<int> enumerateLeftRightOfSimplePolygon(const vector<int>& poly) {
 
 		// Find leftmost point which is in the polygon
 		for (int x = left; x <= right && leftmost < 0; x++) {
-			if (inPoly(poly, x, y)) {
+			if (inPoly(poly, {x, y})) {
 				leftmost = x;
 			}
 		}
 
 		// Find rightmost point which is in polygon
 		for (int x = right; x >= leftmost && rightmost < 0; x--) {
-			if (inPoly(poly, x, y)) {
+			if (inPoly(poly, {x, y})) {
 				rightmost = x;
 			}
 		}
 
-		result.push_back(leftmost);
-		result.push_back(rightmost);
+		result.push_back({leftmost, rightmost});
 	}
 
 	// If we declare as a (const) ref, can we save ourselves
@@ -59,26 +68,16 @@ vector<int> enumerateLeftRightOfSimplePolygon(const vector<int>& poly) {
 
 
 
-void findAverageColor3iv(const ImageData& imData, const vector<MyPoint>& mpPoly, int* colorIv) {
-	vector<int> poly;
-
-	for (unsigned int i = 0; i < mpPoly.size(); i++) {
-		poly.push_back((int) mpPoly[i].x.doubleValue());
-		poly.push_back((int) mpPoly[i].y.doubleValue());
-	}
-
-	findAverageColor3iv(imData, poly, colorIv);
-}
-
-
-
-void findAverageColor3iv(const ImageData& imData, const vector<int>& poly, int* colorIv) {
+void findAverageColor3iv(const ImageData& imData, const Polygon& poly, int* colorIv) {
 	// int loadedImageWidth = imData.width();
 	// int loadedImageHeight = imData.height();
 
 	// Find bounding box of polygon
-	int minX, maxX, minY, maxY;
-	boundingBox(poly, minX, maxX, minY, maxY);
+	const Rect& boundingRect = boundingBox(poly);
+	int minX = boundingRect.left();
+	int maxX = boundingRect.left();
+	int minY = boundingRect.top();
+	int maxY = boundingRect.bottom();
 
 	// Within this bounding box, search for all the points.
 	// int left   = minX;
@@ -102,20 +101,19 @@ void findAverageColor3iv(const ImageData& imData, const vector<int>& poly, int* 
 
 
 	// Get points in polygon.
-	vector<int> rowsOfPoly = enumerateLeftRightOfSimplePolygon(poly);
+	vector<pair<int,int>> rowsOfPoly = enumerateLeftRightOfSimplePolygon(poly);
 
 
 	// For each point, find the average rgb.
 	unsigned char accR, accG, accB;
 	int acc = 0;
-	int n = rowsOfPoly.size() / 2;
+	int n = rowsOfPoly.size();
 
 	// i = 0;
-	int u, v;
-	int rowLeft, rowRight;
-	rowLeft = rowsOfPoly[0], rowRight = rowsOfPoly[1];
-	u = rowLeft - offsetX;
-	v = minY - offsetY;
+	int rowLeft = rowsOfPoly[0].first;
+	int rowRight = rowsOfPoly[0].second;
+	int u = rowLeft - offsetX;
+	int v = minY - offsetY;
 	imData.dataAt(u, v, accR, accG, accB);
 	acc = 1;
 
@@ -134,8 +132,8 @@ void findAverageColor3iv(const ImageData& imData, const vector<int>& poly, int* 
 	}
 
 	for (int row = 1; row < n; row++) {
-		rowLeft =  rowsOfPoly[row * 2];
-		rowRight = rowsOfPoly[row * 2 + 1];
+		rowLeft =  rowsOfPoly[row].first;
+		rowRight = rowsOfPoly[row].second;
 
 		for (int j = rowLeft + 1; j <= rowRight; j++) {
 			u = j - offsetX;
@@ -159,19 +157,13 @@ void findAverageColor3iv(const ImageData& imData, const vector<int>& poly, int* 
 
 
 
-void findSomeColor3iv(const ImageData& imData, PointSetArray& psa, int* colorIv) {
-	vector<int> poly = coercePSAPolyToIVecPoly(psa);
-	findSomeColor3iv(imData, poly, colorIv);
-}
-
-
-
-void findSomeColor3iv(const ImageData& imData, const vector<int>& unclippedPoly, int* colorIv) {
+void findSomeColor3iv(const ImageData& imData, const Polygon& unclippedPoly, int* colorIv) {
 	int loadedImageWidth = imData.width();
 	int loadedImageHeight = imData.height();
 
 	// Clip polygon to ensure we have nothing out of bounds
-	vector<int> poly = clipPolygonToRectangle(unclippedPoly, 0, 0, loadedImageWidth - 1, loadedImageHeight - 1);
+	Rect loadedImageRect({0,0}, loadedImageWidth - 1, loadedImageHeight - 1);
+	const Polygon& poly = clipPolygonToRectangle(unclippedPoly, loadedImageRect);
 
 
 	// Read the pixels from the relevant section
@@ -184,16 +176,21 @@ void findSomeColor3iv(const ImageData& imData, const vector<int>& unclippedPoly,
 	// For each point, find the average rgb.
 	unsigned char accR, accG, accB;
 	int acc = 0;
-	int n = poly.size() / 2;
+	int n = poly.numPoints();
 
 	// i = 0;
-	int u, v;
-	u = poly[0];
-	v = poly[1];
+	int u = poly[0].x;
+	int v = poly[0].y;
 
 	if (u < 0 || u > loadedImageWidth ||
 	    v < 0 || v > loadedImageHeight) {
 		// This only happens in the POLYGON WASN'T TRIMMED.
+		cout << "BAD! Polygon not trimmed! (1)" << endl;
+		cout << "Image width: " << loadedImageWidth << ", " << loadedImageHeight << endl;
+		cout << "Poly points:" << endl;
+		for (const geometry::Point<int>& pt : poly.points()) {
+			cout << "  " << pt << endl;
+		}
 		colorIv[0] = 0;
 		colorIv[1] = 0;
 		colorIv[2] = 0;
@@ -205,12 +202,13 @@ void findSomeColor3iv(const ImageData& imData, const vector<int>& unclippedPoly,
 	acc = 1;
 
 	for (int ptIdx = 1; ptIdx < n; ptIdx++) {
-		u = poly[2 * ptIdx];
-		v = poly[2 * ptIdx + 1];
+		u = poly[ptIdx].x;
+		v = poly[ptIdx].y;
 
 		if (u < 0 || u > loadedImageWidth ||
 		    v < 0 || v > loadedImageHeight) {
 			// This only happens in the POLYGON WASN'T TRIMMED.
+			cout << "BAD! Polygon not trimmed! (2)" << endl;
 			colorIv[0] = 0;
 			colorIv[1] = 0;
 			colorIv[2] = 0;

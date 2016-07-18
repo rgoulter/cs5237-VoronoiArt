@@ -9,12 +9,14 @@
 
 #include "delaunay/pointsetarray.h"
 
-#include "polypixel.h"
-#include "generatepoints.h"
-
 // Imports as part of implementing Fortune's algorithm
 #include "voronoi/voronoi.h"
 #include "voronoi/vpoint.h"
+
+#include "geometry/polygon.h"
+
+#include "polypixel.h"
+#include "generatepoints.h"
 
 
 
@@ -114,7 +116,7 @@ private:
 	int numPDFPoints_ = 75;
 
 	/// The 'bare-bones' Voronoi regions, represented using `PointSetArray`s.
-	std::vector<delaunay::PointSetArray> voronoiPolygons_;
+	std::vector<geometry::Polygon> voronoiPolygons_;
 
 	/// The `ColoredPolygon`s we use to render the "stain-glass" effect.
 	std::vector<ColoredPolygon> renderedPolygons_;

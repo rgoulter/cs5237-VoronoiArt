@@ -18,7 +18,7 @@ public:
 	Point(const I& nx, const I& ny) : x(nx), y(ny) {}
 	Point(const std::pair<I,I>& p) : x(p.first), y(p.second) {}
 
-	bool operator==(const Point<I>& otherPoint) {
+	bool operator==(const Point<I>& otherPoint) const {
 		return x == otherPoint.x && y == otherPoint.y;
 	}
 

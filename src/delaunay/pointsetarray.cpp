@@ -5,7 +5,11 @@
 #include <iostream>
 #include <vector>
 
+#include "geometry/linesegment.h"
+
 using std::vector;
+
+using geometry::orientation;
 
 
 
@@ -60,11 +64,11 @@ int PointSetArray::inTri(int p1Idx, int p2Idx, int p3Idx, int pIdx) const {
 
 	int orientation1, orientation2, orientation3;
 	//p1->p2
-	orientation1 = orientation(p1, p2, v);
+	orientation1 = orientation({p1, p2}, v);
 	//p2->p3
-	orientation2 = orientation(p2, p3, v);
+	orientation2 = orientation({p2, p3}, v);
 	//p3->p1
-	orientation3 = orientation(p3, p1, v);
+	orientation3 = orientation({p3, p1}, v);
 	//std::cout<<orientation1<<", "<<orientation2<<","<<orientation3<<std::endl;
 	//if v is on any of the lines, we return 0.
 	if (orientation1 == 0 || orientation2 == 0 || orientation3 == 0)
@@ -89,7 +93,7 @@ int PointSetArray::inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx) const {
 	//if any 2 points are the same, return 0 immediately.
 	if (p1 == p2 || p2 == p3 || p1 == p3)
 		return 0;
-	int orient = orientation(p1, p2, p3);
+	int orient = orientation({p1, p2}, p3);
 	if (orient == 0) //if they are colinear.
 		return 1;
 	//look here for formula: http://www.cs.cmu.edu/~quake/robust.html

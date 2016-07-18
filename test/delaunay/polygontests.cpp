@@ -3,29 +3,32 @@
 #include "gtest/gtest.h"
 
 #include "delaunay/li.h"
-#include "delaunay/polygon.h"
 
+#include "geometry/linesegment.h"
+#include "geometry/polygon.h"
+
+using std::pair;
 using std::vector;
 using std::cout;
 using std::endl;
 
-using namespace delaunay;
+using namespace geometry;
 
 
 
-TEST(PointSetTest, MyPointPolyPointInPolygon) {
-	MyPoint p1( 0,  0);   // 1
-	MyPoint p2( 0, 10);   // 2
-	MyPoint p3(10, 10);   // 3
-	MyPoint p4(10,  0);   // 4
-	MyPoint p5( 5,  5);   // 5
-	MyPoint p6(15, 15);   // 6
+TEST(PointSetTest, IntPointPolyPointInPolygon) {
+	Point<int> p1( 0,  0);   // 1
+	Point<int> p2( 0, 10);   // 2
+	Point<int> p3(10, 10);   // 3
+	Point<int> p4(10,  0);   // 4
+	Point<int> p5( 5,  5);   // 5
+	Point<int> p6(15, 15);   // 6
 
-	std::vector<MyPoint> poly;
-	poly.push_back(p1);
-	poly.push_back(p2);
-	poly.push_back(p3);
-	poly.push_back(p4);
+	Polygon poly;
+	poly.addPoint(p1);
+	poly.addPoint(p2);
+	poly.addPoint(p3);
+	poly.addPoint(p4);
 
 	EXPECT_EQ(1, inPoly(poly, p5));
 	EXPECT_EQ(0, inPoly(poly, p6));
@@ -33,90 +36,75 @@ TEST(PointSetTest, MyPointPolyPointInPolygon) {
 
 
 
-TEST(PolygonTest, PolyPointInIntPolygon) {
-	int p1x =  0, p1y =  0;
-	int p2x =  0, p2y = 10;
-	int p3x = 10, p3y = 10;
-	int p4x = 10, p4y =  0;
-	int p5x =  5, p5y =  5;
-	int p6x = 15, p6y = 15;
-
-	std::vector<int> poly;
-	poly.push_back(p1x); poly.push_back(p1y);
-	poly.push_back(p2x); poly.push_back(p2y);
-	poly.push_back(p3x); poly.push_back(p3y);
-	poly.push_back(p4x); poly.push_back(p4y);
-
-	EXPECT_EQ(1, inPoly(poly, p5x, p5y));
-	EXPECT_EQ(0, inPoly(poly, p6x, p6y));
-}
-
-
-
-
 TEST(PolygonTest, LineSegIsectIntPointBasic) {
-	int ax =   0, ay =  0;
-	int bx =  10, by = 10;
-	int cx =   0, cy =  2;
-	int dx =   2, dy =  0;
-	int ix, iy;
+	Point<int> a = {  0,  0 };
+	Point<int> b = { 10, 10 };
+	Point<int> c = {  0,  2 };
+	Point<int> d = {  2,  0 };
 
 	// Should be this
-	int eix =  1, eiy =  1;
+	Point<int> expectedIP(1,1);
 
-	findIntersectionPoint(ax, ay, bx, by, cx, cy, dx, dy, ix, iy);
+	Point<int> actualIP =
+		findIntersectionPoint({ a, b }, { c, d });
 
-	EXPECT_EQ(eix, ix);
-	EXPECT_EQ(eiy, iy);
+	EXPECT_EQ(expectedIP, actualIP);
 }
 
 
 
 TEST(PolygonTest, ClipPolyRectCaseNoIsect) {
-	int x1 =   0, x2 = 100;
-	int y1 =   0, y2 = 100;
+	Rect clipRect({0, 0}, 100, 100);
 
 	// Test polygon (clearly within the outer rect).
-	vector<int> testPoly;
-	testPoly.push_back(10); testPoly.push_back(10);
-	testPoly.push_back(20); testPoly.push_back(10);
-	testPoly.push_back(20); testPoly.push_back(20);
-	testPoly.push_back(10); testPoly.push_back(20);
+	Polygon testPoly;
+	testPoly.addPoint(10, 10);
+	testPoly.addPoint(20, 10);
+	testPoly.addPoint(20, 20);
+	testPoly.addPoint(10, 20);
 
-	vector<int> output = clipPolygonToRectangle(testPoly, x1, y1, x2, y2);
+	Polygon output = clipPolygonToRectangle(testPoly, clipRect);
 
-	EXPECT_EQ(testPoly.size(), output.size());
+	EXPECT_EQ(testPoly.numPoints(), output.numPoints());
 
-	for (unsigned int i = 0; i < testPoly.size(); i += 2) {
+	for (unsigned int i = 0; i < testPoly.numPoints(); ++i) {
 		EXPECT_EQ(testPoly[i], output[i]);
-		EXPECT_EQ(testPoly[i + 1], output[i + 1]);
 	}
 }
 
 
 
 TEST(PolygonTest, ClipPolyRectCaseSimpleIsect) {
-	int x1 =   0, x2 = 100;
-	int y1 =   0, y2 = 100;
+	Rect clipRect({0, 0}, 100, 100);
 
-	// Test polygon (clearly outside of rect).
-	vector<int> testPoly;
-	testPoly.push_back(50); testPoly.push_back(50);
-	testPoly.push_back(50); testPoly.push_back(-250);
-	testPoly.push_back(250); testPoly.push_back(50);
+	// Test polygon (clearly intersects with rect).
+	Polygon testPoly;
+	testPoly.addPoint( 50,   50);
+	testPoly.addPoint( 50, -250);
+	testPoly.addPoint(250,   50);
 
 	// Expected polygon
-	vector<int> expectedPoly;
-	expectedPoly.push_back(50);  expectedPoly.push_back(0);
-	expectedPoly.push_back(100); expectedPoly.push_back(0);
-	expectedPoly.push_back(100); expectedPoly.push_back(50);
-	expectedPoly.push_back(50);  expectedPoly.push_back(50);
+	Polygon expectedPoly;
+	expectedPoly.addPoint( 50,  0); // 1st i'sect pt.
+	expectedPoly.addPoint(100,  0);
+	expectedPoly.addPoint(100, 50);
+	expectedPoly.addPoint( 50, 50);
 
-	vector<int> output = clipPolygonToRectangle(testPoly, x1, y1, x2, y2);
+	Polygon output = clipPolygonToRectangle(testPoly, clipRect);
 
-	if (expectedPoly.size() != output.size()) {
-		cout << "Expected poly has " << (expectedPoly.size() / 2) << "points," << endl;
+	if (expectedPoly.numPoints() != output.numPoints()) {
+		cout << "Expected poly has " << expectedPoly.numPoints() << "points," << endl;
 		cout << "Output poly different than expected:" << endl;
+	}
+
+	cout << "Expected poly:" << endl;
+	for (const Point<int>& pt : expectedPoly.points()) {
+		cout << pt << endl;
+	}
+
+	cout << "Output poly:" << endl;
+	for (const Point<int>& pt : output.points()) {
+		cout << pt << endl;
 	}
 
 	// cout << "Output poly has " << (output.size() / 2) << "points," << endl;
@@ -125,11 +113,10 @@ TEST(PolygonTest, ClipPolyRectCaseSimpleIsect) {
 	// }
 
 	// MUST be eq.
-	ASSERT_EQ(expectedPoly.size(), output.size());
+	ASSERT_EQ(expectedPoly.numPoints(), output.numPoints());
 
-	for (unsigned int i = 0; i < expectedPoly.size(); i += 2) {
+	for (unsigned int i = 0; i < expectedPoly.numPoints(); ++i) {
 		EXPECT_EQ(expectedPoly[i], output[i]);
-		EXPECT_EQ(expectedPoly[i + 1], output[i + 1]);
 	}
 }
 

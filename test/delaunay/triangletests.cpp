@@ -7,6 +7,8 @@
 #include "delaunay/triangle.h"
 #include "delaunay/trianglegeometry.h"
 
+#include "geometry/linesegment.h"
+
 using std::vector;
 using std::cout;
 using std::endl;
@@ -16,61 +18,70 @@ using namespace delaunay;
 
 
 TEST(DelaunayTriangleTest, OrientationTest) {
-	MyPoint originPt(0, 0);
-	MyPoint endPt(100, 0);
+	using geometry::Point;
+	using geometry::orientation;
 
-	MyPoint ccwPt(50, 50);
-	MyPoint colPt(200, 0);
-	MyPoint cwPt(50, -50);
+	Point<int> originPt(0, 0);
+	Point<int> endPt(100, 0);
+
+	Point<int> ccwPt(50, 50);
+	Point<int> colPt(200, 0);
+	Point<int> cwPt(50, -50);
 
 	// Test CCW,
-	EXPECT_EQ(1, orientation(originPt, endPt, ccwPt));
+	EXPECT_EQ(1, orientation({originPt, endPt}, ccwPt));
 
 	// Test Co-linear
-	EXPECT_EQ(0, orientation(originPt, endPt, colPt));
+	EXPECT_EQ(0, orientation({originPt, endPt}, colPt));
 
 	// Test CW
-	EXPECT_EQ(-1, orientation(originPt, endPt, cwPt));
+	EXPECT_EQ(-1, orientation({originPt, endPt}, cwPt));
 }
 
 
 
 TEST(DelaunayTriangleTest, OrientationTest2) {
-	MyPoint originPt(1000, 1000);
-	MyPoint    endPt(1100, 1000);
+	using geometry::Point;
+	using geometry::orientation;
 
-	MyPoint ccwPt(1050, 1050);
-	MyPoint colPt(1200, 1000);
-	MyPoint  cwPt(1050,  950);
+	Point<int> originPt(1000, 1000);
+	Point<int>    endPt(1100, 1000);
+
+	Point<int> ccwPt(1050, 1050);
+	Point<int> colPt(1200, 1000);
+	Point<int>  cwPt(1050,  950);
 
 	// Test CCW,
-	EXPECT_EQ(1, orientation(originPt, endPt, ccwPt));
+	EXPECT_EQ(1, orientation({originPt, endPt}, ccwPt));
 
 	// Test Co-linear
-	EXPECT_EQ(0, orientation(originPt, endPt, colPt));
+	EXPECT_EQ(0, orientation({originPt, endPt}, colPt));
 
 	// Test CW
-	EXPECT_EQ(-1, orientation(originPt, endPt, cwPt));
+	EXPECT_EQ(-1, orientation({originPt, endPt}, cwPt));
 }
 
 
 
 TEST(DelaunayTriangleTest, IntersectsSegSegTest) {
-	MyPoint p1(-10, 0);
-	MyPoint p2(0, 0);
-	MyPoint p3(10, 0);
-	MyPoint p4(0, -10);
-	MyPoint p5(0, 10);
-	MyPoint p6(0, 20);
+	using geometry::Point;
+	using geometry::intersects;
 
-	EXPECT_EQ(true, intersects(p1, p3, p4, p5));
+	Point<int> p1(-10, 0);
+	Point<int> p2(0, 0);
+	Point<int> p3(10, 0);
+	Point<int> p4(0, -10);
+	Point<int> p5(0, 10);
+	Point<int> p6(0, 20);
+
+	EXPECT_EQ(true, intersects({p1, p3}, {p4, p5}));
 
 	// Incident, but not intersecting
-	EXPECT_EQ(true, intersects(p1, p3, p2, p5));
-	EXPECT_EQ(true, intersects(p1, p3, p4, p2));
+	EXPECT_EQ(true, intersects({p1, p3}, {p2, p5}));
+	EXPECT_EQ(true, intersects({p1, p3}, {p4, p2}));
 
 	// Completele not touching
-	EXPECT_EQ(false, intersects(p1, p3, p5, p6));
+	EXPECT_EQ(false, intersects({p1, p3}, {p5, p6}));
 }
 
 

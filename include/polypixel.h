@@ -6,6 +6,8 @@
 
 #include "delaunay/pointsetarray.h"
 
+#include "geometry/polygon.h"
+
 #include "imagedata.h"
 #include "platform.h"
 
@@ -13,18 +15,16 @@
 
 class ColoredPolygon {
 public:
-	std::vector<int> poly;
+	geometry::Polygon poly;
 	float rgb[3];
 };
 
 
 
-void findSomeColor3iv(const ImageData& imData, const std::vector<int>& poly, int* colorIv);
-void findSomeColor3iv(const ImageData& imData, delaunay::PointSetArray& psa, int* colorIv);
+void findSomeColor3iv(const ImageData& imData, const geometry::Polygon& poly, int* colorIv);
 
 
-void findAverageColor3iv(const ImageData& imData, const std::vector<int>& poly, int* colorIv);
-void findAverageColor3iv(const ImageData& imData, const std::vector<delaunay::MyPoint>& poly, int* colorIv);
+void findAverageColor3iv(const ImageData& imData, const geometry::Polygon& poly, int* colorIv);
 
 
 bool findShaderDirectory(std::string& path, std::string shaderFilename);

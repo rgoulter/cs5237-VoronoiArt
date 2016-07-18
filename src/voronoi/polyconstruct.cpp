@@ -16,6 +16,8 @@ using std::vector;
 
 using delaunay::PointSetArray;
 
+using geometry::Polygon;
+
 
 
 namespace voronoi {
@@ -135,10 +137,10 @@ vector<HalfWingedEdge*> linkEdges(const Edges& edges) {
 
 
 // POLYREP:POINTSETARRAY
-shared_ptr<PointSetArray> polygonFromLinkedEdge(HalfWingedEdge *edge) {
+shared_ptr<Polygon> polygonFromLinkedEdge(HalfWingedEdge *edge) {
 	// Need *pointer* to polygon, so that edges know whether
 	// they've been 'visited'.
-	shared_ptr<PointSetArray> poly(new PointSetArray());
+	shared_ptr<Polygon> poly(new Polygon());
 
 	list<const VPoint*> polyPoints;
 
@@ -182,10 +184,10 @@ shared_ptr<PointSetArray> polygonFromLinkedEdge(HalfWingedEdge *edge) {
 
 
 // POLYREP:POINTSETARRAY
-vector<PointSetArray> polygonsFromEdges(const Edges& edges) {
+vector<Polygon> polygonsFromEdges(const Edges& edges) {
 	vector<HalfWingedEdge*> linkedEdges = linkEdges(edges);
 
-	vector<shared_ptr<PointSetArray>> polygonPtrs;
+	vector<shared_ptr<Polygon>> polygonPtrs;
 
 	for (HalfWingedEdge *linkedEdge : linkedEdges) {
 		// face_ member is non-null if the edge has been visited before.
@@ -193,20 +195,20 @@ vector<PointSetArray> polygonsFromEdges(const Edges& edges) {
 			continue;
 		}
 
-		shared_ptr<PointSetArray> polyPtr = polygonFromLinkedEdge(linkedEdge);
+		shared_ptr<Polygon> polyPtr = polygonFromLinkedEdge(linkedEdge);
 		polygonPtrs.push_back(polyPtr);
 	}
 
 	// Now de-reference + copy the pointers,
 	// delete the polygons from the heap.
-	vector<PointSetArray> result;
+	vector<Polygon> result;
 
 	// also clean up the HalfWingedEdge
 	for (HalfWingedEdge* edge : linkedEdges) {
 		delete edge;
 	}
 
-	for (shared_ptr<PointSetArray>& polyPtr : polygonPtrs) {
+	for (shared_ptr<Polygon>& polyPtr : polygonPtrs) {
 		result.push_back(*polyPtr); // copy
 
 		assert(polyPtr.unique());

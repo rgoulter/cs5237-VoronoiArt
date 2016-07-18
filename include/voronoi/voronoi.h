@@ -13,6 +13,8 @@
 #include "voronoi/vparabola.h"
 #include "voronoi/vevent.h"
 
+#include "geometry/polygon.h"
+
 
 
 namespace voronoi {
@@ -104,14 +106,12 @@ Vertices* verticesForInputPoints(const delaunay::PointSetArray& inputPoints);
 
 
 
-// POLYREP:POINTSETARRAY
 /// Use the constructed Voronoi edges to make Polygons to display
-std::vector<delaunay::PointSetArray> createPolygonsFortune(Edges *voronoiedges);
+std::vector<geometry::Polygon> createPolygonsFortune(Edges *voronoiedges);
 
 
 
-// POLYREP:POINTSETARRAY
-std::vector<delaunay::PointSetArray> runVoronoiAlgorithm(const delaunay::PointSetArray& inputPoints);
+std::vector<geometry::Polygon> runVoronoiAlgorithm(const delaunay::PointSetArray& inputPoints);
 
 }
 

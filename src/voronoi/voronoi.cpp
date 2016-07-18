@@ -14,6 +14,8 @@
 using std::unordered_map;
 using std::vector;
 
+using geometry::Polygon;
+
 
 
 namespace voronoi {
@@ -402,7 +404,7 @@ Vertices* verticesForInputPoints(const delaunay::PointSetArray& inputPoints) {
 
 
 // POLYREP:POINTSETARRAY
-vector<delaunay::PointSetArray> runVoronoiAlgorithm(const delaunay::PointSetArray& inputPoints) {
+vector<Polygon> runVoronoiAlgorithm(const delaunay::PointSetArray& inputPoints) {
 	StopWatch voroSW;
 	voroSW.reset();
 	voroSW.resume();
@@ -417,7 +419,7 @@ vector<delaunay::PointSetArray> runVoronoiAlgorithm(const delaunay::PointSetArra
 	voroSW.reset();
 	voroSW.resume();
 
-	vector<delaunay::PointSetArray> voronoiPolygons =
+	vector<Polygon> voronoiPolygons =
 	    polygonsFromEdges(*voronoiEdges);
 
 	voroSW.pause();
