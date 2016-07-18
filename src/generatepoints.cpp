@@ -56,8 +56,8 @@ vector< pair<int,int> > generateUniformRandomPoints(int width, int height, int n
 	vector< pair<int,int> > outputPts;
 
 	for (int coord : generated) {
-		int x = coord / width;
-		int y = coord % width;
+		int x = coord % width;
+		int y = coord / width;
 		outputPts.push_back(make_pair(x, y));
 	}
 
