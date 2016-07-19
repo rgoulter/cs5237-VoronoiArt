@@ -41,6 +41,7 @@ int orientation(const LineSegment<I>& p1p2, const Point<I>& p3) {
 }
 
 // Instantiate for LongInt
+template int orientation(const LineSegment<int>&, const Point<int>&);
 template int orientation(const LineSegment<delaunay::LongInt>&, const Point<delaunay::LongInt>&);
 
 
