@@ -74,6 +74,23 @@ TEST(PolygonTest, ClipPolyRectCaseNoIsect) {
 
 
 
+TEST(PolygonTest, ClipPolyRectCaseNoIsectOutside) {
+	Rect clipRect({0, 0}, 100, 100);
+
+	// Test polygon (clearly OUTSIDE the outer rect).
+	Polygon testPoly;
+	testPoly.addPoint(1010, 10);
+	testPoly.addPoint(1020, 10);
+	testPoly.addPoint(1020, 20);
+	testPoly.addPoint(1010, 20);
+
+	Polygon output = clipPolygonToRectangle(testPoly, clipRect);
+
+	EXPECT_EQ((unsigned int)0, output.numPoints());
+}
+
+
+
 TEST(PolygonTest, ClipPolyRectCaseSimpleIsect) {
 	Rect clipRect({0, 0}, 100, 100);
 
@@ -97,15 +114,15 @@ TEST(PolygonTest, ClipPolyRectCaseSimpleIsect) {
 		cout << "Output poly different than expected:" << endl;
 	}
 
-	cout << "Expected poly:" << endl;
-	for (const Point<int>& pt : expectedPoly.points()) {
-		cout << pt << endl;
-	}
-
-	cout << "Output poly:" << endl;
-	for (const Point<int>& pt : output.points()) {
-		cout << pt << endl;
-	}
+	// cout << "Expected poly:" << endl;
+	// for (const Point<int>& pt : expectedPoly.points()) {
+	// 	cout << pt << endl;
+	// }
+    //
+	// cout << "Output poly:" << endl;
+	// for (const Point<int>& pt : output.points()) {
+	// 	cout << pt << endl;
+	// }
 
 	// cout << "Output poly has " << (output.size() / 2) << "points," << endl;
 	// for (unsigned int i = 0; i < output.size() / 2; i++) {
@@ -120,3 +137,99 @@ TEST(PolygonTest, ClipPolyRectCaseSimpleIsect) {
 	}
 }
 
+
+
+TEST(PolygonTest, ClipPolyRectCaseIsectEdgeTouching) {
+	Rect clipRect({0, 0}, 100, 100);
+
+	// XXX
+	// Test polygon: Touches the edge, but never outside
+	Polygon testPoly;
+	testPoly.addPoint( 50,  50);
+	testPoly.addPoint( 50, 100);
+	testPoly.addPoint(  0, 100);
+
+	// Expected polygon (exactly the same)
+	Polygon expectedPoly;
+	expectedPoly.addPoint( 50,  50);
+	expectedPoly.addPoint( 50, 100);
+	expectedPoly.addPoint(  0, 100);
+
+	Polygon output = clipPolygonToRectangle(testPoly, clipRect);
+
+	if (expectedPoly.numPoints() != output.numPoints()) {
+		cout << "Expected poly has " << expectedPoly.numPoints() << "points," << endl;
+		cout << "Output poly different than expected:" << endl;
+	}
+
+	// cout << "Expected poly:" << endl;
+	// for (const Point<int>& pt : expectedPoly.points()) {
+	// 	cout << pt << endl;
+	// }
+    //
+	// cout << "Output poly:" << endl;
+	// for (const Point<int>& pt : output.points()) {
+	// 	cout << pt << endl;
+	// }
+
+	// cout << "Output poly has " << (output.size() / 2) << "points," << endl;
+	// for (unsigned int i = 0; i < output.size() / 2; i++) {
+	// 	cout << output[2 * i] << ","  << output[2 * i + 1]<< endl;
+	// }
+
+	// MUST be eq.
+	ASSERT_EQ(expectedPoly.numPoints(), output.numPoints());
+
+	for (unsigned int i = 0; i < expectedPoly.numPoints(); ++i) {
+		EXPECT_EQ(expectedPoly[i], output[i]);
+	}
+}
+
+
+
+TEST(PolygonTest, ClipPolyRectCaseIsectEdgeTouchingOutside) {
+	Rect clipRect({0, 0}, 100, 100);
+
+	// Test polygon: touches edge, has some points outside.
+	Polygon testPoly;
+	testPoly.addPoint( 50,   50);
+	testPoly.addPoint( 50,  100);
+	testPoly.addPoint(-50,  100);
+	testPoly.addPoint(  0,   50);
+
+	// Expected polygon
+	Polygon expectedPoly;
+	expectedPoly.addPoint( 50, 100);
+	expectedPoly.addPoint(  0, 100);
+	expectedPoly.addPoint(  0,  50);
+	expectedPoly.addPoint( 50,  50);
+
+	Polygon output = clipPolygonToRectangle(testPoly, clipRect);
+
+	if (expectedPoly.numPoints() != output.numPoints()) {
+		cout << "Expected poly has " << expectedPoly.numPoints() << "points," << endl;
+		cout << "Output poly different than expected:" << endl;
+	}
+
+	// cout << "Expected poly:" << endl;
+	// for (const Point<int>& pt : expectedPoly.points()) {
+	// 	cout << pt << endl;
+	// }
+    //
+	// cout << "Output poly:" << endl;
+	// for (const Point<int>& pt : output.points()) {
+	// 	cout << pt << endl;
+	// }
+
+	// cout << "Output poly has " << (output.size() / 2) << "points," << endl;
+	// for (unsigned int i = 0; i < output.size() / 2; i++) {
+	// 	cout << output[2 * i] << ","  << output[2 * i + 1]<< endl;
+	// }
+
+	// MUST be eq.
+	ASSERT_EQ(expectedPoly.numPoints(), output.numPoints());
+
+	for (unsigned int i = 0; i < expectedPoly.numPoints(); ++i) {
+		EXPECT_EQ(expectedPoly[i], output[i]);
+	}
+}
