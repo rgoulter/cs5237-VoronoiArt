@@ -252,49 +252,6 @@ ImageData* loadImageData(string imgFilename) {
 
 
 
-// also uses polypixel's ColoredPolygon
-// TODO move this fn to polypixel
-vector<ColoredPolygon> generateColoredPolygons(vector<Polygon>& polys, const ImageData& imData) {
-	vector<ColoredPolygon> renderedPolygons;
-
-	StopWatch allSW;
-	allSW.resume();
-
-	for (unsigned int i = 0; i < polys.size(); i++) {
-		// Clip polygon to ensure we have nothing out of bounds
-		// vector<int> unclippedPoly = polys[i];
-		// vector<int> poly = clipPolygonToRectangle(unclippedPoly, 0, 0, loadedImageWidth, loadedImageHeight);
-		const Polygon& poly = polys[i];
-
-		// TODO: Would be nice to be able to inject another function
-		// instead of `findSomeColor3iv`.
-		int colorIv[3];
-		findSomeColor3iv(imData, poly, colorIv);
-
-		// XXX following could be a method / ctor, right?
-		// ColoredPolygon (from polypixel),
-		// internally uses POLYREP:INTVEC
-		ColoredPolygon coloredPoly;
-
-		coloredPoly.poly = poly;
-		coloredPoly.rgb[0] = (float) colorIv[0] / 255;
-		coloredPoly.rgb[1] = (float) colorIv[1] / 255;
-		coloredPoly.rgb[2] = (float) colorIv[2] / 255;
-
-		renderedPolygons.push_back(coloredPoly);
-	}
-
-	allSW.pause();
-	double timeFindSomeColor = allSW.ms();
-	int n = polys.size();
-	double timeAvg = timeFindSomeColor / n;
-	qDebug("TIME: Average: %f for %d polygons. Total: %f", timeAvg, n, timeFindSomeColor);
-
-	return renderedPolygons;
-}
-
-
-
 // DELAUNAY & VORONOI
 void MyPanelOpenGL::insertPoint(LongInt x, LongInt y) {
 	// DELAUNAY

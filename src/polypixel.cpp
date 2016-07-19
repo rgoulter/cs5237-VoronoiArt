@@ -1,8 +1,12 @@
 #include "polypixel.h"
 
+#include <assert.h>
+
 #include <iostream>
 #include <string>
 #include <utility>
+
+#include "stopwatch.h"
 
 using std::pair;
 using std::string;
@@ -18,6 +22,57 @@ using geometry::Rect;
 using geometry::boundingBox;
 using geometry::clipPolygonToRectangle;
 using geometry::inPoly;
+
+
+
+// also uses polypixel's ColoredPolygon
+vector<ColoredPolygon> generateColoredPolygons(vector<Polygon>& polys, const ImageData& imData) {
+	vector<ColoredPolygon> renderedPolygons;
+
+	StopWatch allSW;
+	allSW.resume();
+
+	vector<Polygon> clippedPolys;
+
+	// Clip polygon to ensure we have nothing out of bounds
+	int loadedImageWidth = imData.width();
+	int loadedImageHeight = imData.height();
+	Rect loadedImageRect({0, 0}, loadedImageWidth - 1, loadedImageHeight - 1);
+
+	for (const Polygon& poly : polys) {
+		const Polygon& clippedPoly = clipPolygonToRectangle(poly, loadedImageRect);
+
+		if (clippedPoly.numPoints() > 0) {
+			clippedPolys.push_back(clippedPoly);
+		}
+	}
+
+
+	for (const Polygon& poly : clippedPolys) {
+		// TODO: Would be nice to be able to inject another function
+		// instead of `findSomeColor3iv`.
+		int colorIv[3];
+		findSomeColor3iv(imData, poly, colorIv);
+
+		// XXX following could be a method / ctor, right?
+		ColoredPolygon coloredPoly;
+
+		coloredPoly.poly = poly;
+		coloredPoly.rgb[0] = (float) colorIv[0] / 255;
+		coloredPoly.rgb[1] = (float) colorIv[1] / 255;
+		coloredPoly.rgb[2] = (float) colorIv[2] / 255;
+
+		renderedPolygons.push_back(coloredPoly);
+	}
+
+	allSW.pause();
+	double timeFindSomeColor = allSW.ms();
+	int n = polys.size();
+	double timeAvg = timeFindSomeColor / n;
+	cout << "TIME: Average: " << timeAvg << " for " << n << " polygons. Total: " << timeFindSomeColor << endl;
+
+	return renderedPolygons;
+}
 
 
 
@@ -69,9 +124,6 @@ vector<pair<int,int>> enumerateLeftRightOfSimplePolygon(const Polygon& poly) {
 
 
 void findAverageColor3iv(const ImageData& imData, const Polygon& poly, int* colorIv) {
-	// int loadedImageWidth = imData.width();
-	// int loadedImageHeight = imData.height();
-
 	// Find bounding box of polygon
 	const Rect& boundingRect = boundingBox(poly);
 	int minX = boundingRect.left();
@@ -157,23 +209,11 @@ void findAverageColor3iv(const ImageData& imData, const Polygon& poly, int* colo
 
 
 
-void findSomeColor3iv(const ImageData& imData, const Polygon& unclippedPoly, int* colorIv) {
+void findSomeColor3iv(const ImageData& imData, const Polygon& poly, int* colorIv) {
 	int loadedImageWidth = imData.width();
 	int loadedImageHeight = imData.height();
 
-	// Clip polygon to ensure we have nothing out of bounds
-	// TODO: this should be pre-condition to fn
-	Rect loadedImageRect({0,0}, loadedImageWidth - 1, loadedImageHeight - 1);
-	const Polygon& poly = clipPolygonToRectangle(unclippedPoly, loadedImageRect);
-
-	if (poly.numPoints() == 0) {
-		cout << "Empty polygon. (Outside rect)" << endl;
-		colorIv[0] = 0;
-		colorIv[1] = 0;
-		colorIv[2] = 0;
-		return;
-	}
-
+	assert(poly.numPoints() > 0);
 
 	// Read the pixels from the relevant section
 	// int offsetX = 0;
