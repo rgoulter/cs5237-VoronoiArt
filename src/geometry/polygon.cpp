@@ -32,11 +32,13 @@ vector<Edge> Polygon::edges() const {
 
 
 Rect boundingBox(const Polygon& poly) {
-	int minX = INT_MAX;
-	int maxX = INT_MIN;
+	assert(poly.numPoints() > 0);
+	// const Point<int>& pt = poly[0];
+	int minX = INT_MAX;  // pt.x;
+	int maxX = INT_MIN;  // pt.x;
 
-	int minY = INT_MAX;
-	int maxY = INT_MIN;
+	int minY = INT_MAX;  // pt.y;
+	int maxY = INT_MIN;  // pt.y;
 
 	for (const Point<int>& pt : poly.points()) {
 		if (pt.x < minX) {
