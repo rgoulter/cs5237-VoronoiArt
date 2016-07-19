@@ -13,6 +13,10 @@ using LineSegment = std::pair<Point<I>, Point<I>>;
 
 
 
+enum class Orientation { CounterClockwise = 1,
+                         Colinear  = 0,
+                         Clockwise = -1 };
+
 /// Returns 1 if p3 is counter-clockwise to p1p2,
 /// 0 if co-linear,
 /// -1 if clockwise.
@@ -21,9 +25,16 @@ template<typename I>
 int orientation(const LineSegment<I>& p1p2, const Point<I>& p3);
 
 
+enum class Intersection { None, Incidental, Overlap };
 
-// TODO return { NO, TOUCH, INTERSECT } rather than bool. (then replace isects)
-bool intersects(const LineSegment<int>& ab, const LineSegment<int>& cd);
+template<typename I>
+Intersection intersects(const LineSegment<I>& ab, const LineSegment<I>& cd);
+
+/// Whether the two segments Overlap. (i.e. Incidental returns false).
+bool isOverlapping(const Intersection& i);
+
+/// Whether the two segments touch. (Incidental or Overlap)
+bool isTouching(const Intersection& i);
 
 
 

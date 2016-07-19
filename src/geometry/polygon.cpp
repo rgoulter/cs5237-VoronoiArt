@@ -149,7 +149,7 @@ Polygon clipPolygonToRectangle(const Polygon& poly, const Rect& rect) {
 		     ++rectEdgeIdx) {
 			const Edge& rectEdge = rectEdges[rectEdgeIdx];
 
-			if (intersects(polyEdge, rectEdge)) {
+			if (isOverlapping(intersects(polyEdge, rectEdge))) {
 				const Point<int>& isectPt =
 					findIntersectionPoint(polyEdge, rectEdge);
 
@@ -269,8 +269,8 @@ int inPoly(const Polygon& poly, const Point<int>& pt) {
 	// Now count intersections
 	int numIntersections = 0;
 
-	for (const Edge& polyEdge : poly.edges()) { // XXX Edges.
-		if (intersects(testEdge, polyEdge)) {
+	for (const Edge& polyEdge : poly.edges()) {
+		if (isOverlapping(intersects(testEdge, polyEdge))) {
 			++numIntersections;
 		}
 	}

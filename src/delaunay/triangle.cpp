@@ -4,6 +4,7 @@
 #include <assert.h>
 
 #include <iostream>
+#include <utility>
 
 #include "delaunay/li.h"
 #include "delaunay/pointsetarray.h"
@@ -14,9 +15,11 @@
 #define TRIANGLE_CHECK
 #endif
 
+using std::pair;
 using std::cout;
 using std::endl;
 
+using geometry::intersects;
 using geometry::orientation;
 
 
@@ -199,28 +202,30 @@ bool isTriangleCCW(const PointSetArray& psa, const TriRecord& tri) {
 
 
 
-inline bool isects(const MyPoint& a, const MyPoint& b, const MyPoint& c, const MyPoint& d) {
-	// Incidental (touching) returns false.
-	return (orientation({a, b}, c) * orientation({a, b}, d) < 0) &&
-	       (orientation({c, d}, a) * orientation({c, d}, b) < 0);
-}
-
-
-
+// TODO Could retirn Intersection, rather than bool.
 bool intersectsTriangle(const PointSetArray& psa, const TriRecord& tri, int pIdx1, int pIdx2) {
 	int idx1, idx2, idx3;
 	tri.get(idx1, idx2, idx3);
 
-	MyPoint p1 = psa[idx1];
-	MyPoint p2 = psa[idx2];
-	MyPoint p3 = psa[idx3];
+	const MyPoint& p1 = psa[idx1];
+	const MyPoint& p2 = psa[idx2];
+	const MyPoint& p3 = psa[idx3];
 
-	MyPoint e1 = psa[pIdx1];
-	MyPoint e2 = psa[pIdx2];
+	const MyPoint& e1 = psa[pIdx1];
+	const MyPoint& e2 = psa[pIdx2];
 
-	bool isects12 = isects(p1, p2, e1, e2);
-	bool isects23 = isects(p2, p3, e1, e2);
-	bool isects31 = isects(p3, p1, e1, e2);
+	using geometry::isOverlapping;
+
+	// compiler has trouble inferring the type here, so be explicit
+	using LineSeg = geometry::LineSegment<delaunay::LongInt>;
+	const LineSeg& e1e2 = {e1, e2};
+	const LineSeg& p1p2 = {p1, p2};
+	const LineSeg& p2p3 = {p2, p3};
+	const LineSeg& p3p1 = {p3, p1};
+
+	bool isects12 = isOverlapping(intersects(p1p2, e1e2));
+	bool isects23 = isOverlapping(intersects(p2p3, e1e2));
+	bool isects31 = isOverlapping(intersects(p3p1, e1e2));
 
 	return isects12 || isects23 || isects31;
 }

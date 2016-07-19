@@ -34,18 +34,51 @@ int orientation(const LineSegment<I>& p1p2, const Point<I>& p3) {
 	               p3.x, p3.y, I(1));
 }
 
-// Instantiate for int, LongInt
+// Instantiate for LongInt
 template int orientation(const LineSegment<delaunay::LongInt>&, const Point<delaunay::LongInt>&);
 
 
 
-bool intersects(const LineSegment<int>& ab, const LineSegment<int>& cd) {
-	const Point<int>& a = ab.first;
-	const Point<int>& b = ab.second;
-	const Point<int>& c = cd.first;
-	const Point<int>& d = cd.second;
-	return (orientation({a, b}, c) * orientation({a, b}, d) <= 0) &&
-	       (orientation({c, d}, a) * orientation({c, d}, b) <= 0);
+template<typename I>
+Intersection intersects(const LineSegment<I>& ab, const LineSegment<I>& cd) {
+	const Point<I>& a = ab.first;
+	const Point<I>& b = ab.second;
+	const Point<I>& c = cd.first;
+	const Point<I>& d = cd.second;
+
+	// For int val, of orient(pq, r) * orient(pq, s):
+	//   -1 = isect (one CCW, one CW),
+	//    0 = touching (one colinear)
+	//    1 = not touching (both CCW OR both CW)
+	int abIsect = orientation({a, b}, c) * orientation({a, b}, d);
+	int cdIsect = orientation({c, d}, a) * orientation({c, d}, b);
+
+	if (abIsect > 0 || cdIsect > 0) {
+		return Intersection::None;
+	} else if (abIsect == 0 || cdIsect == 0) {
+		// abIsect <= 0, cdIsect <= 0
+		return Intersection::Incidental;
+	} else {
+		// abIsect <0 && cdIsect < 0
+		return Intersection::Overlap;
+	}
+}
+
+// Instantiate for int, LongInt
+template Intersection intersects(const LineSegment<int>&, const LineSegment<int>&);
+template Intersection intersects(const LineSegment<delaunay::LongInt>&, const LineSegment<delaunay::LongInt>&);
+
+
+
+bool isOverlapping(const Intersection& i) {
+	return i == Intersection::Overlap;
+}
+
+
+
+bool isTouching(const Intersection& i) {
+	// touching = Incidental || Overlap
+	return i != Intersection::None;
 }
 
 
