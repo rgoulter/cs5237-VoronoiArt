@@ -60,6 +60,14 @@ Rect boundingBox(const Polygon& poly) {
 
 
 
+// 'inside or touching'.
+bool isPointInsideRect(const Rect& rect, const Point<int>& pt) {
+	return (rect.left() <= pt.x && pt.x <= rect.right()) &&
+	       (rect.top() <= pt.y  && pt.y <= rect.bottom()); // COORD CONFUSION
+}
+
+
+
 // TODO: This needs clarification
 class PolygonClippingIntersection {
 public:
@@ -101,8 +109,8 @@ Polygon clipPolygonToRectangle(const Polygon& poly, const Rect& rect) {
 	int maxX = polyBoundingBox.right();
 	int maxY = polyBoundingBox.bottom(); // COORD: y2 > y1
 
-	if (x1 < minX && maxX < x2 &&
-	    y1 < minY && maxY < y2) {
+	if (x1 <= minX && maxX <= x2 &&
+	    y1 <= minY && maxY <= y2) {
 		// The polygon's bounding box is entirely within the rectangle,
 		//  ergo nothing to clip.
 
@@ -165,7 +173,8 @@ Polygon clipPolygonToRectangle(const Polygon& poly, const Rect& rect) {
 	// If no intersections, then nothing to clip?
 	// (Assuming the poly is wholly inside, rather than outside...).
 	if (intersections.empty()) {
-		return poly;
+		// poly is outside rect
+		return Polygon();
 	}
 
 
@@ -198,9 +207,13 @@ Polygon clipPolygonToRectangle(const Polygon& poly, const Rect& rect) {
 		// Check whether the next Polygon point after intersection
 		// is CCW (INSIDE) or CW (OUTSIDE) the segment
 		// from I'sect point to next Rect pt.
-		int ori = orientation({isectPt, rectNextPt}, polyNextPt);
+		// int ori = orientation({isectPt, rectNextPt}, polyNextPt);
+		// bool nextPtInside = ori > 0;
 
-		if (ori > 0) {  // CCW
+		// `orientation` struggles w/ poly w/ INT_MAX?
+		bool nextPtInside = isPointInsideRect(rect, polyNextPt);
+
+		if (nextPtInside) {  // CCW
 			// Next point is 'INSIDE'.
 			// Take polygon points until next i'sect.
 
