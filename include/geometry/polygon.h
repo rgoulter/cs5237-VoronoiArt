@@ -23,7 +23,7 @@ public:
 
 	void addPoint(const Point<int>& pt) { points_.push_back(pt); }
 
-	int numPoints() const { return points_.size(); }
+	unsigned int numPoints() const { return points_.size(); }
 
 	/// Get a copy of the vector's points.
 	std::vector<Point<int>> points() const;
