@@ -252,8 +252,8 @@ ImageData* loadImageData(string imgFilename) {
 
 
 
-// POLYREP:INTVEC
 // also uses polypixel's ColoredPolygon
+// TODO move this fn to polypixel
 vector<ColoredPolygon> generateColoredPolygons(vector<Polygon>& polys, const ImageData& imData) {
 	vector<ColoredPolygon> renderedPolygons;
 
@@ -442,9 +442,6 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 	voroSW.resume();
 
 	if (algorithm_ == kDelaunayAlgorithm) {
-		// DELAUNAY
-		qDebug("Do doDelaunay in MPOG::doVoronoi");
-
 		voronoiPolygons_ = delaunay::runDelaunayAlgorithm(inputPointSet_);
 	} else {
 		// VORONOI
