@@ -110,7 +110,7 @@ TEST(PolygonTest, ClipPolyRectCaseSimpleIsect) {
 	Polygon output = clipPolygonToRectangle(testPoly, clipRect);
 
 	if (expectedPoly.numPoints() != output.numPoints()) {
-		cout << "Expected poly has " << expectedPoly.numPoints() << "points," << endl;
+		cout << "Expected poly has " << expectedPoly.numPoints() << " points," << endl;
 		cout << "Output poly different than expected:" << endl;
 	}
 
@@ -142,7 +142,6 @@ TEST(PolygonTest, ClipPolyRectCaseSimpleIsect) {
 TEST(PolygonTest, ClipPolyRectCaseIsectEdgeTouching) {
 	Rect clipRect({0, 0}, 100, 100);
 
-	// XXX
 	// Test polygon: Touches the edge, but never outside
 	Polygon testPoly;
 	testPoly.addPoint( 50,  50);
@@ -158,7 +157,7 @@ TEST(PolygonTest, ClipPolyRectCaseIsectEdgeTouching) {
 	Polygon output = clipPolygonToRectangle(testPoly, clipRect);
 
 	if (expectedPoly.numPoints() != output.numPoints()) {
-		cout << "Expected poly has " << expectedPoly.numPoints() << "points," << endl;
+		cout << "Expected poly has " << expectedPoly.numPoints() << " points," << endl;
 		cout << "Output poly different than expected:" << endl;
 	}
 
@@ -199,15 +198,15 @@ TEST(PolygonTest, ClipPolyRectCaseIsectEdgeTouchingOutside) {
 
 	// Expected polygon
 	Polygon expectedPoly;
-	expectedPoly.addPoint( 50, 100);
 	expectedPoly.addPoint(  0, 100);
 	expectedPoly.addPoint(  0,  50);
 	expectedPoly.addPoint( 50,  50);
+	expectedPoly.addPoint( 50, 100);
 
 	Polygon output = clipPolygonToRectangle(testPoly, clipRect);
 
 	if (expectedPoly.numPoints() != output.numPoints()) {
-		cout << "Expected poly has " << expectedPoly.numPoints() << "points," << endl;
+		cout << "Expected poly has " << expectedPoly.numPoints() << " points," << endl;
 		cout << "Output poly different than expected:" << endl;
 	}
 

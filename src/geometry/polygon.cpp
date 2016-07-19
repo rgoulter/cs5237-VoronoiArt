@@ -2,7 +2,11 @@
 
 #include <climits>
 
+#include <iostream>
+
 using std::vector;
+using std::cout;
+using std::endl;
 
 
 
@@ -144,27 +148,35 @@ Polygon clipPolygonToRectangle(const Polygon& poly, const Rect& rect) {
 		// This somewhat relies on `poly.edges()[i].first == poly.points()[i]`
 		const Edge& polyEdge = polyEdges[polyEdgeIdx];
 
-		for (unsigned int rectEdgeIdx = 0;
-		     rectEdgeIdx < 4;
-		     ++rectEdgeIdx) {
-			const Edge& rectEdge = rectEdges[rectEdgeIdx];
+		if (isPointInsideRect(rect, polyEdge.first) !=
+		    isPointInsideRect(rect, polyEdge.second)) {
+			for (unsigned int rectEdgeIdx = 0;
+				 rectEdgeIdx < 4;
+				 ++rectEdgeIdx) {
+				const Edge& rectEdge = rectEdges[rectEdgeIdx];
 
-			if (isOverlapping(intersects(polyEdge, rectEdge))) {
-				const Point<int>& isectPt =
-					findIntersectionPoint(polyEdge, rectEdge);
+				// Knowing that this edge exits (or re-enters) the rect,
+				// can only find an i'sect if it's an Overlap (not Colinear),
+				// or if it's Incidental
+				Intersection isect = intersects(polyEdge, rectEdge);
+				if (isect == Intersection::Overlap ||
+				    isect == Intersection::Incidental) {
+					const Point<int>& isectPt =
+						findIntersectionPoint(polyEdge, rectEdge);
 
-				int polyNextPtIdx = (polyEdgeIdx + 1) % N;
-				int rectNextPtIdx = (rectEdgeIdx + 1) % 4;
+					int polyNextPtIdx = (polyEdgeIdx + 1) % N;
+					int rectNextPtIdx = (rectEdgeIdx + 1) % 4;
 
-				PolygonClippingIntersection *isect =
-					new PolygonClippingIntersection(isectPt,
-					                                polyNextPtIdx,
-					                                rectNextPtIdx);
-				intersections.push_back(isect);
+					PolygonClippingIntersection *isect =
+						new PolygonClippingIntersection(isectPt,
+														polyNextPtIdx,
+														rectNextPtIdx);
+					intersections.push_back(isect);
 
-				// No need to check remaining edges for intersection with
-				// the current edge.
-				break;
+					// No need to check remaining edges for intersection with
+					// the current edge.
+					break;
+				}
 			}
 		}
 	}
@@ -201,8 +213,14 @@ Polygon clipPolygonToRectangle(const Polygon& poly, const Rect& rect) {
 		const Point<int>& polyNextPt = poly[nextPolyPtIdx];
 		const Point<int>& rectNextPt = rectPoly[nextRectPtIdx];
 
-		// Add the intersection point itself
-		output.addPoint(isectPt);
+		// Add the intersection point itself,
+		// UNLESS it *is* the next pt.
+		// (This happens when the intersection is not an overlapping edge,
+		//  i.e. some vertex of the poly is on the edge).
+		if (!(isectPt == polyNextPt)) {
+			// cout << "ADD INIT ISECT PT " << isectPt << endl;
+			output.addPoint(isectPt);
+		}
 
 		// Check whether the next Polygon point after intersection
 		// is CCW (INSIDE) or CW (OUTSIDE) the segment
@@ -221,6 +239,7 @@ Polygon clipPolygonToRectangle(const Polygon& poly, const Rect& rect) {
 			     ptIdx != nextIsect.nextPolyPointIdx_;
 			     ptIdx = (ptIdx + 1) % N) {
 				const Point<int>& pt = poly[ptIdx];
+				// cout << "ADD POLY PT " << pt << " from index " << ptIdx << endl;
 				output.addPoint(pt);
 			}
 		} else {  // CW
@@ -231,6 +250,7 @@ Polygon clipPolygonToRectangle(const Polygon& poly, const Rect& rect) {
 			     ptIdx != nextIsect.nextRectPointIdx_;
 			     ptIdx = (ptIdx + 1) % 4) {
 				const Point<int>& pt = rectPoly[ptIdx];
+				// cout << "ADD RECT PT " << pt << " from index " << ptIdx << endl;
 				output.addPoint(pt);
 			}
 		}
