@@ -1,6 +1,12 @@
 #include "geometry/linesegment.h"
 
+#include <algorithm>
+
 #include "delaunay/li.h"
+
+using std::pair;
+using std::min;
+using std::max;
 
 
 
@@ -40,6 +46,27 @@ template int orientation(const LineSegment<delaunay::LongInt>&, const Point<dela
 
 
 template<typename I>
+Intersection intersects1D(const pair<I,I>& ab, const pair<I,I>& cd) {
+	const I& a = min(ab.first, ab.second);
+	const I& b = max(ab.first, ab.second);
+	const I& c = min(cd.first, cd.second);
+	const I& d = max(cd.first, cd.second);
+
+	if ((b < c) || (d < a)) {
+		return Intersection::None;
+	} else if ((b == c && a < b) ||
+	           (d == a && c < d)) {
+		return Intersection::Incidental;
+	} else {
+		return Intersection::Overlap;
+	}
+}
+
+template Intersection intersects1D(const pair<int, int>&, const pair<int,int>&);
+
+
+
+template<typename I>
 Intersection intersects(const LineSegment<I>& ab, const LineSegment<I>& cd) {
 	const Point<I>& a = ab.first;
 	const Point<I>& b = ab.second;
@@ -50,14 +77,36 @@ Intersection intersects(const LineSegment<I>& ab, const LineSegment<I>& cd) {
 	//   -1 = isect (one CCW, one CW),
 	//    0 = touching (one colinear)
 	//    1 = not touching (both CCW OR both CW)
-	int abIsect = orientation({a, b}, c) * orientation({a, b}, d);
-	int cdIsect = orientation({c, d}, a) * orientation({c, d}, b);
+	int abcOri = orientation({a, b}, c);
+	int abdOri = orientation({a, b}, d);
+	int abIsect = abcOri * abdOri;
+	int cdaOri = orientation({c, d}, a);
+	int cdbOri = orientation({c, d}, b);
+	int cdIsect = cdaOri * cdbOri;
 
 	if (abIsect > 0 || cdIsect > 0) {
 		return Intersection::None;
 	} else if (abIsect == 0 || cdIsect == 0) {
-		// abIsect <= 0, cdIsect <= 0
-		return Intersection::Incidental;
+		if (abcOri == 0 && abdOri == 0 &&
+		    cdaOri == 0 && cdbOri == 0) {
+		    // Special case: All Colinear to each other.
+		    // Check x-projection && y-projection
+		    Intersection xIsect = intersects1D<I>({a.x, b.x}, {c.x, d.x});
+		    Intersection yIsect = intersects1D<I>({a.y, b.y}, {c.y, d.y});
+
+			if (xIsect == Intersection::None ||
+			    yIsect == Intersection::None) {
+			    return Intersection::None;
+			} else if (xIsect == Intersection::Incidental ||
+			           yIsect == Intersection::Incidental) {
+				return Intersection::Incidental;
+			} else {
+				return Intersection::Overlap;
+			}
+		} else {
+			// abIsect <= 0, cdIsect <= 0
+			return Intersection::Incidental;
+		}
 	} else {
 		// abIsect <0 && cdIsect < 0
 		return Intersection::Overlap;
