@@ -78,7 +78,7 @@ TEST(DelaunayTriangleTest, IntersectsSegSegTest) {
 
 	// The compiler doesn't like brace-enclosed initialiser lists to intersects,
 	// so be explicit
-	
+
 	EXPECT_EQ(Intersection::Overlap, intersects<int>({p1, p3}, {p4, p5}));
 
 	// Incident, but not intersecting
@@ -87,6 +87,28 @@ TEST(DelaunayTriangleTest, IntersectsSegSegTest) {
 
 	// Completele not touching
 	EXPECT_EQ(Intersection::None, intersects<int>({p1, p3}, {p5, p6}));
+}
+
+
+
+TEST(DelaunayTriangleTest, IntersectsSegSegColinearOverlappingTest) {
+	using geometry::Point;
+	using geometry::intersects;
+	using geometry::Intersection;
+	using geometry::isOverlapping;
+
+	Point<int> p1(  0, 0);
+	Point<int> p2( 10, 0);
+	Point<int> p3( 20, 0);
+	Point<int> p4( 30, 0);
+
+	// The compiler doesn't like brace-enclosed initialiser lists to intersects,
+	// so be explicit
+	EXPECT_EQ(Intersection::Incidental, intersects<int>({p1, p2}, {p2, p3}));
+
+	EXPECT_EQ(Intersection::Overlap, intersects<int>({p1, p3}, {p2, p4}));
+
+	EXPECT_EQ(Intersection::None, intersects<int>({p1, p2}, {p3, p4}));
 }
 
 
