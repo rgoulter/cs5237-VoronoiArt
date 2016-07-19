@@ -21,6 +21,7 @@ using std::endl;
 
 using geometry::intersects;
 using geometry::orientation;
+using geometry::Intersection;
 
 
 
@@ -202,8 +203,10 @@ bool isTriangleCCW(const PointSetArray& psa, const TriRecord& tri) {
 
 
 
-// TODO Could retirn Intersection, rather than bool.
-bool intersectsTriangle(const PointSetArray& psa, const TriRecord& tri, int pIdx1, int pIdx2) {
+Intersection intersectsTriangle(const PointSetArray& psa, const TriRecord& tri, pair<int,int> idxPt) {
+	int pIdx1 = idxPt.first;
+	int pIdx2 = idxPt.second;
+
 	int idx1, idx2, idx3;
 	tri.get(idx1, idx2, idx3);
 
@@ -223,24 +226,44 @@ bool intersectsTriangle(const PointSetArray& psa, const TriRecord& tri, int pIdx
 	const LineSeg& p2p3 = {p2, p3};
 	const LineSeg& p3p1 = {p3, p1};
 
-	bool isects12 = isOverlapping(intersects(p1p2, e1e2));
-	bool isects23 = isOverlapping(intersects(p2p3, e1e2));
-	bool isects31 = isOverlapping(intersects(p3p1, e1e2));
+	Intersection isects12 = intersects(p1p2, e1e2);
+	Intersection isects23 = intersects(p2p3, e1e2);
+	Intersection isects31 = intersects(p3p1, e1e2);
 
-	return isects12 || isects23 || isects31;
+	if (isOverlapping(isects12) ||
+	    isOverlapping(isects23) ||
+	    isOverlapping(isects31)) {
+	    return Intersection::Overlap;
+	} else if (isTouching(isects12) ||
+	           isTouching(isects23) ||
+	           isTouching(isects31)) {
+		return Intersection::Incidental;
+	} else {
+		return Intersection::None;
+	}
 }
 
 
 
-bool intersectsTriangle(const PointSetArray& psa, const TriRecord& tri1, const TriRecord& tri2) {
+Intersection intersectsTriangle(const PointSetArray& psa, const TriRecord& tri1, const TriRecord& tri2) {
 	int idx1, idx2, idx3;
 	tri2.get(idx1, idx2, idx3);
 
-	bool isects12 = intersectsTriangle(psa, tri1, idx1, idx2);
-	bool isects23 = intersectsTriangle(psa, tri1, idx2, idx3);
-	bool isects31 = intersectsTriangle(psa, tri1, idx3, idx1);
+	Intersection isects12 = intersectsTriangle(psa, tri1, {idx1, idx2});
+	Intersection isects23 = intersectsTriangle(psa, tri1, {idx2, idx3});
+	Intersection isects31 = intersectsTriangle(psa, tri1, {idx3, idx1});
 
-	return isects12 || isects23 || isects31;
+	if (isOverlapping(isects12) ||
+	    isOverlapping(isects23) ||
+	    isOverlapping(isects31)) {
+	    return Intersection::Overlap;
+	} else if (isTouching(isects12) ||
+	           isTouching(isects23) ||
+	           isTouching(isects31)) {
+		return Intersection::Incidental;
+	} else {
+		return Intersection::None;
+	}
 }
 
 }

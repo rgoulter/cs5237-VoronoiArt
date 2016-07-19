@@ -15,6 +15,8 @@ using std::endl;
 
 using namespace delaunay;
 
+using geometry::Intersection;
+
 
 
 TEST(DelaunayTriangleTest, OrientationTest) {
@@ -106,7 +108,7 @@ TEST(DelaunayTriangleTest, IntersectsSegSegColinearOverlappingTest) {
 	// so be explicit
 	EXPECT_EQ(Intersection::Incidental, intersects<int>({p1, p2}, {p2, p3}));
 
-	EXPECT_EQ(Intersection::Overlap, intersects<int>({p1, p3}, {p2, p4}));
+	EXPECT_EQ(Intersection::ColinearOverlap, intersects<int>({p1, p3}, {p2, p4}));
 
 	EXPECT_EQ(Intersection::None, intersects<int>({p1, p2}, {p3, p4}));
 }
@@ -226,14 +228,16 @@ TEST(DelaunayTriangleTest, IntersectsTriSegTest) {
 
 	// hypotenuse of the tri slopes through (50, 50)
 	int segPtIdx1 = pointSet.addPoint (40, 40);
-	int segPtIdx2 = pointSet.addPoint (60, 60);
-	int segPtIdx3 = pointSet.addPoint (100, 100);
+	int segPtIdx2 = pointSet.addPoint (50, 50);
+	int segPtIdx3 = pointSet.addPoint (60, 60);
+	int segPtIdx4 = pointSet.addPoint (100, 100);
 
 	// Test CCW,
-	EXPECT_EQ(true, intersectsTriangle(pointSet, tri, segPtIdx1, segPtIdx2));
+	EXPECT_EQ(Intersection::Overlap, intersectsTriangle(pointSet, tri, {segPtIdx1, segPtIdx3}));
 
-	// Incident, but not intersecting
-	EXPECT_EQ(false, intersectsTriangle(pointSet, tri, segPtIdx2, segPtIdx3));
+	// Incidental, but not overlapping
+	EXPECT_EQ(Intersection::Incidental, intersectsTriangle(pointSet, tri, {segPtIdx2, segPtIdx4}));
+	EXPECT_EQ(Intersection::None, intersectsTriangle(pointSet, tri, {segPtIdx3, segPtIdx4}));
 }
 
 
@@ -252,12 +256,14 @@ TEST(DelaunayTriangleTest, IntersectsTriTriTest) {
 	TriRecord triLeft(pIdx1, pIdx2, pIdx3);
 	TriRecord triRight(pIdx2, pIdx4, pIdx3);
 
-	EXPECT_EQ(false, intersectsTriangle(pointSet, triLeft, triRight));
+	EXPECT_EQ(Intersection::Incidental, intersectsTriangle(pointSet, triLeft, triRight));
 
 
 	int pIdx5 = pointSet.addPoint(200, 100);    // right-high
 
 	// intersects triRight
 	TriRecord triBad(pIdx2, pIdx4, pIdx5);
-	EXPECT_EQ(true,  intersectsTriangle(pointSet, triRight, triBad));
+	EXPECT_EQ(Intersection::Overlap,  intersectsTriangle(pointSet, triRight, triBad));
+
+	// TODO also test tris which don't touch
 }

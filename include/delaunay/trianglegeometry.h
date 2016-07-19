@@ -1,8 +1,12 @@
 #ifndef DELAUNAY_TRIANGLEGEOMETRYH
 #define DELAUNAY_TRIANGLEGEOMETRYH
 
+#include <utility>
+
 #include "delaunay/pointsetarray.h"
 #include "delaunay/triangle.h"
+
+#include "geometry/linesegment.h"
 
 
 
@@ -23,11 +27,11 @@ bool isTriangleCCW(const PointSetArray& psa, const TriRecord& tri);
 
 
 
-bool intersectsTriangle(const PointSetArray& psa, const TriRecord& tri, int pIdx1, int pIdx2);
+geometry::Intersection intersectsTriangle(const PointSetArray& psa, const TriRecord& tri, std::pair<int,int> idxPt);
 
 
 
-bool intersectsTriangle(const PointSetArray& psa, const TriRecord& tri1, const TriRecord& tri2);
+geometry::Intersection intersectsTriangle(const PointSetArray& psa, const TriRecord& tri1, const TriRecord& tri2);
 
 }
 

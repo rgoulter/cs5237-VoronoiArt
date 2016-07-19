@@ -101,7 +101,7 @@ Intersection intersects(const LineSegment<I>& ab, const LineSegment<I>& cd) {
 			           yIsect == Intersection::Incidental) {
 				return Intersection::Incidental;
 			} else {
-				return Intersection::Overlap;
+				return Intersection::ColinearOverlap;
 			}
 		} else {
 			// abIsect <= 0, cdIsect <= 0

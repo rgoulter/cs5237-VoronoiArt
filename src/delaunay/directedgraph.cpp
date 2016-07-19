@@ -17,6 +17,8 @@ using std::vector;
 using std::cout;
 using std::endl;
 
+using geometry::isOverlapping;
+
 
 
 namespace delaunay {
@@ -86,7 +88,7 @@ bool leavesDoNotOverlap(const PointSetArray& pointSet, const vector<shared_ptr<D
 			TriRecord innerTri = innerNode->tri_;
 
 			if (!(outerTri == innerTri) &&
-			    intersectsTriangle(pointSet, outerTri, innerTri)) {
+			    isOverlapping(intersectsTriangle(pointSet, outerTri, innerTri))) {
 				return false;
 			}
 		}

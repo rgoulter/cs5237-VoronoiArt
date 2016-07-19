@@ -25,7 +25,9 @@ template<typename I>
 int orientation(const LineSegment<I>& p1p2, const Point<I>& p3);
 
 
-enum class Intersection { None, Incidental, Overlap };
+// ColinearOverlap only used in intersects(LineSeg,LineSeg),
+// so perhaps should be different type
+enum class Intersection { None, Incidental, ColinearOverlap, Overlap };
 
 template<typename I>
 Intersection intersects(const LineSegment<I>& ab, const LineSegment<I>& cd);
