@@ -16,7 +16,7 @@ using namespace geometry;
 
 
 
-TEST(PointSetTest, IntPointPolyPointInPolygon) {
+TEST(GeometryPolygonTest, IntPointPolyPointInPolygon) {
 	Point<int> p1( 0,  0);   // 1
 	Point<int> p2( 0, 10);   // 2
 	Point<int> p3(10, 10);   // 3
@@ -36,24 +36,7 @@ TEST(PointSetTest, IntPointPolyPointInPolygon) {
 
 
 
-TEST(PolygonTest, LineSegIsectIntPointBasic) {
-	Point<int> a = {  0,  0 };
-	Point<int> b = { 10, 10 };
-	Point<int> c = {  0,  2 };
-	Point<int> d = {  2,  0 };
-
-	// Should be this
-	Point<int> expectedIP(1,1);
-
-	Point<int> actualIP =
-		findIntersectionPoint({ a, b }, { c, d });
-
-	EXPECT_EQ(expectedIP, actualIP);
-}
-
-
-
-TEST(PolygonTest, ClipPolyRectCaseNoIsect) {
+TEST(GeometryPolygonTest, ClipPolyRectCaseNoIsect) {
 	Rect clipRect({0, 0}, 100, 100);
 
 	// Test polygon (clearly within the outer rect).
@@ -74,7 +57,7 @@ TEST(PolygonTest, ClipPolyRectCaseNoIsect) {
 
 
 
-TEST(PolygonTest, ClipPolyRectCaseNoIsectOutside) {
+TEST(GeometryPolygonTest, ClipPolyRectCaseNoIsectOutside) {
 	Rect clipRect({0, 0}, 100, 100);
 
 	// Test polygon (clearly OUTSIDE the outer rect).
@@ -91,7 +74,7 @@ TEST(PolygonTest, ClipPolyRectCaseNoIsectOutside) {
 
 
 
-TEST(PolygonTest, ClipPolyRectCaseSimpleIsect) {
+TEST(GeometryPolygonTest, ClipPolyRectCaseSimpleIsect) {
 	Rect clipRect({0, 0}, 100, 100);
 
 	// Test polygon (clearly intersects with rect).
@@ -139,7 +122,7 @@ TEST(PolygonTest, ClipPolyRectCaseSimpleIsect) {
 
 
 
-TEST(PolygonTest, ClipPolyRectCaseIsectEdgeTouching) {
+TEST(GeometryPolygonTest, ClipPolyRectCaseIsectEdgeTouching) {
 	Rect clipRect({0, 0}, 100, 100);
 
 	// Test polygon: Touches the edge, but never outside
@@ -186,7 +169,7 @@ TEST(PolygonTest, ClipPolyRectCaseIsectEdgeTouching) {
 
 
 
-TEST(PolygonTest, ClipPolyRectCaseIsectEdgeTouchingOutside) {
+TEST(GeometryPolygonTest, ClipPolyRectCaseIsectEdgeTouchingOutside) {
 	Rect clipRect({0, 0}, 100, 100);
 
 	// Test polygon: touches edge, has some points outside.

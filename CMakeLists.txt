@@ -163,7 +163,8 @@ if (test)
   ##############
   # Unit Tests
   ##############
-  add_executable(runUnitTests test/delaunay/polygontests.cpp
+  add_executable(runUnitTests test/geometry/polygontests.cpp
+                              test/geometry/linesegmenttests.cpp
                               test/delaunay/pointsettests.cpp
                               test/delaunay/pointsetiotests.cpp
                               test/delaunay/dagtests.cpp
