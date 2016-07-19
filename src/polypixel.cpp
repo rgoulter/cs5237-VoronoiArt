@@ -162,8 +162,17 @@ void findSomeColor3iv(const ImageData& imData, const Polygon& unclippedPoly, int
 	int loadedImageHeight = imData.height();
 
 	// Clip polygon to ensure we have nothing out of bounds
+	// TODO: this should be pre-condition to fn
 	Rect loadedImageRect({0,0}, loadedImageWidth - 1, loadedImageHeight - 1);
 	const Polygon& poly = clipPolygonToRectangle(unclippedPoly, loadedImageRect);
+
+	if (poly.numPoints() == 0) {
+		cout << "Empty polygon. (Outside rect)" << endl;
+		colorIv[0] = 0;
+		colorIv[1] = 0;
+		colorIv[2] = 0;
+		return;
+	}
 
 
 	// Read the pixels from the relevant section
@@ -209,6 +218,11 @@ void findSomeColor3iv(const ImageData& imData, const Polygon& unclippedPoly, int
 		    v < 0 || v > loadedImageHeight) {
 			// This only happens in the POLYGON WASN'T TRIMMED.
 			cout << "BAD! Polygon not trimmed! (2)" << endl;
+			cout << "Image width: " << loadedImageWidth << ", " << loadedImageHeight << endl;
+			cout << "Poly points:" << endl;
+			for (const geometry::Point<int>& pt : poly.points()) {
+				cout << "  " << pt << endl;
+			}
 			colorIv[0] = 0;
 			colorIv[1] = 0;
 			colorIv[2] = 0;
