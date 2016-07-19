@@ -156,7 +156,7 @@ TEST(VoronoiPolyConstructTest, PolygonsFromEdgesTrivialCase) {
 	// Need to check that got CCW order.
 	for (int polyIdx = 0; (unsigned) polyIdx < polygons.size(); ++polyIdx) {
 		const geometry::Polygon& poly = polygons[polyIdx];
-		for (int ptIdx = 0; ptIdx < poly.numPoints(); ++ptIdx) {
+		for (unsigned int ptIdx = 0; ptIdx < poly.numPoints(); ++ptIdx) {
 			const Point<int>& p1 = poly[ptIdx];
 
 			// Looking for the starting point, (10, 10)
