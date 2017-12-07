@@ -1,5 +1,7 @@
 # CS5237 Project.
 
+[![Build Status](https://travis-ci.org/rgoulter/cs5237-VoronoiArt.svg?branch=master)](https://travis-ci.org/rgoulter/cs5237-VoronoiArt)
+
 Create a "stain-glass" effect using the Voronoi diagram of an image, with
 randomly generated points.
 
