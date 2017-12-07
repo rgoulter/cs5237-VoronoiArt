@@ -78,25 +78,25 @@ set(VORONOI_LIB_HEADERS include/delaunay/li.h
                         include/imagedata.h
                         include/generatepoints.h
                         include/polypixel.h)
-set (VORONOI_HEADERS include/mypanelopengl.h
-                     include/mainqt.h)
+set(VORONOI_HEADERS include/mypanelopengl.h
+                    include/mainqt.h)
 
 include_directories(include)
 
 
-IF (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set (PLATFORM_SOURCES src/linux/stopwatch.cpp)
-    set (PLATFORM_HEADERS include/linux/platform.h
-                          include/linux/stopwatch.h)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    set(PLATFORM_SOURCES src/linux/stopwatch.cpp)
+    set(PLATFORM_HEADERS include/linux/platform.h
+                         include/linux/stopwatch.h)
     include_directories(include/linux include/linux/basics)
-ENDIF (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
-IF (APPLE)
-    set (PLATFORM_SOURCES src/linux/stopwatch.cpp)
-    set (PLATFORM_HEADERS include/mac/platform.h
-                          include/mac/stopwatch.h)
+if(APPLE)
+    set(PLATFORM_SOURCES src/linux/stopwatch.cpp)
+    set(PLATFORM_HEADERS include/mac/platform.h
+                         include/mac/stopwatch.h)
     include_directories(include/mac include/mac/basics)
-ENDIF (APPLE)
+endif(APPLE)
 
 
 qt5_wrap_ui(UI_HEADERS ./forms/mainqt.ui)
@@ -105,13 +105,13 @@ qt5_wrap_ui(UI_HEADERS ./forms/mainqt.ui)
 
 
 # Set some Win32 Specific Settings
-IF(WIN32)
-SET(GUI_TYPE WIN32)
-ENDIF(WIN32)
+if(WIN32)
+set(GUI_TYPE WIN32)
+endif(WIN32)
 # Set some Apple MacOS Specific settings
-IF (APPLE)
-SET(GUI_TYPE MACOSX_BUNDLE)
-ENDIF (APPLE)
+if(APPLE)
+set(GUI_TYPE MACOSX_BUNDLE)
+endif(APPLE)
 
 
 add_library(VoronoiArt_lib ${VORONOI_LIB_HEADERS}
@@ -134,11 +134,11 @@ target_link_libraries(VoronoiCLI VoronoiArt_lib)
 target_link_libraries(VoronoiCLI ${OpenCV_LIBS})
 target_link_libraries(VoronoiCLI ${OPENGL_LIBRARIES})
 
-IF (APPLE)
-ENDIF (APPLE)
+if(APPLE)
+endif(APPLE)
 
-IF (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-ENDIF (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 
 # Use the Widgets module from Qt 5.
@@ -153,7 +153,7 @@ qt5_use_modules(VoronoiArt Widgets OpenGL)
 ################################
 # Testing
 ################################
-if (test)
+if(test)
   # This adds another subdirectory, which has 'project(gtest)'.
   add_subdirectory(gtest-1.7.0)
 
