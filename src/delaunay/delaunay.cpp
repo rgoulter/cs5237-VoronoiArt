@@ -89,8 +89,8 @@ MyPoint pointForTri(const PointSetArray& pointSet, const LinkedTriangle& ltri) {
 
 
 
-vector<Polygon> createVoronoi(const DirectedGraph& dag) {
-	vector<Polygon> voronoiPolygons; // Data structure to hold voronoi edges.
+vector<geometry::Polygon> createVoronoi(const DirectedGraph& dag) {
+	vector<geometry::Polygon> voronoiPolygons; // Data structure to hold voronoi edges.
 
 	vector<FIndex> lookupLinkedTri = dag.getLinkedTrianglesLookup();
 
@@ -111,7 +111,7 @@ vector<Polygon> createVoronoi(const DirectedGraph& dag) {
 		const LinkedTriangle& ltri = trist[triIdx];
 
 		// Find delaunay triangles to which this point is linked
-		Polygon polygon;
+		geometry::Polygon polygon;
 
 		// TODO May be convenient if PointSetArray had addPoint(MyPoint)
 		const MyPoint& initPt = pointForTri(delaunayPointSet, ltri);
@@ -137,7 +137,7 @@ vector<Polygon> createVoronoi(const DirectedGraph& dag) {
 
 
 
-vector<Polygon> runDelaunayAlgorithm(const PointSetArray& inputPoints) {
+vector<geometry::Polygon> runDelaunayAlgorithm(const PointSetArray& inputPoints) {
 	StopWatch voroSW;
 
 	voroSW.reset();
@@ -156,7 +156,7 @@ vector<Polygon> runDelaunayAlgorithm(const PointSetArray& inputPoints) {
 	voroSW.reset();
 	voroSW.resume();
 
-	const vector<Polygon>& voronoiPolygons = createVoronoi(dag); // in `delaunay`
+	const vector<geometry::Polygon>& voronoiPolygons = createVoronoi(dag); // in `delaunay`
 
 	voroSW.pause();
 	double timeCreateVoronoi = voroSW.ms();

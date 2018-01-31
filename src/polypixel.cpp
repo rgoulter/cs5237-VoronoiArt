@@ -26,21 +26,21 @@ using geometry::inPoly;
 
 
 // also uses polypixel's ColoredPolygon
-vector<ColoredPolygon> generateColoredPolygons(vector<Polygon>& polys, const ImageData& imData) {
+vector<ColoredPolygon> generateColoredPolygons(vector<geometry::Polygon>& polys, const ImageData& imData) {
 	vector<ColoredPolygon> renderedPolygons;
 
 	StopWatch allSW;
 	allSW.resume();
 
-	vector<Polygon> clippedPolys;
+	vector<geometry::Polygon> clippedPolys;
 
 	// Clip polygon to ensure we have nothing out of bounds
 	int loadedImageWidth = imData.width();
 	int loadedImageHeight = imData.height();
 	Rect loadedImageRect({0, 0}, loadedImageWidth - 1, loadedImageHeight - 1);
 
-	for (const Polygon& poly : polys) {
-		const Polygon& clippedPoly = clipPolygonToRectangle(poly, loadedImageRect);
+	for (const geometry::Polygon& poly : polys) {
+		const geometry::Polygon& clippedPoly = clipPolygonToRectangle(poly, loadedImageRect);
 
 		if (clippedPoly.numPoints() > 0) {
 			clippedPolys.push_back(clippedPoly);
@@ -48,7 +48,7 @@ vector<ColoredPolygon> generateColoredPolygons(vector<Polygon>& polys, const Ima
 	}
 
 
-	for (const Polygon& poly : clippedPolys) {
+	for (const geometry::Polygon& poly : clippedPolys) {
 		// TODO: Would be nice to be able to inject another function
 		// instead of `findSomeColor3iv`.
 		int colorIv[3];
@@ -78,7 +78,7 @@ vector<ColoredPolygon> generateColoredPolygons(vector<Polygon>& polys, const Ima
 
 // TODO: enumerateLROfSimplePoly would be clearer as a list of pairs.
 // TODO: there's probably a more effecient geometry algo. to compute this.
-vector<pair<int,int>> enumerateLeftRightOfSimplePolygon(const Polygon& poly) {
+vector<pair<int,int>> enumerateLeftRightOfSimplePolygon(const geometry::Polygon& poly) {
 	vector<pair<int,int>> result;
 
 	// Find bounding box of polygon
@@ -123,7 +123,7 @@ vector<pair<int,int>> enumerateLeftRightOfSimplePolygon(const Polygon& poly) {
 
 
 
-void findAverageColor3iv(const ImageData& imData, const Polygon& poly, int* colorIv) {
+void findAverageColor3iv(const ImageData& imData, const geometry::Polygon& poly, int* colorIv) {
 	// Find bounding box of polygon
 	const Rect& boundingRect = boundingBox(poly);
 	int minX = boundingRect.left();
@@ -209,7 +209,7 @@ void findAverageColor3iv(const ImageData& imData, const Polygon& poly, int* colo
 
 
 
-void findSomeColor3iv(const ImageData& imData, const Polygon& poly, int* colorIv) {
+void findSomeColor3iv(const ImageData& imData, const geometry::Polygon& poly, int* colorIv) {
 	int loadedImageWidth = imData.width();
 	int loadedImageHeight = imData.height();
 

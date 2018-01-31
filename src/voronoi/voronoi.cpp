@@ -404,7 +404,7 @@ Vertices* verticesForInputPoints(const delaunay::PointSetArray& inputPoints) {
 
 
 // POLYREP:POINTSETARRAY
-vector<Polygon> runVoronoiAlgorithm(const delaunay::PointSetArray& inputPoints) {
+vector<geometry::Polygon> runVoronoiAlgorithm(const delaunay::PointSetArray& inputPoints) {
 	StopWatch voroSW;
 	voroSW.reset();
 	voroSW.resume();
@@ -419,7 +419,7 @@ vector<Polygon> runVoronoiAlgorithm(const delaunay::PointSetArray& inputPoints) 
 	voroSW.reset();
 	voroSW.resume();
 
-	vector<Polygon> voronoiPolygons =
+	vector<geometry::Polygon> voronoiPolygons =
 	    polygonsFromEdges(*voronoiEdges);
 
 	voroSW.pause();
