@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 
