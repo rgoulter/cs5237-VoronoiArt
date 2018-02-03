@@ -72,7 +72,7 @@ Directories within the root project folder are:
 * gtest-1.7.0 - the gtest dependency.
 * include - for .h, .hpp header files.
 * make - for makefiles.
-* resource - for Qt .rc files.
+* resource - for Qt .rc files. (Not used)
 * shaders - for .vert, .frag GLSL shaders.
 * src - for .cpp source files.
 * test - for .cpp gtest source files.

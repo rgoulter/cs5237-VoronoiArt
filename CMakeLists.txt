@@ -109,8 +109,6 @@ if(WIN32)
 endif(WIN32)
 
 qt5_wrap_ui(UI_HEADERS ./forms/mainqt.ui)
-# Do we need this? Form in ./forms/mainqt.ui .. but unused.
-# qt5_add_resources(RESOURCE_FILES ../resources/resources.qrc)
 
 
 # Set some Win32 Specific Settings
