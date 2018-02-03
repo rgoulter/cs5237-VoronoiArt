@@ -10,7 +10,8 @@ option(test "Build all tests." OFF)
 
 project(VoronoiArt)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
+# MSVC doesn't like -Wextra
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic")
 
 # We need C++11 stantard.
 set(CMAKE_CXX_STANDARD 11)
@@ -29,6 +30,8 @@ find_package(Qt5Widgets REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(OpenGL REQUIRED)
 
+include_directories(${OpenCV_INCLUDE_DIRS})
+include_directories(${Qt5Widgets_INCLUDE_DIRS})
 
 
 # Lib for Non-Qt code
@@ -98,6 +101,12 @@ if(APPLE)
     include_directories(include/mac include/mac/basics)
 endif(APPLE)
 
+if(WIN32)
+    set(PLATFORM_SOURCES src/win32/stopwatch.cpp)
+    set(PLATFORM_HEADERS include/win32/platform.h
+                         include/win32/stopwatch.h)
+    include_directories(include/win32)
+endif(WIN32)
 
 qt5_wrap_ui(UI_HEADERS ./forms/mainqt.ui)
 # Do we need this? Form in ./forms/mainqt.ui .. but unused.

@@ -1,6 +1,10 @@
 #ifndef STOPWATCHH
 #define STOPWATCHH
 
+// We want to use std::min, std::max
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <windows.h>
 
 
