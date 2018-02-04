@@ -30,4 +30,4 @@ build_script:
   - cmake --build %APPVEYOR_BUILD_FOLDER%\build --config %CONFIGURATION%
 
 artifacts:
-  - path: $(APPVEYOR_BUILD_FOLDER)\build
+  - path: build\Release
