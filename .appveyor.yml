@@ -16,10 +16,13 @@ configuration: Release
 
 # Need to cache the installed vcpkgs
 cache:
-  - c:\Tools\vcpkg\installed\
+  - c:/Tools/vcpkg/installed/
+  - c:/Tools/vcpkg/packages/
 
 init:
-  - cmd: c:/tools/vcpkg/vcpkg.exe install opencv:x64-windows
+  # For some reason it's not caching?
+  - cmd: c:/tools/vcpkg/vcpkg.exe install liblzma:x64-windows
+  # - cmd: c:/tools/vcpkg/vcpkg.exe install opencv:x64-windows
   # - cmd: c:/tools/vcpkg/vcpkg.exe install qt5:x64-windows
 
 #before_build:
