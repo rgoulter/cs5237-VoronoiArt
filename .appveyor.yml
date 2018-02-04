@@ -20,13 +20,13 @@ cache:
 
 init:
   - cmd: c:/tools/vcpkg/vcpkg.exe install opencv:x64-windows
-  - cmd: c:/tools/vcpkg/vcpkg.exe install qt5:x64-windows
+  # - cmd: c:/tools/vcpkg/vcpkg.exe install qt5:x64-windows
 
-before_build:
-  - cmd: cmake -H%APPVEYOR_BUILD_FOLDER% -B%APPVEYOR_BUILD_FOLDER%\build -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake
+#before_build:
+#  - cmd: cmake -H%APPVEYOR_BUILD_FOLDER% -B%APPVEYOR_BUILD_FOLDER%\build -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake
 
-after_build:
-  - cmd: cmake --build %APPVEYOR_BUILD_FOLDER%\build --config %CONFIGURATION%
+#after_build:
+#  - cmd: cmake --build %APPVEYOR_BUILD_FOLDER%\build --config %CONFIGURATION%
 
-artifacts:
-  - path: $(APPVEYOR_BUILD_FOLDER)\build
+#artifacts:
+#  - path: $(APPVEYOR_BUILD_FOLDER)\build
