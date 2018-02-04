@@ -19,13 +19,12 @@ cache:
   - c:/Tools/vcpkg/installed/
   - c:/Tools/vcpkg/packages/
 
-init:
-  # For some reason it's not caching?
+
+# For some reason it's not caching?
+before_build:
   - cmd: c:/tools/vcpkg/vcpkg.exe install liblzma:x64-windows
   # - cmd: c:/tools/vcpkg/vcpkg.exe install opencv:x64-windows
   # - cmd: c:/tools/vcpkg/vcpkg.exe install qt5:x64-windows
-
-#before_build:
 #  - cmd: cmake -H%APPVEYOR_BUILD_FOLDER% -B%APPVEYOR_BUILD_FOLDER%\build -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake
 
 #after_build:
