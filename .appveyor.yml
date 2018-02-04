@@ -15,20 +15,18 @@ platform:
 configuration: Release
 
 # Need to cache the installed vcpkgs
+# (Caching doesn't affect init, so must use vcpkg in before_build)
 cache:
   - c:/Tools/vcpkg/installed/
   - c:/Tools/vcpkg/packages/
 
-
-# For some reason it's not caching?
 before_build:
-  - cmd: c:/tools/vcpkg/vcpkg.exe install liblzma:x64-windows
-  # - cmd: c:/tools/vcpkg/vcpkg.exe install opencv:x64-windows
-  # - cmd: c:/tools/vcpkg/vcpkg.exe install qt5:x64-windows
-#  - cmd: cmake -H%APPVEYOR_BUILD_FOLDER% -B%APPVEYOR_BUILD_FOLDER%\build -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake
+  - cmd: c:/tools/vcpkg/vcpkg.exe install opencv:x64-windows
+  - cmd: c:/tools/vcpkg/vcpkg.exe install qt5:x64-windows
+  - cmd: cmake -H%APPVEYOR_BUILD_FOLDER% -B%APPVEYOR_BUILD_FOLDER%\build -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake
 
-#after_build:
-#  - cmd: cmake --build %APPVEYOR_BUILD_FOLDER%\build --config %CONFIGURATION%
+after_build:
+  - cmd: cmake --build %APPVEYOR_BUILD_FOLDER%\build --config %CONFIGURATION%
 
-#artifacts:
-#  - path: $(APPVEYOR_BUILD_FOLDER)\build
+artifacts:
+  - path: $(APPVEYOR_BUILD_FOLDER)\build
