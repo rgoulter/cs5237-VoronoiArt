@@ -1,6 +1,6 @@
 #include <vector>
 
-#include "gtest/gtest.h"
+#include "catch.hpp"
 
 #include "delaunay/directedgraph.h"
 #include "delaunay/pointsetarray.h"
@@ -8,14 +8,12 @@
 #include "delaunay/triangulation.h"
 
 using std::vector;
-using std::cout;
-using std::endl;
 
 using namespace delaunay;
 
 
 
-TEST(TriangulationTest, TrivialLinkTrisCase) {
+TEST_CASE("TriangulationTest, TrivialLinkTrisCase") {
 	// Arbitrary, so long as distinct.
 	int iIdx = 1;
 	int jIdx = 2;
@@ -35,14 +33,14 @@ TEST(TriangulationTest, TrivialLinkTrisCase) {
 	const LinkedTriangle& ltriIJK = trist[ijkIdx];
 	const LinkedTriangle& ltriILJ = trist[iljIdx];
 
-	EXPECT_EQ(iljIdx, ltriIJK.links_[0]);
-	EXPECT_EQ(ijkIdx, ltriILJ.links_[2]);
+	CHECK(iljIdx == ltriIJK.links_[0]);
+	CHECK(ijkIdx == ltriILJ.links_[2]);
 }
 
 
 
 // Does it work with another rotation of the ILJ tri?
-TEST(TriangulationTest, TrivialLinkTrisCase2) {
+TEST_CASE("TriangulationTest, TrivialLinkTrisCase2") {
 	// Arbitrary, so long as distinct.
 	int iIdx = 1;
 	int jIdx = 2;
@@ -62,7 +60,6 @@ TEST(TriangulationTest, TrivialLinkTrisCase2) {
 	const LinkedTriangle& ltriIJK = trist[ijkIdx];
 	const LinkedTriangle& ltriLJI = trist[ljiIdx];
 
-	EXPECT_EQ(ljiIdx, ltriIJK.links_[0]);
-	EXPECT_EQ(ijkIdx, ltriLJI.links_[1]);
+	CHECK(ljiIdx == ltriIJK.links_[0]);
+	CHECK(ijkIdx == ltriLJI.links_[1]);
 }
-

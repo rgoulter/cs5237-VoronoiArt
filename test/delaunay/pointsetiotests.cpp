@@ -1,32 +1,30 @@
 #include <vector>
 #include <utility>
 
-#include "gtest/gtest.h"
+#include "catch.hpp"
 
 #include "delaunay/pointsetio.h"
 
 using std::pair;
 using std::string;
 using std::vector;
-using std::cout;
-using std::endl;
 
 using namespace delaunay;
 
 
 
-TEST(PointSetIOTest, TrivialCase) {
+TEST_CASE("PointSetIOTest, TrivialCase") {
 	const string& input = "[ [1,2], [3,4], [5,6] ]";
 
 	vector< pair<int,int> > actual = parsePointList(input);
 	vector< pair<int,int> > expected{ {1,2}, {3,4}, {5,6} };
 
-	EXPECT_EQ(expected, actual);
+	REQUIRE(expected == actual);
 }
 
 
 
-TEST(PointSetIOTest, TrivialVariations) {
+TEST_CASE("PointSetIOTest, TrivialVariations") {
 	const string& inputPacked = "[[1,2],[3,4],[5,6]]";
 
 	vector< pair<int,int> > actual1 = parsePointList(inputPacked);
@@ -44,17 +42,16 @@ TEST(PointSetIOTest, TrivialVariations) {
 
 	vector< pair<int,int> > expected{ {1,2}, {3,4}, {5,6} };
 
-	EXPECT_EQ(expected, actual1);
+	REQUIRE(expected == actual1);
 }
 
 
 
-TEST(PointSetIOTest, VariousNumbersCase) {
+TEST_CASE("PointSetIOTest, VariousNumbersCase") {
 	const string& input = "[ [123,456], [-12 , 0] ]";
 
 	vector< pair<int,int> > actual = parsePointList(input);
 	vector< pair<int,int> > expected{ {123,456}, {-12,0} };
 
-	EXPECT_EQ(expected, actual);
+	REQUIRE(expected == actual);
 }
-

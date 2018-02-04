@@ -1,6 +1,6 @@
 #include <vector>
 
-#include "gtest/gtest.h"
+#include "catch.hpp"
 
 #include "delaunay/polygon.h"
 #include "delaunay/pointsetarray.h"
@@ -10,8 +10,6 @@
 #include "geometry/linesegment.h"
 
 using std::vector;
-using std::cout;
-using std::endl;
 
 using namespace delaunay;
 
@@ -19,7 +17,7 @@ using geometry::Intersection;
 
 
 
-TEST(DelaunayTriangleTest, IsCCW) {
+TEST_CASE("DelaunayTriangleTest, IsCCW") {
 	PointSetArray pointSet;
 
 	int pIdx1 = pointSet.addPoint(0, 0);
@@ -33,17 +31,17 @@ TEST(DelaunayTriangleTest, IsCCW) {
 	TriRecord triCW2(pIdx2, pIdx1, pIdx3);
 	TriRecord triCW3(pIdx1, pIdx3, pIdx2);
 
-	EXPECT_EQ(true, isTriangleCCW(pointSet, triCCW1));
-	EXPECT_EQ(true, isTriangleCCW(pointSet, triCCW2));
-	EXPECT_EQ(true, isTriangleCCW(pointSet, triCCW3));
-	EXPECT_EQ(false, isTriangleCCW(pointSet, triCW1));
-	EXPECT_EQ(false, isTriangleCCW(pointSet, triCW2));
-	EXPECT_EQ(false, isTriangleCCW(pointSet, triCW3));
+	CHECK(isTriangleCCW(pointSet, triCCW1));
+	CHECK(isTriangleCCW(pointSet, triCCW2));
+	CHECK(isTriangleCCW(pointSet, triCCW3));
+	CHECK_FALSE(isTriangleCCW(pointSet, triCW1));
+	CHECK_FALSE(isTriangleCCW(pointSet, triCW2));
+	CHECK_FALSE(isTriangleCCW(pointSet, triCW3));
 }
 
 
 
-TEST(DelaunayTriangleTest, IsCCW2) {
+TEST_CASE("DelaunayTriangleTest, IsCCW2") {
 	PointSetArray pointSet;
 
 	int pIdx1 = pointSet.addPoint(-100, -100);
@@ -57,17 +55,17 @@ TEST(DelaunayTriangleTest, IsCCW2) {
 	TriRecord triCW2(pIdx2, pIdx1, pIdx3);
 	TriRecord triCW3(pIdx1, pIdx3, pIdx2);
 
-	EXPECT_EQ(true, isTriangleCCW(pointSet, triCCW1));
-	EXPECT_EQ(true, isTriangleCCW(pointSet, triCCW2));
-	EXPECT_EQ(true, isTriangleCCW(pointSet, triCCW3));
-	EXPECT_EQ(false, isTriangleCCW(pointSet, triCW1));
-	EXPECT_EQ(false, isTriangleCCW(pointSet, triCW2));
-	EXPECT_EQ(false, isTriangleCCW(pointSet, triCW3));
+	CHECK(isTriangleCCW(pointSet, triCCW1));
+	CHECK(isTriangleCCW(pointSet, triCCW2));
+	CHECK(isTriangleCCW(pointSet, triCCW3));
+	CHECK_FALSE(isTriangleCCW(pointSet, triCW1));
+	CHECK_FALSE(isTriangleCCW(pointSet, triCW2));
+	CHECK_FALSE(isTriangleCCW(pointSet, triCW3));
 }
 
 
 
-TEST(DelaunayTriangleTest, IsCCW3) {
+TEST_CASE("DelaunayTriangleTest, IsCCW3") {
 	PointSetArray pointSet;
 
 	int pIdx1 = pointSet.addPoint(1000, 1000);
@@ -81,17 +79,17 @@ TEST(DelaunayTriangleTest, IsCCW3) {
 	TriRecord triCW2(pIdx2, pIdx1, pIdx3);
 	TriRecord triCW3(pIdx1, pIdx3, pIdx2);
 
-	EXPECT_EQ(true, isTriangleCCW(pointSet, triCCW1));
-	EXPECT_EQ(true, isTriangleCCW(pointSet, triCCW2));
-	EXPECT_EQ(true, isTriangleCCW(pointSet, triCCW3));
-	EXPECT_EQ(false, isTriangleCCW(pointSet, triCW1));
-	EXPECT_EQ(false, isTriangleCCW(pointSet, triCW2));
-	EXPECT_EQ(false, isTriangleCCW(pointSet, triCW3));
+	CHECK(isTriangleCCW(pointSet, triCCW1));
+	CHECK(isTriangleCCW(pointSet, triCCW2));
+	CHECK(isTriangleCCW(pointSet, triCCW3));
+	CHECK_FALSE(isTriangleCCW(pointSet, triCW1));
+	CHECK_FALSE(isTriangleCCW(pointSet, triCW2));
+	CHECK_FALSE(isTriangleCCW(pointSet, triCW3));
 }
 
 
 
-TEST(DelaunayTriangleTest, IsCCWFlipTri) {
+TEST_CASE("DelaunayTriangleTest, IsCCWFlipTri") {
 	PointSetArray pointSet;
 
 	// abd, dbc are CCW.
@@ -105,19 +103,19 @@ TEST(DelaunayTriangleTest, IsCCWFlipTri) {
 	TriRecord triABD(pIdx1, pIdx2, pIdx4);
 	TriRecord triDBC(pIdx4, pIdx2, pIdx3);
 
-	EXPECT_EQ(true, isTriangleCCW(pointSet, triABD));
-	EXPECT_EQ(true, isTriangleCCW(pointSet, triDBC));
+	CHECK(isTriangleCCW(pointSet, triABD));
+	CHECK(isTriangleCCW(pointSet, triDBC));
 
 	TriRecord triABC(pIdx1, pIdx2, pIdx3);
 	TriRecord triACD(pIdx1, pIdx3, pIdx4);
 
-	EXPECT_EQ(true, isTriangleCCW(pointSet, triABC));
-	EXPECT_EQ(true, isTriangleCCW(pointSet, triACD));
+	CHECK(isTriangleCCW(pointSet, triABC));
+	CHECK(isTriangleCCW(pointSet, triACD));
 }
 
 
 
-TEST(DelaunayTriangleTest, IntersectsTriSegTest) {
+TEST_CASE("DelaunayTriangleTest, IntersectsTriSegTest") {
 	PointSetArray pointSet;
 
 	// A simple right-angled triangle
@@ -134,16 +132,16 @@ TEST(DelaunayTriangleTest, IntersectsTriSegTest) {
 	int segPtIdx4 = pointSet.addPoint (100, 100);
 
 	// Test CCW,
-	EXPECT_EQ(Intersection::Overlap, intersectsTriangle(pointSet, tri, {segPtIdx1, segPtIdx3}));
+	CHECK(Intersection::Overlap == intersectsTriangle(pointSet, tri, {segPtIdx1, segPtIdx3}));
 
 	// Incidental, but not overlapping
-	EXPECT_EQ(Intersection::Incidental, intersectsTriangle(pointSet, tri, {segPtIdx2, segPtIdx4}));
-	EXPECT_EQ(Intersection::None, intersectsTriangle(pointSet, tri, {segPtIdx3, segPtIdx4}));
+	CHECK(Intersection::Incidental == intersectsTriangle(pointSet, tri, {segPtIdx2, segPtIdx4}));
+	CHECK(Intersection::None == intersectsTriangle(pointSet, tri, {segPtIdx3, segPtIdx4}));
 }
 
 
 
-TEST(DelaunayTriangleTest, IntersectsTriTriTest) {
+TEST_CASE("DelaunayTriangleTest, IntersectsTriTriTest") {
 	PointSetArray pointSet;
 
 	// Two simple right-angled triangles
@@ -157,14 +155,14 @@ TEST(DelaunayTriangleTest, IntersectsTriTriTest) {
 	TriRecord triLeft(pIdx1, pIdx2, pIdx3);
 	TriRecord triRight(pIdx2, pIdx4, pIdx3);
 
-	EXPECT_EQ(Intersection::Incidental, intersectsTriangle(pointSet, triLeft, triRight));
+	CHECK(Intersection::Incidental == intersectsTriangle(pointSet, triLeft, triRight));
 
 
 	int pIdx5 = pointSet.addPoint(200, 100);    // right-high
 
 	// intersects triRight
 	TriRecord triBad(pIdx2, pIdx4, pIdx5);
-	EXPECT_EQ(Intersection::Overlap,  intersectsTriangle(pointSet, triRight, triBad));
+	CHECK(Intersection::Overlap ==  intersectsTriangle(pointSet, triRight, triBad));
 
 	// TODO also test tris which don't touch
 }

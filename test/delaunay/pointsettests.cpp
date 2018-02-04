@@ -1,19 +1,17 @@
 #include <vector>
 
-#include "gtest/gtest.h"
+#include "catch.hpp"
 
 #include "delaunay/pointsetarray.h"
 #include "delaunay/directedgraph.h"
 
 using std::vector;
-using std::cout;
-using std::endl;
 
 using namespace delaunay;
 
 
 
-TEST(PointSetTest, PointSetInTriSimple) {
+TEST_CASE("PointSetTest, PointSetInTriSimple") {
 	PointSetArray ps;
 
 	int p1 = ps.addPoint(0, 0);   // 1
@@ -23,18 +21,18 @@ TEST(PointSetTest, PointSetInTriSimple) {
 	int p5 = ps.addPoint(1, 1);   // 5
 
 	// (1, 1) IS in tri 123
-	EXPECT_EQ(1, ps.inTri(p1, p2, p3, p5));
+	CHECK(1 == ps.inTri(p1, p2, p3, p5));
 
 	// (1, 1) IS in tri 124
-	EXPECT_EQ(0, ps.inTri(p1, p2, p4, p5));
+	CHECK(0 == ps.inTri(p1, p2, p4, p5));
 
 	// (1, 1) IS NOT in tri 234
-	EXPECT_EQ(-1, ps.inTri(p2, p3, p4, p5));
+	REQUIRE(-1 == ps.inTri(p2, p3, p4, p5));
 }
 
 
 
-TEST(PointSetTest, InCircleTrivialWithin) {
+TEST_CASE("PointSetTest, InCircleTrivialWithin") {
 	PointSetArray pointSet;
 
 	int p1 = pointSet.addPoint(0,   0);
@@ -46,12 +44,12 @@ TEST(PointSetTest, InCircleTrivialWithin) {
 	// int p6 = pointSet.addPoint(2000, 2000);
 
 	// (50,50) is *within* the circum-circle of <p1,p2,p4>
-	EXPECT_EQ(1, pointSet.inCircle(p1, p2, p4, p5));
+	REQUIRE(1 == pointSet.inCircle(p1, p2, p4, p5));
 }
 
 
 
-TEST(PointSetTest, InCircleTrivialOn) {
+TEST_CASE("PointSetTest, InCircleTrivialOn") {
 	PointSetArray pointSet;
 
 	int p1 = pointSet.addPoint(0,   0);
@@ -63,12 +61,12 @@ TEST(PointSetTest, InCircleTrivialOn) {
 	// int p6 = pointSet.addPoint(2000, 2000);
 
 	// (100,100) is *on* the circum-circle of <p1,p2,p4>
-	EXPECT_EQ(0, pointSet.inCircle(p1, p2, p4, p3));
+	REQUIRE(0 == pointSet.inCircle(p1, p2, p4, p3));
 }
 
 
 
-TEST(PointSetTest, InCircleTrivialOutside) {
+TEST_CASE("PointSetTest, InCircleTrivialOutside") {
 	PointSetArray pointSet;
 
 	int p1 = pointSet.addPoint(0,   0);
@@ -80,7 +78,7 @@ TEST(PointSetTest, InCircleTrivialOutside) {
 	int p6 = pointSet.addPoint(2000, 2000);
 
 	// (200,200) is *outside* the circum-circle of <p1,p2,p4>
-	EXPECT_EQ(-1, pointSet.inCircle(p1, p2, p4, p6));
+	REQUIRE(-1 == pointSet.inCircle(p1, p2, p4, p6));
 }
 
 
@@ -90,7 +88,7 @@ TEST(PointSetTest, InCircleTrivialOutside) {
 //  2. (-6514,-2005)
 //  3. (128,6768)
 //  4. (147,376)
-TEST(PointSetTest, InCircleOutsideDelaunayLegal) {
+TEST_CASE("PointSetTest, InCircleOutsideDelaunayLegal") {
 	PointSetArray pointSet;
 
 	// abd is a tri, as is dbc.
@@ -102,8 +100,8 @@ TEST(PointSetTest, InCircleOutsideDelaunayLegal) {
 	int p4 = pointSet.addPoint(147, 376);
 
 	// Both triangles legal.
-	EXPECT_EQ(-1, pointSet.inCircle(p1, p2, p4, p3));
-	EXPECT_EQ(-1, pointSet.inCircle(p4, p2, p3, p1));
+	CHECK(-1 == pointSet.inCircle(p1, p2, p4, p3));
+	REQUIRE(-1 == pointSet.inCircle(p4, p2, p3, p1));
 }
 
 
@@ -113,7 +111,7 @@ TEST(PointSetTest, InCircleOutsideDelaunayLegal) {
 //  3. (120,31)
 //  4. (396,483)
 //  *both* abd, dbc are illegal
-TEST(PointSetTest, InCircleOutsideDelaunayIllegal) {
+TEST_CASE("PointSetTest, InCircleOutsideDelaunayIllegal") {
 	PointSetArray pointSet;
 
 	// abd is a tri, as is dbc.
@@ -125,6 +123,6 @@ TEST(PointSetTest, InCircleOutsideDelaunayIllegal) {
 	int p4 = pointSet.addPoint(396, 483);
 
 	// Both triangles illegal. (i.e. contains point)
-	EXPECT_EQ(1, pointSet.inCircle(p1, p2, p4, p3));
-	EXPECT_EQ(1, pointSet.inCircle(p4, p2, p3, p1));
+	CHECK(1 == pointSet.inCircle(p1, p2, p4, p3));
+	REQUIRE(1 == pointSet.inCircle(p4, p2, p3, p1));
 }
