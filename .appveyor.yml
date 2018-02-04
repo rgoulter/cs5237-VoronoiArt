@@ -16,7 +16,7 @@ configuration: Release
 
 # Need to cache the installed vcpkgs
 cache:
-  - c:\tools\vcpkg\installed\
+  - c:\Tools\vcpkg\installed\
 
 init:
   - cmd: c:/tools/vcpkg/vcpkg.exe install opencv:x64-windows
