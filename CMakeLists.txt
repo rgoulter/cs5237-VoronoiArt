@@ -154,22 +154,10 @@ qt5_use_modules(VoronoiArt Widgets OpenGL)
 
 
 
-# GTest integration with CMake adapted from
-#   https://github.com/dmonopoly/gtest-cmake-example
-
 ################################
 # Testing
 ################################
 if(test)
-  # This adds another subdirectory, which has 'project(gtest)'.
-  add_subdirectory(gtest-1.7.0)
-
-  enable_testing()
-
-  # Include the gtest library. gtest_SOURCE_DIR is available due to
-  # 'project(gtest)' above.
-  include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-
   ##############
   # Unit Tests
   ##############
@@ -183,7 +171,6 @@ if(test)
                               test/voronoi/polyconstructtests.cpp
                               test/testmain.cpp)
 
-  target_link_libraries(runUnitTests gtest gtest_main)
   target_link_libraries(runUnitTests VoronoiArt_lib)
 
   # This is so you can do 'make test' to see all your tests run, instead of
