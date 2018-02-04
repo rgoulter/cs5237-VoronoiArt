@@ -26,10 +26,8 @@ before_build:
   - cmd: set Qt5Widgets_DIR=%Qt5_DIR%\lib\cmake\Qt5Widgets
   - cmd: cmake -H%APPVEYOR_BUILD_FOLDER% -B%APPVEYOR_BUILD_FOLDER%/build -G "Visual Studio 15 2017 Win64" -DCMAKE_TOOLCHAIN_FILE=%VCPKG_TOOLCHAIN%
 
-build:
-
-after_build:
-  - cmd: cmake --build %APPVEYOR_BUILD_FOLDER%\build --config %CONFIGURATION%
+build_script:
+  - cmake --build %APPVEYOR_BUILD_FOLDER%\build --config %CONFIGURATION%
 
 artifacts:
   - path: $(APPVEYOR_BUILD_FOLDER)\build
