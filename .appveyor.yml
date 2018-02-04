@@ -17,8 +17,7 @@ configuration: Release
 # Need to cache the installed vcpkgs
 # (Caching doesn't affect init, so must use vcpkg in before_build)
 cache:
-  - c:/Tools/vcpkg/installed/
-  - c:/Tools/vcpkg/packages/
+  - c:\Tools\vcpkg\installed\
 
 before_build:
   - cmd: c:/tools/vcpkg/vcpkg.exe install opencv:x64-windows
