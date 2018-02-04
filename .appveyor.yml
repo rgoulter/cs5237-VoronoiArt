@@ -24,10 +24,15 @@ before_build:
   - cmd: set VCPKG_TOOLCHAIN=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake
   - cmd: set Qt5_DIR=C:\Qt\5.10.0\msvc2017_64
   - cmd: set Qt5Widgets_DIR=%Qt5_DIR%\lib\cmake\Qt5Widgets
-  - cmd: cmake -H%APPVEYOR_BUILD_FOLDER% -B%APPVEYOR_BUILD_FOLDER%/build -G "Visual Studio 15 2017 Win64" -DCMAKE_TOOLCHAIN_FILE=%VCPKG_TOOLCHAIN%
+  - cmd: cmake -H%APPVEYOR_BUILD_FOLDER% -B%APPVEYOR_BUILD_FOLDER%/build -G "Visual Studio 15 2017 Win64" -DCMAKE_TOOLCHAIN_FILE=%VCPKG_TOOLCHAIN% -Dtest=ON
 
 build_script:
   - cmake --build %APPVEYOR_BUILD_FOLDER%\build --config %CONFIGURATION%
+
+# AppVeyor probably has tighter integration with MSVC for this.
+# But for now, this kludge should do.
+test_script:
+  - build\Release\runUnitTests.exe
 
 artifacts:
   - path: build\Release
