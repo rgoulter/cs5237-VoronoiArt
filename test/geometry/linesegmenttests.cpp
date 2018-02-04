@@ -1,6 +1,6 @@
 #include <vector>
 
-#include "gtest/gtest.h"
+#include "catch.hpp"
 
 #include "delaunay/polygon.h"
 #include "delaunay/pointsetarray.h"
@@ -10,14 +10,12 @@
 #include "geometry/linesegment.h"
 
 using std::vector;
-using std::cout;
-using std::endl;
 
 using namespace geometry;
 
 
 
-TEST(GeometryLineSegmentTest, OrientationTest) {
+TEST_CASE("GeometryLineSegmentTest, OrientationTest") {
 	using geometry::Point;
 	using geometry::orientation;
 
@@ -29,18 +27,18 @@ TEST(GeometryLineSegmentTest, OrientationTest) {
 	Point<int> cwPt(50, -50);
 
 	// Test CCW,
-	EXPECT_EQ(1, orientation({originPt, endPt}, ccwPt));
+	CHECK(1 == orientation({originPt, endPt}, ccwPt));
 
 	// Test Co-linear
-	EXPECT_EQ(0, orientation({originPt, endPt}, colPt));
+	CHECK(0 == orientation({originPt, endPt}, colPt));
 
 	// Test CW
-	EXPECT_EQ(-1, orientation({originPt, endPt}, cwPt));
+	CHECK(-1 == orientation({originPt, endPt}, cwPt));
 }
 
 
 
-TEST(GeometryLineSegmentTest, OrientationTest2) {
+TEST_CASE("GeometryLineSegmentTest, OrientationTest2") {
 	using geometry::Point;
 	using geometry::orientation;
 
@@ -52,18 +50,18 @@ TEST(GeometryLineSegmentTest, OrientationTest2) {
 	Point<int>  cwPt(1050,  950);
 
 	// Test CCW,
-	EXPECT_EQ(1, orientation({originPt, endPt}, ccwPt));
+	CHECK(1 == orientation({originPt, endPt}, ccwPt));
 
 	// Test Co-linear
-	EXPECT_EQ(0, orientation({originPt, endPt}, colPt));
+	CHECK(0 == orientation({originPt, endPt}, colPt));
 
 	// Test CW
-	EXPECT_EQ(-1, orientation({originPt, endPt}, cwPt));
+	CHECK(-1 == orientation({originPt, endPt}, cwPt));
 }
 
 
 
-TEST(GeometryLineSegmentTest, IntersectsSegSegTest) {
+TEST_CASE("GeometryLineSegmentTest, IntersectsSegSegTest") {
 	using geometry::Point;
 	using geometry::intersects;
 	using geometry::Intersection;
@@ -79,19 +77,19 @@ TEST(GeometryLineSegmentTest, IntersectsSegSegTest) {
 	// The compiler doesn't like brace-enclosed initialiser lists to intersects,
 	// so be explicit
 
-	EXPECT_EQ(Intersection::Overlap, intersects<int>({p1, p3}, {p4, p5}));
+	CHECK(Intersection::Overlap == intersects<int>({p1, p3}, {p4, p5}));
 
 	// Incident, but not intersecting
-	EXPECT_EQ(Intersection::Incidental, intersects<int>({p1, p3}, {p2, p5}));
-	EXPECT_EQ(Intersection::Incidental, intersects<int>({p1, p3}, {p4, p2}));
+	CHECK(Intersection::Incidental == intersects<int>({p1, p3}, {p2, p5}));
+	CHECK(Intersection::Incidental == intersects<int>({p1, p3}, {p4, p2}));
 
 	// Completele not touching
-	EXPECT_EQ(Intersection::None, intersects<int>({p1, p3}, {p5, p6}));
+	CHECK(Intersection::None == intersects<int>({p1, p3}, {p5, p6}));
 }
 
 
 
-TEST(GeometryLineSegmentTest, IntersectsSegSegColinearOverlappingTest) {
+TEST_CASE("GeometryLineSegmentTest, IntersectsSegSegColinearOverlappingTest") {
 	using geometry::Point;
 	using geometry::intersects;
 	using geometry::Intersection;
@@ -104,16 +102,16 @@ TEST(GeometryLineSegmentTest, IntersectsSegSegColinearOverlappingTest) {
 
 	// The compiler doesn't like brace-enclosed initialiser lists to intersects,
 	// so be explicit
-	EXPECT_EQ(Intersection::Incidental, intersects<int>({p1, p2}, {p2, p3}));
+	CHECK(Intersection::Incidental == intersects<int>({p1, p2}, {p2, p3}));
 
-	EXPECT_EQ(Intersection::ColinearOverlap, intersects<int>({p1, p3}, {p2, p4}));
+	CHECK(Intersection::ColinearOverlap == intersects<int>({p1, p3}, {p2, p4}));
 
-	EXPECT_EQ(Intersection::None, intersects<int>({p1, p2}, {p3, p4}));
+	CHECK(Intersection::None == intersects<int>({p1, p2}, {p3, p4}));
 }
 
 
 
-TEST(GeometryLineSegmentTest, LineSegIsectIntPointBasic) {
+TEST_CASE("GeometryLineSegmentTest, LineSegIsectIntPointBasic") {
 	Point<int> a = {  0,  0 };
 	Point<int> b = { 10, 10 };
 	Point<int> c = {  0,  2 };
@@ -125,8 +123,5 @@ TEST(GeometryLineSegmentTest, LineSegIsectIntPointBasic) {
 	Point<int> actualIP =
 		findIntersectionPoint({ a, b }, { c, d });
 
-	EXPECT_EQ(expectedIP, actualIP);
+	CHECK(expectedIP == actualIP);
 }
-
-
-

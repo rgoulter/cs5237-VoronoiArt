@@ -1,19 +1,17 @@
 #include <vector>
 
-#include "gtest/gtest.h"
+#include "catch.hpp"
 
 #include "delaunay/pointsetarray.h"
 #include "delaunay/directedgraph.h"
 
 using std::vector;
-using std::cout;
-using std::endl;
 
 using namespace delaunay;
 
 
 
-TEST(DelaunayDAGTest, TrivialCase) {
+TEST_CASE("DelaunayDAGTest, TrivialCase") {
 	PointSetArray pointSet;
 
 	pointSet.addPoint(0, 100);
@@ -29,4 +27,3 @@ TEST(DelaunayDAGTest, TrivialCase) {
 	// 	EXPECT_EQ(testPoly[i + 1], output[i + 1]);
 	// }
 }
-

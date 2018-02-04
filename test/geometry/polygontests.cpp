@@ -1,6 +1,7 @@
 #include <vector>
+#include <iostream>
 
-#include "gtest/gtest.h"
+#include "catch.hpp"
 
 #include "delaunay/li.h"
 
@@ -16,7 +17,7 @@ using namespace geometry;
 
 
 
-TEST(GeometryPolygonTest, IntPointPolyPointInPolygon) {
+TEST_CASE("GeometryPolygonTest, IntPointPolyPointInPolygon") {
 	Point<int> p1( 0,  0);   // 1
 	Point<int> p2( 0, 10);   // 2
 	Point<int> p3(10, 10);   // 3
@@ -30,13 +31,13 @@ TEST(GeometryPolygonTest, IntPointPolyPointInPolygon) {
 	poly.addPoint(p3);
 	poly.addPoint(p4);
 
-	EXPECT_EQ(1, inPoly(poly, p5));
-	EXPECT_EQ(0, inPoly(poly, p6));
+	CHECK(1 == inPoly(poly, p5));
+	CHECK(0 == inPoly(poly, p6));
 }
 
 
 
-TEST(GeometryPolygonTest, ClipPolyRectCaseNoIsect) {
+TEST_CASE("GeometryPolygonTest, ClipPolyRectCaseNoIsect") {
 	Rect clipRect({0, 0}, 100, 100);
 
 	// Test polygon (clearly within the outer rect).
@@ -48,16 +49,16 @@ TEST(GeometryPolygonTest, ClipPolyRectCaseNoIsect) {
 
 	Polygon output = clipPolygonToRectangle(testPoly, clipRect);
 
-	EXPECT_EQ(testPoly.numPoints(), output.numPoints());
+	REQUIRE(testPoly.numPoints() == output.numPoints());
 
 	for (unsigned int i = 0; i < testPoly.numPoints(); ++i) {
-		EXPECT_EQ(testPoly[i], output[i]);
+		CHECK(testPoly[i] == output[i]);
 	}
 }
 
 
 
-TEST(GeometryPolygonTest, ClipPolyRectCaseNoIsectOutside) {
+TEST_CASE("GeometryPolygonTest, ClipPolyRectCaseNoIsectOutside") {
 	Rect clipRect({0, 0}, 100, 100);
 
 	// Test polygon (clearly OUTSIDE the outer rect).
@@ -69,12 +70,12 @@ TEST(GeometryPolygonTest, ClipPolyRectCaseNoIsectOutside) {
 
 	Polygon output = clipPolygonToRectangle(testPoly, clipRect);
 
-	EXPECT_EQ((unsigned int)0, output.numPoints());
+	CHECK((unsigned int)0 == output.numPoints());
 }
 
 
 
-TEST(GeometryPolygonTest, ClipPolyRectCaseSimpleIsect) {
+TEST_CASE("GeometryPolygonTest, ClipPolyRectCaseSimpleIsect") {
 	Rect clipRect({0, 0}, 100, 100);
 
 	// Test polygon (clearly intersects with rect).
@@ -113,16 +114,16 @@ TEST(GeometryPolygonTest, ClipPolyRectCaseSimpleIsect) {
 	// }
 
 	// MUST be eq.
-	ASSERT_EQ(expectedPoly.numPoints(), output.numPoints());
+	REQUIRE(expectedPoly.numPoints() == output.numPoints());
 
 	for (unsigned int i = 0; i < expectedPoly.numPoints(); ++i) {
-		EXPECT_EQ(expectedPoly[i], output[i]);
+		CHECK(expectedPoly[i] == output[i]);
 	}
 }
 
 
 
-TEST(GeometryPolygonTest, ClipPolyRectCaseIsectEdgeTouching) {
+TEST_CASE("GeometryPolygonTest, ClipPolyRectCaseIsectEdgeTouching") {
 	Rect clipRect({0, 0}, 100, 100);
 
 	// Test polygon: Touches the edge, but never outside
@@ -160,16 +161,16 @@ TEST(GeometryPolygonTest, ClipPolyRectCaseIsectEdgeTouching) {
 	// }
 
 	// MUST be eq.
-	ASSERT_EQ(expectedPoly.numPoints(), output.numPoints());
+	REQUIRE(expectedPoly.numPoints() == output.numPoints());
 
 	for (unsigned int i = 0; i < expectedPoly.numPoints(); ++i) {
-		EXPECT_EQ(expectedPoly[i], output[i]);
+		CHECK(expectedPoly[i] == output[i]);
 	}
 }
 
 
 
-TEST(GeometryPolygonTest, ClipPolyRectCaseIsectEdgeTouchingOutside) {
+TEST_CASE("GeometryPolygonTest, ClipPolyRectCaseIsectEdgeTouchingOutside") {
 	Rect clipRect({0, 0}, 100, 100);
 
 	// Test polygon: touches edge, has some points outside.
@@ -209,9 +210,9 @@ TEST(GeometryPolygonTest, ClipPolyRectCaseIsectEdgeTouchingOutside) {
 	// }
 
 	// MUST be eq.
-	ASSERT_EQ(expectedPoly.numPoints(), output.numPoints());
+	REQUIRE(expectedPoly.numPoints() == output.numPoints());
 
 	for (unsigned int i = 0; i < expectedPoly.numPoints(); ++i) {
-		EXPECT_EQ(expectedPoly[i], output[i]);
+		CHECK(expectedPoly[i] == output[i]);
 	}
 }

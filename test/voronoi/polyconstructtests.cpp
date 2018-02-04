@@ -3,7 +3,7 @@
 #include <set>
 #include <vector>
 
-#include "gtest/gtest.h"
+#include "catch.hpp"
 
 #include "delaunay/pointsetarray.h"
 #include "delaunay/polygon.h" // for orientation
@@ -15,8 +15,6 @@
 
 using std::set;
 using std::vector;
-using std::cout;
-using std::endl;
 
 using delaunay::MyPoint;
 using delaunay::PointSetArray;
@@ -29,7 +27,7 @@ using namespace voronoi;
 
 
 
-TEST(VoronoiPolyConstructTest, LinkEdgesTrivialCase) {
+TEST_CASE("VoronoiPolyConstructTest, LinkEdgesTrivialCase") {
 	// VEdge isn't quite pair<Pt,Pt>; needs 'start'
 	VPoint *s = new VPoint(0, 0);
 
@@ -46,7 +44,7 @@ TEST(VoronoiPolyConstructTest, LinkEdgesTrivialCase) {
 
 	vector<HalfWingedEdge*> linkedEdges = linkEdges(edges);
 
-	ASSERT_EQ((size_t)4, linkedEdges.size());
+	REQUIRE((size_t)4 == linkedEdges.size());
 
 	// Figure out which edge is where
 	// (Could prob'ly use a map<> here).
@@ -74,39 +72,39 @@ TEST(VoronoiPolyConstructTest, LinkEdgesTrivialCase) {
 		}
 	}
 
-	ASSERT_TRUE(linkedEdgeAB != nullptr);
-	ASSERT_TRUE(linkedEdgeBA != nullptr);
-	ASSERT_TRUE(linkedEdgeBC != nullptr);
-	ASSERT_TRUE(linkedEdgeCB != nullptr);
+	REQUIRE_FALSE(linkedEdgeAB == nullptr);
+	REQUIRE_FALSE(linkedEdgeBA == nullptr);
+	REQUIRE_FALSE(linkedEdgeBC == nullptr);
+	REQUIRE_FALSE(linkedEdgeCB == nullptr);
 
 	//
 	// assert the angles are as I'd expect them.
 	// n.b. atan2 range is from -PI to +PI
 	//
 	const double angle45 = atan(1);
-	ASSERT_EQ( 1, linkedEdgeAB->abAngle_ / angle45);
-	ASSERT_EQ(-3, linkedEdgeBA->abAngle_ / angle45);
+	REQUIRE( 1 == linkedEdgeAB->abAngle_ / angle45);
+	REQUIRE(-3 == linkedEdgeBA->abAngle_ / angle45);
 
-	ASSERT_EQ(-1, linkedEdgeBC->abAngle_ / angle45);
-	ASSERT_EQ( 3, linkedEdgeCB->abAngle_ / angle45);
+	REQUIRE(-1 == linkedEdgeBC->abAngle_ / angle45);
+	REQUIRE( 3 == linkedEdgeCB->abAngle_ / angle45);
 
 	//
 	// Now assert that the function linked the right things together
 	//
 
-	EXPECT_EQ(nullptr,      linkedEdgeAB->prevEdge_);
+	CHECK(nullptr ==      linkedEdgeAB->prevEdge_);
 
-	EXPECT_EQ(linkedEdgeBC, linkedEdgeAB->nextEdge_);
-	EXPECT_EQ(linkedEdgeAB, linkedEdgeBC->prevEdge_);
+	CHECK(linkedEdgeBC == linkedEdgeAB->nextEdge_);
+	CHECK(linkedEdgeAB == linkedEdgeBC->prevEdge_);
 
-	EXPECT_EQ(nullptr,      linkedEdgeBC->nextEdge_);
+	CHECK(nullptr ==      linkedEdgeBC->nextEdge_);
 
-	EXPECT_EQ(nullptr,      linkedEdgeCB->prevEdge_);
+	CHECK(nullptr ==      linkedEdgeCB->prevEdge_);
 
-	EXPECT_EQ(linkedEdgeBA, linkedEdgeCB->nextEdge_);
-	EXPECT_EQ(linkedEdgeCB, linkedEdgeBA->prevEdge_);
+	CHECK(linkedEdgeBA == linkedEdgeCB->nextEdge_);
+	CHECK(linkedEdgeCB == linkedEdgeBA->prevEdge_);
 
-	EXPECT_EQ(nullptr,      linkedEdgeBA->nextEdge_);
+	CHECK(nullptr ==      linkedEdgeBA->nextEdge_);
 
 	// Clean up...
 	delete linkedEdgeAB;
@@ -126,7 +124,7 @@ TEST(VoronoiPolyConstructTest, LinkEdgesTrivialCase) {
 
 
 
-TEST(VoronoiPolyConstructTest, PolygonsFromEdgesTrivialCase) {
+TEST_CASE("VoronoiPolyConstructTest, PolygonsFromEdgesTrivialCase") {
 	// VEdge isn't quite pair<Pt,Pt>; needs 'start'
 	VPoint *s = new VPoint(0, 0);
 
@@ -147,7 +145,7 @@ TEST(VoronoiPolyConstructTest, PolygonsFromEdgesTrivialCase) {
 	vector<geometry::Polygon> polygons = polygonsFromEdges(edges);
 	bool isCCW[2];
 
-	ASSERT_EQ((unsigned) 2, polygons.size());
+	REQUIRE((unsigned) 2 == polygons.size());
 
 	// The following is *really* awkward,
 	// partly since atm we don't have good abstractions
@@ -169,7 +167,8 @@ TEST(VoronoiPolyConstructTest, PolygonsFromEdgesTrivialCase) {
 				int or1 = orientation({p1, p2}, p3);
 				int or2 = orientation({p2, p3}, p1);
 				int or3 = orientation({p3, p1}, p2);
-				EXPECT_TRUE(or1 == or2 && or2 == or3);
+				CHECK(or1 == or2);
+				CHECK(or2 == or3);
 
 				isCCW[polyIdx] = (or1 == 1);
 
@@ -179,10 +178,9 @@ TEST(VoronoiPolyConstructTest, PolygonsFromEdgesTrivialCase) {
 	}
 
 	// One of them will be true
-	EXPECT_TRUE(isCCW[0] || isCCW[1]);
+	CHECK((isCCW[0] || isCCW[1]));
 	// Exactly one. (One is CCW, the other isn't).
-	EXPECT_TRUE((!isCCW[0] && isCCW[1]) ||
-	            (isCCW[0] && !isCCW[1]));
+	CHECK_FALSE(isCCW[0] == isCCW[1]);
 
 	// Clean up...
 	delete ab;
@@ -191,4 +189,3 @@ TEST(VoronoiPolyConstructTest, PolygonsFromEdgesTrivialCase) {
 	delete b;
 	delete c;
 }
-
