@@ -1,6 +1,7 @@
 # C++ Voronoi Art - Stained Glass Effect
 
-[![Build Status](https://travis-ci.org/rgoulter/cs5237-VoronoiArt.svg?branch=master)](https://travis-ci.org/rgoulter/cs5237-VoronoiArt)
+[![Travis-CI Build Status](https://travis-ci.org/rgoulter/cs5237-VoronoiArt.svg?branch=master)](https://travis-ci.org/rgoulter/cs5237-VoronoiArt)
+[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/ctul394o7fe1189b?svg=true)](https://ci.appveyor.com/project/rgoulter/cs5237-voronoiart)
 
 Create a "stain-glass" effect using the Voronoi diagram of an image, with
 randomly generated points.  
