@@ -158,6 +158,9 @@ qt5_use_modules(VoronoiArt Widgets OpenGL)
 # Testing
 ################################
 if(test)
+  # Use CTest
+  enable_testing()
+
   ##############
   # Unit Tests
   ##############

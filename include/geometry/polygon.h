@@ -3,6 +3,7 @@
 
 #include <assert.h>
 
+#include <ostream>
 #include <utility>
 #include <vector>
 
@@ -35,6 +36,8 @@ public:
 		assert(0 <= idx && (unsigned) idx < points_.size());
 		return points_[idx];
 	}
+
+	friend std::ostream &operator<<(std::ostream &os, const Polygon &p);
 
 private:
 	std::vector<Point<int>> points_;
