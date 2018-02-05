@@ -9,10 +9,6 @@
 
 #include "delaunay/pointsetarray.h"
 
-// Imports as part of implementing Fortune's algorithm
-#include "voronoi/voronoi.h"
-#include "voronoi/vpoint.h"
-
 #include "geometry/polygon.h"
 
 #include "polypixel.h"
@@ -28,13 +24,6 @@ enum ShowImageType {
 	PDF,
 	EFFECT,
 	NONE
-};
-
-
-
-enum VoronoiAlgorithm {
-	kDelaunayAlgorithm,
-	kVoronoiAlgorithm
 };
 
 
@@ -80,9 +69,6 @@ public slots:
 	void setShowVoronoiSites(bool b);
 	void setShowVoronoiEdges(bool b);
 
-	void useDelaunayAlgorithm();
-	void useVoronoiAlgorithm();
-
 protected:
 	// overloaded
 	void initializeGL();
@@ -123,8 +109,6 @@ private:
 
 	// DELAUNAY
     delaunay::PointSetArray inputPointSet_;
-
-	VoronoiAlgorithm algorithm_ = kVoronoiAlgorithm;
 };
 
 #endif // MYPANELOPENGL_H

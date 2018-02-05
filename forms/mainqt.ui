@@ -86,41 +86,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="algorithmWidget">
-         <property name="title">
-          <string>Algorithm</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <widget class="QRadioButton" name="radioDelaunay">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>Delaunay</string>
-            </property>
-            <property name="checked">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioVoronoi">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>Voronoi (Fortune's)</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
         <widget class="QGroupBox" name="grpPointGen">
          <property name="title">
           <string>Random Point Generation</string>
@@ -363,8 +328,6 @@
   <tabstop>txtImageName</tabstop>
   <tabstop>btnLoadImage</tabstop>
   <tabstop>btnDrawImage</tabstop>
-  <tabstop>radioDelaunay</tabstop>
-  <tabstop>radioVoronoi</tabstop>
   <tabstop>spinBoxNumPoints</tabstop>
   <tabstop>btn1kPoints</tabstop>
   <tabstop>btn5kPoints</tabstop>
@@ -750,38 +713,6 @@
     <hint type="destinationlabel">
      <x>419</x>
      <y>500</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioDelaunay</sender>
-   <signal>clicked()</signal>
-   <receiver>glWidget</receiver>
-   <slot>useDelaunayAlgorithm()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>587</x>
-     <y>230</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>497</x>
-     <y>223</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioVoronoi</sender>
-   <signal>clicked()</signal>
-   <receiver>glWidget</receiver>
-   <slot>useVoronoiAlgorithm()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>601</x>
-     <y>250</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>496</x>
-     <y>257</y>
     </hint>
    </hints>
   </connection>

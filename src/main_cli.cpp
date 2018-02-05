@@ -7,8 +7,6 @@
 
 #include "geometry/polygon.h"
 
-#include "voronoi/voronoi.h"
-
 #include "generatepoints.h"
 
 using std::pair;
@@ -27,25 +25,13 @@ int main(int argc, char *argv[]) {
 		args.push_back(argv[i]);
 	}
 
-	// Delaunay | Voronoi
-	enum VoronoiAlgorithm {
-		kDelaunayAlgorithm,
-		kVoronoiAlgorithm
-	};
-
-	VoronoiAlgorithm selectedAlgorithm;
 	vector< pair<int,int> > inputPoints;
 
-	if (args.size() == 3 + 1) {
-		if (args[1] == "voronoi") {
-			selectedAlgorithm = kVoronoiAlgorithm;
-		} else {
-			selectedAlgorithm = kDelaunayAlgorithm;
-		}
+	if (args.size() == 2 + 1) {
 
-		if (args[2] == "--n") {
+		if (args[1] == "--n") {
 			// Given n points, generate randomly.
-			int n = std::stoi(args[3]);
+			int n = std::stoi(args[2]);
 
 			inputPoints = generateUniformRandomPoints(1000, 1000, n);
 
@@ -58,9 +44,9 @@ int main(int argc, char *argv[]) {
 				}
 				cout << "]" << endl;
 			}
-		} else if (args[2] == "--pf") {
+		} else if (args[1] == "--pf") {
 			// Given a file, load from that
-			const string& filename = args[3];
+			const string& filename = args[2];
 
 			inputPoints = delaunay::parsePointListFile(filename);
 		} else {
@@ -68,7 +54,6 @@ int main(int argc, char *argv[]) {
 		}
 	} else {
 		// DEFAULT
-		selectedAlgorithm = kDelaunayAlgorithm;
 		inputPoints = generateUniformRandomPoints(1000, 1000, 50);
 	}
 
@@ -79,12 +64,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Generate random points, or load from file?
-	vector<geometry::Polygon> result;
-	if (selectedAlgorithm == kDelaunayAlgorithm) {  // Delaunay
-		result = delaunay::runDelaunayAlgorithm(inputPointSet);
-	} else {  // Voronoi/Fortune's
-		result = voronoi::runVoronoiAlgorithm(inputPointSet);
-	}
+	vector<geometry::Polygon> result = delaunay::runDelaunayAlgorithm(inputPointSet);
 
 	cout << "*** Result: ***" << endl;
 	for (const geometry::Polygon& polygon : result) {

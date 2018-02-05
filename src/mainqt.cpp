@@ -32,9 +32,6 @@ void mainqt::imageLoaded() {
 	ui.btnDrawImage->setEnabled(true);
 	ui.chkShowPoints->setEnabled(true);
 
-	ui.radioDelaunay->setEnabled(true);
-	ui.radioVoronoi->setEnabled(true);
-
 	ui.spinBoxNumPoints->setEnabled(true);
 	ui.btn1kPoints->setEnabled(true);
 	ui.btn5kPoints->setEnabled(true);

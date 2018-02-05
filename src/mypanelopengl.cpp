@@ -398,12 +398,7 @@ void MyPanelOpenGL::doVoronoiDiagram() {
 	voroSW.reset();
 	voroSW.resume();
 
-	if (algorithm_ == kDelaunayAlgorithm) {
-		voronoiPolygons_ = delaunay::runDelaunayAlgorithm(inputPointSet_);
-	} else {
-		// VORONOI
-		voronoiPolygons_ = voronoi::runVoronoiAlgorithm(inputPointSet_);
-	}
+	voronoiPolygons_ = delaunay::runDelaunayAlgorithm(inputPointSet_);
 
 
 	// Make the colored polygons from Voronoi.
@@ -638,18 +633,6 @@ void MyPanelOpenGL::setNumPoints5k() {
 void MyPanelOpenGL::setNumPoints(int n) {
 	numPDFPoints_ = n;
 	updateNumPointsToGenerate(n);
-}
-
-
-
-void MyPanelOpenGL::useDelaunayAlgorithm() {
-	algorithm_ = kDelaunayAlgorithm;
-}
-
-
-
-void MyPanelOpenGL::useVoronoiAlgorithm() {
-	algorithm_ = kVoronoiAlgorithm;
 }
 
 
