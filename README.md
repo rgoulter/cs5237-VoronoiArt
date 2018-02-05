@@ -37,9 +37,8 @@ directory.
 Various libraries used in this project include:
 
 * OpenGL - for drawing the image, vertices and polygons.
-* OpenCV - for computing find-edge result (& Gaussian blurs) of an image
-* Qt 5 - for the GUI
-* GTest - for testing, included in this repo
+* OpenCV - for computing find-edge result (& Gaussian blurs) of an image.
+* Qt 5 - for the GUI.
 
 ## Building on Linux
 
@@ -125,4 +124,3 @@ Directories within the root project folder are:
 * include - for .h, .hpp header files.
 * src - for .cpp source files.
 * test - for .cpp gtest source files.
-* gtest-1.7.0 - the gtest dependency.
