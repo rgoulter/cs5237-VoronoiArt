@@ -15,15 +15,16 @@ using std::endl;
 
 using namespace geometry;
 
+#define SUT_NAME "geometry/Polygon"
+#define SUT_TAGS "[geometry][Polygon]"
 
 
-TEST_CASE("GeometryPolygonTest, IntPointPolyPointInPolygon") {
+
+TEST_CASE(SUT_NAME "/inPoly, Int Point", SUT_TAGS "[inPoly]") {
 	Point<int> p1( 0,  0);   // 1
 	Point<int> p2( 0, 10);   // 2
 	Point<int> p3(10, 10);   // 3
 	Point<int> p4(10,  0);   // 4
-	Point<int> p5( 5,  5);   // 5
-	Point<int> p6(15, 15);   // 6
 
 	Polygon poly;
 	poly.addPoint(p1);
@@ -31,13 +32,20 @@ TEST_CASE("GeometryPolygonTest, IntPointPolyPointInPolygon") {
 	poly.addPoint(p3);
 	poly.addPoint(p4);
 
-	CHECK(1 == inPoly(poly, p5));
-	CHECK(0 == inPoly(poly, p6));
+	SECTION("Point in Polygon") {
+		Point<int> p5( 5,  5);   // 5
+		CHECK(1 == inPoly(poly, p5));
+	}
+
+	SECTION("Point not-in Polygon") {
+		Point<int> p6(15, 15);   // 6
+		CHECK(0 == inPoly(poly, p6));
+	}
 }
 
 
 
-TEST_CASE("GeometryPolygonTest, ClipPolyRectCaseNoIsect") {
+TEST_CASE(SUT_NAME "/clipPolygonToRectangle, No Intersect", SUT_TAGS "[clipPolygonToRectangle]") {
 	Rect clipRect({0, 0}, 100, 100);
 
 	// Test polygon (clearly within the outer rect).
@@ -58,7 +66,7 @@ TEST_CASE("GeometryPolygonTest, ClipPolyRectCaseNoIsect") {
 
 
 
-TEST_CASE("GeometryPolygonTest, ClipPolyRectCaseNoIsectOutside") {
+TEST_CASE(SUT_NAME "/clipPolygonToRectangle, No Intersect (Outside)", SUT_TAGS "[clipPolygonToRectangle]") {
 	Rect clipRect({0, 0}, 100, 100);
 
 	// Test polygon (clearly OUTSIDE the outer rect).
@@ -75,7 +83,7 @@ TEST_CASE("GeometryPolygonTest, ClipPolyRectCaseNoIsectOutside") {
 
 
 
-TEST_CASE("GeometryPolygonTest, ClipPolyRectCaseSimpleIsect") {
+TEST_CASE(SUT_NAME "/clipPolygonToRectangle, Simple Intersect", SUT_TAGS "[clipPolygonToRectangle]") {
 	Rect clipRect({0, 0}, 100, 100);
 
 	// Test polygon (clearly intersects with rect).
@@ -123,7 +131,7 @@ TEST_CASE("GeometryPolygonTest, ClipPolyRectCaseSimpleIsect") {
 
 
 
-TEST_CASE("GeometryPolygonTest, ClipPolyRectCaseIsectEdgeTouching") {
+TEST_CASE(SUT_NAME "/clipPolygonToRectangle, Intersect Edge Touching", SUT_TAGS "[clipPolygonToRectangle]") {
 	Rect clipRect({0, 0}, 100, 100);
 
 	// Test polygon: Touches the edge, but never outside
@@ -170,7 +178,7 @@ TEST_CASE("GeometryPolygonTest, ClipPolyRectCaseIsectEdgeTouching") {
 
 
 
-TEST_CASE("GeometryPolygonTest, ClipPolyRectCaseIsectEdgeTouchingOutside") {
+TEST_CASE(SUT_NAME "/clipPolygonToRectangle, Intersect Edge Touching Outside", SUT_TAGS "[clipPolygonToRectangle]") {
 	Rect clipRect({0, 0}, 100, 100);
 
 	// Test polygon: touches edge, has some points outside.

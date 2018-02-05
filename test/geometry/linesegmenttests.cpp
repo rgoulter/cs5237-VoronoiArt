@@ -13,55 +13,62 @@ using std::vector;
 
 using namespace geometry;
 
+#define SUT_NAME "geometry/LineSegment"
+#define SUT_TAGS "[geometry][LineSegment]"
 
 
-TEST_CASE("GeometryLineSegmentTest, OrientationTest") {
+
+TEST_CASE(SUT_NAME "/orientation, Trivial", SUT_TAGS "[orientation]") {
 	using geometry::Point;
 	using geometry::orientation;
 
 	Point<int> originPt(0, 0);
 	Point<int> endPt(100, 0);
 
-	Point<int> ccwPt(50, 50);
-	Point<int> colPt(200, 0);
-	Point<int> cwPt(50, -50);
+	SECTION("Point oriented CCW of segment") {
+		Point<int> ccwPt(50, 50);
+		CHECK(1 == orientation({originPt, endPt}, ccwPt));
+	}
 
-	// Test CCW,
-	CHECK(1 == orientation({originPt, endPt}, ccwPt));
+	SECTION("Point oriented co-linear with segment") {
+		Point<int> colPt(200, 0);
+		CHECK(0 == orientation({originPt, endPt}, colPt));
+	}
 
-	// Test Co-linear
-	CHECK(0 == orientation({originPt, endPt}, colPt));
-
-	// Test CW
-	CHECK(-1 == orientation({originPt, endPt}, cwPt));
+	SECTION("Point oriented CW of segment") {
+		Point<int> cwPt(50, -50);
+		CHECK(-1 == orientation({originPt, endPt}, cwPt));
+	}
 }
 
 
 
-TEST_CASE("GeometryLineSegmentTest, OrientationTest2") {
+TEST_CASE(SUT_NAME "/orientation, Trivial 2", SUT_TAGS "[orientation]") {
 	using geometry::Point;
 	using geometry::orientation;
 
 	Point<int> originPt(1000, 1000);
 	Point<int>    endPt(1100, 1000);
 
-	Point<int> ccwPt(1050, 1050);
-	Point<int> colPt(1200, 1000);
-	Point<int>  cwPt(1050,  950);
+	SECTION("Point oriented CCW of segment") {
+		Point<int> ccwPt(1050, 1050);
+		CHECK(1 == orientation({originPt, endPt}, ccwPt));
+	}
 
-	// Test CCW,
-	CHECK(1 == orientation({originPt, endPt}, ccwPt));
+	SECTION("Point oriented co-linear wtih segment") {
+		Point<int> colPt(1200, 1000);
+		CHECK(0 == orientation({originPt, endPt}, colPt));
+	}
 
-	// Test Co-linear
-	CHECK(0 == orientation({originPt, endPt}, colPt));
-
-	// Test CW
-	CHECK(-1 == orientation({originPt, endPt}, cwPt));
+	SECTION("Point oriented CW of segment") {
+		Point<int>  cwPt(1050,  950);
+		CHECK(-1 == orientation({originPt, endPt}, cwPt));
+	}
 }
 
 
 
-TEST_CASE("GeometryLineSegmentTest, IntersectsSegSegTest") {
+TEST_CASE(SUT_NAME "/intersects, Segment-Segment", SUT_TAGS "[intersects]") {
 	using geometry::Point;
 	using geometry::intersects;
 	using geometry::Intersection;
@@ -77,19 +84,23 @@ TEST_CASE("GeometryLineSegmentTest, IntersectsSegSegTest") {
 	// The compiler doesn't like brace-enclosed initialiser lists to intersects,
 	// so be explicit
 
-	CHECK(Intersection::Overlap == intersects<int>({p1, p3}, {p4, p5}));
+	SECTION("Overlapping Segments") {
+		CHECK(Intersection::Overlap == intersects<int>({p1, p3}, {p4, p5}));
+	}
 
-	// Incident, but not intersecting
-	CHECK(Intersection::Incidental == intersects<int>({p1, p3}, {p2, p5}));
-	CHECK(Intersection::Incidental == intersects<int>({p1, p3}, {p4, p2}));
+	SECTION("Incident, but not intersecting") {
+		CHECK(Intersection::Incidental == intersects<int>({p1, p3}, {p2, p5}));
+		CHECK(Intersection::Incidental == intersects<int>({p1, p3}, {p4, p2}));
+	}
 
-	// Completele not touching
-	CHECK(Intersection::None == intersects<int>({p1, p3}, {p5, p6}));
+	SECTION("Completely not touching") {
+		CHECK(Intersection::None == intersects<int>({p1, p3}, {p5, p6}));
+	}
 }
 
 
 
-TEST_CASE("GeometryLineSegmentTest, IntersectsSegSegColinearOverlappingTest") {
+TEST_CASE(SUT_NAME "/intersects, Segment-Segment Colinear Overlapping", SUT_TAGS "[intersects]") {
 	using geometry::Point;
 	using geometry::intersects;
 	using geometry::Intersection;
@@ -102,16 +113,22 @@ TEST_CASE("GeometryLineSegmentTest, IntersectsSegSegColinearOverlappingTest") {
 
 	// The compiler doesn't like brace-enclosed initialiser lists to intersects,
 	// so be explicit
-	CHECK(Intersection::Incidental == intersects<int>({p1, p2}, {p2, p3}));
+	SECTION("Incidental, but not intersecting") {
+		CHECK(Intersection::Incidental == intersects<int>({p1, p2}, {p2, p3}));
+	}
 
-	CHECK(Intersection::ColinearOverlap == intersects<int>({p1, p3}, {p2, p4}));
+	SECTION("Co-linear Overlap") {
+		CHECK(Intersection::ColinearOverlap == intersects<int>({p1, p3}, {p2, p4}));
+	}
 
-	CHECK(Intersection::None == intersects<int>({p1, p2}, {p3, p4}));
+	SECTION("No intersection") {
+		CHECK(Intersection::None == intersects<int>({p1, p2}, {p3, p4}));
+	}
 }
 
 
 
-TEST_CASE("GeometryLineSegmentTest, LineSegIsectIntPointBasic") {
+TEST_CASE(SUT_NAME "/findIntersectionPoint, Basic", SUT_TAGS "[findIntersectionPoint]") {
 	Point<int> a = {  0,  0 };
 	Point<int> b = { 10, 10 };
 	Point<int> c = {  0,  2 };
