@@ -298,4 +298,18 @@ int inPoly(const Polygon& poly, const Point<int>& pt) {
 	return (numIntersections % 2) == 1;
 }
 
+
+
+std::ostream &operator<<(std::ostream &os, const Polygon &polygon) {
+	os << "[";
+	size_t last = polygon.points_.size() - 1;
+	for(size_t i = 0; i < polygon.points_.size(); ++i) {
+		os << polygon.points_[i];
+		if (i != last)
+			os << ", ";
+	}
+	os << "]";
+	return os;
+}
+
 }
