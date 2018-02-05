@@ -44,9 +44,6 @@ set(VORONOI_LIB_SOURCES src/delaunay/li.cpp
                         src/delaunay/dagnode.cpp
                         src/delaunay/directedgraph.cpp
                         src/delaunay/delaunay.cpp
-                        src/voronoi/polyconstruct.cpp
-                        src/voronoi/voronoi.cpp
-                        src/voronoi/vparabola.cpp
                         src/geometry/linesegment.cpp
                         src/geometry/polygon.cpp
                         src/imagedata.cpp
@@ -69,12 +66,6 @@ set(VORONOI_LIB_HEADERS include/delaunay/li.h
                         include/delaunay/dagnode.h
                         include/delaunay/directedgraph.h
                         include/delaunay/delaunay.h
-                        include/voronoi/polyconstruct.h
-                        include/voronoi/vedge.h
-                        include/voronoi/vevent.h
-                        include/voronoi/vparabola.h
-                        include/voronoi/vpoint.h
-                        include/voronoi/voronoi.h
                         include/geometry/linesegment.h
                         include/geometry/point.h
                         include/geometry/polygon.h
@@ -171,7 +162,6 @@ if(test)
                               test/delaunay/dagtests.cpp
                               test/delaunay/triangletests.cpp
                               test/delaunay/triangulationtests.cpp
-                              test/voronoi/polyconstructtests.cpp
                               test/testmain.cpp)
 
   target_link_libraries(runUnitTests VoronoiArt_lib)
