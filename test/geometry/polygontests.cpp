@@ -25,8 +25,6 @@ TEST_CASE(SUT_NAME "/inPoly, Int Point", SUT_TAGS "[inPoly]") {
 	Point<int> p2( 0, 10);   // 2
 	Point<int> p3(10, 10);   // 3
 	Point<int> p4(10,  0);   // 4
-	Point<int> p5( 5,  5);   // 5
-	Point<int> p6(15, 15);   // 6
 
 	Polygon poly;
 	poly.addPoint(p1);
@@ -34,8 +32,15 @@ TEST_CASE(SUT_NAME "/inPoly, Int Point", SUT_TAGS "[inPoly]") {
 	poly.addPoint(p3);
 	poly.addPoint(p4);
 
-	CHECK(1 == inPoly(poly, p5));
-	CHECK(0 == inPoly(poly, p6));
+	SECTION("Point in Polygon") {
+		Point<int> p5( 5,  5);   // 5
+		CHECK(1 == inPoly(poly, p5));
+	}
+
+	SECTION("Point not-in Polygon") {
+		Point<int> p6(15, 15);   // 6
+		CHECK(0 == inPoly(poly, p6));
+	}
 }
 
 

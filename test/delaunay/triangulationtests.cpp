@@ -16,7 +16,7 @@ using namespace delaunay;
 
 
 
-TEST_CASE(SUT_NAME "/addLinkedTri, Trivial LinkedTris 1", SUT_TAGS) {
+TEST_CASE(SUT_NAME "/addLinkedTri, Check Links", SUT_TAGS) {
 	// Arbitrary, so long as distinct.
 	int iIdx = 1;
 	int jIdx = 2;
@@ -25,44 +25,33 @@ TEST_CASE(SUT_NAME "/addLinkedTri, Trivial LinkedTris 1", SUT_TAGS) {
 
 	TriRecord triIJK(iIdx, jIdx, kIdx);
 	TriRecord triILJ(iIdx, lIdx, jIdx);
-
-	Triangulation trist;
-
-	FIndex ijkIdx = trist.addLinkedTri(triIJK);
-	FIndex iljIdx = trist.addLinkedTri(triILJ);
-
-	trist.setLink(ijkIdx, 0, iljIdx); // link by edge IJ
-
-	const LinkedTriangle& ltriIJK = trist[ijkIdx];
-	const LinkedTriangle& ltriILJ = trist[iljIdx];
-
-	CHECK(iljIdx == ltriIJK.links_[0]);
-	CHECK(ijkIdx == ltriILJ.links_[2]);
-}
-
-
-
-// Does it work with another rotation of the ILJ tri?
-TEST_CASE(SUT_NAME "/addLinkedTri, Trivial LinkedTris 2", SUT_TAGS) {
-	// Arbitrary, so long as distinct.
-	int iIdx = 1;
-	int jIdx = 2;
-	int kIdx = 3;
-	int lIdx = 4;
-
-	TriRecord triIJK(iIdx, jIdx, kIdx);
 	TriRecord triLJI(lIdx, jIdx, iIdx);
 
 	Triangulation trist;
 
-	FIndex ijkIdx = trist.addLinkedTri(triIJK);
-	FIndex ljiIdx = trist.addLinkedTri(triLJI);
+	SECTION("Triangles IJK, ILJ linked by edge IJ") {
+		FIndex ijkIdx = trist.addLinkedTri(triIJK);
+		FIndex iljIdx = trist.addLinkedTri(triILJ);
 
-	trist.setLink(ijkIdx, 0, ljiIdx); // link by edge IJ
+		trist.setLink(ijkIdx, 0, iljIdx); // link by edge IJ
 
-	const LinkedTriangle& ltriIJK = trist[ijkIdx];
-	const LinkedTriangle& ltriLJI = trist[ljiIdx];
+		const LinkedTriangle& ltriIJK = trist[ijkIdx];
+		const LinkedTriangle& ltriILJ = trist[iljIdx];
 
-	CHECK(ljiIdx == ltriIJK.links_[0]);
-	CHECK(ijkIdx == ltriLJI.links_[1]);
+		CHECK(iljIdx == ltriIJK.links_[0]);
+		CHECK(ijkIdx == ltriILJ.links_[2]);
+	}
+
+	SECTION("Triangles IJK, LJI linked by edge IJ") {
+		FIndex ijkIdx = trist.addLinkedTri(triIJK);
+		FIndex ljiIdx = trist.addLinkedTri(triLJI);
+
+		trist.setLink(ijkIdx, 0, ljiIdx); // link by edge IJ
+
+		const LinkedTriangle& ltriIJK = trist[ijkIdx];
+		const LinkedTriangle& ltriLJI = trist[ljiIdx];
+
+		CHECK(ljiIdx == ltriIJK.links_[0]);
+		CHECK(ijkIdx == ltriLJI.links_[1]);
+	}
 }
