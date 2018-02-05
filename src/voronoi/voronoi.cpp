@@ -403,6 +403,27 @@ Vertices* verticesForInputPoints(const delaunay::PointSetArray& inputPoints) {
 
 
 
+std::ostream &operator<<(std::ostream &os, const VPoint &pt) {
+	return os << '(' << pt.x << ',' << pt.y << ')';
+}
+
+
+std::ostream &operator<<(std::ostream &os, const VEdge &edge) {
+	return os << "E{start=" << *(edge.start) << ", a=" << *(edge.left) << ", b=" << *(edge.right) << '}';
+}
+
+
+
+// Edges is typedef'd in voronoi.h
+void dumpEdges(const Edges& edges) {
+	std::cout << "Edges:" << std::endl;
+	for (const VEdge* edge : edges) {
+		std::cout << "- " << *edge << std::endl;
+	}
+}
+
+
+
 // POLYREP:POINTSETARRAY
 vector<geometry::Polygon> runVoronoiAlgorithm(const delaunay::PointSetArray& inputPoints) {
 	StopWatch voroSW;
@@ -419,12 +440,14 @@ vector<geometry::Polygon> runVoronoiAlgorithm(const delaunay::PointSetArray& inp
 	voroSW.reset();
 	voroSW.resume();
 
+	dumpEdges(*voronoiEdges);
+
 	vector<geometry::Polygon> voronoiPolygons =
 	    polygonsFromEdges(*voronoiEdges);
 
 	voroSW.pause();
 	double timePolyConstruct = voroSW.ms();
-	std::cout << "TIME: polygonsFromEdges() is " << timePolyConstruct << std::endl;;
+	std::cout << "TIME: polygonsFromEdges() is " << timePolyConstruct << std::endl;
 	voroSW.reset();
 	voroSW.resume();
 
