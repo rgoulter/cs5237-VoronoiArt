@@ -89,18 +89,18 @@ void Voronoi::insertParabola(VPoint *p) {
 		return;
 	}
 
-	// TRANSLATEME degenerovaný pøípad - obì spodní místa ve stejné výšce
+	// TODO: Translate comment from original sourcefile.
 	if (root->isLeaf && root->site->y - p->y < 0.1) {
 		VPoint *fp = root->site;
 		root->isLeaf = false;
 		root->setLeft(new VParabola(fp));
 		root->setRight(new VParabola(p));
 
-		VPoint *s = new VPoint((p->x + fp->x) / 2, height); // TRANSLATEME zaèátek hrany uprostøed míst
+		VPoint *s = new VPoint((p->x + fp->x) / 2, height); // TODO: Translate comment from original sourcefile.
 		points.push_back(s);
 
 		if (p->x > fp->x)
-		    root->edge = new VEdge(s, fp, p); // TRANSLATEME rozhodnu, který vlevo, který vpravo
+		    root->edge = new VEdge(s, fp, p); // TODO: Translate comment from original sourcefile.
 		else
 		    root->edge = new VEdge(s, p, fp);
 
@@ -125,7 +125,7 @@ void Voronoi::insertParabola(VPoint *p) {
 	el->neighbour = er;
 	edges->push_back(el);
 
-	// TRANSLATEME pøestavuju strom .. vkládám novou parabolu
+	// TODO: Translate comment from original sourcefile.
 	par->edge = er;
 	par->isLeaf = false;
 
@@ -155,8 +155,8 @@ void Voronoi::removeParabola(VEvent *e) {
 	VParabola *p0 = VParabola::getLeftChild(xl);
 	VParabola *p2 = VParabola::getRightChild(xr);
 
-	if (p0 == p2)
-		std::cout << "TRANSLATEME chyba - pravá a levá parabola má stejné ohnisko!\n";
+	// if (p0 == p2)
+	//	std::cout << "TODO: Translate comment from original sourcefile.\n";
 
 	if (p0->cEvent) {
 		deleted.insert(p0->cEvent);
@@ -278,7 +278,7 @@ VParabola * Voronoi::getParabolaByX(double xx) {
 	VParabola *par = root;
 	double x = 0.0;
 
-	// TRANSLATEME projdu stromem dokud nenarazím na vhodný list
+	// TODO: Translate comment from original sourcefile.
 	while (!par->isLeaf) {
 		x = getXOfEdge(par, ly);
 
@@ -293,7 +293,7 @@ VParabola * Voronoi::getParabolaByX(double xx) {
 
 
 
-// TRANSLATEME ohnisko, x-souøadnice
+// TODO: Translate comment from original sourcefile.
 double Voronoi::getY(VPoint *p, double x) {
 	double dp = 2 * (p->y - ly);
 	double a1 = 1 / dp;
@@ -372,8 +372,8 @@ void addPointWithJitter(Vertices* vertices, double x, double y) {
 
 	// const double kJitterSize = 15.0;
 	const double kJitterSize = 5;
-	double dx = ((double)rand() * kJitterSize / (double)RAND_MAX);
-	double dy = ((double)rand() * kJitterSize / (double)RAND_MAX);
+	double dx = 0; // ((double)rand() * kJitterSize / (double)RAND_MAX);
+	double dy = 0; // ((double)rand() * kJitterSize / (double)RAND_MAX);
 
 	VPoint *vp = new VPoint(x + dx, y + dy);
 	vertices->push_back(vp);
