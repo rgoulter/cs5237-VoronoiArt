@@ -123,4 +123,4 @@ Directories within the root project folder are:
 * forms - for Qt .ui form files.
 * include - for .h, .hpp header files.
 * src - for .cpp source files.
-* test - for .cpp gtest source files.
+* test - for .cpp unit test source files.
