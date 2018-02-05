@@ -5,6 +5,8 @@
 #include "delaunay/delaunay.h"
 #include "delaunay/pointsetio.h"
 
+#include "geometry/polygon.h"
+
 #include "voronoi/voronoi.h"
 
 #include "generatepoints.h"
@@ -67,10 +69,16 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Generate random points, or load from file?
+	vector<geometry::Polygon> result;
 	if (selectedAlgorithm == kDelaunayAlgorithm) {  // Delaunay
-		delaunay::runDelaunayAlgorithm(inputPointSet);
+		result = delaunay::runDelaunayAlgorithm(inputPointSet);
 	} else {  // Voronoi/Fortune's
-		voronoi::runVoronoiAlgorithm(inputPointSet);
+		result = voronoi::runVoronoiAlgorithm(inputPointSet);
+	}
+
+	cout << "*** Result: ***" << endl;
+	for (const geometry::Polygon& polygon : result) {
+		cout << "- " << polygon << endl;
 	}
 
 	return 0;
