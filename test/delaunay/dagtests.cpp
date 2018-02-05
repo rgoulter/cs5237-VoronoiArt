@@ -9,9 +9,13 @@ using std::vector;
 
 using namespace delaunay;
 
+#define SUT_NAME "delaunay/DirectedGraph"
+#define SUT_TAGS "[delaunay][DirectedGraph]"
 
 
-TEST_CASE("DelaunayDAGTest, TrivialCase") {
+
+// NOTE: 2018-02-05: At the moment, this test case doesn't do anything.
+TEST_CASE(SUT_NAME ", Trivial", SUT_TAGS) {
 	PointSetArray pointSet;
 
 	pointSet.addPoint(0, 100);

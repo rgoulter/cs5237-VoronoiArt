@@ -11,9 +11,12 @@ using std::vector;
 
 using namespace delaunay;
 
+#define SUT_NAME "delaunay/PointSetIO/parsePointList"
+#define SUT_TAGS "[delaunay][parsePointList]"
 
 
-TEST_CASE("PointSetIOTest, TrivialCase") {
+
+TEST_CASE(SUT_NAME ", Trivial", SUT_TAGS) {
 	const string& input = "[ [1,2], [3,4], [5,6] ]";
 
 	vector< pair<int,int> > actual = parsePointList(input);
@@ -24,7 +27,7 @@ TEST_CASE("PointSetIOTest, TrivialCase") {
 
 
 
-TEST_CASE("PointSetIOTest, TrivialVariations") {
+TEST_CASE(SUT_NAME ", Trivial Variations", SUT_TAGS) {
 	const string& inputPacked = "[[1,2],[3,4],[5,6]]";
 
 	vector< pair<int,int> > actual1 = parsePointList(inputPacked);
@@ -47,7 +50,7 @@ TEST_CASE("PointSetIOTest, TrivialVariations") {
 
 
 
-TEST_CASE("PointSetIOTest, VariousNumbersCase") {
+TEST_CASE(SUT_NAME ", Various Numbers", SUT_TAGS) {
 	const string& input = "[ [123,456], [-12 , 0] ]";
 
 	vector< pair<int,int> > actual = parsePointList(input);

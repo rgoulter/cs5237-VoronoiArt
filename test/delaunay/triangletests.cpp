@@ -15,9 +15,12 @@ using namespace delaunay;
 
 using geometry::Intersection;
 
+#define SUT_NAME "delaunay/TriangleGeometry"
+#define SUT_TAGS "[delaunay][TriangleGeometry]"
 
 
-TEST_CASE("DelaunayTriangleTest, IsCCW") {
+
+TEST_CASE(SUT_NAME "/isTriangleCCW, IsCCW 1", SUT_TAGS "[isTriangleCCW]") {
 	PointSetArray pointSet;
 
 	int pIdx1 = pointSet.addPoint(0, 0);
@@ -41,7 +44,7 @@ TEST_CASE("DelaunayTriangleTest, IsCCW") {
 
 
 
-TEST_CASE("DelaunayTriangleTest, IsCCW2") {
+TEST_CASE(SUT_NAME "/isTriangleCCW, IsCCW 2", SUT_TAGS "[isTriangleCCW]") {
 	PointSetArray pointSet;
 
 	int pIdx1 = pointSet.addPoint(-100, -100);
@@ -65,7 +68,7 @@ TEST_CASE("DelaunayTriangleTest, IsCCW2") {
 
 
 
-TEST_CASE("DelaunayTriangleTest, IsCCW3") {
+TEST_CASE(SUT_NAME "/isTriangleCCW, IsCCW 3", SUT_TAGS "[isTriangelCCW]") {
 	PointSetArray pointSet;
 
 	int pIdx1 = pointSet.addPoint(1000, 1000);
@@ -89,7 +92,7 @@ TEST_CASE("DelaunayTriangleTest, IsCCW3") {
 
 
 
-TEST_CASE("DelaunayTriangleTest, IsCCWFlipTri") {
+TEST_CASE(SUT_NAME "/isTriangleCCW, IsCCW Flipped Triangles", SUT_TAGS "[isTriangleCCW]") {
 	PointSetArray pointSet;
 
 	// abd, dbc are CCW.
@@ -115,7 +118,7 @@ TEST_CASE("DelaunayTriangleTest, IsCCWFlipTri") {
 
 
 
-TEST_CASE("DelaunayTriangleTest, IntersectsTriSegTest") {
+TEST_CASE(SUT_NAME "/intersectsTriangle, Segment Test", SUT_TAGS "[intersectsTriangle]") {
 	PointSetArray pointSet;
 
 	// A simple right-angled triangle
@@ -141,7 +144,7 @@ TEST_CASE("DelaunayTriangleTest, IntersectsTriSegTest") {
 
 
 
-TEST_CASE("DelaunayTriangleTest, IntersectsTriTriTest") {
+TEST_CASE(SUT_NAME "/intersectsTriangle, Triangle Test", SUT_TAGS "[intersectsTriangle]") {
 	PointSetArray pointSet;
 
 	// Two simple right-angled triangles

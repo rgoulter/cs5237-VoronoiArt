@@ -25,9 +25,12 @@ using geometry::orientation;
 
 using namespace voronoi;
 
+#define SUT_NAME "voronoi/PolgonConstruct"
+#define SUT_TAGS "[voronoi][PolygonConstruct]"
 
 
-TEST_CASE("VoronoiPolyConstructTest, LinkEdgesTrivialCase") {
+
+TEST_CASE(SUT_NAME "/linkEdges, Trivial", SUT_TAGS "[linkEdges]") {
 	// VEdge isn't quite pair<Pt,Pt>; needs 'start'
 	VPoint *s = new VPoint(0, 0);
 
@@ -124,7 +127,7 @@ TEST_CASE("VoronoiPolyConstructTest, LinkEdgesTrivialCase") {
 
 
 
-TEST_CASE("VoronoiPolyConstructTest, PolygonsFromEdgesTrivialCase") {
+TEST_CASE(SUT_NAME "/polygonsFromEdges, Trivial", SUT_TAGS "[polygonsFromEdges]") {
 	// VEdge isn't quite pair<Pt,Pt>; needs 'start'
 	VPoint *s = new VPoint(0, 0);
 

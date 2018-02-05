@@ -9,9 +9,12 @@ using std::vector;
 
 using namespace delaunay;
 
+#define SUT_NAME "delaunay/PointSetArray"
+#define SUT_TAGS "[delaunay][PointSetArray]"
 
 
-TEST_CASE("PointSetTest, PointSetInTriSimple") {
+
+TEST_CASE(SUT_NAME "/inTri, Simple", SUT_TAGS) {
 	PointSetArray ps;
 
 	int p1 = ps.addPoint(0, 0);   // 1
@@ -32,7 +35,7 @@ TEST_CASE("PointSetTest, PointSetInTriSimple") {
 
 
 
-TEST_CASE("PointSetTest, InCircleTrivialWithin") {
+TEST_CASE(SUT_NAME "/inCircle, Trivial Within", SUT_TAGS) {
 	PointSetArray pointSet;
 
 	int p1 = pointSet.addPoint(0,   0);
@@ -49,7 +52,7 @@ TEST_CASE("PointSetTest, InCircleTrivialWithin") {
 
 
 
-TEST_CASE("PointSetTest, InCircleTrivialOn") {
+TEST_CASE(SUT_NAME "/inCircle, Trivial On", SUT_TAGS) {
 	PointSetArray pointSet;
 
 	int p1 = pointSet.addPoint(0,   0);
@@ -66,7 +69,7 @@ TEST_CASE("PointSetTest, InCircleTrivialOn") {
 
 
 
-TEST_CASE("PointSetTest, InCircleTrivialOutside") {
+TEST_CASE(SUT_NAME "/inCircle, Trivial Outside", SUT_TAGS) {
 	PointSetArray pointSet;
 
 	int p1 = pointSet.addPoint(0,   0);
@@ -88,7 +91,7 @@ TEST_CASE("PointSetTest, InCircleTrivialOutside") {
 //  2. (-6514,-2005)
 //  3. (128,6768)
 //  4. (147,376)
-TEST_CASE("PointSetTest, InCircleOutsideDelaunayLegal") {
+TEST_CASE(SUT_NAME "/inCircle, Outside Delaunay Legal", SUT_TAGS) {
 	PointSetArray pointSet;
 
 	// abd is a tri, as is dbc.
@@ -111,7 +114,7 @@ TEST_CASE("PointSetTest, InCircleOutsideDelaunayLegal") {
 //  3. (120,31)
 //  4. (396,483)
 //  *both* abd, dbc are illegal
-TEST_CASE("PointSetTest, InCircleOutsideDelaunayIllegal") {
+TEST_CASE(SUT_NAME "/inCircle, Outside Delaunay Illegal", SUT_TAGS) {
 	PointSetArray pointSet;
 
 	// abd is a tri, as is dbc.

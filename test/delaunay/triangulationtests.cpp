@@ -11,9 +11,12 @@ using std::vector;
 
 using namespace delaunay;
 
+#define SUT_NAME "delaunay/Triangulation"
+#define SUT_TAGS "[delaunay][LinkedTriangle][Triangulation][addLinkedTri]"
 
 
-TEST_CASE("TriangulationTest, TrivialLinkTrisCase") {
+
+TEST_CASE(SUT_NAME "/addLinkedTri, Trivial LinkedTris 1", SUT_TAGS) {
 	// Arbitrary, so long as distinct.
 	int iIdx = 1;
 	int jIdx = 2;
@@ -40,7 +43,7 @@ TEST_CASE("TriangulationTest, TrivialLinkTrisCase") {
 
 
 // Does it work with another rotation of the ILJ tri?
-TEST_CASE("TriangulationTest, TrivialLinkTrisCase2") {
+TEST_CASE(SUT_NAME "/addLinkedTri, Trivial LinkedTris 2", SUT_TAGS) {
 	// Arbitrary, so long as distinct.
 	int iIdx = 1;
 	int jIdx = 2;

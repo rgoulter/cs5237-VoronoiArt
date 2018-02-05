@@ -13,9 +13,12 @@ using std::vector;
 
 using namespace geometry;
 
+#define SUT_NAME "geometry/LineSegment"
+#define SUT_TAGS "[geometry][LineSegment]"
 
 
-TEST_CASE("GeometryLineSegmentTest, OrientationTest") {
+
+TEST_CASE(SUT_NAME "/orientation, Trivial", SUT_TAGS "[orientation]") {
 	using geometry::Point;
 	using geometry::orientation;
 
@@ -38,7 +41,7 @@ TEST_CASE("GeometryLineSegmentTest, OrientationTest") {
 
 
 
-TEST_CASE("GeometryLineSegmentTest, OrientationTest2") {
+TEST_CASE(SUT_NAME "/orientation, Trivial 2", SUT_TAGS "[orientation]") {
 	using geometry::Point;
 	using geometry::orientation;
 
@@ -61,7 +64,7 @@ TEST_CASE("GeometryLineSegmentTest, OrientationTest2") {
 
 
 
-TEST_CASE("GeometryLineSegmentTest, IntersectsSegSegTest") {
+TEST_CASE(SUT_NAME "/intersects, Segment-Segment", SUT_TAGS "[intersects]") {
 	using geometry::Point;
 	using geometry::intersects;
 	using geometry::Intersection;
@@ -89,7 +92,7 @@ TEST_CASE("GeometryLineSegmentTest, IntersectsSegSegTest") {
 
 
 
-TEST_CASE("GeometryLineSegmentTest, IntersectsSegSegColinearOverlappingTest") {
+TEST_CASE(SUT_NAME "/intersects, Segment-Segment Colinear Overlapping", SUT_TAGS "[intersects]") {
 	using geometry::Point;
 	using geometry::intersects;
 	using geometry::Intersection;
@@ -111,7 +114,7 @@ TEST_CASE("GeometryLineSegmentTest, IntersectsSegSegColinearOverlappingTest") {
 
 
 
-TEST_CASE("GeometryLineSegmentTest, LineSegIsectIntPointBasic") {
+TEST_CASE(SUT_NAME "/findIntersectionPoint, Basic", SUT_TAGS "[findIntersectionPoint]") {
 	Point<int> a = {  0,  0 };
 	Point<int> b = { 10, 10 };
 	Point<int> c = {  0,  2 };
