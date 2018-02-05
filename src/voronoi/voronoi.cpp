@@ -372,8 +372,8 @@ void addPointWithJitter(Vertices* vertices, double x, double y) {
 
 	// const double kJitterSize = 15.0;
 	const double kJitterSize = 5;
-	double dx = 0; // ((double)rand() * kJitterSize / (double)RAND_MAX);
-	double dy = 0; // ((double)rand() * kJitterSize / (double)RAND_MAX);
+	double dx = ((double)rand() * kJitterSize / (double)RAND_MAX);
+	double dy = ((double)rand() * kJitterSize / (double)RAND_MAX);
 
 	VPoint *vp = new VPoint(x + dx, y + dy);
 	vertices->push_back(vp);
