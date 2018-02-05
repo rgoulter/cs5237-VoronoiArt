@@ -102,6 +102,8 @@ bool leavesDoNotOverlap(const PointSetArray& pointSet, const vector<shared_ptr<D
 // Expensive,
 // but check that the DirectedGraph is in good state.
 bool DirectedGraph::checkConsistent() const {
+	cout << "  [dag.checkConsistent()]" << endl; // DELAUNAY_TRACE_OUTPUT
+
 	assert(trianglesUnique(dagNodes_));
 
 	for (const shared_ptr<DAGNode>& node : dagNodes_) {
@@ -127,7 +129,7 @@ bool DirectedGraph::checkConsistent() const {
 	}
 
 
-	cout << "*** Directed Graph checked to be in consistent state ***" << endl;
+	cout << "  [dag.checkConsistent()]" << " *** Directed Graph checked to be in consistent state ***" << endl; // DELAUNAY_TRACE_OUTPUT
 	return true;
 }
 
@@ -208,8 +210,8 @@ int DirectedGraph::findAdjacentTriangle(int pIdx1, int pIdx2, int pIdx3) const {
 ///    ??? and that the flips we make keep things Locally Delaunay
 void DirectedGraph::legalizeEdge(int pIdx1, int pIdx2, int pIdx3) {
 // TODO: legalizeEdge could be even quicker if we know adj. tri already
+	cout << "  [dag.legalizeEdge(" << pIdx1 << ", " << pIdx2 << ", " << pIdx3 << ")]" << endl; // DELAUNAY_TRACE_OUTPUT
 #ifdef DELAUNAY_CHECK
-	cout << "DTri::legalizeEdge, " << pIdx1 << ", " << pIdx2 << "," << pIdx3 << endl;
 
 	assert(isTriangleCCW(pointSet_, TriRecord(pIdx1, pIdx2, pIdx3)));
 #endif
@@ -236,14 +238,14 @@ void DirectedGraph::legalizeEdge(int pIdx1, int pIdx2, int pIdx3) {
 
 void DirectedGraph::addVertex(int pIdx) {
 #ifdef DIRECTEDGRAPH_CHECK
-	cout << "DAG.addVertex(" << pIdx << ")" << endl;
+	cout << " [dag.addVertex(pointIndex=" << pIdx << ")]" << endl; // DELAUNAY_TRACE_OUTPUT
 #endif
 
 	// Seek the lowest DAGNode which contains the point.
 	vector<shared_ptr<DAGNode>> leaves = DAGNode::leafNodesContainingPoint(root_, pointSet_, pIdx);
 
 #ifdef DIRECTEDGRAPH_CHECK
-	cout << "DAG.addVertex, numLeafNodes containing pt: " << leaves.size() << endl;
+	cout << " [dag.addVertex(pointIndex=" << pIdx << ")] numLeafNodes containing pt: " << leaves.size() << endl; // DELAUNAY_TRACE_OUTPUT
 	assert(leaves.size() == 1 || leaves.size() == 2);
 #endif
 
@@ -347,6 +349,8 @@ void DirectedGraph::addVertex(int pIdx) {
 //
 // the shared edge bd gets replaced with shared edge ac
 void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
+	cout << "  [dag.flipTriangles(" << pIdx1 << ", " << pIdx2 << ", " << pIdx3 << ", " << pIdx4 << ")]" << endl; // DELAUNAY_TRACE_OUTPUT
+
 	// XXX finish rename in DGraph::flipTri
 	// shared edge ij; 124=kij is ccw, 423=jil is ccw.
 	int kIdx = pIdx1;
@@ -354,13 +358,12 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 	int lIdx = pIdx3;
 	int jIdx = pIdx4;
 #ifdef DIRECTEDGRAPH_CHECK
-	cout << "DAG::flipTris, args=" << pIdx1 << "," << pIdx2 << "," << pIdx3 << "," << pIdx4 << "." << endl;
 
-	cout << "Points: " << endl;
-	cout << " 1. " << pointSet_[pIdx1] << endl;
-	cout << " 2. " << pointSet_[pIdx2] << endl;
-	cout << " 3. " << pointSet_[pIdx3] << endl;
-	cout << " 4. " << pointSet_[pIdx4] << endl;
+	cout << "  [dag.flipTriangles(" << pIdx1 << ", " << pIdx2 << ", " << pIdx3 << ", " << pIdx4 << ")]" << " Points: " << endl;
+	cout << "  [dag.flipTriangles(" << pIdx1 << ", " << pIdx2 << ", " << pIdx3 << ", " << pIdx4 << ")]" << " 1. " << pointSet_[pIdx1] << endl;
+	cout << "  [dag.flipTriangles(" << pIdx1 << ", " << pIdx2 << ", " << pIdx3 << ", " << pIdx4 << ")]" << " 2. " << pointSet_[pIdx2] << endl;
+	cout << "  [dag.flipTriangles(" << pIdx1 << ", " << pIdx2 << ", " << pIdx3 << ", " << pIdx4 << ")]" << " 3. " << pointSet_[pIdx3] << endl;
+	cout << "  [dag.flipTriangles(" << pIdx1 << ", " << pIdx2 << ", " << pIdx3 << ", " << pIdx4 << ")]" << " 4. " << pointSet_[pIdx4] << endl;
 
 	assert(containsTri(dagNodes_, pIdx1, pIdx2, pIdx4));
 	assert(isTriangleCCW(pointSet_, TriRecord(pIdx1, pIdx2, pIdx4)));
@@ -460,6 +463,8 @@ void addVertexInTri(Triangulation& trist,
                     shared_ptr<DAGNode> triRIJ,
                     shared_ptr<DAGNode> triRJK,
                     shared_ptr<DAGNode> triRKI) {
+	cout << "  [addVertexInTri(trist, triIJK, *triRIJ, *triRJK, *triRKI)]" << endl; // DELAUNAY_TRACE_OUTPUT
+
 	// Add the new triangles
 	triRIJ->fIndex_ = trist.addLinkedTri(triRIJ->tri_);
 	triRJK->fIndex_ = trist.addLinkedTri(triRJK->tri_);
@@ -513,6 +518,8 @@ void addVertexOnEdge(Triangulation& trist,
                      shared_ptr<DAGNode> triRKI,
                      shared_ptr<DAGNode> triRIL,
                      shared_ptr<DAGNode> triRLJ) {
+	cout << "  [dag.addVertexOnEdge(trist, triIJK, triILJ, triRJK, triRKI, triRIL, triRLJ)]" << endl; // DELAUNAY_TRACE_OUTPUT
+
 	// Add the new triangles
 	triRJK->fIndex_ = trist.addLinkedTri(triRJK->tri_);
 	triRKI->fIndex_ = trist.addLinkedTri(triRKI->tri_);
@@ -566,6 +573,8 @@ void flipTriangles(Triangulation& trist,
                    FIndex triJIL,
                    shared_ptr<DAGNode> triILK,
                    shared_ptr<DAGNode> triLJK) {
+	cout << "   [flipTriangles(trist, ijk, jil, *ilk, *ljk)]" << endl; // DELAUNAY_TRACE_OUTPUT
+
 	// Add the new triangles
 	triILK->fIndex_ = trist.addLinkedTri(triILK->tri_);
 	triLJK->fIndex_ = trist.addLinkedTri(triLJK->tri_);
