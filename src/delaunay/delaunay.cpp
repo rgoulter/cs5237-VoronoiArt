@@ -14,6 +14,7 @@
 
 #include "delaunay/directedgraph.h"
 
+#include "tracing.h"
 #include "stopwatch.h"
 
 #ifndef NDEBUG
@@ -57,7 +58,7 @@ void runDelaunayTriangulationOn(DirectedGraph& dag) {
 	int numPoints = delaunayPointSet.noPt(); // DELAUNAY_TRACE_OUTPUT
 	int pt = 0;                              // DELAUNAY_TRACE_OUTPUT
 	for (int pIdx : delaunayPointsToProcess) {
-		cout << "[runDelaunayTriangulationOn(dag)] adding vertex " << (++pt) << "/" << numPoints << endl; // DELAUNAY_TRACE_OUTPUT
+		TRACE("[runDelaunayTriangulationOn(dag)] adding vertex " << (++pt) << "/" << numPoints);
 		/// Insert into new Tri into the DAG.
 		/// These new triangles mightn't be Locally Delaunay.
 		// Return the containing triangle for the point i.

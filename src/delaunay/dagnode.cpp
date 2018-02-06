@@ -6,6 +6,8 @@
 
 #include "delaunay/trianglegeometry.h"
 
+#include "tracing.h"
+
 using std::find;
 using std::shared_ptr;
 using std::stack;
@@ -19,7 +21,7 @@ namespace delaunay {
 
 // O(log n) impl.
 vector<shared_ptr<DAGNode>> DAGNode::leafNodesContainingPoint(shared_ptr<DAGNode> root, const PointSetArray& pointSet, int pIdx) {
-	cout << "  [dagNode.leafNodesContainingPoint(root, psa, pointIndex=" << pIdx << ")]" << endl; // DELAUNAY_TRACE_OUTPUT
+	TRACE("[dagNode.leafNodesContainingPoint(root, psa, pointIndex=" << pIdx << ")]");
 	vector<shared_ptr<DAGNode>> outputList;
 
 	stack<shared_ptr<DAGNode>> stk;
@@ -53,7 +55,7 @@ vector<shared_ptr<DAGNode>> DAGNode::leafNodesContainingPoint(shared_ptr<DAGNode
 
 
 vector<shared_ptr<DAGNode>> DAGNode::leafNodesContainingEdge(shared_ptr<DAGNode> root, const PointSetArray& pointSet, int pIdx1, int pIdx2) {
-	cout << "   [dagNode.leafNodesContainingEdge(root, psa, pointIndex1=" << pIdx1 << ", pointIndex2=" << pIdx2 << ")]" << endl; // DELAUNAY_TRACE_OUTPUT
+	TRACE("[dagNode.leafNodesContainingEdge(root, psa, pointIndex1=" << pIdx1 << ", pointIndex2=" << pIdx2 << ")]");
 
 	vector<shared_ptr<DAGNode>> outputList;
 

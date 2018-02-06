@@ -71,7 +71,8 @@ set(VORONOI_LIB_HEADERS include/delaunay/li.h
                         include/geometry/polygon.h
                         include/imagedata.h
                         include/generatepoints.h
-                        include/polypixel.h)
+                        include/polypixel.h
+                        include/tracing.h)
 set(VORONOI_HEADERS include/mypanelopengl.h
                     include/mainqt.h)
 
