@@ -34,7 +34,6 @@ using std::string;
 using std::vector;
 
 using delaunay::LongInt;
-using delaunay::MyPoint;
 using delaunay::PointSetArray;
 
 using geometry::Polygon;
@@ -78,7 +77,7 @@ void drawATriangle(double x1,double y1, double x2, double y2, double x3, double 
 
 
 
-void drawPointSetArray(const PointSetArray& pointSet) {
+void drawPointSetArray(const PointSetArray<LongInt>& pointSet) {
 	// Draw input points
 	for (int i = 1; i <= pointSet.noPt(); i++){
 		LongInt px, py;

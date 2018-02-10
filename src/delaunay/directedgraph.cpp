@@ -72,7 +72,7 @@ bool trianglesUnique(const vector<shared_ptr<DAGNode>>& nodes) {
 
 
 
-bool leavesDoNotOverlap(const PointSetArray& pointSet, const vector<shared_ptr<DAGNode>>& nodes) {
+bool leavesDoNotOverlap(const PointSetArray<LongInt>& pointSet, const vector<shared_ptr<DAGNode>>& nodes) {
 	// Find the leaf nodes
 	vector<shared_ptr<DAGNode>> leafNodes;
 
@@ -139,7 +139,7 @@ bool DirectedGraph::checkConsistent() const {
 
 // It's slightly awkward, but we assume that the PointSet we're
 // given is constant for rest of DAG;
-DirectedGraph::DirectedGraph(const PointSetArray& inputPointSet) {
+DirectedGraph::DirectedGraph(const PointSetArray<LongInt>& inputPointSet) {
 	// TODO: If keep a separate copy of inputPointSet,
 	// then wouldn't need delaunay.cpp to use `- 3` magic.
 

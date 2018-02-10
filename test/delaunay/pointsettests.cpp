@@ -2,8 +2,9 @@
 
 #include "catch.hpp"
 
+#include "delaunay/longint/li.h"
+
 #include "delaunay/pointsetarray.h"
-#include "delaunay/directedgraph.h"
 
 using std::vector;
 
@@ -15,7 +16,7 @@ using namespace delaunay;
 
 
 TEST_CASE(SUT_NAME "/inTri, Simple", SUT_TAGS) {
-	PointSetArray ps;
+	PointSetArray<LongInt> ps;
 
 	int p1 = ps.addPoint(0, 0);   // 1
 	int p2 = ps.addPoint(0, 4);   // 2
@@ -42,7 +43,7 @@ TEST_CASE(SUT_NAME "/inTri, Simple", SUT_TAGS) {
 
 
 TEST_CASE(SUT_NAME "/inCircle, Simple Cases", SUT_TAGS) {
-	PointSetArray pointSet;
+	PointSetArray<LongInt> pointSet;
 
 	int p1 = pointSet.addPoint(0,   0);
 	int p2 = pointSet.addPoint(100, 0);
@@ -76,7 +77,7 @@ TEST_CASE(SUT_NAME "/inCircle, Simple Cases", SUT_TAGS) {
 //  3. (128,6768)
 //  4. (147,376)
 TEST_CASE(SUT_NAME "/inCircle, Outside Delaunay Legal", SUT_TAGS) {
-	PointSetArray pointSet;
+	PointSetArray<LongInt> pointSet;
 
 	// abd is a tri, as is dbc.
 	// abd doesn't contain c,
@@ -99,7 +100,7 @@ TEST_CASE(SUT_NAME "/inCircle, Outside Delaunay Legal", SUT_TAGS) {
 //  4. (396,483)
 //  *both* abd, dbc are illegal
 TEST_CASE(SUT_NAME "/inCircle, Outside Delaunay Illegal", SUT_TAGS) {
-	PointSetArray pointSet;
+	PointSetArray<LongInt> pointSet;
 
 	// abd is a tri, as is dbc.
 	// abd doesn't contain c,

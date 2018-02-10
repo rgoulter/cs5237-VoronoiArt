@@ -20,7 +20,7 @@ using std::endl;
 namespace delaunay {
 
 // O(log n) impl.
-vector<shared_ptr<DAGNode>> DAGNode::leafNodesContainingPoint(shared_ptr<DAGNode> root, const PointSetArray& pointSet, int pIdx) {
+vector<shared_ptr<DAGNode>> DAGNode::leafNodesContainingPoint(shared_ptr<DAGNode> root, const PointSetArray<LongInt>& pointSet, int pIdx) {
 	TRACE("[dagNode.leafNodesContainingPoint(root, psa, pointIndex=" << pIdx << ")]");
 	vector<shared_ptr<DAGNode>> outputList;
 
@@ -54,7 +54,7 @@ vector<shared_ptr<DAGNode>> DAGNode::leafNodesContainingPoint(shared_ptr<DAGNode
 
 
 
-vector<shared_ptr<DAGNode>> DAGNode::leafNodesContainingEdge(shared_ptr<DAGNode> root, const PointSetArray& pointSet, int pIdx1, int pIdx2) {
+vector<shared_ptr<DAGNode>> DAGNode::leafNodesContainingEdge(shared_ptr<DAGNode> root, const PointSetArray<LongInt>& pointSet, int pIdx1, int pIdx2) {
 	TRACE("[dagNode.leafNodesContainingEdge(root, psa, pointIndex1=" << pIdx1 << ", pointIndex2=" << pIdx2 << ")]");
 
 	vector<shared_ptr<DAGNode>> outputList;
@@ -90,7 +90,7 @@ vector<shared_ptr<DAGNode>> DAGNode::leafNodesContainingEdge(shared_ptr<DAGNode>
 
 
 
-int DAGNode::findAdjacentTriangle(shared_ptr<DAGNode> root, const PointSetArray& pointSet, int pIdx1, int pIdx2, int pIdx3) {
+int DAGNode::findAdjacentTriangle(shared_ptr<DAGNode> root, const PointSetArray<LongInt>& pointSet, int pIdx1, int pIdx2, int pIdx3) {
 	TriRecord outerTri(pIdx1, pIdx2, pIdx3);
 	vector<shared_ptr<DAGNode>> nodes = DAGNode::leafNodesContainingEdge(root, pointSet, pIdx2, pIdx3);
 

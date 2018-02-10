@@ -5,11 +5,9 @@
 
 
 #include "delaunay/longint/li.h"
-#include "delaunay/longint/lmath.h"
 
 #include "delaunay/directedgraph.h"
 #include "delaunay/pointsetarray.h"
-#include "delaunay/triangle.h"
 
 #include "geometry/polygon.h"
 
@@ -30,7 +28,7 @@ void runDelaunayTriangulationOn(DirectedGraph&);
 
 // POLYREP:POINTSETARRAY
 /// Returns set of Voronoi polygons.
-std::vector<geometry::Polygon> runDelaunayAlgorithm(const PointSetArray& inputPoints);
+std::vector<geometry::Polygon> runDelaunayAlgorithm(const PointSetArray<LongInt>& inputPoints);
 
 }
 

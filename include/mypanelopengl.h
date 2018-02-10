@@ -7,6 +7,8 @@
 #include <QGLWidget>
 #include <QString>
 
+#include "delaunay/longint/li.h"
+
 #include "delaunay/pointsetarray.h"
 
 #include "geometry/polygon.h"
@@ -108,7 +110,7 @@ private:
 	std::vector<ColoredPolygon> renderedPolygons_;
 
 	// DELAUNAY
-    delaunay::PointSetArray inputPointSet_;
+    delaunay::PointSetArray<delaunay::LongInt> inputPointSet_;
 };
 
 #endif // MYPANELOPENGL_H

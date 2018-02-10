@@ -57,7 +57,6 @@ set(VORONOI_CLI_SOURCES src/main_cli.cpp)
 
 set(VORONOI_LIB_HEADERS include/delaunay/longint/li.h
                         include/delaunay/longint/lmath.h
-                        include/delaunay/polygon.h
                         include/delaunay/triangle.h
                         include/delaunay/trianglegeometry.h
                         include/delaunay/triangulation.h

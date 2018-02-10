@@ -4,8 +4,6 @@
 #include <string>
 #include <vector>
 
-#include "delaunay/pointsetarray.h"
-
 #include "geometry/polygon.h"
 
 #include "imagedata.h"

@@ -1,16 +1,15 @@
 #ifndef DELAUNAY_LMATHH
 #define DELAUNAY_LMATHH
 
-#include "delaunay/longint/li.h"
-
 
 
 namespace delaunay {
 
 /// return 1 as positive, -1 as negative, 0 as zero of the determinant
-int signDet(LongInt x1, LongInt y1, LongInt w1,
-            LongInt x2, LongInt y2, LongInt w2,
-            LongInt x3, LongInt y3, LongInt w3);
+template<typename I>
+int signDet(I x1, I y1, I w1,
+            I x2, I y2, I w2,
+            I x3, I y3, I w3);
 
 }
 

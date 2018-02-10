@@ -2,7 +2,6 @@
 
 #include "catch.hpp"
 
-#include "delaunay/polygon.h"
 #include "delaunay/pointsetarray.h"
 #include "delaunay/triangle.h"
 #include "delaunay/trianglegeometry.h"
@@ -21,7 +20,7 @@ using geometry::Intersection;
 
 
 TEST_CASE(SUT_NAME "/isTriangleCCW, IsCCW 1", SUT_TAGS "[isTriangleCCW]") {
-	PointSetArray pointSet;
+	PointSetArray<LongInt> pointSet;
 
 	int pIdx1 = pointSet.addPoint(0, 0);
 	int pIdx2 = pointSet.addPoint(100, 0);
@@ -57,7 +56,7 @@ TEST_CASE(SUT_NAME "/isTriangleCCW, IsCCW 1", SUT_TAGS "[isTriangleCCW]") {
 
 
 TEST_CASE(SUT_NAME "/isTriangleCCW, IsCCW 2", SUT_TAGS "[isTriangleCCW]") {
-	PointSetArray pointSet;
+	PointSetArray<LongInt> pointSet;
 
 	int pIdx1 = pointSet.addPoint(-100, -100);
 	int pIdx2 = pointSet.addPoint(100, 0);
@@ -93,7 +92,7 @@ TEST_CASE(SUT_NAME "/isTriangleCCW, IsCCW 2", SUT_TAGS "[isTriangleCCW]") {
 
 
 TEST_CASE(SUT_NAME "/isTriangleCCW, IsCCW 3", SUT_TAGS "[isTriangelCCW]") {
-	PointSetArray pointSet;
+	PointSetArray<LongInt> pointSet;
 
 	int pIdx1 = pointSet.addPoint(1000, 1000);
 	int pIdx2 = pointSet.addPoint(1100, 1000);
@@ -129,7 +128,7 @@ TEST_CASE(SUT_NAME "/isTriangleCCW, IsCCW 3", SUT_TAGS "[isTriangelCCW]") {
 
 
 TEST_CASE(SUT_NAME "/isTriangleCCW, IsCCW Flipped Triangles", SUT_TAGS "[isTriangleCCW]") {
-	PointSetArray pointSet;
+	PointSetArray<LongInt> pointSet;
 
 	// abd, dbc are CCW.
 	// so,
@@ -159,7 +158,7 @@ TEST_CASE(SUT_NAME "/isTriangleCCW, IsCCW Flipped Triangles", SUT_TAGS "[isTrian
 
 
 TEST_CASE(SUT_NAME "/intersectsTriangle, Segment Test", SUT_TAGS "[intersectsTriangle]") {
-	PointSetArray pointSet;
+	PointSetArray<LongInt> pointSet;
 
 	// A simple right-angled triangle
 	int pIdx1 = pointSet.addPoint(0, 0);
@@ -192,7 +191,7 @@ TEST_CASE(SUT_NAME "/intersectsTriangle, Segment Test", SUT_TAGS "[intersectsTri
 
 
 TEST_CASE(SUT_NAME "/intersectsTriangle, Triangle Test", SUT_TAGS "[intersectsTriangle]") {
-	PointSetArray pointSet;
+	PointSetArray<LongInt> pointSet;
 
 	// Two simple right-angled triangles
 	int pIdx1 = pointSet.addPoint(0, 0);      // left

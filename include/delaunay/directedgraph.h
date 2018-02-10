@@ -5,6 +5,8 @@
 #include <memory>
 #include <vector>
 
+#include "delaunay/longint/li.h"
+
 #include "delaunay/dagnode.h"
 #include "delaunay/pointsetarray.h"
 #include "delaunay/triangle.h"
@@ -27,7 +29,7 @@ got deleted.
 
 class DirectedGraph {
 public:
-	DirectedGraph(const PointSetArray&);
+	DirectedGraph(const PointSetArray<LongInt>&);
 
 	/// Finds the linked delaunay triangles for the input point index
 	std::vector<TriRecord> findTrianglesWithVertex(int) const;
@@ -38,7 +40,7 @@ public:
 	/// Create children nodes with 2 parents in case of edge flipping.
 	void flipTriangles(int, int, int, int);
 
-	const PointSetArray& getPointSet() const {
+	const PointSetArray<LongInt>& getPointSet() const {
 		return pointSet_;
 	}
 
@@ -76,7 +78,7 @@ private:
 	// std::vector<TriRecord> getLeafNodes();
 
 	/// The directed graph's pointSet.
-	PointSetArray pointSet_;
+	PointSetArray<LongInt> pointSet_;
 	Triangulation trist_;
 
 	std::vector<std::shared_ptr<DAGNode>> dagNodes_;

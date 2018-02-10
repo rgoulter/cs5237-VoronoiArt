@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 
+#include "delaunay/longint/li.h"
+
 #include "delaunay/delaunay.h"
 #include "delaunay/pointsetio.h"
 
@@ -58,7 +60,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Coerce POINTREP:INTPAIRVEC to POINTREP:POINTSETARRAY
-	delaunay::PointSetArray inputPointSet;
+	delaunay::PointSetArray<delaunay::LongInt> inputPointSet;
 	for (pair<int,int> pair : inputPoints) {
 		inputPointSet.addPoint(pair.first, pair.second);
 	}

@@ -2,7 +2,6 @@
 
 #include "catch.hpp"
 
-#include "delaunay/polygon.h"
 #include "delaunay/pointsetarray.h"
 #include "delaunay/triangle.h"
 #include "delaunay/trianglegeometry.h"

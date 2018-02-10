@@ -14,9 +14,6 @@ using std::vector;
 using std::cout;
 using std::endl;
 
-using delaunay::MyPoint;
-using delaunay::PointSetArray;
-
 using geometry::Polygon;
 using geometry::Rect;
 using geometry::boundingBox;

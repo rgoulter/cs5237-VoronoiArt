@@ -5,7 +5,6 @@
 #include <ostream>
 #include <vector>
 
-#include "delaunay/pointsetarray.h"
 #include "delaunay/triangle.h"
 
 #ifndef NDEBUG

@@ -23,6 +23,7 @@ using std::endl;
 using geometry::intersects;
 using geometry::orientation;
 using geometry::Intersection;
+using geometry::Point;
 
 
 
@@ -109,7 +110,7 @@ void getIndicesKIJL(const TriRecord& triIJK, const TriRecord& triILJ,
 
 
 // Adds the points to the PointSetArray
-void findBoundingTri(PointSetArray &pSet) {
+void findBoundingTri(PointSetArray<LongInt> &pSet) {
 	assert(pSet.noPt() > 0);
 
 	LongInt minX, minY;
@@ -164,7 +165,7 @@ void findBoundingTri(PointSetArray &pSet) {
 
 
 
-int inTriangle(const PointSetArray& psa, const TriRecord& tri, int pIdx) {
+int inTriangle(const PointSetArray<LongInt>& psa, const TriRecord& tri, int pIdx) {
 	int pIdx1, pIdx2, pIdx3;
 	tri.get(pIdx1, pIdx2, pIdx3);
 
@@ -174,7 +175,7 @@ int inTriangle(const PointSetArray& psa, const TriRecord& tri, int pIdx) {
 
 
 // again, positive-y points UP.
-bool isTriangleCCW(const PointSetArray& psa, const TriRecord& tri) {
+bool isTriangleCCW(const PointSetArray<LongInt>& psa, const TriRecord& tri) {
 	int pIdx1, pIdx2, pIdx3;
 	tri.get(pIdx1, pIdx2, pIdx3);
 
@@ -188,9 +189,9 @@ bool isTriangleCCW(const PointSetArray& psa, const TriRecord& tri) {
 	LongInt p3x, p3y;
 	psa.getPoint(pIdx3, p3x, p3y);
 
-	MyPoint p1(p1x, p1y);
-	MyPoint p2(p2x, p2y);
-	MyPoint p3(p3x, p3y);
+	Point<LongInt> p1(p1x, p1y);
+	Point<LongInt> p2(p2x, p2y);
+	Point<LongInt> p3(p3x, p3y);
 
 	// Test that p3 is ccw to p1p2,
 	//           p1 is ccw to p2p3,
@@ -204,19 +205,19 @@ bool isTriangleCCW(const PointSetArray& psa, const TriRecord& tri) {
 
 
 
-Intersection intersectsTriangle(const PointSetArray& psa, const TriRecord& tri, pair<int,int> idxPt) {
+Intersection intersectsTriangle(const PointSetArray<LongInt>& psa, const TriRecord& tri, pair<int,int> idxPt) {
 	int pIdx1 = idxPt.first;
 	int pIdx2 = idxPt.second;
 
 	int idx1, idx2, idx3;
 	tri.get(idx1, idx2, idx3);
 
-	const MyPoint& p1 = psa[idx1];
-	const MyPoint& p2 = psa[idx2];
-	const MyPoint& p3 = psa[idx3];
+	const Point<LongInt>& p1 = psa[idx1];
+	const Point<LongInt>& p2 = psa[idx2];
+	const Point<LongInt>& p3 = psa[idx3];
 
-	const MyPoint& e1 = psa[pIdx1];
-	const MyPoint& e2 = psa[pIdx2];
+	const Point<LongInt>& e1 = psa[pIdx1];
+	const Point<LongInt>& e2 = psa[pIdx2];
 
 	using geometry::isOverlapping;
 
@@ -246,7 +247,7 @@ Intersection intersectsTriangle(const PointSetArray& psa, const TriRecord& tri, 
 
 
 
-Intersection intersectsTriangle(const PointSetArray& psa, const TriRecord& tri1, const TriRecord& tri2) {
+Intersection intersectsTriangle(const PointSetArray<LongInt>& psa, const TriRecord& tri1, const TriRecord& tri2) {
 	int idx1, idx2, idx3;
 	tri2.get(idx1, idx2, idx3);
 
