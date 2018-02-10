@@ -6,7 +6,8 @@
 #include <iostream>
 #include <utility>
 
-#include "delaunay/li.h"
+#include "delaunay/longint/li.h"
+
 #include "delaunay/pointsetarray.h"
 
 #include "geometry/linesegment.h"

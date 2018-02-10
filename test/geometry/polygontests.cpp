@@ -3,7 +3,7 @@
 
 #include "catch.hpp"
 
-#include "delaunay/li.h"
+#include "delaunay/longint/li.h"
 
 #include "geometry/linesegment.h"
 #include "geometry/polygon.h"

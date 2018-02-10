@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "delaunay/li.h"
+#include "delaunay/longint/li.h"
 
 #include "geometry/point.h"
 

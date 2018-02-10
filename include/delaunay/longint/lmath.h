@@ -1,7 +1,7 @@
 #ifndef DELAUNAY_LMATHH
 #define DELAUNAY_LMATHH
 
-#include "delaunay/li.h"
+#include "delaunay/longint/li.h"
 
 
 

@@ -35,8 +35,8 @@ include_directories(${Qt5Widgets_INCLUDE_DIRS})
 
 
 # Lib for Non-Qt code
-set(VORONOI_LIB_SOURCES src/delaunay/li.cpp
-                        src/delaunay/lmath.cpp
+set(VORONOI_LIB_SOURCES src/delaunay/longint/li.cpp
+                        src/delaunay/longint/lmath.cpp
                         src/delaunay/triangle.cpp
                         src/delaunay/triangulation.cpp
                         src/delaunay/pointsetio.cpp
@@ -55,8 +55,8 @@ set(VORONOI_SOURCES src/mypanelopengl.cpp
 
 set(VORONOI_CLI_SOURCES src/main_cli.cpp)
 
-set(VORONOI_LIB_HEADERS include/delaunay/li.h
-                        include/delaunay/lmath.h
+set(VORONOI_LIB_HEADERS include/delaunay/longint/li.h
+                        include/delaunay/longint/lmath.h
                         include/delaunay/polygon.h
                         include/delaunay/triangle.h
                         include/delaunay/trianglegeometry.h

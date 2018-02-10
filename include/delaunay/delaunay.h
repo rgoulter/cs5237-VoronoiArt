@@ -3,9 +3,11 @@
 
 #include <vector>
 
+
+#include "delaunay/longint/li.h"
+#include "delaunay/longint/lmath.h"
+
 #include "delaunay/directedgraph.h"
-#include "delaunay/li.h"
-#include "delaunay/lmath.h"
 #include "delaunay/pointsetarray.h"
 #include "delaunay/triangle.h"
 

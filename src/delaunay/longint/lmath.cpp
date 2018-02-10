@@ -1,4 +1,4 @@
-#include "delaunay/lmath.h"
+#include "delaunay/longint/lmath.h"
 
 #include <iostream>
 

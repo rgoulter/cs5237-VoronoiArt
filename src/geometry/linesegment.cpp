@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "delaunay/li.h"
+#include "delaunay/longint/li.h"
 
 using std::pair;
 using std::min;

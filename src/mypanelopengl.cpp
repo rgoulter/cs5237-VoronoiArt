@@ -19,7 +19,8 @@
 #include "platform.h"
 #include "stopwatch.h"
 
-#include "delaunay/li.h"
+#include "delaunay/longint/li.h"
+
 #include "delaunay/pointsetarray.h"
 #include "delaunay/delaunay.h"
 
