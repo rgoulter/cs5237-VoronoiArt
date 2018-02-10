@@ -12,7 +12,7 @@
 #include "tracing.h"
 
 #ifndef NDEBUG
-// #define DIRECTEDGRAPH_CHECK
+#define DIRECTEDGRAPH_CHECK
 #endif
 
 using std::shared_ptr;
