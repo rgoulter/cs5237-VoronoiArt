@@ -81,8 +81,8 @@ private:
 	PointSetArray<LongInt> pointSet_;
 	Triangulation trist_;
 
-	std::vector<std::shared_ptr<DAGNode>> dagNodes_;
-	std::shared_ptr<DAGNode> root_;
+	std::vector<std::shared_ptr<DAGNode<LongInt>>> dagNodes_;
+	std::shared_ptr<DAGNode<LongInt>> root_;
 };
 
 
@@ -91,27 +91,27 @@ private:
 
 void addVertexInTri(Triangulation& trist,
                     FIndex triIJK,
-                    std::shared_ptr<DAGNode> triRIJ,
-                    std::shared_ptr<DAGNode> triRJK,
-                    std::shared_ptr<DAGNode> triRKI);
+                    std::shared_ptr<DAGNode<LongInt>> triRIJ,
+                    std::shared_ptr<DAGNode<LongInt>> triRJK,
+                    std::shared_ptr<DAGNode<LongInt>> triRKI);
 
 
 
 void addVertexOnEdge(Triangulation& trist,
                      FIndex triIJK,
                      FIndex triILJ,
-                     std::shared_ptr<DAGNode> triRJK,
-                     std::shared_ptr<DAGNode> triRKI,
-                     std::shared_ptr<DAGNode> triRIL,
-                     std::shared_ptr<DAGNode> triRLJ);
+                     std::shared_ptr<DAGNode<LongInt>> triRJK,
+                     std::shared_ptr<DAGNode<LongInt>> triRKI,
+                     std::shared_ptr<DAGNode<LongInt>> triRIL,
+                     std::shared_ptr<DAGNode<LongInt>> triRLJ);
 
 
 
 void flipTriangles(Triangulation& trist,
                    FIndex triIJK,
                    FIndex triJIL,
-                   std::shared_ptr<DAGNode> triILK,
-                   std::shared_ptr<DAGNode> triLJK);
+                   std::shared_ptr<DAGNode<LongInt>> triILK,
+                   std::shared_ptr<DAGNode<LongInt>> triLJK);
 
 }
 
