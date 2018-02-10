@@ -32,10 +32,11 @@ using geometry::Polygon;
 
 namespace delaunay {
 
-void runDelaunayTriangulationOn(DirectedGraph<LongInt>& dag) {
+template<typename I>
+void runDelaunayTriangulationOn(DirectedGraph<I>& dag) {
 	vector<int> delaunayPointsToProcess;
 
-	PointSetArray<LongInt> delaunayPointSet = dag.getPointSet();
+	PointSetArray<I> delaunayPointSet = dag.getPointSet();
 
 	// Add points 1 ... n - 3 (inclusive) into the set of points to be tested.
 	// (0 ... < n - 3 since delaunayPointSet includes bounding triangle at end)
@@ -81,12 +82,13 @@ FIndex nextTriangle(int iIdx, const LinkedTriangle& ltriIJK) {
 
 
 
-Point<LongInt> pointForTri(const PointSetArray<LongInt>& pointSet, const LinkedTriangle& ltri) {
+template<typename I>
+Point<I> pointForTri(const PointSetArray<I>& pointSet, const LinkedTriangle& ltri) {
 	int triPIdx1, triPIdx2, triPIdx3;
 	ltri.tri_.get(triPIdx1, triPIdx2, triPIdx3);
 
 	// TODO circumCircle may benefit from using TriRecord
-	Point<LongInt> circum;
+	Point<I> circum;
 	pointSet.circumCircle(triPIdx1, triPIdx2, triPIdx3, circum);
 
 	return circum;
@@ -94,12 +96,13 @@ Point<LongInt> pointForTri(const PointSetArray<LongInt>& pointSet, const LinkedT
 
 
 
-vector<geometry::Polygon> createVoronoi(const DirectedGraph<LongInt>& dag) {
+template<typename I>
+vector<geometry::Polygon> createVoronoi(const DirectedGraph<I>& dag) {
 	vector<geometry::Polygon> voronoiPolygons; // Data structure to hold voronoi edges.
 
 	vector<FIndex> lookupLinkedTri = dag.getLinkedTrianglesLookup();
 
-	const PointSetArray<LongInt>& delaunayPointSet = dag.getPointSet();
+	const PointSetArray<I>& delaunayPointSet = dag.getPointSet();
 	const Triangulation& trist = dag.getTriangulation();
 
 	// n.b. Voronoi complexes are dual to Delaunay complexes:
@@ -119,7 +122,7 @@ vector<geometry::Polygon> createVoronoi(const DirectedGraph<LongInt>& dag) {
 		geometry::Polygon polygon;
 
 		// TODO May be convenient if PointSetArray had addPoint(MyPoint)
-		const Point<LongInt>& initPt = pointForTri(delaunayPointSet, ltri);
+		const Point<I>& initPt = pointForTri(delaunayPointSet, ltri);
 		polygon.addPoint((int) initPt.x.doubleValue(),
 		                 (int) initPt.y.doubleValue());
 
@@ -127,7 +130,7 @@ vector<geometry::Polygon> createVoronoi(const DirectedGraph<LongInt>& dag) {
 		triIdx = nextTriangle(dppIdx, ltri);
 		while (triIdx != initTriIdx) {
 			const LinkedTriangle& ltri = trist[triIdx];
-			const Point<LongInt>& voronoiPt = pointForTri(delaunayPointSet, ltri);
+			const Point<I>& voronoiPt = pointForTri(delaunayPointSet, ltri);
 			polygon.addPoint((int) voronoiPt.x.doubleValue(),
 			                 (int) voronoiPt.y.doubleValue());
 
@@ -142,13 +145,14 @@ vector<geometry::Polygon> createVoronoi(const DirectedGraph<LongInt>& dag) {
 
 
 
-vector<geometry::Polygon> runDelaunayAlgorithm(const PointSetArray<LongInt>& inputPoints) {
+template<typename I>
+vector<geometry::Polygon> runDelaunayAlgorithm(const PointSetArray<I>& inputPoints) {
 	StopWatch voroSW;
 
 	voroSW.reset();
 	voroSW.resume();
 
-	DirectedGraph<LongInt> dag(inputPoints);
+	DirectedGraph<I> dag(inputPoints);
 
 	cout << "MPOG::doVoronoi, created dag" << endl;
 
@@ -171,6 +175,14 @@ vector<geometry::Polygon> runDelaunayAlgorithm(const PointSetArray<LongInt>& inp
 
 	return voronoiPolygons;
 }
+
+
+
+// Instantiate functions
+template void runDelaunayTriangulationOn<LongInt>(DirectedGraph<LongInt>&);
+template Point<LongInt> pointForTri<LongInt>(const PointSetArray<LongInt>&, const LinkedTriangle&);
+template vector<geometry::Polygon> createVoronoi(const DirectedGraph<LongInt>&);
+template vector<geometry::Polygon> runDelaunayAlgorithm(const PointSetArray<LongInt>&);
 
 }
 

@@ -4,7 +4,6 @@
 #include <vector>
 
 
-#include "delaunay/longint/li.h"
 
 #include "delaunay/directedgraph.h"
 #include "delaunay/pointsetarray.h"
@@ -17,18 +16,21 @@ namespace delaunay {
 
 /// Construct Voronoi polygons for a the triangulation of a DirectedGraph which
 /// (after Delaunay Triangulation generated for it).
-std::vector<geometry::Polygon> createVoronoi(const DirectedGraph<LongInt>& dag);
+template<typename I>
+std::vector<geometry::Polygon> createVoronoi(const DirectedGraph<I>& dag);
 
 
 
 /// Run the delaunay triangulation on a Directed Graph.
-void runDelaunayTriangulationOn(DirectedGraph<LongInt>&);
+template<typename I>
+void runDelaunayTriangulationOn(DirectedGraph<I>&);
 
 
 
 // POLYREP:POINTSETARRAY
 /// Returns set of Voronoi polygons.
-std::vector<geometry::Polygon> runDelaunayAlgorithm(const PointSetArray<LongInt>& inputPoints);
+template<typename I>
+std::vector<geometry::Polygon> runDelaunayAlgorithm(const PointSetArray<I>& inputPoints);
 
 }
 
