@@ -3,8 +3,6 @@
 
 #include <utility>
 
-#include "delaunay/longint/li.h"
-
 #include "delaunay/pointsetarray.h"
 #include "delaunay/triangle.h"
 
@@ -16,24 +14,29 @@ namespace delaunay {
 
 /// Method to add new children triangles to a parent triangle.
 /// Call this from tryInsertPoint method in main.cpp
-void findBoundingTri(PointSetArray<LongInt>&);
+template<typename I>
+void findBoundingTri(PointSetArray<I>&);
 
 
 
-int inTriangle(const PointSetArray<LongInt>& psa, const TriRecord& tri, int pIdx);
+template<typename I>
+int inTriangle(const PointSetArray<I>& psa, const TriRecord& tri, int pIdx);
 
 
 
 /// positive-y points UP.
-bool isTriangleCCW(const PointSetArray<LongInt>& psa, const TriRecord& tri);
+template<typename I>
+bool isTriangleCCW(const PointSetArray<I>& psa, const TriRecord& tri);
 
 
 
-geometry::Intersection intersectsTriangle(const PointSetArray<LongInt>& psa, const TriRecord& tri, std::pair<int,int> idxPt);
+template<typename I>
+geometry::Intersection intersectsTriangle(const PointSetArray<I>& psa, const TriRecord& tri, std::pair<int,int> idxPt);
 
 
 
-geometry::Intersection intersectsTriangle(const PointSetArray<LongInt>& psa, const TriRecord& tri1, const TriRecord& tri2);
+template<typename I>
+geometry::Intersection intersectsTriangle(const PointSetArray<I>& psa, const TriRecord& tri1, const TriRecord& tri2);
 
 }
 
