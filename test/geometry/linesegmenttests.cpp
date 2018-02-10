@@ -2,6 +2,8 @@
 
 #include "catch.hpp"
 
+#include "delaunay/longint/li.h"
+
 #include "delaunay/pointsetarray.h"
 #include "delaunay/triangle.h"
 #include "delaunay/trianglegeometry.h"
@@ -10,6 +12,8 @@
 
 using std::vector;
 
+using delaunay::LongInt;
+
 using namespace geometry;
 
 #define SUT_NAME "geometry/LineSegment"
@@ -17,7 +21,29 @@ using namespace geometry;
 
 
 
-TEST_CASE(SUT_NAME "/orientation, Trivial", SUT_TAGS "[orientation]") {
+TEST_CASE(SUT_NAME "/orientation<LongInt>, Trivial", SUT_TAGS "[orientation][LongInt]") {
+	using geometry::Point;
+	using geometry::orientation;
+
+	Point<LongInt> originPt(0, 0);
+	Point<LongInt> endPt(100, 0);
+
+	SECTION("Point oriented CCW of segment") {
+		Point<LongInt> ccwPt(50, 50);
+		CHECK(1 == orientation({originPt, endPt}, ccwPt));
+	}
+
+	SECTION("Point oriented co-linear with segment") {
+		Point<LongInt> colPt(200, 0);
+		CHECK(0 == orientation({originPt, endPt}, colPt));
+	}
+
+	SECTION("Point oriented CW of segment") {
+		Point<LongInt> cwPt(50, -50);
+		CHECK(-1 == orientation({originPt, endPt}, cwPt));
+	}
+}
+TEST_CASE(SUT_NAME "/orientation<int>, Trivial", SUT_TAGS "[orientation][int]") {
 	using geometry::Point;
 	using geometry::orientation;
 
@@ -42,7 +68,29 @@ TEST_CASE(SUT_NAME "/orientation, Trivial", SUT_TAGS "[orientation]") {
 
 
 
-TEST_CASE(SUT_NAME "/orientation, Trivial 2", SUT_TAGS "[orientation]") {
+TEST_CASE(SUT_NAME "/orientation<LongInt>, Trivial 2", SUT_TAGS "[orientation][LongInt]") {
+	using geometry::Point;
+	using geometry::orientation;
+
+	Point<LongInt> originPt(1000, 1000);
+	Point<LongInt>    endPt(1100, 1000);
+
+	SECTION("Point oriented CCW of segment") {
+		Point<LongInt> ccwPt(1050, 1050);
+		CHECK(1 == orientation({originPt, endPt}, ccwPt));
+	}
+
+	SECTION("Point oriented co-linear wtih segment") {
+		Point<LongInt> colPt(1200, 1000);
+		CHECK(0 == orientation({originPt, endPt}, colPt));
+	}
+
+	SECTION("Point oriented CW of segment") {
+		Point<LongInt>  cwPt(1050,  950);
+		CHECK(-1 == orientation({originPt, endPt}, cwPt));
+	}
+}
+TEST_CASE(SUT_NAME "/orientation<int>, Trivial 2", SUT_TAGS "[orientation][int]") {
 	using geometry::Point;
 	using geometry::orientation;
 
