@@ -7,7 +7,6 @@
 #include <iostream>
 
 #include "delaunay/longint/li.h"
-#include "delaunay/longint/lmath.h"
 
 #include "delaunay/pointsetarray.h"
 #include "delaunay/triangle.h"

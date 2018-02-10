@@ -6,7 +6,8 @@
 #include <vector>
 
 #include "delaunay/longint/li.h"
-#include "delaunay/longint/lmath.h"
+
+#include "delaunay/signDet.h"
 
 #include "geometry/linesegment.h"
 
