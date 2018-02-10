@@ -649,16 +649,16 @@ template void flipTriangles<LongInt>(Triangulation&, FIndex, FIndex, shared_ptr<
 
 template class DirectedGraph<LongInt>;
 
-template bool containsTri<int>(const vector<shared_ptr<DAGNode<int>>>&, int, int, int);
-template void outputTriList<int>(const vector<shared_ptr<DAGNode<int>>>&);
-template bool trianglesUnique<int>(const vector<shared_ptr<DAGNode<int>>>& nodes);
-template bool leavesDoNotOverlap<int>(const PointSetArray<int>&, const vector<shared_ptr<DAGNode<int>>>&);
+template bool containsTri<double>(const vector<shared_ptr<DAGNode<double>>>&, int, int, int);
+template void outputTriList<double>(const vector<shared_ptr<DAGNode<double>>>&);
+template bool trianglesUnique<double>(const vector<shared_ptr<DAGNode<double>>>& nodes);
+template bool leavesDoNotOverlap<double>(const PointSetArray<double>&, const vector<shared_ptr<DAGNode<double>>>&);
 
-template void addVertexInTri<int>(Triangulation&, FIndex, shared_ptr<DAGNode<int>>, shared_ptr<DAGNode<int>>, shared_ptr<DAGNode<int>>);
-template void addVertexOnEdge<int>(Triangulation&, FIndex, FIndex, shared_ptr<DAGNode<int>>, shared_ptr<DAGNode<int>>, shared_ptr<DAGNode<int>>, shared_ptr<DAGNode<int>>);
-template void flipTriangles<int>(Triangulation&, FIndex, FIndex, shared_ptr<DAGNode<int>>, shared_ptr<DAGNode<int>>);
+template void addVertexInTri<double>(Triangulation&, FIndex, shared_ptr<DAGNode<double>>, shared_ptr<DAGNode<double>>, shared_ptr<DAGNode<double>>);
+template void addVertexOnEdge<double>(Triangulation&, FIndex, FIndex, shared_ptr<DAGNode<double>>, shared_ptr<DAGNode<double>>, shared_ptr<DAGNode<double>>, shared_ptr<DAGNode<double>>);
+template void flipTriangles<double>(Triangulation&, FIndex, FIndex, shared_ptr<DAGNode<double>>, shared_ptr<DAGNode<double>>);
 
-template class DirectedGraph<int>;
+template class DirectedGraph<double>;
 
 }
 

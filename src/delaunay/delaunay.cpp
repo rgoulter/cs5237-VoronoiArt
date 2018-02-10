@@ -184,10 +184,10 @@ template Point<LongInt> pointForTri<LongInt>(const PointSetArray<LongInt>&, cons
 template vector<geometry::Polygon> createVoronoi(const DirectedGraph<LongInt>&);
 template vector<geometry::Polygon> runDelaunayAlgorithm(const PointSetArray<LongInt>&);
 
-template void runDelaunayTriangulationOn<int>(DirectedGraph<int>&);
-template Point<int> pointForTri<int>(const PointSetArray<int>&, const LinkedTriangle&);
-template vector<geometry::Polygon> createVoronoi<int>(const DirectedGraph<int>&);
-template vector<geometry::Polygon> runDelaunayAlgorithm<int>(const PointSetArray<int>&);
+template void runDelaunayTriangulationOn<double>(DirectedGraph<double>&);
+template Point<double> pointForTri<double>(const PointSetArray<double>&, const LinkedTriangle&);
+template vector<geometry::Polygon> createVoronoi<double>(const DirectedGraph<double>&);
+template vector<geometry::Polygon> runDelaunayAlgorithm<double>(const PointSetArray<double>&);
 
 }
 

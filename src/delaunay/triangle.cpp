@@ -280,11 +280,11 @@ template bool isTriangleCCW<LongInt>(const PointSetArray<LongInt>&, const TriRec
 template Intersection intersectsTriangle<LongInt>(const PointSetArray<LongInt>&, const TriRecord&, pair<int,int>);
 template Intersection intersectsTriangle<LongInt>(const PointSetArray<LongInt>&, const TriRecord&, const TriRecord&);
 
-template void findBoundingTri<int>(PointSetArray<int>&);
-template int inTriangle<int>(const PointSetArray<int>&, const TriRecord&, int);
-template bool isTriangleCCW<int>(const PointSetArray<int>&, const TriRecord&);
-template Intersection intersectsTriangle<int>(const PointSetArray<int>&, const TriRecord&, pair<int,int>);
-template Intersection intersectsTriangle<int>(const PointSetArray<int>&, const TriRecord&, const TriRecord&);
+template void findBoundingTri<double>(PointSetArray<double>&);
+template int inTriangle<double>(const PointSetArray<double>&, const TriRecord&, int);
+template bool isTriangleCCW<double>(const PointSetArray<double>&, const TriRecord&);
+template Intersection intersectsTriangle<double>(const PointSetArray<double>&, const TriRecord&, pair<int,int>);
+template Intersection intersectsTriangle<double>(const PointSetArray<double>&, const TriRecord&, const TriRecord&);
 
 }
 

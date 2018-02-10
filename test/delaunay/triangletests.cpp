@@ -30,32 +30,32 @@ TEST_CASE(SUT_NAME "/isTriangleCCW<LongInt>, IsCCW 1", SUT_TAGS "[isTriangleCCW]
 
 	SECTION("CCW Triangle 123") {
 		TriRecord triCCW(pIdx1, pIdx2, pIdx3);
-		CHECK(isTriangleCCW<LongInt>(pointSet, triCCW));
+		CHECK(isTriangleCCW(pointSet, triCCW));
 	}
 	SECTION("CCW Triangles 231") {
 		TriRecord triCCW(pIdx2, pIdx3, pIdx1);
-		CHECK(isTriangleCCW<LongInt>(pointSet, triCCW));
+		CHECK(isTriangleCCW(pointSet, triCCW));
 	}
 	SECTION("CCW Triangles 312") {
 		TriRecord triCCW(pIdx3, pIdx1, pIdx2);
-		CHECK(isTriangleCCW<LongInt>(pointSet, triCCW));
+		CHECK(isTriangleCCW(pointSet, triCCW));
 	}
 
 	SECTION("CW Triangle 321") {
 		TriRecord triCW(pIdx3, pIdx2, pIdx1);
-		CHECK_FALSE(isTriangleCCW<LongInt>(pointSet, triCW));
+		CHECK_FALSE(isTriangleCCW(pointSet, triCW));
 	}
 	SECTION("CW Triangle 213") {
 		TriRecord triCW(pIdx2, pIdx1, pIdx3);
-		CHECK_FALSE(isTriangleCCW<LongInt>(pointSet, triCW));
+		CHECK_FALSE(isTriangleCCW(pointSet, triCW));
 	}
 	SECTION("CW Triangle 132") {
 		TriRecord triCW(pIdx1, pIdx3, pIdx2);
-		CHECK_FALSE(isTriangleCCW<LongInt>(pointSet, triCW));
+		CHECK_FALSE(isTriangleCCW(pointSet, triCW));
 	}
 }
-TEST_CASE(SUT_NAME "/isTriangleCCW<int>, IsCCW 1", SUT_TAGS "[isTriangleCCW][int]") {
-	PointSetArray<int> pointSet;
+TEST_CASE(SUT_NAME "/isTriangleCCW<double>, IsCCW 1", SUT_TAGS "[isTriangleCCW][double]") {
+	PointSetArray<double> pointSet;
 
 	int pIdx1 = pointSet.addPoint(0, 0);
 	int pIdx2 = pointSet.addPoint(100, 0);
@@ -63,28 +63,28 @@ TEST_CASE(SUT_NAME "/isTriangleCCW<int>, IsCCW 1", SUT_TAGS "[isTriangleCCW][int
 
 	SECTION("CCW Triangle 123") {
 		TriRecord triCCW(pIdx1, pIdx2, pIdx3);
-		CHECK(isTriangleCCW<int>(pointSet, triCCW));
+		CHECK(isTriangleCCW(pointSet, triCCW));
 	}
 	SECTION("CCW Triangles 231") {
 		TriRecord triCCW(pIdx2, pIdx3, pIdx1);
-		CHECK(isTriangleCCW<int>(pointSet, triCCW));
+		CHECK(isTriangleCCW(pointSet, triCCW));
 	}
 	SECTION("CCW Triangles 312") {
 		TriRecord triCCW(pIdx3, pIdx1, pIdx2);
-		CHECK(isTriangleCCW<int>(pointSet, triCCW));
+		CHECK(isTriangleCCW(pointSet, triCCW));
 	}
 
 	SECTION("CW Triangle 321") {
 		TriRecord triCW(pIdx3, pIdx2, pIdx1);
-		CHECK_FALSE(isTriangleCCW<int>(pointSet, triCW));
+		CHECK_FALSE(isTriangleCCW(pointSet, triCW));
 	}
 	SECTION("CW Triangle 213") {
 		TriRecord triCW(pIdx2, pIdx1, pIdx3);
-		CHECK_FALSE(isTriangleCCW<int>(pointSet, triCW));
+		CHECK_FALSE(isTriangleCCW(pointSet, triCW));
 	}
 	SECTION("CW Triangle 132") {
 		TriRecord triCW(pIdx1, pIdx3, pIdx2);
-		CHECK_FALSE(isTriangleCCW<int>(pointSet, triCW));
+		CHECK_FALSE(isTriangleCCW(pointSet, triCW));
 	}
 }
 
@@ -99,32 +99,32 @@ TEST_CASE(SUT_NAME "/isTriangleCCW<LongInt>, IsCCW 2", SUT_TAGS "[isTriangleCCW]
 
 	SECTION("CCW Triangle 123") {
 		TriRecord triCCW(pIdx1, pIdx2, pIdx3);
-		CHECK(isTriangleCCW<LongInt>(pointSet, triCCW));
+		CHECK(isTriangleCCW(pointSet, triCCW));
 	}
 	SECTION("CCW Triangle 231") {
 		TriRecord triCCW(pIdx2, pIdx3, pIdx1);
-		CHECK(isTriangleCCW<LongInt>(pointSet, triCCW));
+		CHECK(isTriangleCCW(pointSet, triCCW));
 	}
 	SECTION("CCW Triangle 312") {
 		TriRecord triCCW(pIdx3, pIdx1, pIdx2);
-		CHECK(isTriangleCCW<LongInt>(pointSet, triCCW));
+		CHECK(isTriangleCCW(pointSet, triCCW));
 	}
 
 	SECTION("CW Triangle 321") {
 		TriRecord triCW(pIdx3, pIdx2, pIdx1);
-		CHECK_FALSE(isTriangleCCW<LongInt>(pointSet, triCW));
+		CHECK_FALSE(isTriangleCCW(pointSet, triCW));
 	}
 	SECTION("CW Triangle 213") {
 		TriRecord triCW(pIdx2, pIdx1, pIdx3);
-		CHECK_FALSE(isTriangleCCW<LongInt>(pointSet, triCW));
+		CHECK_FALSE(isTriangleCCW(pointSet, triCW));
 	}
 	SECTION("CW Triangle 132") {
 		TriRecord triCW(pIdx1, pIdx3, pIdx2);
-		CHECK_FALSE(isTriangleCCW<LongInt>(pointSet, triCW));
+		CHECK_FALSE(isTriangleCCW(pointSet, triCW));
 	}
 }
-TEST_CASE(SUT_NAME "/isTriangleCCW<int>, IsCCW 2", SUT_TAGS "[isTriangleCCW][int]") {
-	PointSetArray<int> pointSet;
+TEST_CASE(SUT_NAME "/isTriangleCCW<double>, IsCCW 2", SUT_TAGS "[isTriangleCCW][double]") {
+	PointSetArray<double> pointSet;
 
 	int pIdx1 = pointSet.addPoint(-100, -100);
 	int pIdx2 = pointSet.addPoint(100, 0);
@@ -132,28 +132,28 @@ TEST_CASE(SUT_NAME "/isTriangleCCW<int>, IsCCW 2", SUT_TAGS "[isTriangleCCW][int
 
 	SECTION("CCW Triangle 123") {
 		TriRecord triCCW(pIdx1, pIdx2, pIdx3);
-		CHECK(isTriangleCCW<int>(pointSet, triCCW));
+		CHECK(isTriangleCCW(pointSet, triCCW));
 	}
 	SECTION("CCW Triangle 231") {
 		TriRecord triCCW(pIdx2, pIdx3, pIdx1);
-		CHECK(isTriangleCCW<int>(pointSet, triCCW));
+		CHECK(isTriangleCCW(pointSet, triCCW));
 	}
 	SECTION("CCW Triangle 312") {
 		TriRecord triCCW(pIdx3, pIdx1, pIdx2);
-		CHECK(isTriangleCCW<int>(pointSet, triCCW));
+		CHECK(isTriangleCCW(pointSet, triCCW));
 	}
 
 	SECTION("CW Triangle 321") {
 		TriRecord triCW(pIdx3, pIdx2, pIdx1);
-		CHECK_FALSE(isTriangleCCW<int>(pointSet, triCW));
+		CHECK_FALSE(isTriangleCCW(pointSet, triCW));
 	}
 	SECTION("CW Triangle 213") {
 		TriRecord triCW(pIdx2, pIdx1, pIdx3);
-		CHECK_FALSE(isTriangleCCW<int>(pointSet, triCW));
+		CHECK_FALSE(isTriangleCCW(pointSet, triCW));
 	}
 	SECTION("CW Triangle 132") {
 		TriRecord triCW(pIdx1, pIdx3, pIdx2);
-		CHECK_FALSE(isTriangleCCW<int>(pointSet, triCW));
+		CHECK_FALSE(isTriangleCCW(pointSet, triCW));
 	}
 }
 
@@ -168,32 +168,32 @@ TEST_CASE(SUT_NAME "/isTriangleCCW<LongInt>, IsCCW 3", SUT_TAGS "[isTriangelCCW]
 
 	SECTION("CCW Triangle 123") {
 		TriRecord triCCW(pIdx1, pIdx2, pIdx3);
-		CHECK(isTriangleCCW<LongInt>(pointSet, triCCW));
+		CHECK(isTriangleCCW(pointSet, triCCW));
 	}
 	SECTION("CCW Triangle 231") {
 		TriRecord triCCW(pIdx2, pIdx3, pIdx1);
-		CHECK(isTriangleCCW<LongInt>(pointSet, triCCW));
+		CHECK(isTriangleCCW(pointSet, triCCW));
 	}
 	SECTION("CCW Triangle 312") {
 		TriRecord triCCW(pIdx3, pIdx1, pIdx2);
-		CHECK(isTriangleCCW<LongInt>(pointSet, triCCW));
+		CHECK(isTriangleCCW(pointSet, triCCW));
 	}
 
 	SECTION("CW Triangle 321") {
 		TriRecord triCW(pIdx3, pIdx2, pIdx1);
-		CHECK_FALSE(isTriangleCCW<LongInt>(pointSet, triCW));
+		CHECK_FALSE(isTriangleCCW(pointSet, triCW));
 	}
 	SECTION("CW Triangle 213") {
 		TriRecord triCW(pIdx2, pIdx1, pIdx3);
-		CHECK_FALSE(isTriangleCCW<LongInt>(pointSet, triCW));
+		CHECK_FALSE(isTriangleCCW(pointSet, triCW));
 	}
 	SECTION("CW Triangle 132") {
 		TriRecord triCW(pIdx1, pIdx3, pIdx2);
-		CHECK_FALSE(isTriangleCCW<LongInt>(pointSet, triCW));
+		CHECK_FALSE(isTriangleCCW(pointSet, triCW));
 	}
 }
-TEST_CASE(SUT_NAME "/isTriangleCCW<int>, IsCCW 3", SUT_TAGS "[isTriangelCCW][int]") {
-	PointSetArray<int> pointSet;
+TEST_CASE(SUT_NAME "/isTriangleCCW<double>, IsCCW 3", SUT_TAGS "[isTriangelCCW][double]") {
+	PointSetArray<double> pointSet;
 
 	int pIdx1 = pointSet.addPoint(1000, 1000);
 	int pIdx2 = pointSet.addPoint(1100, 1000);
@@ -201,28 +201,28 @@ TEST_CASE(SUT_NAME "/isTriangleCCW<int>, IsCCW 3", SUT_TAGS "[isTriangelCCW][int
 
 	SECTION("CCW Triangle 123") {
 		TriRecord triCCW(pIdx1, pIdx2, pIdx3);
-		CHECK(isTriangleCCW<int>(pointSet, triCCW));
+		CHECK(isTriangleCCW(pointSet, triCCW));
 	}
 	SECTION("CCW Triangle 231") {
 		TriRecord triCCW(pIdx2, pIdx3, pIdx1);
-		CHECK(isTriangleCCW<int>(pointSet, triCCW));
+		CHECK(isTriangleCCW(pointSet, triCCW));
 	}
 	SECTION("CCW Triangle 312") {
 		TriRecord triCCW(pIdx3, pIdx1, pIdx2);
-		CHECK(isTriangleCCW<int>(pointSet, triCCW));
+		CHECK(isTriangleCCW(pointSet, triCCW));
 	}
 
 	SECTION("CW Triangle 321") {
 		TriRecord triCW(pIdx3, pIdx2, pIdx1);
-		CHECK_FALSE(isTriangleCCW<int>(pointSet, triCW));
+		CHECK_FALSE(isTriangleCCW(pointSet, triCW));
 	}
 	SECTION("CW Triangle 213") {
 		TriRecord triCW(pIdx2, pIdx1, pIdx3);
-		CHECK_FALSE(isTriangleCCW<int>(pointSet, triCW));
+		CHECK_FALSE(isTriangleCCW(pointSet, triCW));
 	}
 	SECTION("CW Triangle 132") {
 		TriRecord triCW(pIdx1, pIdx3, pIdx2);
-		CHECK_FALSE(isTriangleCCW<int>(pointSet, triCW));
+		CHECK_FALSE(isTriangleCCW(pointSet, triCW));
 	}
 }
 
@@ -243,20 +243,20 @@ TEST_CASE(SUT_NAME "/isTriangleCCW<LongInt>, IsCCW Flipped Triangles", SUT_TAGS 
 		TriRecord triABD(pIdx1, pIdx2, pIdx4);
 		TriRecord triDBC(pIdx4, pIdx2, pIdx3);
 
-		CHECK(isTriangleCCW<LongInt>(pointSet, triABD));
-		CHECK(isTriangleCCW<LongInt>(pointSet, triDBC));
+		CHECK(isTriangleCCW(pointSet, triABD));
+		CHECK(isTriangleCCW(pointSet, triDBC));
 	}
 
 	SECTION("Flipped Triangles 123, 134") {
 		TriRecord triABC(pIdx1, pIdx2, pIdx3);
 		TriRecord triACD(pIdx1, pIdx3, pIdx4);
 
-		CHECK(isTriangleCCW<LongInt>(pointSet, triABC));
-		CHECK(isTriangleCCW<LongInt>(pointSet, triACD));
+		CHECK(isTriangleCCW(pointSet, triABC));
+		CHECK(isTriangleCCW(pointSet, triACD));
 	}
 }
-TEST_CASE(SUT_NAME "/isTriangleCCW<int>, IsCCW Flipped Triangles", SUT_TAGS "[isTriangleCCW][int]") {
-	PointSetArray<int> pointSet;
+TEST_CASE(SUT_NAME "/isTriangleCCW<double>, IsCCW Flipped Triangles", SUT_TAGS "[isTriangleCCW][double]") {
+	PointSetArray<double> pointSet;
 
 	// abd, dbc are CCW.
 	// so,
@@ -270,16 +270,16 @@ TEST_CASE(SUT_NAME "/isTriangleCCW<int>, IsCCW Flipped Triangles", SUT_TAGS "[is
 		TriRecord triABD(pIdx1, pIdx2, pIdx4);
 		TriRecord triDBC(pIdx4, pIdx2, pIdx3);
 
-		CHECK(isTriangleCCW<int>(pointSet, triABD));
-		CHECK(isTriangleCCW<int>(pointSet, triDBC));
+		CHECK(isTriangleCCW(pointSet, triABD));
+		CHECK(isTriangleCCW(pointSet, triDBC));
 	}
 
 	SECTION("Flipped Triangles 123, 134") {
 		TriRecord triABC(pIdx1, pIdx2, pIdx3);
 		TriRecord triACD(pIdx1, pIdx3, pIdx4);
 
-		CHECK(isTriangleCCW<int>(pointSet, triABC));
-		CHECK(isTriangleCCW<int>(pointSet, triACD));
+		CHECK(isTriangleCCW(pointSet, triABC));
+		CHECK(isTriangleCCW(pointSet, triACD));
 	}
 }
 
@@ -308,15 +308,15 @@ TEST_CASE(SUT_NAME "/intersectsTriangle<LongInt>, Segment Test", SUT_TAGS "[inte
 
 	SECTION("Segment s2-s4 is incidental to Tri 123") {
 		// Incidental, but not overlapping
-		CHECK(Intersection::Incidental == intersectsTriangle<LongInt>(pointSet, tri, {segPtIdx2, segPtIdx4}));
+		CHECK(Intersection::Incidental == intersectsTriangle(pointSet, tri, {segPtIdx2, segPtIdx4}));
 	}
 
 	SECTION("Segment s3-s4 doesn't intersect with Tri 123") {
-		CHECK(Intersection::None == intersectsTriangle<LongInt>(pointSet, tri, {segPtIdx3, segPtIdx4}));
+		CHECK(Intersection::None == intersectsTriangle(pointSet, tri, {segPtIdx3, segPtIdx4}));
 	}
 }
-TEST_CASE(SUT_NAME "/intersectsTriangle<int>, Segment Test", SUT_TAGS "[intersectsTriangle][int]") {
-	PointSetArray<int> pointSet;
+TEST_CASE(SUT_NAME "/intersectsTriangle<double>, Segment Test", SUT_TAGS "[intersectsTriangle][double]") {
+	PointSetArray<double> pointSet;
 
 	// A simple right-angled triangle
 	int pIdx1 = pointSet.addPoint(0, 0);
@@ -338,11 +338,11 @@ TEST_CASE(SUT_NAME "/intersectsTriangle<int>, Segment Test", SUT_TAGS "[intersec
 
 	SECTION("Segment s2-s4 is incidental to Tri 123") {
 		// Incidental, but not overlapping
-		CHECK(Intersection::Incidental == intersectsTriangle<int>(pointSet, tri, {segPtIdx2, segPtIdx4}));
+		CHECK(Intersection::Incidental == intersectsTriangle(pointSet, tri, {segPtIdx2, segPtIdx4}));
 	}
 
 	SECTION("Segment s3-s4 doesn't intersect with Tri 123") {
-		CHECK(Intersection::None == intersectsTriangle<int>(pointSet, tri, {segPtIdx3, segPtIdx4}));
+		CHECK(Intersection::None == intersectsTriangle(pointSet, tri, {segPtIdx3, segPtIdx4}));
 	}
 }
 
@@ -363,7 +363,7 @@ TEST_CASE(SUT_NAME "/intersectsTriangle<LongInt>, Triangle Test", SUT_TAGS "[int
 	TriRecord triRight(pIdx2, pIdx4, pIdx3);
 
 	SECTION("Triangle 123 is incidental to Triangle 243") {
-		CHECK(Intersection::Incidental == intersectsTriangle<LongInt>(pointSet, triLeft, triRight));
+		CHECK(Intersection::Incidental == intersectsTriangle(pointSet, triLeft, triRight));
 	}
 
 
@@ -372,13 +372,13 @@ TEST_CASE(SUT_NAME "/intersectsTriangle<LongInt>, Triangle Test", SUT_TAGS "[int
 
 		// intersects triRight
 		TriRecord triBad(pIdx2, pIdx4, pIdx5);
-		CHECK(Intersection::Overlap ==  intersectsTriangle<LongInt>(pointSet, triRight, triBad));
+		CHECK(Intersection::Overlap ==  intersectsTriangle(pointSet, triRight, triBad));
 	}
 
 	// TODO also test tris which don't touch
 }
-TEST_CASE(SUT_NAME "/intersectsTriangle<int>, Triangle Test", SUT_TAGS "[intersectsTriangle][int]") {
-	PointSetArray<int> pointSet;
+TEST_CASE(SUT_NAME "/intersectsTriangle<double>, Triangle Test", SUT_TAGS "[intersectsTriangle][double]") {
+	PointSetArray<double> pointSet;
 
 	// Two simple right-angled triangles
 	int pIdx1 = pointSet.addPoint(0, 0);      // left
@@ -392,7 +392,7 @@ TEST_CASE(SUT_NAME "/intersectsTriangle<int>, Triangle Test", SUT_TAGS "[interse
 	TriRecord triRight(pIdx2, pIdx4, pIdx3);
 
 	SECTION("Triangle 123 is incidental to Triangle 243") {
-		CHECK(Intersection::Incidental == intersectsTriangle<int>(pointSet, triLeft, triRight));
+		CHECK(Intersection::Incidental == intersectsTriangle(pointSet, triLeft, triRight));
 	}
 
 
@@ -401,7 +401,7 @@ TEST_CASE(SUT_NAME "/intersectsTriangle<int>, Triangle Test", SUT_TAGS "[interse
 
 		// intersects triRight
 		TriRecord triBad(pIdx2, pIdx4, pIdx5);
-		CHECK(Intersection::Overlap ==  intersectsTriangle<int>(pointSet, triRight, triBad));
+		CHECK(Intersection::Overlap ==  intersectsTriangle(pointSet, triRight, triBad));
 	}
 
 	// TODO also test tris which don't touch

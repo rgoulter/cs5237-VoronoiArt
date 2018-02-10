@@ -93,20 +93,23 @@ int PointSetArray<I>::inTri(int p1Idx, int p2Idx, int p3Idx, int pIdx) const {
 /// assume that p1,p2,p3 must be CCW
 template<typename I>
 int PointSetArray<I>::inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx) const {
-	// std::cout << "inCircle " << p1Idx << "," << p2Idx << "," << p3Idx << ", " << pIdx << "; len=" << (myPoints.size()) << std::endl;
+	// std::cout << "[PSA::inCircle(" << p1Idx << ", " << p2Idx << ", " << p3Idx << ", " << pIdx << ")]" << std::endl;
 
-	// Indices given are 1-based, but stored as 0-based.
+	// indices given are 1-based, but stored as 0-based.
 	Point<I> p1 = myPoints[p1Idx - 1];
 	Point<I> p2 = myPoints[p2Idx - 1];
 	Point<I> p3 = myPoints[p3Idx - 1];
 	Point<I> v = myPoints[pIdx - 1]; // the other point.
-	//if any 2 points are the same, return 0 immediately.
+
+	// if any 2 points are the same, return 0 immediately.
 	if (p1 == p2 || p2 == p3 || p1 == p3)
 		return 0;
+
 	int orient = orientation({p1, p2}, p3);
-	if (orient == 0) //if they are colinear.
+	if (orient == 0) // if they are colinear.
 		return 1;
-	//look here for formula: http://www.cs.cmu.edu/~quake/robust.html
+
+	// look here for formula: http://www.cs.cmu.edu/~quake/robust.html
 	I t1x, t1y, t2x, t2y, t3x, t3y;
 	t1x = p1.x - v.x;
 	t1y = p1.y - v.y;
@@ -115,10 +118,23 @@ int PointSetArray<I>::inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx) const 
 	t3x = p3.x - v.x;
 	t3y = p3.y - v.y;
 
+	// std::cout << "[PSA::inCircle(" << p1Idx << ", " << p2Idx << ", " << p3Idx << ", " << pIdx << ")]::p1=" << p1 << std::endl;
+	// std::cout << "[PSA::inCircle(" << p1Idx << ", " << p2Idx << ", " << p3Idx << ", " << pIdx << ")]::p2=" << p2 << std::endl;
+	// std::cout << "[PSA::inCircle(" << p1Idx << ", " << p2Idx << ", " << p3Idx << ", " << pIdx << ")]::p3=" << p3 << std::endl;
+	// std::cout << "[PSA::inCircle(" << p1Idx << ", " << p2Idx << ", " << p3Idx << ", " << pIdx << ")]::v =" << v << std::endl;
+	
+	// std::cout << "[PSA::inCircle(" << p1Idx << ", " << p2Idx << ", " << p3Idx << ", " << pIdx << ")]::t1=(" << t1x << ", " << t1y << ")" << std::endl;
+	// std::cout << "[PSA::inCircle(" << p1Idx << ", " << p2Idx << ", " << p3Idx << ", " << pIdx << ")]::t2=(" << t2x << ", " << t2y << ")" << std::endl;
+	// std::cout << "[PSA::inCircle(" << p1Idx << ", " << p2Idx << ", " << p3Idx << ", " << pIdx << ")]::t3=(" << t3x << ", " << t3y << ")" << std::endl;
+
+	// std::cout << "[PSA::inCircle(" << p1Idx << ", " << p2Idx << ", " << p3Idx << ", " << pIdx << ")]::orient=" << orient << std::endl;
+
 	// this is a refactoring of the lecturer's solution to be a 3x3 determinant instead.
-	return signDet(t1x, t1y, t1x * (p1.x + v.x) + t1y * (p1.y + v.y),
-	               t2x, t2y, t2x * (p2.x + v.x) + t2y * (p2.y + v.y),
-	               t3x, t3y, t3x * (p3.x + v.x) + t3y * (p3.y + v.y)) * orient;
+	int result = signDet(t1x, t1y, t1x * (p1.x + v.x) + t1y * (p1.y + v.y),
+	                     t2x, t2y, t2x * (p2.x + v.x) + t2y * (p2.y + v.y),
+	                     t3x, t3y, t3x * (p3.x + v.x) + t3y * (p3.y + v.y)) * orient;
+	// std::cout << "[PSA::inCircle(" << p1Idx << ", " << p2Idx << ", " << p3Idx << ", " << pIdx << ")]::result=" << result << std::endl;
+	return result;
 }
 
 
@@ -229,7 +245,7 @@ vector<int> coercePSAPolyToIVecPoly(PointSetArray<I>& psa) {
 // Instantiate class
 template class PointSetArray<LongInt>;
 
-template class PointSetArray<int>;
+template class PointSetArray<double>;
 
 }
 

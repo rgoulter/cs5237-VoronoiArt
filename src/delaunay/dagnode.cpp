@@ -118,10 +118,10 @@ template vector<shared_ptr<DAGNode<LongInt>>> DAGNode<LongInt>::leafNodesContain
 
 template class DAGNode<LongInt>;
 
-template vector<shared_ptr<DAGNode<int>>> DAGNode<int>::leafNodesContainingPoint(shared_ptr<DAGNode<int>> root, const PointSetArray<int>&, int);
-template vector<shared_ptr<DAGNode<int>>> DAGNode<int>::leafNodesContainingEdge(shared_ptr<DAGNode<int>> root, const PointSetArray<int>&, int, int);
+template vector<shared_ptr<DAGNode<double>>> DAGNode<double>::leafNodesContainingPoint(shared_ptr<DAGNode<double>> root, const PointSetArray<double>&, int);
+template vector<shared_ptr<DAGNode<double>>> DAGNode<double>::leafNodesContainingEdge(shared_ptr<DAGNode<double>> root, const PointSetArray<double>&, int, int);
 
-template class DAGNode<int>;
+template class DAGNode<double>;
 
 }
 

@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Coerce POINTREP:INTPAIRVEC to POINTREP:POINTSETARRAY
-	delaunay::PointSetArray<int> inputPointSet;
+	delaunay::PointSetArray<double> inputPointSet;
 	for (pair<int,int> pair : inputPoints) {
 		inputPointSet.addPoint(pair.first, pair.second);
 	}

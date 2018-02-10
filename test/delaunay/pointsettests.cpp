@@ -39,8 +39,8 @@ TEST_CASE(SUT_NAME "/inTri<LongInt>, Simple", SUT_TAGS "[LongInt]") {
 		REQUIRE(-1 == ps.inTri(p2, p3, p4, p5));
 	}
 }
-TEST_CASE(SUT_NAME "/inTri<int>, Simple", SUT_TAGS "[int]") {
-	PointSetArray<int> ps;
+TEST_CASE(SUT_NAME "/inTri<double>, Simple", SUT_TAGS "[double]") {
+	PointSetArray<double> ps;
 
 	int p1 = ps.addPoint(0, 0);   // 1
 	int p2 = ps.addPoint(0, 4);   // 2
@@ -92,8 +92,8 @@ TEST_CASE(SUT_NAME "/inCircle<LongInt>, Simple Cases", SUT_TAGS "[LongInt]") {
 		REQUIRE(-1 == pointSet.inCircle(p1, p2, p4, p6));
 	}
 }
-TEST_CASE(SUT_NAME "/inCircle<int>, Simple Cases", SUT_TAGS "[int]") {
-	PointSetArray<int> pointSet;
+TEST_CASE(SUT_NAME "/inCircle<double>, Simple Cases", SUT_TAGS "[double]") {
+	PointSetArray<double> pointSet;
 
 	int p1 = pointSet.addPoint(0,   0);
 	int p2 = pointSet.addPoint(100, 0);
@@ -141,8 +141,8 @@ TEST_CASE(SUT_NAME "/inCircle<LongInt>, Outside Delaunay Legal", SUT_TAGS "[Long
 	CHECK(-1 == pointSet.inCircle(p1, p2, p4, p3));
 	REQUIRE(-1 == pointSet.inCircle(p4, p2, p3, p1));
 }
-TEST_CASE(SUT_NAME "/inCircle<int>, Outside Delaunay Legal", SUT_TAGS "[int]") {
-	PointSetArray<int> pointSet;
+TEST_CASE(SUT_NAME "/inCircle<double>, Outside Delaunay Legal", SUT_TAGS "[double]") {
+	PointSetArray<double> pointSet;
 
 	// abd is a tri, as is dbc.
 	// abd doesn't contain c,
@@ -179,8 +179,8 @@ TEST_CASE(SUT_NAME "/inCircle<LongInt>, Outside Delaunay Illegal", SUT_TAGS "[Lo
 	CHECK(1 == pointSet.inCircle(p1, p2, p4, p3));
 	REQUIRE(1 == pointSet.inCircle(p4, p2, p3, p1));
 }
-TEST_CASE(SUT_NAME "/inCircle<int>, Outside Delaunay Illegal", SUT_TAGS "[int]") {
-	PointSetArray<int> pointSet;
+TEST_CASE(SUT_NAME "/inCircle<int>, Outside Delaunay Illegal", SUT_TAGS "[double]") {
+	PointSetArray<double> pointSet;
 
 	// abd is a tri, as is dbc.
 	// abd doesn't contain c,
