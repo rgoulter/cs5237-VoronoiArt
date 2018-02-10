@@ -649,5 +649,16 @@ template void flipTriangles<LongInt>(Triangulation&, FIndex, FIndex, shared_ptr<
 
 template class DirectedGraph<LongInt>;
 
+template bool containsTri<int>(const vector<shared_ptr<DAGNode<int>>>&, int, int, int);
+template void outputTriList<int>(const vector<shared_ptr<DAGNode<int>>>&);
+template bool trianglesUnique<int>(const vector<shared_ptr<DAGNode<int>>>& nodes);
+template bool leavesDoNotOverlap<int>(const PointSetArray<int>&, const vector<shared_ptr<DAGNode<int>>>&);
+
+template void addVertexInTri<int>(Triangulation&, FIndex, shared_ptr<DAGNode<int>>, shared_ptr<DAGNode<int>>, shared_ptr<DAGNode<int>>);
+template void addVertexOnEdge<int>(Triangulation&, FIndex, FIndex, shared_ptr<DAGNode<int>>, shared_ptr<DAGNode<int>>, shared_ptr<DAGNode<int>>, shared_ptr<DAGNode<int>>);
+template void flipTriangles<int>(Triangulation&, FIndex, FIndex, shared_ptr<DAGNode<int>>, shared_ptr<DAGNode<int>>);
+
+template class DirectedGraph<int>;
+
 }
 

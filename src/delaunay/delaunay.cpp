@@ -123,16 +123,16 @@ vector<geometry::Polygon> createVoronoi(const DirectedGraph<I>& dag) {
 
 		// TODO May be convenient if PointSetArray had addPoint(MyPoint)
 		const Point<I>& initPt = pointForTri(delaunayPointSet, ltri);
-		polygon.addPoint((int) initPt.x.doubleValue(),
-		                 (int) initPt.y.doubleValue());
+		polygon.addPoint((int) initPt.x,
+		                 (int) initPt.y);
 
 		const FIndex initTriIdx = triIdx;
 		triIdx = nextTriangle(dppIdx, ltri);
 		while (triIdx != initTriIdx) {
 			const LinkedTriangle& ltri = trist[triIdx];
 			const Point<I>& voronoiPt = pointForTri(delaunayPointSet, ltri);
-			polygon.addPoint((int) voronoiPt.x.doubleValue(),
-			                 (int) voronoiPt.y.doubleValue());
+			polygon.addPoint((int) voronoiPt.x,
+			                 (int) voronoiPt.y);
 
 			triIdx = nextTriangle(dppIdx, ltri);
 		}
@@ -183,6 +183,11 @@ template void runDelaunayTriangulationOn<LongInt>(DirectedGraph<LongInt>&);
 template Point<LongInt> pointForTri<LongInt>(const PointSetArray<LongInt>&, const LinkedTriangle&);
 template vector<geometry::Polygon> createVoronoi(const DirectedGraph<LongInt>&);
 template vector<geometry::Polygon> runDelaunayAlgorithm(const PointSetArray<LongInt>&);
+
+template void runDelaunayTriangulationOn<int>(DirectedGraph<int>&);
+template Point<int> pointForTri<int>(const PointSetArray<int>&, const LinkedTriangle&);
+template vector<geometry::Polygon> createVoronoi<int>(const DirectedGraph<int>&);
+template vector<geometry::Polygon> runDelaunayAlgorithm<int>(const PointSetArray<int>&);
 
 }
 

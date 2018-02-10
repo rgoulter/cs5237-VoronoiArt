@@ -123,6 +123,23 @@ int PointSetArray<I>::inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx) const 
 
 
 
+template<typename I>
+int sign(I x) {
+	if (x < 0) {
+		return -1;
+	} else if (x > 0) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+template<> int sign<LongInt>(LongInt x) {
+	return x.sign();
+}
+
+
+
 // This method returns the circumcircle center for the three input points.
 template<typename I>
 bool PointSetArray<I>::circumCircle(int p1Idx, int p2Idx, int p3Idx, Point<I>& center) const {
@@ -149,13 +166,13 @@ bool PointSetArray<I>::circumCircle(int p1Idx, int p2Idx, int p3Idx, Point<I>& c
 
 	// std::cout << "circumCirle 2" << std::endl;
 
-	if (div == 0) {
+	if (sign(div) == 0) {
 		return false;
 	}
 
-	I aux1sign = aux1.sign();
-	I aux2sign = aux2.sign();
-	I divsign = div.sign();
+	int aux1sign = sign(aux1);
+	int aux2sign = sign(aux2);
+	int divsign = sign(div);
 	I aux1modval = aux1*aux1sign;
 	I aux2modval = aux2*aux2sign;
 	I divmodval = div*divsign;
@@ -209,7 +226,10 @@ vector<int> coercePSAPolyToIVecPoly(PointSetArray<I>& psa) {
 	return poly;
 }
 
+// Instantiate class
 template class PointSetArray<LongInt>;
+
+template class PointSetArray<int>;
 
 }
 

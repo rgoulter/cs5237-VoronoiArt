@@ -115,7 +115,13 @@ int DAGNode<I>::findAdjacentTriangle(shared_ptr<DAGNode<I>> root, const PointSet
 // Instantiate methods
 template vector<shared_ptr<DAGNode<LongInt>>> DAGNode<LongInt>::leafNodesContainingPoint(shared_ptr<DAGNode<LongInt>> root, const PointSetArray<LongInt>&, int);
 template vector<shared_ptr<DAGNode<LongInt>>> DAGNode<LongInt>::leafNodesContainingEdge(shared_ptr<DAGNode<LongInt>> root, const PointSetArray<LongInt>&, int, int);
-template int DAGNode<LongInt>::findAdjacentTriangle(shared_ptr<DAGNode<LongInt>> root, const PointSetArray<LongInt>&, int, int, int);
+
+template class DAGNode<LongInt>;
+
+template vector<shared_ptr<DAGNode<int>>> DAGNode<int>::leafNodesContainingPoint(shared_ptr<DAGNode<int>> root, const PointSetArray<int>&, int);
+template vector<shared_ptr<DAGNode<int>>> DAGNode<int>::leafNodesContainingEdge(shared_ptr<DAGNode<int>> root, const PointSetArray<int>&, int, int);
+
+template class DAGNode<int>;
 
 }
 

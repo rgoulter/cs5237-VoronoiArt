@@ -114,16 +114,16 @@ template<typename I>
 void findBoundingTri(PointSetArray<I> &pSet) {
 	assert(pSet.noPt() > 0);
 
-	LongInt minX, minY;
+	I minX, minY;
 	pSet.getPoint(1, minX, minY);
-	LongInt maxX, maxY;
+	I maxX, maxY;
 	pSet.getPoint(1, maxX, maxY);
 
 	// MAGIC value of 2000; may not be enough?
 	I thousand = 2000;
 
 	for (int i = 1; i < pSet.noPt(); i++) {
-		LongInt x, y;
+		I x, y;
 		pSet.getPoint(i, x, y);
 
 		if (minX > x)
@@ -149,10 +149,10 @@ void findBoundingTri(PointSetArray<I> &pSet) {
 	int super1Idx = pSet.addPoint(minX - (maxY - minY), minY);
 	int super2Idx = pSet.addPoint(maxX + (maxY - minY), minY);
 
-	maxX = (maxX.doubleValue() - minX.doubleValue()) / 2;
+	maxX = ((double)maxX - (double)minX) / 2;
 
 	// some rounding may occur if LongInt is odd
-	int super3Idx = pSet.addPoint((I) ((maxX.doubleValue() + minX.doubleValue()) / 2),
+	int super3Idx = pSet.addPoint((I) (((double) maxX + (double) minX) / 2),
 	                              maxY + (maxX - minX));
 
 #ifdef TRIANGLE_CHECK
@@ -186,15 +186,15 @@ bool isTriangleCCW(const PointSetArray<I>& psa, const TriRecord& tri) {
 	I p1x, p1y;
 	psa.getPoint(pIdx1, p1x, p1y);
 
-	LongInt p2x, p2y;
+	I p2x, p2y;
 	psa.getPoint(pIdx2, p2x, p2y);
 
-	LongInt p3x, p3y;
+	I p3x, p3y;
 	psa.getPoint(pIdx3, p3x, p3y);
 
-	Point<LongInt> p1(p1x, p1y);
-	Point<LongInt> p2(p2x, p2y);
-	Point<LongInt> p3(p3x, p3y);
+	Point<I> p1(p1x, p1y);
+	Point<I> p2(p2x, p2y);
+	Point<I> p3(p3x, p3y);
 
 	// Test that p3 is ccw to p1p2,
 	//           p1 is ccw to p2p3,
@@ -279,6 +279,12 @@ template int inTriangle<LongInt>(const PointSetArray<LongInt>&, const TriRecord&
 template bool isTriangleCCW<LongInt>(const PointSetArray<LongInt>&, const TriRecord&);
 template Intersection intersectsTriangle<LongInt>(const PointSetArray<LongInt>&, const TriRecord&, pair<int,int>);
 template Intersection intersectsTriangle<LongInt>(const PointSetArray<LongInt>&, const TriRecord&, const TriRecord&);
+
+template void findBoundingTri<int>(PointSetArray<int>&);
+template int inTriangle<int>(const PointSetArray<int>&, const TriRecord&, int);
+template bool isTriangleCCW<int>(const PointSetArray<int>&, const TriRecord&);
+template Intersection intersectsTriangle<int>(const PointSetArray<int>&, const TriRecord&, pair<int,int>);
+template Intersection intersectsTriangle<int>(const PointSetArray<int>&, const TriRecord&, const TriRecord&);
 
 }
 

@@ -36,9 +36,14 @@ int signDet(I x1, I y1, I w1,
 
 
 
+// Instantiate function
 template int signDet<LongInt>(LongInt, LongInt, LongInt,
                               LongInt, LongInt, LongInt,
                               LongInt, LongInt, LongInt);
+
+template int signDet<int>(int, int, int,
+                          int, int, int,
+                          int, int, int);
 
 }
 

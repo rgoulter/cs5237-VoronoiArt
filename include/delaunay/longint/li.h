@@ -65,6 +65,8 @@ public:
 
 	double doubleValue() const; // return a double approximation (you can assume that it will not be out of bound)
 
+	operator double() const { return this->doubleValue(); };
+
 friend std::ostream& operator<<(std::ostream& os, const LongInt& li);
 friend LongInt operator-(LongInt&);
 };
