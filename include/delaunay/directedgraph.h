@@ -5,8 +5,6 @@
 #include <memory>
 #include <vector>
 
-#include "delaunay/longint/li.h"
-
 #include "delaunay/dagnode.h"
 #include "delaunay/pointsetarray.h"
 #include "delaunay/triangle.h"
@@ -27,9 +25,10 @@ got deleted.
 */
 
 
+template<typename I>
 class DirectedGraph {
 public:
-	DirectedGraph(const PointSetArray<LongInt>&);
+	DirectedGraph(const PointSetArray<I>&);
 
 	/// Finds the linked delaunay triangles for the input point index
 	std::vector<TriRecord> findTrianglesWithVertex(int) const;
@@ -40,7 +39,7 @@ public:
 	/// Create children nodes with 2 parents in case of edge flipping.
 	void flipTriangles(int, int, int, int);
 
-	const PointSetArray<LongInt>& getPointSet() const {
+	const PointSetArray<I>& getPointSet() const {
 		return pointSet_;
 	}
 
@@ -78,40 +77,43 @@ private:
 	// std::vector<TriRecord> getLeafNodes();
 
 	/// The directed graph's pointSet.
-	PointSetArray<LongInt> pointSet_;
+	PointSetArray<I> pointSet_;
 	Triangulation trist_;
 
-	std::vector<std::shared_ptr<DAGNode<LongInt>>> dagNodes_;
-	std::shared_ptr<DAGNode<LongInt>> root_;
+	std::vector<std::shared_ptr<DAGNode<I>>> dagNodes_;
+	std::shared_ptr<DAGNode<I>> root_;
 };
 
 
 
 // std::shared_ptr<DAGNode> is used so that we can update its FIndex
 
+template<typename I>
 void addVertexInTri(Triangulation& trist,
                     FIndex triIJK,
-                    std::shared_ptr<DAGNode<LongInt>> triRIJ,
-                    std::shared_ptr<DAGNode<LongInt>> triRJK,
-                    std::shared_ptr<DAGNode<LongInt>> triRKI);
+                    std::shared_ptr<DAGNode<I>> triRIJ,
+                    std::shared_ptr<DAGNode<I>> triRJK,
+                    std::shared_ptr<DAGNode<I>> triRKI);
 
 
 
+template<typename I>
 void addVertexOnEdge(Triangulation& trist,
                      FIndex triIJK,
                      FIndex triILJ,
-                     std::shared_ptr<DAGNode<LongInt>> triRJK,
-                     std::shared_ptr<DAGNode<LongInt>> triRKI,
-                     std::shared_ptr<DAGNode<LongInt>> triRIL,
-                     std::shared_ptr<DAGNode<LongInt>> triRLJ);
+                     std::shared_ptr<DAGNode<I>> triRJK,
+                     std::shared_ptr<DAGNode<I>> triRKI,
+                     std::shared_ptr<DAGNode<I>> triRIL,
+                     std::shared_ptr<DAGNode<I>> triRLJ);
 
 
 
+template<typename I>
 void flipTriangles(Triangulation& trist,
                    FIndex triIJK,
                    FIndex triJIL,
-                   std::shared_ptr<DAGNode<LongInt>> triILK,
-                   std::shared_ptr<DAGNode<LongInt>> triLJK);
+                   std::shared_ptr<DAGNode<I>> triILK,
+                   std::shared_ptr<DAGNode<I>> triLJK);
 
 }
 

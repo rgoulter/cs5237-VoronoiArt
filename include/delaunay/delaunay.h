@@ -17,12 +17,12 @@ namespace delaunay {
 
 /// Construct Voronoi polygons for a the triangulation of a DirectedGraph which
 /// (after Delaunay Triangulation generated for it).
-std::vector<geometry::Polygon> createVoronoi(const DirectedGraph& dag);
+std::vector<geometry::Polygon> createVoronoi(const DirectedGraph<LongInt>& dag);
 
 
 
 /// Run the delaunay triangulation on a Directed Graph.
-void runDelaunayTriangulationOn(DirectedGraph&);
+void runDelaunayTriangulationOn(DirectedGraph<LongInt>&);
 
 
 

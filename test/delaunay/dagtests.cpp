@@ -2,6 +2,8 @@
 
 #include "catch.hpp"
 
+#include "delaunay/longint/li.h"
+
 #include "delaunay/pointsetarray.h"
 #include "delaunay/directedgraph.h"
 

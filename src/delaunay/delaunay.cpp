@@ -32,7 +32,7 @@ using geometry::Polygon;
 
 namespace delaunay {
 
-void runDelaunayTriangulationOn(DirectedGraph& dag) {
+void runDelaunayTriangulationOn(DirectedGraph<LongInt>& dag) {
 	vector<int> delaunayPointsToProcess;
 
 	PointSetArray<LongInt> delaunayPointSet = dag.getPointSet();
@@ -94,7 +94,7 @@ Point<LongInt> pointForTri(const PointSetArray<LongInt>& pointSet, const LinkedT
 
 
 
-vector<geometry::Polygon> createVoronoi(const DirectedGraph& dag) {
+vector<geometry::Polygon> createVoronoi(const DirectedGraph<LongInt>& dag) {
 	vector<geometry::Polygon> voronoiPolygons; // Data structure to hold voronoi edges.
 
 	vector<FIndex> lookupLinkedTri = dag.getLinkedTrianglesLookup();
@@ -148,7 +148,7 @@ vector<geometry::Polygon> runDelaunayAlgorithm(const PointSetArray<LongInt>& inp
 	voroSW.reset();
 	voroSW.resume();
 
-	DirectedGraph dag(inputPoints);
+	DirectedGraph<LongInt> dag(inputPoints);
 
 	cout << "MPOG::doVoronoi, created dag" << endl;
 
