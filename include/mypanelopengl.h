@@ -7,6 +7,8 @@
 #include <QGLWidget>
 #include <QString>
 
+#include "delaunay/longint/li.h"
+
 #include "delaunay/pointsetarray.h"
 
 #include "geometry/polygon.h"
@@ -81,7 +83,7 @@ protected:
 	void keyPressEvent(QKeyEvent *event);
 
 private:
-	void insertPoint(double x, double y);
+	void insertPoint(delaunay::LongInt x, delaunay::LongInt y);
 	bool hasLoadedImage() { return imData_ != NULL; }
 
 	// TODO Probably could do without these?
@@ -108,7 +110,7 @@ private:
 	std::vector<ColoredPolygon> renderedPolygons_;
 
 	// DELAUNAY
-    delaunay::PointSetArray<double> inputPointSet_;
+    delaunay::PointSetArray<delaunay::LongInt> inputPointSet_;
 };
 
 #endif // MYPANELOPENGL_H

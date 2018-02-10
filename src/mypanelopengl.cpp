@@ -19,6 +19,8 @@
 #include "platform.h"
 #include "stopwatch.h"
 
+#include "delaunay/longint/li.h"
+
 #include "delaunay/pointsetarray.h"
 #include "delaunay/delaunay.h"
 
@@ -31,6 +33,7 @@ using std::pair;
 using std::string;
 using std::vector;
 
+using delaunay::LongInt;
 using delaunay::PointSetArray;
 
 using geometry::Polygon;
@@ -74,12 +77,12 @@ void drawATriangle(double x1,double y1, double x2, double y2, double x3, double 
 
 
 
-void drawPointSetArray(const PointSetArray<double>& pointSet) {
+void drawPointSetArray(const PointSetArray<LongInt>& pointSet) {
 	// Draw input points
 	for (int i = 1; i <= pointSet.noPt(); i++){
-		double px, py;
+		LongInt px, py;
 		pointSet.getPoint(i, px, py);
-		drawAPoint(px, py);
+		drawAPoint(px.doubleValue(), py.doubleValue());
 	}
 }
 
@@ -250,7 +253,7 @@ ImageData* loadImageData(string imgFilename) {
 
 
 // DELAUNAY & VORONOI
-void MyPanelOpenGL::insertPoint(double x, double y) {
+void MyPanelOpenGL::insertPoint(LongInt x, LongInt y) {
 	// DELAUNAY
 	inputPointSet_.addPoint(x, y);
 }
