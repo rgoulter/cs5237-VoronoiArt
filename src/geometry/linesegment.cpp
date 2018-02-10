@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "delaunay/li.h"
+#include "delaunay/longint/li.h"
 
 using std::pair;
 using std::min;
@@ -42,6 +42,7 @@ int orientation(const LineSegment<I>& p1p2, const Point<I>& p3) {
 
 // Instantiate for LongInt
 template int orientation(const LineSegment<int>&, const Point<int>&);
+template int orientation(const LineSegment<double>&, const Point<double>&);
 template int orientation(const LineSegment<delaunay::LongInt>&, const Point<delaunay::LongInt>&);
 
 
@@ -116,6 +117,7 @@ Intersection intersects(const LineSegment<I>& ab, const LineSegment<I>& cd) {
 
 // Instantiate for int, LongInt
 template Intersection intersects(const LineSegment<int>&, const LineSegment<int>&);
+template Intersection intersects(const LineSegment<double>&, const LineSegment<double>&);
 template Intersection intersects(const LineSegment<delaunay::LongInt>&, const LineSegment<delaunay::LongInt>&);
 
 

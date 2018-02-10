@@ -6,7 +6,8 @@
 #include <iostream>
 #include <utility>
 
-#include "delaunay/li.h"
+#include "delaunay/longint/li.h"
+
 #include "delaunay/pointsetarray.h"
 
 #include "geometry/linesegment.h"
@@ -22,6 +23,7 @@ using std::endl;
 using geometry::intersects;
 using geometry::orientation;
 using geometry::Intersection;
+using geometry::Point;
 
 
 
@@ -108,19 +110,20 @@ void getIndicesKIJL(const TriRecord& triIJK, const TriRecord& triILJ,
 
 
 // Adds the points to the PointSetArray
-void findBoundingTri(PointSetArray &pSet) {
+template<typename I>
+void findBoundingTri(PointSetArray<I> &pSet) {
 	assert(pSet.noPt() > 0);
 
-	LongInt minX, minY;
+	I minX, minY;
 	pSet.getPoint(1, minX, minY);
-	LongInt maxX, maxY;
+	I maxX, maxY;
 	pSet.getPoint(1, maxX, maxY);
 
 	// MAGIC value of 2000; may not be enough?
-	LongInt thousand = 2000;
+	I thousand = 2000;
 
 	for (int i = 1; i < pSet.noPt(); i++) {
-		LongInt x, y;
+		I x, y;
 		pSet.getPoint(i, x, y);
 
 		if (minX > x)
@@ -134,7 +137,7 @@ void findBoundingTri(PointSetArray &pSet) {
 		    maxY = y;
 	}
 
-	LongInt delta = 5;
+	I delta = 5;
 
 	minX = minX - delta - thousand;
 	maxX = maxX + delta + thousand;
@@ -146,10 +149,10 @@ void findBoundingTri(PointSetArray &pSet) {
 	int super1Idx = pSet.addPoint(minX - (maxY - minY), minY);
 	int super2Idx = pSet.addPoint(maxX + (maxY - minY), minY);
 
-	maxX = (maxX.doubleValue() - minX.doubleValue()) / 2;
+	maxX = ((double)maxX - (double)minX) / 2;
 
 	// some rounding may occur if LongInt is odd
-	int super3Idx = pSet.addPoint((LongInt) ((maxX.doubleValue() + minX.doubleValue()) / 2),
+	int super3Idx = pSet.addPoint((I) (((double) maxX + (double) minX) / 2),
 	                              maxY + (maxX - minX));
 
 #ifdef TRIANGLE_CHECK
@@ -163,7 +166,8 @@ void findBoundingTri(PointSetArray &pSet) {
 
 
 
-int inTriangle(const PointSetArray& psa, const TriRecord& tri, int pIdx) {
+template<typename I>
+int inTriangle(const PointSetArray<I>& psa, const TriRecord& tri, int pIdx) {
 	int pIdx1, pIdx2, pIdx3;
 	tri.get(pIdx1, pIdx2, pIdx3);
 
@@ -173,23 +177,24 @@ int inTriangle(const PointSetArray& psa, const TriRecord& tri, int pIdx) {
 
 
 // again, positive-y points UP.
-bool isTriangleCCW(const PointSetArray& psa, const TriRecord& tri) {
+template<typename I>
+bool isTriangleCCW(const PointSetArray<I>& psa, const TriRecord& tri) {
 	int pIdx1, pIdx2, pIdx3;
 	tri.get(pIdx1, pIdx2, pIdx3);
 
 	// TODO: want easy way to get MyPoint from PointSetArray
-	LongInt p1x, p1y;
+	I p1x, p1y;
 	psa.getPoint(pIdx1, p1x, p1y);
 
-	LongInt p2x, p2y;
+	I p2x, p2y;
 	psa.getPoint(pIdx2, p2x, p2y);
 
-	LongInt p3x, p3y;
+	I p3x, p3y;
 	psa.getPoint(pIdx3, p3x, p3y);
 
-	MyPoint p1(p1x, p1y);
-	MyPoint p2(p2x, p2y);
-	MyPoint p3(p3x, p3y);
+	Point<I> p1(p1x, p1y);
+	Point<I> p2(p2x, p2y);
+	Point<I> p3(p3x, p3y);
 
 	// Test that p3 is ccw to p1p2,
 	//           p1 is ccw to p2p3,
@@ -203,24 +208,25 @@ bool isTriangleCCW(const PointSetArray& psa, const TriRecord& tri) {
 
 
 
-Intersection intersectsTriangle(const PointSetArray& psa, const TriRecord& tri, pair<int,int> idxPt) {
+template<typename I>
+Intersection intersectsTriangle(const PointSetArray<I>& psa, const TriRecord& tri, pair<int,int> idxPt) {
 	int pIdx1 = idxPt.first;
 	int pIdx2 = idxPt.second;
 
 	int idx1, idx2, idx3;
 	tri.get(idx1, idx2, idx3);
 
-	const MyPoint& p1 = psa[idx1];
-	const MyPoint& p2 = psa[idx2];
-	const MyPoint& p3 = psa[idx3];
+	const Point<I>& p1 = psa[idx1];
+	const Point<I>& p2 = psa[idx2];
+	const Point<I>& p3 = psa[idx3];
 
-	const MyPoint& e1 = psa[pIdx1];
-	const MyPoint& e2 = psa[pIdx2];
+	const Point<I>& e1 = psa[pIdx1];
+	const Point<I>& e2 = psa[pIdx2];
 
 	using geometry::isOverlapping;
 
 	// compiler has trouble inferring the type here, so be explicit
-	using LineSeg = geometry::LineSegment<delaunay::LongInt>;
+	using LineSeg = geometry::LineSegment<I>;
 	const LineSeg& e1e2 = {e1, e2};
 	const LineSeg& p1p2 = {p1, p2};
 	const LineSeg& p2p3 = {p2, p3};
@@ -245,7 +251,8 @@ Intersection intersectsTriangle(const PointSetArray& psa, const TriRecord& tri, 
 
 
 
-Intersection intersectsTriangle(const PointSetArray& psa, const TriRecord& tri1, const TriRecord& tri2) {
+template<typename I>
+Intersection intersectsTriangle(const PointSetArray<I>& psa, const TriRecord& tri1, const TriRecord& tri2) {
 	int idx1, idx2, idx3;
 	tri2.get(idx1, idx2, idx3);
 
@@ -265,6 +272,19 @@ Intersection intersectsTriangle(const PointSetArray& psa, const TriRecord& tri1,
 		return Intersection::None;
 	}
 }
+
+// Instantiate functions
+template void findBoundingTri<LongInt>(PointSetArray<LongInt>&);
+template int inTriangle<LongInt>(const PointSetArray<LongInt>&, const TriRecord&, int);
+template bool isTriangleCCW<LongInt>(const PointSetArray<LongInt>&, const TriRecord&);
+template Intersection intersectsTriangle<LongInt>(const PointSetArray<LongInt>&, const TriRecord&, pair<int,int>);
+template Intersection intersectsTriangle<LongInt>(const PointSetArray<LongInt>&, const TriRecord&, const TriRecord&);
+
+template void findBoundingTri<double>(PointSetArray<double>&);
+template int inTriangle<double>(const PointSetArray<double>&, const TriRecord&, int);
+template bool isTriangleCCW<double>(const PointSetArray<double>&, const TriRecord&);
+template Intersection intersectsTriangle<double>(const PointSetArray<double>&, const TriRecord&, pair<int,int>);
+template Intersection intersectsTriangle<double>(const PointSetArray<double>&, const TriRecord&, const TriRecord&);
 
 }
 

@@ -5,12 +5,14 @@
 #include <iostream>
 #include <stack>
 
+#include "delaunay/longint/li.h"
+
 #include "delaunay/trianglegeometry.h"
 
 #include "tracing.h"
 
 #ifndef NDEBUG
-// #define DIRECTEDGRAPH_CHECK
+#define DIRECTEDGRAPH_CHECK
 #endif
 
 using std::shared_ptr;
@@ -26,8 +28,9 @@ using geometry::isOverlapping;
 namespace delaunay {
 
 /// Check that the nodes contains a tri with all vertices i,j,k.
-bool containsTri(const vector<shared_ptr<DAGNode>>& nodes, int i, int j, int k) {
-	for (const shared_ptr<DAGNode>& node : nodes) {
+template<typename I>
+bool containsTri(const vector<shared_ptr<DAGNode<I>>>& nodes, int i, int j, int k) {
+	for (const shared_ptr<DAGNode<I>>& node : nodes) {
 		TriRecord tri = node->tri_;
 
 		if (tri.hasPointIndex(i) &&
@@ -41,8 +44,9 @@ bool containsTri(const vector<shared_ptr<DAGNode>>& nodes, int i, int j, int k) 
 
 
 
-void outputTriList(const vector<shared_ptr<DAGNode>>& nodes) {
-	for (const shared_ptr<DAGNode>& n : nodes) {
+template <typename I>
+void outputTriList(const vector<shared_ptr<DAGNode<I>>>& nodes) {
+	for (const shared_ptr<DAGNode<I>>& n : nodes) {
 		int i,j,k;
 		n->tri_.get(i,j,k);
 		cout << n->tri_ << endl;
@@ -53,11 +57,12 @@ void outputTriList(const vector<shared_ptr<DAGNode>>& nodes) {
 
 // O(n^2),
 // Use for an assert, to check we don't get both Tri(1,2,3) and Tri(3,2,1).
-bool trianglesUnique(const vector<shared_ptr<DAGNode>>& nodes) {
-	for (const shared_ptr<DAGNode>& outerNode : nodes) {
+template <typename I>
+bool trianglesUnique(const vector<shared_ptr<DAGNode<I>>>& nodes) {
+	for (const shared_ptr<DAGNode<I>>& outerNode : nodes) {
 		TriRecord outerTri = outerNode->tri_;
 
-		for (const shared_ptr<DAGNode>& innerNode : nodes) {
+		for (const shared_ptr<DAGNode<I>>& innerNode : nodes) {
 			TriRecord innerTri = innerNode->tri_;
 
 			if (!(outerTri == innerTri) &&
@@ -72,21 +77,22 @@ bool trianglesUnique(const vector<shared_ptr<DAGNode>>& nodes) {
 
 
 
-bool leavesDoNotOverlap(const PointSetArray& pointSet, const vector<shared_ptr<DAGNode>>& nodes) {
+template <typename I>
+bool leavesDoNotOverlap(const PointSetArray<I>& pointSet, const vector<shared_ptr<DAGNode<I>>>& nodes) {
 	// Find the leaf nodes
-	vector<shared_ptr<DAGNode>> leafNodes;
+	vector<shared_ptr<DAGNode<I>>> leafNodes;
 
-	for (const shared_ptr<DAGNode>& node : nodes) {
+	for (const shared_ptr<DAGNode<I>>& node : nodes) {
 		if (node->isLeaf()) {
 			leafNodes.push_back(node);
 		}
 	}
 
 	// Check the leaf nodes never intersect with each other
-	for (const shared_ptr<DAGNode>& outerNode : leafNodes) {
+	for (const shared_ptr<DAGNode<I>>& outerNode : leafNodes) {
 		TriRecord outerTri = outerNode->tri_;
 
-		for (const shared_ptr<DAGNode>& innerNode : leafNodes) {
+		for (const shared_ptr<DAGNode<I>>& innerNode : leafNodes) {
 			TriRecord innerTri = innerNode->tri_;
 
 			if (!(outerTri == innerTri) &&
@@ -103,12 +109,13 @@ bool leavesDoNotOverlap(const PointSetArray& pointSet, const vector<shared_ptr<D
 
 // Expensive,
 // but check that the DirectedGraph is in good state.
-bool DirectedGraph::checkConsistent() const {
+template <typename I>
+bool DirectedGraph<I>::checkConsistent() const {
 	TRACE("[dag.checkConsistent()]");
 
 	assert(trianglesUnique(dagNodes_));
 
-	for (const shared_ptr<DAGNode>& node : dagNodes_) {
+	for (const shared_ptr<DAGNode<I>>& node : dagNodes_) {
 		TriRecord tri = node->tri_;
 
 		assert(isTriangleCCW(pointSet_, tri));
@@ -117,7 +124,7 @@ bool DirectedGraph::checkConsistent() const {
 	assert(leavesDoNotOverlap(pointSet_, dagNodes_));
 
 	// Check, among the leaves, each edge occurs at most twice.
-	for (const shared_ptr<DAGNode>& node : dagNodes_) {
+	for (const shared_ptr<DAGNode<I>>& node : dagNodes_) {
 		TriRecord tri = node->tri_;
 
 		int pIdx1, pIdx2, pIdx3;
@@ -139,14 +146,15 @@ bool DirectedGraph::checkConsistent() const {
 
 // It's slightly awkward, but we assume that the PointSet we're
 // given is constant for rest of DAG;
-DirectedGraph::DirectedGraph(const PointSetArray& inputPointSet) {
+template <typename I>
+DirectedGraph<I>::DirectedGraph(const PointSetArray<I>& inputPointSet) {
 	// TODO: If keep a separate copy of inputPointSet,
 	// then wouldn't need delaunay.cpp to use `- 3` magic.
 
 	// XXX Should use copy-c'tor for PointSetArray (test first?).
 	// Copy points from the input set to Delaunay point set
 	for (int i = 1; i <= inputPointSet.noPt(); i++) {
-		LongInt x, y;
+		I x, y;
 		inputPointSet.getPoint(i, x, y);
 		pointSet_.addPoint(x, y);
 	}
@@ -166,7 +174,7 @@ DirectedGraph::DirectedGraph(const PointSetArray& inputPointSet) {
 	TriRecord boundingTri(boundingTriPt1,
 	                      boundingTriPt1 + 1,
 	                      boundingTriPt1 + 2);
-	root_ = shared_ptr<DAGNode>(new DAGNode(boundingTri));
+	root_ = shared_ptr<DAGNode<I>>(new DAGNode<I>(boundingTri));
 	root_->fIndex_ = trist_.addLinkedTri(boundingTri);
 	dagNodes_.push_back(root_);
 }
@@ -175,12 +183,13 @@ DirectedGraph::DirectedGraph(const PointSetArray& inputPointSet) {
 
 // This method returns the set of triangles the input point belongs to.
 // Used by createVoronoi; I'd rather deprecate it.
-vector<TriRecord> DirectedGraph::findTrianglesWithVertex(int pIdx1) const {
-	vector<shared_ptr<DAGNode>> nodes = DAGNode::leafNodesContainingPoint(root_, pointSet_, pIdx1);
+template <typename I>
+vector<TriRecord> DirectedGraph<I>::findTrianglesWithVertex(int pIdx1) const {
+	vector<shared_ptr<DAGNode<I>>> nodes = DAGNode<I>::leafNodesContainingPoint(root_, pointSet_, pIdx1);
 
 	vector<TriRecord> outputList;
 
-	for (const shared_ptr<DAGNode>& node : nodes) {
+	for (const shared_ptr<DAGNode<I>>& node : nodes) {
 		outputList.push_back(node->tri_);
 	}
 
@@ -189,9 +198,10 @@ vector<TriRecord> DirectedGraph::findTrianglesWithVertex(int pIdx1) const {
 
 
 
-int DirectedGraph::findAdjacentTriangle(int pIdx1, int pIdx2, int pIdx3) const {
+template <typename I>
+int DirectedGraph<I>::findAdjacentTriangle(int pIdx1, int pIdx2, int pIdx3) const {
 	TriRecord tri(pIdx1, pIdx2, pIdx3);
-	vector<shared_ptr<DAGNode>> triangles = DAGNode::leafNodesContainingEdge(root_, pointSet_, pIdx2, pIdx3);
+	vector<shared_ptr<DAGNode<I>>> triangles = DAGNode<I>::leafNodesContainingEdge(root_, pointSet_, pIdx2, pIdx3);
 
 	for (unsigned int i = 0; i < triangles.size(); i++) { /// "each triangle"
 		int pIdx = tri.vertexNotSharedWith(triangles[i]->tri_);
@@ -210,7 +220,8 @@ int DirectedGraph::findAdjacentTriangle(int pIdx1, int pIdx2, int pIdx3) const {
 /// What use does pIdx1 serve? Freshly inserted point?
 /// => make sure edge bc is Locally Delaunay,
 ///    ??? and that the flips we make keep things Locally Delaunay
-void DirectedGraph::legalizeEdge(int pIdx1, int pIdx2, int pIdx3) {
+template <typename I>
+void DirectedGraph<I>::legalizeEdge(int pIdx1, int pIdx2, int pIdx3) {
 // TODO: legalizeEdge could be even quicker if we know adj. tri already
 	TRACE("[dag.legalizeEdge(" << pIdx1 << ", " << pIdx2 << ", " << pIdx3 << ")]");
 #ifdef DELAUNAY_CHECK
@@ -238,13 +249,14 @@ void DirectedGraph::legalizeEdge(int pIdx1, int pIdx2, int pIdx3) {
 
 
 
-void DirectedGraph::addVertex(int pIdx) {
+template <typename I>
+void DirectedGraph<I>::addVertex(int pIdx) {
 	TRACE(" [dag.addVertex(pointIndex=" << pIdx << ")]");
 #ifdef DIRECTEDGRAPH_CHECK
 #endif
 
 	// Seek the lowest DAGNode which contains the point.
-	vector<shared_ptr<DAGNode>> leaves = DAGNode::leafNodesContainingPoint(root_, pointSet_, pIdx);
+	vector<shared_ptr<DAGNode<I>>> leaves = DAGNode<I>::leafNodesContainingPoint(root_, pointSet_, pIdx);
 
 #ifdef DIRECTEDGRAPH_CHECK
 	cout << "DIRECTEDGRAPH_CHECK: [dag.addVertex(pointIndex=" << pIdx << ")] numLeafNodes containing pt: " << leaves.size() << endl;
@@ -255,7 +267,7 @@ void DirectedGraph::addVertex(int pIdx) {
 		// New point fits cleanly within another triangle,
 		// split the triangle into three.
 
-		shared_ptr<DAGNode> node = leaves[0];  // IJK
+		shared_ptr<DAGNode<I>> node = leaves[0];  // IJK
 
 		TriRecord parentTri = node->tri_;
 		int parentIdx1, parentIdx2, parentIdx3;
@@ -263,9 +275,9 @@ void DirectedGraph::addVertex(int pIdx) {
 
 		// Construct 3 TriRecords, one for each child triangle
 		// ASSUMPTION that points for TriRecord are CCW
-		shared_ptr<DAGNode> child1(new DAGNode(TriRecord(pIdx, parentIdx1, parentIdx2)));  // RIJ
-		shared_ptr<DAGNode> child2(new DAGNode(TriRecord(pIdx, parentIdx2, parentIdx3)));  // RJK
-		shared_ptr<DAGNode> child3(new DAGNode(TriRecord(pIdx, parentIdx3, parentIdx1)));  // RKI
+		shared_ptr<DAGNode<I>> child1(new DAGNode<I>(TriRecord(pIdx, parentIdx1, parentIdx2)));  // RIJ
+		shared_ptr<DAGNode<I>> child2(new DAGNode<I>(TriRecord(pIdx, parentIdx2, parentIdx3)));  // RJK
+		shared_ptr<DAGNode<I>> child3(new DAGNode<I>(TriRecord(pIdx, parentIdx3, parentIdx1)));  // RKI
 		node->children_.push_back(child1);
 		node->children_.push_back(child2);
 		node->children_.push_back(child3);
@@ -298,18 +310,18 @@ void DirectedGraph::addVertex(int pIdx) {
 		// split the two triangles to get four triangles total.
 
 		// new point R lies on edge IJ
-		shared_ptr<DAGNode> nodeIJK = leaves[0];
-		shared_ptr<DAGNode> nodeILJ = leaves[1];
+		shared_ptr<DAGNode<I>> nodeIJK = leaves[0];
+		shared_ptr<DAGNode<I>> nodeILJ = leaves[1];
 
 		// need to sort out the point indices
 		int iIdx, jIdx, kIdx, lIdx;
 		getIndicesKIJL(nodeIJK->tri_, nodeILJ->tri_, kIdx, iIdx, jIdx, lIdx);
 
 		// Create triangles RJK, RKI, RIL, RLJ
-		shared_ptr<DAGNode> nodeRJK(new DAGNode(TriRecord(pIdx, jIdx, kIdx)));
-		shared_ptr<DAGNode> nodeRKI(new DAGNode(TriRecord(pIdx, kIdx, iIdx)));
-		shared_ptr<DAGNode> nodeRIL(new DAGNode(TriRecord(pIdx, iIdx, lIdx)));
-		shared_ptr<DAGNode> nodeRLJ(new DAGNode(TriRecord(pIdx, lIdx, jIdx)));
+		shared_ptr<DAGNode<I>> nodeRJK(new DAGNode<I>(TriRecord(pIdx, jIdx, kIdx)));
+		shared_ptr<DAGNode<I>> nodeRKI(new DAGNode<I>(TriRecord(pIdx, kIdx, iIdx)));
+		shared_ptr<DAGNode<I>> nodeRIL(new DAGNode<I>(TriRecord(pIdx, iIdx, lIdx)));
+		shared_ptr<DAGNode<I>> nodeRLJ(new DAGNode<I>(TriRecord(pIdx, lIdx, jIdx)));
 
 		nodeIJK->children_.push_back(nodeRJK);
 		nodeIJK->children_.push_back(nodeRKI);
@@ -350,7 +362,8 @@ void DirectedGraph::addVertex(int pIdx) {
 // flip <abd>,<dbc> adds 2 children to each, <abc>,<acd>
 //
 // the shared edge bd gets replaced with shared edge ac
-void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
+template<typename I>
+void DirectedGraph<I>::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 	TRACE("[dag.flipTriangles(" << pIdx1 << ", " << pIdx2 << ", " << pIdx3 << ", " << pIdx4 << ")]");
 
 	// XXX finish rename in DGraph::flipTri
@@ -374,7 +387,7 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 #endif
 
 	// Seek the lowest DAGNode which contains the point.
-	vector<shared_ptr<DAGNode>> nodes = DAGNode::leafNodesContainingEdge(root_, pointSet_, pIdx2, pIdx4);
+	vector<shared_ptr<DAGNode<I>>> nodes = DAGNode<I>::leafNodesContainingEdge(root_, pointSet_, pIdx2, pIdx4);
 #ifdef DIRECTEDGRAPH_CHECK
 	// cout << "DAG.flipTriangles, numLeafNodes containing edge: " << nodes.size() << endl;
 	// outputTriList(nodes);
@@ -385,8 +398,8 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 	int nodesIJKIdx = (nodes[0]->tri_.hasPointIndex(kIdx)) ? 0 : 1;
 	int nodesJILIdx = 1 - nodesIJKIdx;
 
-	shared_ptr<DAGNode> nodeIJK = nodes[nodesIJKIdx];
-	shared_ptr<DAGNode> nodeJIL = nodes[nodesJILIdx];
+	shared_ptr<DAGNode<I>> nodeIJK = nodes[nodesIJKIdx];
+	shared_ptr<DAGNode<I>> nodeJIL = nodes[nodesJILIdx];
 
 	// impl ASSUMPTION that TriR(x,y,z) == TriR(x,z,y), etc.
 	// (as used in DirectedGraph).
@@ -401,8 +414,8 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 	assert(isTriangleCCW(pointSet_, triLJK));
 #endif
 
-	shared_ptr<DAGNode> nodeILK(new DAGNode(triILK));
-	shared_ptr<DAGNode> nodeLJK(new DAGNode(triLJK));
+	shared_ptr<DAGNode<I>> nodeILK(new DAGNode<I>(triILK));
+	shared_ptr<DAGNode<I>> nodeLJK(new DAGNode<I>(triLJK));
 
 	nodeIJK->children_.push_back(nodeILK);
 	nodeIJK->children_.push_back(nodeLJK);
@@ -433,7 +446,8 @@ void DirectedGraph::flipTriangles(int pIdx1, int pIdx2, int pIdx3, int pIdx4) {
 
 
 
-vector<FIndex> DirectedGraph::getLinkedTrianglesLookup() const {
+template<typename I>
+vector<FIndex> DirectedGraph<I>::getLinkedTrianglesLookup() const {
 	// All the existing tris from trist_
 	vector<FIndex> tristTris = trist_.getLinkedTriangles();
 
@@ -460,11 +474,12 @@ vector<FIndex> DirectedGraph::getLinkedTrianglesLookup() const {
 
 
 
+template<typename I>
 void addVertexInTri(Triangulation& trist,
                     FIndex triIJK,
-                    shared_ptr<DAGNode> triRIJ,
-                    shared_ptr<DAGNode> triRJK,
-                    shared_ptr<DAGNode> triRKI) {
+                    shared_ptr<DAGNode<I>> triRIJ,
+                    shared_ptr<DAGNode<I>> triRJK,
+                    shared_ptr<DAGNode<I>> triRKI) {
 	TRACE("[addVertexInTri(trist, triIJK, *triRIJ, *triRJK, *triRKI)]");
 
 	// Add the new triangles
@@ -513,13 +528,14 @@ void addVertexInTri(Triangulation& trist,
 
 
 
+template<typename I>
 void addVertexOnEdge(Triangulation& trist,
                      FIndex triIJK,
                      FIndex triILJ,
-                     shared_ptr<DAGNode> triRJK,
-                     shared_ptr<DAGNode> triRKI,
-                     shared_ptr<DAGNode> triRIL,
-                     shared_ptr<DAGNode> triRLJ) {
+                     shared_ptr<DAGNode<I>> triRJK,
+                     shared_ptr<DAGNode<I>> triRKI,
+                     shared_ptr<DAGNode<I>> triRIL,
+                     shared_ptr<DAGNode<I>> triRLJ) {
 	TRACE("[dag.addVertexOnEdge(trist, triIJK, triILJ, triRJK, triRKI, triRIL, triRLJ)]");
 
 	// Add the new triangles
@@ -570,11 +586,12 @@ void addVertexOnEdge(Triangulation& trist,
 
 
 
+template<typename I>
 void flipTriangles(Triangulation& trist,
                    FIndex triIJK,
                    FIndex triJIL,
-                   shared_ptr<DAGNode> triILK,
-                   shared_ptr<DAGNode> triLJK) {
+                   shared_ptr<DAGNode<I>> triILK,
+                   shared_ptr<DAGNode<I>> triLJK) {
 	TRACE("[flipTriangles(trist, ijk, jil, *ilk, *ljk)]");
 
 	// Add the new triangles
@@ -617,6 +634,31 @@ void flipTriangles(Triangulation& trist,
 	assert(trist.checkConsistent());
 #endif
 }
+
+
+
+// Instantiate functions, methods
+template bool containsTri<LongInt>(const vector<shared_ptr<DAGNode<LongInt>>>&, int, int, int);
+template void outputTriList<LongInt>(const vector<shared_ptr<DAGNode<LongInt>>>&);
+template bool trianglesUnique<LongInt>(const vector<shared_ptr<DAGNode<LongInt>>>& nodes);
+template bool leavesDoNotOverlap<LongInt>(const PointSetArray<LongInt>&, const vector<shared_ptr<DAGNode<LongInt>>>&);
+
+template void addVertexInTri<LongInt>(Triangulation&, FIndex, shared_ptr<DAGNode<LongInt>>, shared_ptr<DAGNode<LongInt>>, shared_ptr<DAGNode<LongInt>>);
+template void addVertexOnEdge<LongInt>(Triangulation&, FIndex, FIndex, shared_ptr<DAGNode<LongInt>>, shared_ptr<DAGNode<LongInt>>, shared_ptr<DAGNode<LongInt>>, shared_ptr<DAGNode<LongInt>>);
+template void flipTriangles<LongInt>(Triangulation&, FIndex, FIndex, shared_ptr<DAGNode<LongInt>>, shared_ptr<DAGNode<LongInt>>);
+
+template class DirectedGraph<LongInt>;
+
+template bool containsTri<double>(const vector<shared_ptr<DAGNode<double>>>&, int, int, int);
+template void outputTriList<double>(const vector<shared_ptr<DAGNode<double>>>&);
+template bool trianglesUnique<double>(const vector<shared_ptr<DAGNode<double>>>& nodes);
+template bool leavesDoNotOverlap<double>(const PointSetArray<double>&, const vector<shared_ptr<DAGNode<double>>>&);
+
+template void addVertexInTri<double>(Triangulation&, FIndex, shared_ptr<DAGNode<double>>, shared_ptr<DAGNode<double>>, shared_ptr<DAGNode<double>>);
+template void addVertexOnEdge<double>(Triangulation&, FIndex, FIndex, shared_ptr<DAGNode<double>>, shared_ptr<DAGNode<double>>, shared_ptr<DAGNode<double>>, shared_ptr<DAGNode<double>>);
+template void flipTriangles<double>(Triangulation&, FIndex, FIndex, shared_ptr<DAGNode<double>>, shared_ptr<DAGNode<double>>);
+
+template class DirectedGraph<double>;
 
 }
 

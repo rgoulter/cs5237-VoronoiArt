@@ -2,6 +2,8 @@
 
 #include "catch.hpp"
 
+#include "delaunay/longint/li.h"
+
 #include "delaunay/pointsetarray.h"
 #include "delaunay/directedgraph.h"
 
@@ -16,7 +18,7 @@ using namespace delaunay;
 
 // NOTE: 2018-02-05: At the moment, this test case doesn't do anything.
 TEST_CASE(SUT_NAME ", Trivial", SUT_TAGS) {
-	PointSetArray pointSet;
+	PointSetArray<LongInt> pointSet;
 
 	pointSet.addPoint(0, 100);
 	pointSet.addPoint(100, 0);
