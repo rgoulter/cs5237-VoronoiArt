@@ -47,14 +47,6 @@ static StopWatch globalSW;
 
 
 
-// DELAUNAY & VORONOI
-void MyPanelOpenGL::insertPoint(LongInt x, LongInt y) {
-	// DELAUNAY
-	inputPointSet_.addPoint(x, y);
-}
-
-
-
 MyPanelOpenGL::MyPanelOpenGL(QWidget *parent) : QGLWidget (parent) {
 }
 
@@ -185,31 +177,20 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 
 
 
-void MyPanelOpenGL::doVoronoiDiagram() {
-	//qDebug("Do Voronoi creation\n");
-
-	StopWatch voroSW;
-
-	voroSW.reset();
-	voroSW.resume();
-
-	voronoiPolygons_ = delaunay::runDelaunayAlgorithm(inputPointSet_);
+void MyPanelOpenGL::mouseMoveEvent(QMouseEvent *) {
+}
 
 
-	// Make the colored polygons from Voronoi.
-	assert(imData_ != NULL);
-	renderedPolygons_ = generateColoredPolygons(voronoiPolygons_, *imData_);
-	currentRenderType_ = EFFECT;
 
-	voroSW.pause();
-	double timePolyColor = voroSW.ms();
-	qDebug("TIME: generateColoredPolygons(..) is %f", timePolyColor);
-	voroSW.reset();
-	voroSW.resume();
-
-	setVoronoiComputed(true);
-
-	updateGL();
+void MyPanelOpenGL::keyPressEvent(QKeyEvent* event) {
+	switch (event->key()) {
+		case Qt::Key_Escape:
+			close();
+			break;
+		default:
+			event->ignore();
+			break;
+	}
 }
 
 
@@ -328,6 +309,47 @@ void MyPanelOpenGL::doDrawEffect() {
 
 
 
+void MyPanelOpenGL::setShowVoronoiSites(bool b) {
+	showVoronoiSites_ = b;
+	updateGL();
+}
+
+
+
+void MyPanelOpenGL::setShowVoronoiEdges(bool b) {
+	showVoronoiEdges_ = b;
+	updateGL();
+}
+
+
+
+void MyPanelOpenGL::setNumPoints1k() {
+	setNumPoints(1000);
+}
+
+
+
+void MyPanelOpenGL::setNumPoints5k() {
+	setNumPoints(5000);
+}
+
+
+
+void MyPanelOpenGL::setNumPoints(int n) {
+	numPDFPoints_ = n;
+	updateNumPointsToGenerate(n);
+}
+
+
+
+// DELAUNAY & VORONOI
+void MyPanelOpenGL::insertPoint(LongInt x, LongInt y) {
+	// DELAUNAY
+	inputPointSet_.addPoint(x, y);
+}
+
+
+
 void MyPanelOpenGL::doGenerateUniformRandomPoints() {
 	if (!hasLoadedImage()) return;
 
@@ -371,6 +393,35 @@ void MyPanelOpenGL::doPDF() {
 
 
 
+void MyPanelOpenGL::doVoronoiDiagram() {
+	//qDebug("Do Voronoi creation\n");
+
+	StopWatch voroSW;
+
+	voroSW.reset();
+	voroSW.resume();
+
+	voronoiPolygons_ = delaunay::runDelaunayAlgorithm(inputPointSet_);
+
+
+	// Make the colored polygons from Voronoi.
+	assert(imData_ != NULL);
+	renderedPolygons_ = generateColoredPolygons(voronoiPolygons_, *imData_);
+	currentRenderType_ = EFFECT;
+
+	voroSW.pause();
+	double timePolyColor = voroSW.ms();
+	qDebug("TIME: generateColoredPolygons(..) is %f", timePolyColor);
+	voroSW.reset();
+	voroSW.resume();
+
+	setVoronoiComputed(true);
+
+	updateGL();
+}
+
+
+
 void MyPanelOpenGL::clearAll() {
 	// Clear all our points, and such data.
 
@@ -391,55 +442,3 @@ void MyPanelOpenGL::clearAll() {
 
 	updateGL();
 }
-
-
-
-void MyPanelOpenGL::mouseMoveEvent(QMouseEvent *) {
-}
-
-
-
-void MyPanelOpenGL::setShowVoronoiSites(bool b) {
-	showVoronoiSites_ = b;
-	updateGL();
-}
-
-
-
-void MyPanelOpenGL::setShowVoronoiEdges(bool b) {
-	showVoronoiEdges_ = b;
-	updateGL();
-}
-
-
-
-void MyPanelOpenGL::setNumPoints1k() {
-	setNumPoints(1000);
-}
-
-
-
-void MyPanelOpenGL::setNumPoints5k() {
-	setNumPoints(5000);
-}
-
-
-
-void MyPanelOpenGL::setNumPoints(int n) {
-	numPDFPoints_ = n;
-	updateNumPointsToGenerate(n);
-}
-
-
-
-void MyPanelOpenGL::keyPressEvent(QKeyEvent* event) {
-	switch (event->key()) {
-		case Qt::Key_Escape:
-			close();
-			break;
-		default:
-			event->ignore();
-			break;
-	}
-}
-
