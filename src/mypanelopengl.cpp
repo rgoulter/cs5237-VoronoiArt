@@ -68,7 +68,7 @@ void MyPanelOpenGL::initializeGL() {
 
 
 void MyPanelOpenGL::resizeGL(int width, int height) {
-	refreshProjection(width, height, canvasOffsetX_, canvasOffsetY_, imData_);
+	// refreshProjection(width, height, canvasOffsetX_, canvasOffsetY_, imData_);
 }
 
 
@@ -78,44 +78,44 @@ void MyPanelOpenGL::paintGL() {
 
 	glPushMatrix();
 
-	switch (currentRenderType_) {
-		case EFFECT:
-			drawColoredPolygons(renderedPolygons_);
-			break;
+	// switch (currentRenderType_) {
+	// 	case EFFECT:
+	// 		drawColoredPolygons(renderedPolygons_);
+	// 		break;
 
-		case EDGE_RAW:
-			pdfTextures_.edgesTexture->renderPlane();
-			break;
+	// 	case EDGE_RAW:
+	// 		pdfTextures_.edgesTexture->renderPlane();
+	// 		break;
 
-		case EDGE_SHARP:
-			pdfTextures_.edgesSharpTexture->renderPlane();
-			break;
+	// 	case EDGE_SHARP:
+	// 		pdfTextures_.edgesSharpTexture->renderPlane();
+	// 		break;
 
-		case EDGE_BLUR:
-			pdfTextures_.edgesBlurTexture->renderPlane();
-			break;
+	// 	case EDGE_BLUR:
+	// 		pdfTextures_.edgesBlurTexture->renderPlane();
+	// 		break;
 
-		case PDF:
-			pdfTextures_.pdfTexture->renderPlane();
-			break;
+	// 	case PDF:
+	// 		pdfTextures_.pdfTexture->renderPlane();
+	// 		break;
 
-		case IMAGE:
-			imData_->renderPlane();
-			break;
+	// 	case IMAGE:
+	// 		imData_->renderPlane();
+	// 		break;
 
-		default:
-		case NONE:
-			break;
-	}
+	// 	default:
+	// 	case NONE:
+	// 		break;
+	// }
 
-	if (showVoronoiEdges_) {
-		// DELAUNAY (voronoiEdges)
-		drawVoronoiPolygons(voronoiPolygons_);
-	}
+	// if (showVoronoiEdges_) {
+	// 	// DELAUNAY (voronoiEdges)
+	// 	// drawVoronoiPolygons(voronoiPolygons_);
+	// }
 
-	if (showVoronoiSites_) {
-		drawPointSetArray(inputPointSet_);
-	}
+	// if (showVoronoiSites_) {
+	// 	// drawPointSetArray(inputPointSet_);
+	// }
 
 	glPopMatrix();
 }
@@ -124,221 +124,203 @@ void MyPanelOpenGL::paintGL() {
 
 void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 	//qDebug("Window: %d, %d\n", event->x(), event->y());
-	if (!hasLoadedImage()) {
-		return;
-	}
+	// if (!hasLoadedImage()) {
+	// 	return;
+	// }
 
-	int loadedImageWidth = imData_->width();
-	int loadedImageHeight = imData_->height();
+	// int loadedImageWidth = imData_->width();
+	// int loadedImageHeight = imData_->height();
 
-	QSize widgetSize = size();
-	int windowWidth = widgetSize.width();
-	int windowHeight = widgetSize.height();
+	// QSize widgetSize = size();
+	// int windowWidth = widgetSize.width();
+	// int windowHeight = widgetSize.height();
 
-	double imageRatio = ((double) loadedImageWidth) / loadedImageHeight;
-	double windowRatio = ((double) windowWidth) / windowHeight;
+	// double imageRatio = ((double) loadedImageWidth) / loadedImageHeight;
+	// double windowRatio = ((double) windowWidth) / windowHeight;
 
-	int renderWidth = 2;
-	int renderHeight = 2;
+	// int renderWidth = 2;
+	// int renderHeight = 2;
 
-	int deltaX = 1;
-	int deltaY = 1;
+	// int deltaX = 1;
+	// int deltaY = 1;
 
-	if (loadedImageWidth > 0) {
-		if (imageRatio > windowRatio) {
-			double ratio = ((double) windowWidth) / windowHeight;
+	// if (loadedImageWidth > 0) {
+	// 	if (imageRatio > windowRatio) {
+	// 		double ratio = ((double) windowWidth) / windowHeight;
 
-			renderWidth = loadedImageWidth;
-			renderHeight = (int) (loadedImageWidth / ratio);
+	// 		renderWidth = loadedImageWidth;
+	// 		renderHeight = (int) (loadedImageWidth / ratio);
 
-			deltaY = (renderHeight - loadedImageHeight) / 2;
-		} else {
-			double ratio = ((double) windowWidth) / windowHeight;
+	// 		deltaY = (renderHeight - loadedImageHeight) / 2;
+	// 	} else {
+	// 		double ratio = ((double) windowWidth) / windowHeight;
 
-			renderWidth = (int) (loadedImageHeight * ratio);
-			renderHeight = loadedImageHeight;
+	// 		renderWidth = (int) (loadedImageHeight * ratio);
+	// 		renderHeight = loadedImageHeight;
 
-			deltaX = (renderWidth - loadedImageWidth) / 2;
-		}
+	// 		deltaX = (renderWidth - loadedImageWidth) / 2;
+	// 	}
 
-		double viewScale = (double) renderWidth / windowWidth;
+	// 	double viewScale = (double) renderWidth / windowWidth;
 
-		int px = (event->x() * viewScale) - deltaX;
-		int py = (event->y() * viewScale) - deltaY;
+	// 	int px = (event->x() * viewScale) - deltaX;
+	// 	int py = (event->y() * viewScale) - deltaY;
 
-		qDebug("Insert Point: %d, %d\n", px, py);
+	// 	qDebug("Insert Point: %d, %d\n", px, py);
 
-		insertPoint(px, py);
-		updateNumPoints(inputPointSet_.noPt());
+	// 	insertPoint(px, py);
+	// 	updateNumPoints(inputPointSet_.noPt());
 
-		updateGL();
-	}
+	// 	updateGL();
+	// }
 }
 
 
 
-void MyPanelOpenGL::mouseMoveEvent(QMouseEvent *) {
-}
+// void MyPanelOpenGL::doOpenImage() {
+// 	//get a filename to open
+// 	QString qStr_fileName =
+// 		QFileDialog::getOpenFileName(Q_NULLPTR,
+// 	                                 tr("Open Image"),
+// 	                                 ".",
+// 	                                 tr("Image Files (*.png *.jpg *.bmp)"));
+// 	if (qStr_fileName == "") {
+// 		return;
+// 	}
+
+// 	string filenameStr = qStr_fileName.toStdString();
+
+// 	emit updateFilename(qStr_fileName); // to Qt textbox
+
+// 	imData_ = loadImageData(filenameStr);
+// 	loadedImageFilename_ = filenameStr;
+
+// 	QSize widgetSize = size();
+// 	refreshProjection(widgetSize.width(), widgetSize.height(),
+// 	                  canvasOffsetX_, canvasOffsetY_,
+// 	                  imData_);
+// 	emit imageLoaded();
+
+// 	currentRenderType_ = IMAGE;
+// 	updateGL();
+// }
 
 
 
-void MyPanelOpenGL::keyPressEvent(QKeyEvent* event) {
-	switch (event->key()) {
-		case Qt::Key_Escape:
-			close();
-			break;
-		default:
-			event->ignore();
-			break;
-	}
-}
+// void MyPanelOpenGL::doSaveImage() {
+// 	// TODO: This impl. feels impure
+// 	// TODO: Should be a way to set output filename
+// 	// TODO: ImageData stuff applies here, too.
+// 	string outputImageFilename = "output.bmp";
+
+// 	int x = canvasOffsetX_;
+// 	int y = canvasOffsetY_;
+
+// 	QSize widgetSize = size();
+// 	int windowWidth = widgetSize.width();
+// 	int windowHeight = widgetSize.height();
+
+// 	int copyWidth = (windowWidth - (2 * x));
+// 	int copyHeight = (windowHeight - (2 * y));
+
+// 	int numComponents = 3; // RGB
+
+// 	// Memory for width * height * RGB pixel values.
+// 	unsigned char *data;
+// 	data = (unsigned char *) malloc(numComponents * copyWidth * copyHeight * sizeof(unsigned char));
+
+// 	glPixelStorei(GL_PACK_ALIGNMENT, 1); // align to the byte..
+// 	glReadBuffer(GL_FRONT);
+
+// 	// Read in "correct" row...
+// 	// (I think I have to do this since the texture coordinates' y-axis is flipped
+// 	//  compared to the rendered y-axis).
+
+// 	for (int rowOffset = 0; rowOffset < copyHeight; rowOffset++) {
+// 		int copyRow = y + copyHeight - rowOffset - 1; // reverse this.
+// 		unsigned char * copyAddress = data + rowOffset * (copyWidth * numComponents);
+// 		glReadPixels(x, copyRow, copyWidth, 1, GL_BGR, GL_UNSIGNED_BYTE, copyAddress);
+// 	}
+
+// 	Mat img(copyHeight, copyWidth, CV_8UC3, data);
+// 	imwrite(outputImageFilename.c_str(), img);
+// }
 
 
 
-void MyPanelOpenGL::doOpenImage() {
-	//get a filename to open
-	QString qStr_fileName =
-		QFileDialog::getOpenFileName(Q_NULLPTR,
-	                                 tr("Open Image"),
-	                                 ".",
-	                                 tr("Image Files (*.png *.jpg *.bmp)"));
-	if (qStr_fileName == "") {
-		return;
-	}
-
-	string filenameStr = qStr_fileName.toStdString();
-
-	emit updateFilename(qStr_fileName); // to Qt textbox
-
-	imData_ = loadImageData(filenameStr);
-	loadedImageFilename_ = filenameStr;
-
-	QSize widgetSize = size();
-	refreshProjection(widgetSize.width(), widgetSize.height(),
-	                  canvasOffsetX_, canvasOffsetY_,
-	                  imData_);
-	emit imageLoaded();
-
-	currentRenderType_ = IMAGE;
-	updateGL();
-}
+// void MyPanelOpenGL::doDrawImage() {
+// 	currentRenderType_ = IMAGE;
+// 	updateGL();
+// }
 
 
 
-void MyPanelOpenGL::doSaveImage() {
-	// TODO: This impl. feels impure
-	// TODO: Should be a way to set output filename
-	// TODO: ImageData stuff applies here, too.
-	string outputImageFilename = "output.bmp";
-
-	int x = canvasOffsetX_;
-	int y = canvasOffsetY_;
-
-	QSize widgetSize = size();
-	int windowWidth = widgetSize.width();
-	int windowHeight = widgetSize.height();
-
-	int copyWidth = (windowWidth - (2 * x));
-	int copyHeight = (windowHeight - (2 * y));
-
-	int numComponents = 3; // RGB
-
-	// Memory for width * height * RGB pixel values.
-	unsigned char *data;
-	data = (unsigned char *) malloc(numComponents * copyWidth * copyHeight * sizeof(unsigned char));
-
-	glPixelStorei(GL_PACK_ALIGNMENT, 1); // align to the byte..
-	glReadBuffer(GL_FRONT);
-
-	// Read in "correct" row...
-	// (I think I have to do this since the texture coordinates' y-axis is flipped
-	//  compared to the rendered y-axis).
-
-	for (int rowOffset = 0; rowOffset < copyHeight; rowOffset++) {
-		int copyRow = y + copyHeight - rowOffset - 1; // reverse this.
-		unsigned char * copyAddress = data + rowOffset * (copyWidth * numComponents);
-		glReadPixels(x, copyRow, copyWidth, 1, GL_BGR, GL_UNSIGNED_BYTE, copyAddress);
-	}
-
-	Mat img(copyHeight, copyWidth, CV_8UC3, data);
-	imwrite(outputImageFilename.c_str(), img);
-}
+// void MyPanelOpenGL::doDrawEdge() {
+// 	currentRenderType_ = EDGE_RAW;
+// 	updateGL();
+// }
 
 
 
-void MyPanelOpenGL::doDrawImage() {
-	currentRenderType_ = IMAGE;
-	updateGL();
-}
+// void MyPanelOpenGL::doDrawEdgeSharp() {
+// 	currentRenderType_ = EDGE_SHARP;
+// 	updateGL();
+// }
 
 
 
-void MyPanelOpenGL::doDrawEdge() {
-	currentRenderType_ = EDGE_RAW;
-	updateGL();
-}
+// void MyPanelOpenGL::doDrawEdgeBlur() {
+// 	currentRenderType_ = EDGE_BLUR;
+
+// 	updateGL();
+// }
 
 
 
-void MyPanelOpenGL::doDrawEdgeSharp() {
-	currentRenderType_ = EDGE_SHARP;
-	updateGL();
-}
+// void MyPanelOpenGL::doDrawPDF() {
+// 	currentRenderType_ = PDF;
+// 	updateGL();
+// }
 
 
 
-void MyPanelOpenGL::doDrawEdgeBlur() {
-	currentRenderType_ = EDGE_BLUR;
-
-	updateGL();
-}
-
-
-
-void MyPanelOpenGL::doDrawPDF() {
-	currentRenderType_ = PDF;
-	updateGL();
-}
+// void MyPanelOpenGL::doDrawEffect() {
+// 	currentRenderType_ = EFFECT;
+// 	updateGL();
+// }
 
 
 
-void MyPanelOpenGL::doDrawEffect() {
-	currentRenderType_ = EFFECT;
-	updateGL();
-}
+// void MyPanelOpenGL::setShowVoronoiSites(bool b) {
+// 	showVoronoiSites_ = b;
+// 	updateGL();
+// }
 
 
 
-void MyPanelOpenGL::setShowVoronoiSites(bool b) {
-	showVoronoiSites_ = b;
-	updateGL();
-}
+// void MyPanelOpenGL::setShowVoronoiEdges(bool b) {
+// 	showVoronoiEdges_ = b;
+// 	updateGL();
+// }
 
 
 
-void MyPanelOpenGL::setShowVoronoiEdges(bool b) {
-	showVoronoiEdges_ = b;
-	updateGL();
-}
+// void MyPanelOpenGL::setNumPoints1k() {
+// 	setNumPoints(1000);
+// }
 
 
 
-void MyPanelOpenGL::setNumPoints1k() {
-	setNumPoints(1000);
-}
+// void MyPanelOpenGL::setNumPoints5k() {
+// 	setNumPoints(5000);
+// }
 
 
 
-void MyPanelOpenGL::setNumPoints5k() {
-	setNumPoints(5000);
-}
-
-
-
-void MyPanelOpenGL::setNumPoints(int n) {
-	numPDFPoints_ = n;
-	updateNumPointsToGenerate(n);
-}
+// void MyPanelOpenGL::setNumPoints(int n) {
+// 	numPDFPoints_ = n;
+// 	updateNumPointsToGenerate(n);
+// }
 
 
 
@@ -350,95 +332,95 @@ void MyPanelOpenGL::insertPoint(LongInt x, LongInt y) {
 
 
 
-void MyPanelOpenGL::doGenerateUniformRandomPoints() {
-	if (!hasLoadedImage()) return;
+// void MyPanelOpenGL::doGenerateUniformRandomPoints() {
+// 	if (!hasLoadedImage()) return;
 
-	// POINTREP:INTVEC
-	// Returns {x0, y0, x1, y1,...}
-	int width = imData_->width();
-	int height = imData_->height();
-	vector< pair<int,int> > points = generateUniformRandomPoints(width, height, numPDFPoints_);
+// 	// POINTREP:INTVEC
+// 	// Returns {x0, y0, x1, y1,...}
+// 	int width = imData_->width();
+// 	int height = imData_->height();
+// 	vector< pair<int,int> > points = generateUniformRandomPoints(width, height, numPDFPoints_);
 
-	for (pair<int,int> pt : points) {
-		int x = pt.first;
-		int y = pt.second;
+// 	for (pair<int,int> pt : points) {
+// 		int x = pt.first;
+// 		int y = pt.second;
 
-		insertPoint(x, y);
-	}
+// 		insertPoint(x, y);
+// 	}
 
-	updateNumPoints(inputPointSet_.noPt());
+// 	updateNumPoints(inputPointSet_.noPt());
 
-	updateGL();
-}
-
-
-
-void MyPanelOpenGL::doPDF() {
-	// POINTREP:INTVEC
-	// Returns {x0, y0, x1, y1,...}
-	vector< pair<int,int> > points = generatePointsWithPDF(loadedImageFilename_, numPDFPoints_, &pdfTextures_);
-
-	for (pair<int,int> pt : points) {
-		int x = pt.first;
-		int y = pt.second;
-
-		insertPoint(x, y);
-	}
-
-	updateNumPoints(inputPointSet_.noPt());
-	setUsePDF(true);
-
-	updateGL();
-}
+// 	updateGL();
+// }
 
 
 
-void MyPanelOpenGL::doVoronoiDiagram() {
-	//qDebug("Do Voronoi creation\n");
+// void MyPanelOpenGL::doPDF() {
+// 	// POINTREP:INTVEC
+// 	// Returns {x0, y0, x1, y1,...}
+// 	vector< pair<int,int> > points = generatePointsWithPDF(loadedImageFilename_, numPDFPoints_, &pdfTextures_);
 
-	StopWatch voroSW;
+// 	for (pair<int,int> pt : points) {
+// 		int x = pt.first;
+// 		int y = pt.second;
 
-	voroSW.reset();
-	voroSW.resume();
+// 		insertPoint(x, y);
+// 	}
 
-	voronoiPolygons_ = delaunay::runDelaunayAlgorithm(inputPointSet_);
+// 	updateNumPoints(inputPointSet_.noPt());
+// 	setUsePDF(true);
 
-
-	// Make the colored polygons from Voronoi.
-	assert(imData_ != NULL);
-	renderedPolygons_ = generateColoredPolygons(voronoiPolygons_, *imData_);
-	currentRenderType_ = EFFECT;
-
-	voroSW.pause();
-	double timePolyColor = voroSW.ms();
-	qDebug("TIME: generateColoredPolygons(..) is %f", timePolyColor);
-	voroSW.reset();
-	voroSW.resume();
-
-	setVoronoiComputed(true);
-
-	updateGL();
-}
+// 	updateGL();
+// }
 
 
 
-void MyPanelOpenGL::clearAll() {
-	// Clear all our points, and such data.
+// void MyPanelOpenGL::doVoronoiDiagram() {
+// 	//qDebug("Do Voronoi creation\n");
 
-	// Clear all the colored polygons.
-	renderedPolygons_.clear();
+// 	StopWatch voroSW;
 
-	voronoiPolygons_.clear();
+// 	voroSW.reset();
+// 	voroSW.resume();
 
-	// Clear all the points.
-	inputPointSet_.eraseAllPoints();
+// 	voronoiPolygons_ = delaunay::runDelaunayAlgorithm(inputPointSet_);
 
-	// Signals and stuff
-	updateNumPoints(inputPointSet_.noPt());
-	setUsePDF(false);
-	setVoronoiComputed(false);
 
-	currentRenderType_ = NONE;
+// 	// Make the colored polygons from Voronoi.
+// 	assert(imData_ != NULL);
+// 	renderedPolygons_ = generateColoredPolygons(voronoiPolygons_, *imData_);
+// 	currentRenderType_ = EFFECT;
 
-	updateGL();
-}
+// 	voroSW.pause();
+// 	double timePolyColor = voroSW.ms();
+// 	qDebug("TIME: generateColoredPolygons(..) is %f", timePolyColor);
+// 	voroSW.reset();
+// 	voroSW.resume();
+
+// 	setVoronoiComputed(true);
+
+// 	updateGL();
+// }
+
+
+
+// void MyPanelOpenGL::clearAll() {
+// 	// Clear all our points, and such data.
+
+// 	// Clear all the colored polygons.
+// 	renderedPolygons_.clear();
+
+// 	voronoiPolygons_.clear();
+
+// 	// Clear all the points.
+// 	inputPointSet_.eraseAllPoints();
+
+// 	// Signals and stuff
+// 	updateNumPoints(inputPointSet_.noPt());
+// 	setUsePDF(false);
+// 	setVoronoiComputed(false);
+
+// 	currentRenderType_ = NONE;
+
+// 	updateGL();
+// }

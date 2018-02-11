@@ -1,0 +1,86 @@
+#ifndef UI_QT5_VORONOIEFFECTH
+#define UI_QT5_VORONOIEFFECTH
+
+#include <string>
+
+#include <QObject>
+
+#include "delaunay/longint/li.h"
+
+#include "delaunay/delaunay.h"
+
+#include "generatepoints.h"  // for PDFTextures
+#include "imagedata.h"
+#include "polypixel.h"       // for ColoredPolygon
+
+namespace ui {
+
+namespace qt5 {
+
+
+
+enum ShowImageType {
+	IMAGE,
+	EDGE_RAW,
+	EDGE_SHARP,
+	EDGE_BLUR,
+	PDF,
+	EFFECT,
+	NONE
+};
+
+
+
+class EffectState {
+private:
+	ShowImageType showType;
+	bool showVertices;
+	bool showEdges;
+};
+
+
+
+///
+class VoronoiEffect : QObject {
+	Q_OBJECT
+public:
+	VoronoiEffect(QObject *parent) : QObject(parent) {};
+
+	// XXX:#24: property: Algorithm e.g. Delaunay
+	// XXX:#24: property: image, drawState, etc.
+	// XXX:#24: and a method to *draw* this.
+
+signals:
+	/// This signal exists so that the mainqt knows to update enabled/disabled state of its button
+	void imageLoaded();
+	/// Indicates that the PDF computation was completed; ergo, updates UI in mainqt
+	void setUsePDF(bool);
+	/// Indicates that the algorithm has finished computing; ergo, updates UI in mainqt
+	void setVoronoiComputed(bool);
+
+public slots:
+	void setEffectState(EffectState state);
+
+	// XXX but, like, surely we can use sig + slots here?
+
+private:
+	delaunay::DelaunayAlgorithm<delaunay::LongInt> algorithm_;
+	EffectState effectState_;
+	// DELAUNAY / Rendering.
+	// XXX:#24:Should move this to ... algorithm state, or something.
+	/// The `ColoredPolygon`s we use to render the "stain-glass" effect.
+	std::vector<ColoredPolygon> renderedPolygons_;
+
+	// XXX:#24:Should move these to ... VisualEffectState or something?
+	std::string loadedImageFilename_ = "";
+	ImageData *imData_ = NULL;
+	PDFTextures pdfTextures_;
+};
+
+
+
+}
+
+}
+
+#endif

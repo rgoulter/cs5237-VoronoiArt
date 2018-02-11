@@ -189,6 +189,9 @@ template Point<double> pointForTri<double>(const PointSetArray<double>&, const L
 template vector<geometry::Polygon> createVoronoi<double>(const DirectedGraph<double>&);
 template vector<geometry::Polygon> runDelaunayAlgorithm<double>(const PointSetArray<double>&);
 
+template class DelaunayAlgorithm<LongInt>;
+template class DelaunayAlgorithm<double>;
+
 }
 
 
