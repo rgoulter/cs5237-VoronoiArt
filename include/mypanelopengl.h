@@ -39,17 +39,25 @@ public:
 	explicit MyPanelOpenGL(QWidget *parent = 0);
 
 signals:
+	/// Provides a way to update the *textfield* in mainqt
 	void updateFilename(QString);
+	/// Updates UI in mainqt (comes from clicking)
 	void updateNumPoints(int);
+	/// Updates UI in mainqt (comes from clicking)
 	void updateNumPointsToGenerate(int);
 
+	/// This signal exists so that the mainqt knows to update enabled/disabled state of its button
 	void imageLoaded();
+	/// Indicates that the PDF computation was completed; ergo, updates UI in mainqt
 	void setUsePDF(bool);
+	/// Indicates that the algorithm has finished computing; ergo, updates UI in mainqt
 	void setVoronoiComputed(bool);
 
 public slots:
+	/// For when the '...' button is clicked in mainqt
 	void doOpenImage();
 
+	/// 6x Slots, rather than just 'set render image kind' or so.
 	void doDrawImage();
 	void doDrawEdge();
 	void doDrawEdgeSharp();
@@ -57,19 +65,27 @@ public slots:
 	void doDrawPDF();
 	void doDrawEffect();
 
-	void doVoronoiDiagram();
-	void doGenerateUniformRandomPoints();
-	void doPDF();
+	/// 2x Slots also related to draw-state.
+	void setShowVoronoiSites(bool b);
+	void setShowVoronoiEdges(bool b);
 
+	/// Invoke various computations from Main Qt. ... TBH, might as well just do this implicitly.
+	/// UX: can bold / unbold, for like ... 'available / not'?
+	void doPDF();
+	void doVoronoiDiagram();
+
+	/// Control of point-generation.
 	void setNumPoints1k();
 	void setNumPoints5k();
 	void setNumPoints(int);
+	void doGenerateUniformRandomPoints();
 
+	/// When the 'save image' button is clicked, from mainqt.
 	void doSaveImage();
+
+	/// A general reset. Compared to above, resets: filename, draw state, algorithm computations, input-points.
 	void clearAll();
 
-	void setShowVoronoiSites(bool b);
-	void setShowVoronoiEdges(bool b);
 
 protected:
 	// overloaded
