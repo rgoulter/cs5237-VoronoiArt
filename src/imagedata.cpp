@@ -3,8 +3,13 @@
 
 #include "imagedata.h"
 
+#include "opencv2/highgui/highgui.hpp"
+
+using std::string;
+
 using cv::Mat;
 using cv::Rect;
+using cv::imread;
 
 
 
@@ -115,3 +120,11 @@ void ImageData::renderPlane() const {
 	glDisable(GL_TEXTURE_2D);
 }
 
+
+
+// Uses OpenCV
+ImageData* loadImageData(string imgFilename) {
+	Mat imgMat = imread(imgFilename.c_str()); // BGR
+
+	return new ImageData(imgMat, CV_BGR2RGB);
+}

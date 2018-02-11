@@ -46,4 +46,6 @@ private:
 	GLuint texture_;
 };
 
+ImageData* loadImageData(std::string imgFilename);
+
 #endif // IMAGEDATA_H

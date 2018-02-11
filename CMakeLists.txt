@@ -47,11 +47,12 @@ set(VORONOI_LIB_SOURCES src/delaunay/longint/li.cpp
                         src/geometry/linesegment.cpp
                         src/geometry/polygon.cpp
                         src/imagedata.cpp
-                        src/generatepoints.cpp
-                        src/polypixel.cpp)
+                        src/generatepoints.cpp)
 # For Qt code
-set(VORONOI_SOURCES src/mypanelopengl.cpp
-                    src/mainqt.cpp)
+set(VORONOI_SOURCES src/ui/opengl/graphics.cpp
+                    src/mypanelopengl.cpp
+                    src/mainqt.cpp
+                    src/polypixel.cpp)
 
 set(VORONOI_CLI_SOURCES src/main_cli.cpp)
 
@@ -68,12 +69,13 @@ set(VORONOI_LIB_HEADERS include/delaunay/longint/li.h
                         include/geometry/linesegment.h
                         include/geometry/point.h
                         include/geometry/polygon.h
-                        include/imagedata.h
                         include/generatepoints.h
-                        include/polypixel.h
+                        include/imagedata.h
                         include/tracing.h)
-set(VORONOI_HEADERS include/mypanelopengl.h
-                    include/mainqt.h)
+set(VORONOI_HEADERS include/ui/opengl/graphics.h
+                    include/mypanelopengl.h
+                    include/mainqt.h
+                    include/polypixel.h)
 
 include_directories(include)
 
