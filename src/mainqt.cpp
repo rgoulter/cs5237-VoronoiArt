@@ -20,40 +20,40 @@ mainqt::~mainqt() { }
 
 
 void mainqt::updateNumPoints(int n) {
-	bool b = n > 0;
+	// bool b = n > 0;
 
-	ui.btnDoVoronoi->setEnabled(b);
+	// ui.btnDoVoronoi->setEnabled(b);
 }
 
 
 
 void mainqt::imageLoaded() {
 	// Enable various components
-	ui.btnDrawImage->setEnabled(true);
-	ui.chkShowPoints->setEnabled(true);
+	// ui.btnDrawImage->setEnabled(true);
+	// ui.chkShowPoints->setEnabled(true);
 
-	ui.spinBoxNumPoints->setEnabled(true);
-	ui.btn1kPoints->setEnabled(true);
-	ui.btn5kPoints->setEnabled(true);
-	ui.btnGenUniform->setEnabled(true);
-	ui.btnGenPDF->setEnabled(true);
+	// ui.spinBoxNumPoints->setEnabled(true);
+	// ui.btn1kPoints->setEnabled(true);
+	// ui.btn5kPoints->setEnabled(true);
+	// ui.btnGenUniform->setEnabled(true);
+	// ui.btnGenPDF->setEnabled(true);
 
-	ui.btnSaveImage->setEnabled(true);
-	ui.btnClearAll->setEnabled(true);
+	// ui.btnSaveImage->setEnabled(true);
+	// ui.btnClearAll->setEnabled(true);
 }
 
 void mainqt::setUsePDF(bool b) {
-	ui.btnDrawEdges->setEnabled(b);
-	ui.btnDrawBlurredEdges->setEnabled(b);
-	ui.btnDrawSharpEdges->setEnabled(b);
-	ui.btnDrawPDF->setEnabled(b);
+	// ui.btnDrawEdges->setEnabled(b);
+	// ui.btnDrawBlurredEdges->setEnabled(b);
+	// ui.btnDrawSharpEdges->setEnabled(b);
+	// ui.btnDrawPDF->setEnabled(b);
 }
 
 
 
 void mainqt::setVoronoiComputed(bool b) {
-	ui.btnDrawEffect->setEnabled(b);
-	ui.chkShowEdges->setEnabled(b);
+	// ui.btnDrawEffect->setEnabled(b);
+	// ui.chkShowEdges->setEnabled(b);
 }
 
 

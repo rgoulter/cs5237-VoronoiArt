@@ -22,7 +22,7 @@
      <widget class="MyPanelOpenGL" name="glWidget" native="true"/>
     </item>
     <item>
-     <widget class="QWidget" name="widget_3" native="true">
+     <widget class="QWidget" name="controlWidget" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -37,48 +37,47 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QWidget" name="widget" native="true">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+        <widget class="QRadioButton" name="radioButton">
+         <property name="text">
+          <string>No Image</string>
          </property>
-         <layout class="QFormLayout" name="formLayout">
-          <item row="0" column="0">
-           <widget class="QLabel" name="labelLoadImage">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Load Image:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="grpLoadImage">
+         <property name="title">
+          <string>Load Image</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
+         </property>
+         <property name="checkable">
+          <bool>false</bool>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
            <widget class="QLineEdit" name="txtImageName">
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+            </property>
             <property name="readOnly">
+             <bool>true</bool>
+            </property>
+            <property name="clearButtonEnabled">
              <bool>false</bool>
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
-           <widget class="QPushButton" name="btnLoadImage">
+          <item>
+           <widget class="QToolButton" name="btnLoadImage">
             <property name="text">
              <string>...</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0" colspan="2">
-           <widget class="QPushButton" name="btnDrawImage">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>Draw Image</string>
             </property>
            </widget>
           </item>
@@ -86,15 +85,75 @@
         </widget>
        </item>
        <item>
+        <widget class="QRadioButton" name="radioBtnEffectImage">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Image</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioBtnEffectEdges">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Edges</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioBtnEffectEdgesSharp">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Edges (Sharper)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioBtnEffectEdgesBlurred">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Edges (Blurred)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioBtnEffectPDF">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Probability Distribution Field</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="grpPointGen">
          <property name="title">
-          <string>Random Point Generation</string>
+          <string>Generate Random Points With:</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
           <item row="0" column="0" colspan="2">
            <widget class="QLabel" name="labelNumPoints">
             <property name="text">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;No. points:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="3">
+           <widget class="QPushButton" name="btnGenUniform">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Uniform Random Distribution</string>
             </property>
            </widget>
           </item>
@@ -106,58 +165,66 @@
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
             <property name="maximum">
-             <number>99999</number>
+             <number>100</number>
             </property>
             <property name="singleStep">
-             <number>50</number>
+             <number>5</number>
             </property>
             <property name="value">
-             <number>75</number>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QPushButton" name="btn1kPoints">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>1,000</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1" colspan="2">
-           <widget class="QPushButton" name="btn5kPoints">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>5,000</string>
+             <number>15</number>
             </property>
            </widget>
           </item>
           <item row="2" column="0" colspan="3">
-           <widget class="QPushButton" name="btnGenUniform">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>Generate Uniform Random</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0" colspan="3">
            <widget class="QPushButton" name="btnGenPDF">
             <property name="enabled">
              <bool>false</bool>
             </property>
             <property name="text">
-             <string>Generate with PDF</string>
+             <string>Computed Probability Distribution</string>
             </property>
            </widget>
           </item>
          </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboBoxAlgorithm">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <item>
+          <property name="text">
+           <string>Delaunay Triangulation</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item>
+        <widget class="QProgressBar" name="progressBarVoronoi">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+         <property name="textVisible">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioBtnEffectVoronoi">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Voronoi Effect</string>
+         </property>
         </widget>
        </item>
        <item>
@@ -184,72 +251,16 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="btnDoVoronoi">
+        <widget class="QCheckBox" name="chkShowAlgorithm">
          <property name="enabled">
           <bool>false</bool>
          </property>
          <property name="text">
-          <string>Compute Voronoi Diagram</string>
+          <string>Show Algorithm Computations</string>
          </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnDrawEffect">
-         <property name="enabled">
-          <bool>false</bool>
+         <property name="checked">
+          <bool>true</bool>
          </property>
-         <property name="text">
-          <string>Draw Mosaic Effect</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="grpPDF">
-         <property name="title">
-          <string>PDF Computation Images</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="1" column="0" colspan="2">
-           <widget class="QPushButton" name="btnDrawEdges">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>Draw Edges</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QPushButton" name="btnDrawSharpEdges">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>Sharp Edges</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QPushButton" name="btnDrawBlurredEdges">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>Blurred Edges</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0" colspan="2">
-           <widget class="QPushButton" name="btnDrawPDF">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>Draw PDF</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </widget>
        </item>
        <item>
@@ -263,7 +274,7 @@
         </widget>
        </item>
        <item>
-        <widget class="Line" name="line_2">
+        <widget class="Line" name="lineAfterSaveImage">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -280,7 +291,17 @@
         </widget>
        </item>
        <item>
-        <widget class="QWidget" name="widget_2" native="true"/>
+        <spacer name="vrtSpacing">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>
@@ -325,29 +346,16 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>txtImageName</tabstop>
-  <tabstop>btnLoadImage</tabstop>
-  <tabstop>btnDrawImage</tabstop>
   <tabstop>spinBoxNumPoints</tabstop>
-  <tabstop>btn1kPoints</tabstop>
-  <tabstop>btn5kPoints</tabstop>
   <tabstop>btnGenUniform</tabstop>
   <tabstop>btnGenPDF</tabstop>
   <tabstop>chkShowPoints</tabstop>
   <tabstop>chkShowEdges</tabstop>
-  <tabstop>btnDoVoronoi</tabstop>
-  <tabstop>btnDrawEffect</tabstop>
-  <tabstop>btnDrawEdges</tabstop>
-  <tabstop>btnDrawSharpEdges</tabstop>
-  <tabstop>btnDrawBlurredEdges</tabstop>
-  <tabstop>btnDrawPDF</tabstop>
   <tabstop>btnSaveImage</tabstop>
   <tabstop>btnClearAll</tabstop>
  </tabstops>
- <resources>
- </resources>
- <connections>
- </connections>
+ <resources/>
+ <connections/>
  <slots>
   <slot>updateNumPoints(int)</slot>
   <slot>imageLoaded()</slot>
