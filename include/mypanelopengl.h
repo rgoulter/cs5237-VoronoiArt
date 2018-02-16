@@ -36,6 +36,8 @@ class MyPanelOpenGL : public QGLWidget
 public:
 	explicit MyPanelOpenGL(QWidget *parent = 0);
 
+	ui::qt5::VoronoiEffect* getVoronoiEffect();
+
 signals:
 	// /// Provides a way to update the *textfield* in mainqt
 	// void updateFilename(QString);
@@ -99,7 +101,7 @@ private:
 	int canvasOffsetX_ = 0;
 	int canvasOffsetY_ = 0;
 
-	ui::qt5::VoronoiEffect *effect;
+	ui::qt5::VoronoiEffect* effect_;
 
 
 	// DELAUNAY

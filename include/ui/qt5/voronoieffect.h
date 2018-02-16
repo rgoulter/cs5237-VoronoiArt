@@ -32,7 +32,7 @@ enum ShowImageType {
 
 
 class EffectState {
-private:
+public:
 	ShowImageType showType;
 	bool showVertices;
 	bool showEdges;
@@ -41,14 +41,26 @@ private:
 
 
 ///
-class VoronoiEffect : QObject {
+class VoronoiEffect : public QObject {
 	Q_OBJECT
 public:
-	VoronoiEffect(QObject *parent) : QObject(parent) {};
+	VoronoiEffect(QObject *parent = 0) : QObject(parent) {
+		effectState_.showType = NONE;
+		effectState_.showVertices = true;
+		effectState_.showEdges = true;
+	};
 
 	// XXX:#24: property: Algorithm e.g. Delaunay
 	// XXX:#24: property: image, drawState, etc.
 	// XXX:#24: and a method to *draw* this.
+
+	void setImageData(ImageData* imageData);
+
+	ImageData* getImageData();
+
+	EffectState getEffectState();
+
+	void paintGL();
 
 signals:
 	/// This signal exists so that the mainqt knows to update enabled/disabled state of its button
@@ -57,6 +69,9 @@ signals:
 	void setUsePDF(bool);
 	/// Indicates that the algorithm has finished computing; ergo, updates UI in mainqt
 	void setVoronoiComputed(bool);
+
+	/// Indicates that the canvas needs to be redrawn.
+	void effectChanged();
 
 public slots:
 	void setEffectState(EffectState state);
@@ -73,7 +88,7 @@ private:
 
 	// XXX:#24:Should move these to ... VisualEffectState or something?
 	std::string loadedImageFilename_ = "";
-	ImageData *imData_ = NULL;
+	ImageData *imageData_ = NULL;
 	PDFTextures pdfTextures_;
 };
 

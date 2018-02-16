@@ -8,3 +8,72 @@ using ui::qt5::VoronoiEffect;
 void VoronoiEffect::setEffectState(EffectState state) {
 	effectState_ = state;
 }
+
+
+
+EffectState VoronoiEffect::getEffectState() {
+	return effectState_;
+}
+
+
+
+void VoronoiEffect::setImageData(ImageData* imageData) {
+	imageData_ = imageData;
+
+	EffectState currentState = getEffectState();
+	currentState.showType = IMAGE;
+	setEffectState(currentState);
+
+	// Maybe should distinguish between size changing, & just 'pls redraw'?
+	emit imageLoaded();
+	emit effectChanged();
+}
+
+
+
+ImageData* VoronoiEffect::getImageData() {
+	return imageData_;
+}
+
+
+
+void VoronoiEffect::paintGL() {
+	switch (effectState_.showType) {
+		case EFFECT:
+	// 		drawColoredPolygons(renderedPolygons_);
+			break;
+
+		case EDGE_RAW:
+	// 		pdfTextures_.edgesTexture->renderPlane();
+			break;
+
+		case EDGE_SHARP:
+	// 		pdfTextures_.edgesSharpTexture->renderPlane();
+			break;
+
+		case EDGE_BLUR:
+	// 		pdfTextures_.edgesBlurTexture->renderPlane();
+			break;
+
+		case PDF:
+	// 		pdfTextures_.pdfTexture->renderPlane();
+			break;
+
+		case IMAGE:
+			imageData_->renderPlane();
+			break;
+
+		default:
+		case NONE:
+			break;
+	}
+
+	// if (showVoronoiEdges_) {
+	// 	// DELAUNAY (voronoiEdges)
+	// 	// drawVoronoiPolygons(voronoiPolygons_);
+	// }
+
+	// if (showVoronoiSites_) {
+	// 	// drawPointSetArray(inputPointSet_);
+	// }
+}

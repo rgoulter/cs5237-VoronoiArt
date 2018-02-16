@@ -20,6 +20,8 @@ public slots:
 	void setUsePDF(bool);
 	void setVoronoiComputed(bool);
 
+	void chooseImage();
+
 	// XXX from mypanelOpenGL
 	/// For when the '...' button is clicked in mainqt
 	// void doOpenImage();

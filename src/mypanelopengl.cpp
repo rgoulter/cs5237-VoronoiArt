@@ -6,7 +6,6 @@
 
 #include <QtGui/QMouseEvent>
 #include <QDebug>
-#include <QFileDialog>
 #include <QString>
 
 #include "opencv2/highgui/highgui.hpp"
@@ -40,6 +39,9 @@ using delaunay::PointSetArray;
 
 using geometry::Polygon;
 
+using ui::qt5::VoronoiEffect;
+using ui::qt5::EffectState;
+
 
 
 // TODO: the stopwatch code used makes code less readable.
@@ -48,6 +50,20 @@ static StopWatch globalSW;
 
 
 MyPanelOpenGL::MyPanelOpenGL(QWidget *parent) : QGLWidget (parent) {
+	effect_ = new VoronoiEffect();
+
+	connect(effect_, &VoronoiEffect::imageLoaded, [=] {
+		QSize size = this->size();
+		refreshProjection(size.width(), size.height(), canvasOffsetX_, canvasOffsetY_, effect_->getImageData());
+
+		updateGL();
+	});
+}
+
+
+
+VoronoiEffect* MyPanelOpenGL::getVoronoiEffect() {
+	return effect_;
 }
 
 
@@ -68,7 +84,7 @@ void MyPanelOpenGL::initializeGL() {
 
 
 void MyPanelOpenGL::resizeGL(int width, int height) {
-	// refreshProjection(width, height, canvasOffsetX_, canvasOffsetY_, imData_);
+	refreshProjection(width, height, canvasOffsetX_, canvasOffsetY_, effect_->getImageData());
 }
 
 
@@ -78,44 +94,7 @@ void MyPanelOpenGL::paintGL() {
 
 	glPushMatrix();
 
-	// switch (currentRenderType_) {
-	// 	case EFFECT:
-	// 		drawColoredPolygons(renderedPolygons_);
-	// 		break;
-
-	// 	case EDGE_RAW:
-	// 		pdfTextures_.edgesTexture->renderPlane();
-	// 		break;
-
-	// 	case EDGE_SHARP:
-	// 		pdfTextures_.edgesSharpTexture->renderPlane();
-	// 		break;
-
-	// 	case EDGE_BLUR:
-	// 		pdfTextures_.edgesBlurTexture->renderPlane();
-	// 		break;
-
-	// 	case PDF:
-	// 		pdfTextures_.pdfTexture->renderPlane();
-	// 		break;
-
-	// 	case IMAGE:
-	// 		imData_->renderPlane();
-	// 		break;
-
-	// 	default:
-	// 	case NONE:
-	// 		break;
-	// }
-
-	// if (showVoronoiEdges_) {
-	// 	// DELAUNAY (voronoiEdges)
-	// 	// drawVoronoiPolygons(voronoiPolygons_);
-	// }
-
-	// if (showVoronoiSites_) {
-	// 	// drawPointSetArray(inputPointSet_);
-	// }
+	effect_->paintGL();
 
 	glPopMatrix();
 }

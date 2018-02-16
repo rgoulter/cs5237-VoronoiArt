@@ -44,6 +44,9 @@
          <property name="checked">
           <bool>true</bool>
          </property>
+         <attribute name="buttonGroup">
+          <string notr="true">buttonGroupEffect</string>
+         </attribute>
         </widget>
        </item>
        <item>
@@ -92,6 +95,9 @@
          <property name="text">
           <string>Image</string>
          </property>
+         <attribute name="buttonGroup">
+          <string notr="true">buttonGroupEffect</string>
+         </attribute>
         </widget>
        </item>
        <item>
@@ -102,6 +108,9 @@
          <property name="text">
           <string>Edges</string>
          </property>
+         <attribute name="buttonGroup">
+          <string notr="true">buttonGroupEffect</string>
+         </attribute>
         </widget>
        </item>
        <item>
@@ -112,6 +121,9 @@
          <property name="text">
           <string>Edges (Sharper)</string>
          </property>
+         <attribute name="buttonGroup">
+          <string notr="true">buttonGroupEffect</string>
+         </attribute>
         </widget>
        </item>
        <item>
@@ -122,6 +134,9 @@
          <property name="text">
           <string>Edges (Blurred)</string>
          </property>
+         <attribute name="buttonGroup">
+          <string notr="true">buttonGroupEffect</string>
+         </attribute>
         </widget>
        </item>
        <item>
@@ -132,6 +147,9 @@
          <property name="text">
           <string>Probability Distribution Field</string>
          </property>
+         <attribute name="buttonGroup">
+          <string notr="true">buttonGroupEffect</string>
+         </attribute>
         </widget>
        </item>
        <item>
@@ -225,6 +243,9 @@
          <property name="text">
           <string>Voronoi Effect</string>
          </property>
+         <attribute name="buttonGroup">
+          <string notr="true">buttonGroupEffect</string>
+         </attribute>
         </widget>
        </item>
        <item>
@@ -362,4 +383,7 @@
   <slot>setUsePDF(bool)</slot>
   <slot>setVoronoiComputed(bool)</slot>
  </slots>
+ <buttongroups>
+  <buttongroup name="buttonGroupEffect"/>
+ </buttongroups>
 </ui>
