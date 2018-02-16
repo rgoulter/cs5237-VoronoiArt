@@ -62,6 +62,8 @@ public:
 
 	void paintGL();
 
+	void setEffectShowType(ShowImageType kind);
+
 signals:
 	/// This signal exists so that the mainqt knows to update enabled/disabled state of its button
 	void imageLoaded();

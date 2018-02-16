@@ -7,7 +7,12 @@
 #include <QFileDialog>
 #include <QtWidgets/QApplication>
 
+#include "ui/qt5/voronoieffect.h"
+
 #include "imagedata.h"
+
+using ui::qt5::ShowImageType;
+using ui::qt5::VoronoiEffect;
 
 
 
@@ -15,9 +20,13 @@ mainqt::mainqt(QWidget *parent)
 	: QMainWindow(parent) {
 	ui.setupUi(this);
 
-	// XXX add radio button group
-
 	connect(ui.btnLoadImage, &QAbstractButton::pressed, this, &mainqt::chooseImage);
+	connect(ui.radioBtnEffectNone, &QAbstractButton::pressed, [=]{
+		ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::NONE);
+	});
+	connect(ui.radioBtnEffectImage, &QAbstractButton::pressed, [=]{
+		ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::IMAGE);
+	});
 }
 
 
@@ -46,6 +55,8 @@ void mainqt::chooseImage() {
 	ui.glWidget->getVoronoiEffect()->setImageData(imageData);
 
 	imageLoaded();
+
+	ui.radioBtnEffectImage->setChecked(true);
 }
 
 
@@ -63,10 +74,11 @@ void mainqt::imageLoaded() {
 	ui.chkShowPoints->setEnabled(true);
 
 	ui.radioBtnEffectImage->setEnabled(true);
-	ui.radioBtnEffectEdges->setEnabled(true);
-	ui.radioBtnEffectEdgesBlurred->setEnabled(true);
-	ui.radioBtnEffectEdgesSharp->setEnabled(true);
-	ui.radioBtnEffectPDF->setEnabled(true);
+
+	// ui.radioBtnEffectEdges->setEnabled(true);
+	// ui.radioBtnEffectEdgesBlurred->setEnabled(true);
+	// ui.radioBtnEffectEdgesSharp->setEnabled(true);
+	// ui.radioBtnEffectPDF->setEnabled(true);
 
 	ui.spinBoxNumPoints->setEnabled(true);
 	ui.btnGenUniform->setEnabled(true);

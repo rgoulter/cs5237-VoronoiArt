@@ -58,6 +58,9 @@ MyPanelOpenGL::MyPanelOpenGL(QWidget *parent) : QGLWidget (parent) {
 
 		updateGL();
 	});
+	connect(effect_, &VoronoiEffect::effectChanged, [=] {
+		updateGL();
+	});
 }
 
 

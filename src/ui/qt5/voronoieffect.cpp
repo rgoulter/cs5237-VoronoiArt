@@ -7,6 +7,15 @@ using ui::qt5::VoronoiEffect;
 
 void VoronoiEffect::setEffectState(EffectState state) {
 	effectState_ = state;
+	emit effectChanged();
+}
+
+
+
+void VoronoiEffect::setEffectShowType(ShowImageType kind) {
+	EffectState tmp = getEffectState();
+	tmp.showType = kind;
+	setEffectState(tmp);
 }
 
 
