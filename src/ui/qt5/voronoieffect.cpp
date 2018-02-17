@@ -7,6 +7,7 @@
 using std::vector;
 
 using ui::qt5::EffectState;
+using ui::qt5::ShowImageType;
 using ui::qt5::VoronoiEffect;
 
 
