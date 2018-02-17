@@ -23,7 +23,7 @@ using geometry::inPoly;
 
 
 // also uses polypixel's ColoredPolygon
-vector<ColoredPolygon> generateColoredPolygons(vector<geometry::Polygon>& polys, const ImageData& imData) {
+vector<ColoredPolygon> generateColoredPolygons(const vector<geometry::Polygon>& polys, const ImageData& imData) {
 	vector<ColoredPolygon> renderedPolygons;
 
 	StopWatch allSW;

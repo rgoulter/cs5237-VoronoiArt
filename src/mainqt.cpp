@@ -61,6 +61,9 @@ mainqt::mainqt(QWidget *parent)
 	});
 
 	connect(ui.radioBtnEffectVoronoi, &QAbstractButton::pressed, [=] {
+		ui.chkShowAlgorithm->setEnabled(true);
+		ui.chkShowEdges->setEnabled(true);
+
 		const vector<pair<int, int>>& points = ui.glWidget->getPoints();
 		const PointSetArray<LongInt>& inputPointSet(points);
 		DelaunayAlgorithm<LongInt>* delaunay = new DelaunayAlgorithm<LongInt>(inputPointSet);
@@ -68,6 +71,10 @@ mainqt::mainqt(QWidget *parent)
 
 		// ON THE GUI THREAD
 		delaunay->run();
+
+		// Once it's finished all iterations...
+		ui.glWidget->getVoronoiEffect()->setVoronoiPolygons(delaunay->getVoronoiPolygons());
+		ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::EFFECT);
 	});
 
 	connect(ui.btnGenUniform, &QAbstractButton::pressed, [=] {

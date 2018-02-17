@@ -2,12 +2,15 @@
 #define UI_QT5_VORONOIEFFECTH
 
 #include <string>
+#include <vector>
 
 #include <QObject>
 
 #include "delaunay/longint/li.h"
 
 #include "delaunay/delaunay.h"
+
+#include "geometry/polygon.h"
 
 #include "generatepoints.h"  // for PDFTextures
 #include "imagedata.h"
@@ -65,6 +68,8 @@ public:
 	void setPDFTextures(PDFTextures textures) { pdfTextures_ = textures; };
 
 	void setDelaunayAlgorithm(delaunay::DelaunayAlgorithm<delaunay::LongInt>* algorithm) { algorithm_ = algorithm; };
+
+	void setVoronoiPolygons(const std::vector<geometry::Polygon>& polygons);
 
 	void paintGL();
 

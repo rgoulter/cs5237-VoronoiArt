@@ -18,7 +18,7 @@ public:
 };
 
 
-std::vector<ColoredPolygon> generateColoredPolygons(std::vector<geometry::Polygon>& polys, const ImageData& imData);
+std::vector<ColoredPolygon> generateColoredPolygons(const std::vector<geometry::Polygon>& polys, const ImageData& imData);
 
 
 void findSomeColor3iv(const ImageData& imData, const geometry::Polygon& poly, int* colorIv);

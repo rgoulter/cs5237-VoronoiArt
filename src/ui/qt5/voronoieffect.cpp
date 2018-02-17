@@ -1,5 +1,11 @@
 #include "ui/qt5/voronoieffect.h"
 
+#include "ui/opengl/graphics.h"
+
+#include "polypixel.h"
+
+using std::vector;
+
 using ui::qt5::EffectState;
 using ui::qt5::VoronoiEffect;
 
@@ -46,10 +52,16 @@ ImageData* VoronoiEffect::getImageData() {
 
 
 
+void VoronoiEffect::setVoronoiPolygons(const vector<geometry::Polygon>& polygons) {
+	renderedPolygons_ = generateColoredPolygons(polygons, *imageData_);
+}
+
+
+
 void VoronoiEffect::paintGL() {
 	switch (effectState_.showType) {
 		case EFFECT:
-	// 		drawColoredPolygons(renderedPolygons_);
+			drawColoredPolygons(renderedPolygons_);
 			break;
 
 		case EDGE_RAW:
