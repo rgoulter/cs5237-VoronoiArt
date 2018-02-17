@@ -2,6 +2,7 @@
 #define MYPANELOPENGL_H
 
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <QGLWidget>
@@ -105,8 +106,7 @@ private:
 
 
 	// DELAUNAY
-	// XXX:#24: Should / can maintain a set of (raw) point locations? ... or?
-	delaunay::PointSetArray<delaunay::LongInt> inputPointSet_;
+	std::vector<std::pair<int, int>> inputPoints_;
 };
 
 #endif // MYPANELOPENGL_H

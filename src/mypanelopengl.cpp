@@ -30,6 +30,7 @@
 using cv::Mat;
 using cv::imread;
 
+using std::make_pair;
 using std::pair;
 using std::string;
 using std::vector;
@@ -99,62 +100,66 @@ void MyPanelOpenGL::paintGL() {
 
 	effect_->paintGL();
 
+	for (const pair<int, int>& pt : inputPoints_) {
+		drawAPoint(pt.first, pt.second);
+	}
+
 	glPopMatrix();
 }
 
 
 
 void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
-	//qDebug("Window: %d, %d\n", event->x(), event->y());
-	// if (!hasLoadedImage()) {
-	// 	return;
-	// }
+	qDebug("[MyPanelOpenGL::mousePressEvent] x: %d, y: %d\n", event->x(), event->y());
 
-	// int loadedImageWidth = imData_->width();
-	// int loadedImageHeight = imData_->height();
+	ImageData* imageData = effect_->getImageData();
+	if (imageData == nullptr) {
+		return;
+	}
 
-	// QSize widgetSize = size();
-	// int windowWidth = widgetSize.width();
-	// int windowHeight = widgetSize.height();
+	int loadedImageWidth = imageData->width();
+	int loadedImageHeight = imageData->height();
 
-	// double imageRatio = ((double) loadedImageWidth) / loadedImageHeight;
-	// double windowRatio = ((double) windowWidth) / windowHeight;
+	QSize widgetSize = size();
+	int windowWidth = widgetSize.width();
+	int windowHeight = widgetSize.height();
 
-	// int renderWidth = 2;
-	// int renderHeight = 2;
+	double imageRatio = ((double) loadedImageWidth) / loadedImageHeight;
+	double windowRatio = ((double) windowWidth) / windowHeight;
 
-	// int deltaX = 1;
-	// int deltaY = 1;
+	int renderWidth = 2;
+	int renderHeight = 2;
 
-	// if (loadedImageWidth > 0) {
-	// 	if (imageRatio > windowRatio) {
-	// 		double ratio = ((double) windowWidth) / windowHeight;
+	int deltaX = 1;
+	int deltaY = 1;
 
-	// 		renderWidth = loadedImageWidth;
-	// 		renderHeight = (int) (loadedImageWidth / ratio);
+	if (loadedImageWidth > 0) {
+		if (imageRatio > windowRatio) {
+			double ratio = ((double) windowWidth) / windowHeight;
 
-	// 		deltaY = (renderHeight - loadedImageHeight) / 2;
-	// 	} else {
-	// 		double ratio = ((double) windowWidth) / windowHeight;
+			renderWidth = loadedImageWidth;
+			renderHeight = (int) (loadedImageWidth / ratio);
 
-	// 		renderWidth = (int) (loadedImageHeight * ratio);
-	// 		renderHeight = loadedImageHeight;
+			deltaY = (renderHeight - loadedImageHeight) / 2;
+		} else {
+			double ratio = ((double) windowWidth) / windowHeight;
 
-	// 		deltaX = (renderWidth - loadedImageWidth) / 2;
-	// 	}
+			renderWidth = (int) (loadedImageHeight * ratio);
+			renderHeight = loadedImageHeight;
 
-	// 	double viewScale = (double) renderWidth / windowWidth;
+			deltaX = (renderWidth - loadedImageWidth) / 2;
+		}
 
-	// 	int px = (event->x() * viewScale) - deltaX;
-	// 	int py = (event->y() * viewScale) - deltaY;
+		double viewScale = (double) renderWidth / windowWidth;
 
-	// 	qDebug("Insert Point: %d, %d\n", px, py);
+		int px = (event->x() * viewScale) - deltaX;
+		int py = (event->y() * viewScale) - deltaY;
 
-	// 	insertPoint(px, py);
-	// 	updateNumPoints(inputPointSet_.noPt());
+		qDebug("[MyPanelOpenGL::mousePressEvent] add point: px: %d, py: %d\n", px, py);
+		inputPoints_.push_back(make_pair(px, py));
 
-	// 	updateGL();
-	// }
+		updateGL();
+	}
 }
 
 
@@ -303,14 +308,6 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 // 	numPDFPoints_ = n;
 // 	updateNumPointsToGenerate(n);
 // }
-
-
-
-// DELAUNAY & VORONOI
-void MyPanelOpenGL::insertPoint(LongInt x, LongInt y) {
-	// DELAUNAY
-	inputPointSet_.addPoint(x, y);
-}
 
 
 
