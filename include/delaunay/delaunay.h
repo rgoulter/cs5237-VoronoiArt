@@ -40,14 +40,24 @@ std::vector<geometry::Polygon> runDelaunayAlgorithm(const PointSetArray<I>& inpu
 ///   - *iteration* ... point-by-point!
 template<typename I>
 class DelaunayAlgorithm {
+public:
+	DelaunayAlgorithm(const PointSetArray<I>& inputPoints);
+
+	const std::vector<geometry::Polygon>& getVoronoiPolygons() const { return voronoiPolygons_; };
+
+	void run();
+
+	bool finished() const { return finished_; };
 
 private:
 	/// The 'bare-bones' Voronoi regions, represented using `PointSetArray`s.
 	std::vector<geometry::Polygon> voronoiPolygons_;
 
-	// DELAUNAY
-	// XXX:#24: Should / can maintain a set of (raw) point locations? ... or?
-	delaunay::PointSetArray<I> inputPointSet_;
+	DirectedGraph<I> dag_;
+
+	std::vector<int> delaunayPointsToProcess_;
+
+	bool finished_;
 };
 
 }

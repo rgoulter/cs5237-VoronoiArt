@@ -42,6 +42,8 @@ public:
 	void insertPoint(int x, int y);
 	void insertPoints(std::vector<std::pair<int, int>> points);
 
+	const std::vector<std::pair<int, int>>& getPoints() const { return inputPoints_; };
+
 signals:
 	void hasEnoughPointsForVoronoiEffect();
 	// /// Provides a way to update the *textfield* in mainqt

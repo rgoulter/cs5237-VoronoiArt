@@ -178,6 +178,56 @@ vector<geometry::Polygon> runDelaunayAlgorithm(const PointSetArray<I>& inputPoin
 
 
 
+template<typename I>
+DelaunayAlgorithm<I>::DelaunayAlgorithm(const PointSetArray<I>& inputPoints)
+	: dag_(inputPoints), finished_(false) {
+
+	PointSetArray<I> delaunayPointSet = dag_.getPointSet();
+
+	// Add points 1 ... n - 3 (inclusive) into the set of points to be tested.
+	// (0 ... < n - 3 since delaunayPointSet includes bounding triangle at end)
+	for (int i = 1; i <= delaunayPointSet.noPt() - 3; i++) {
+		delaunayPointsToProcess_.push_back(i);
+	}
+
+	// Shuffle these points of delaunayPointsToProcess
+	srand (time(NULL));
+	for (unsigned int i = 0; i < delaunayPointsToProcess_.size() / 2; i++) {
+		int j = rand() % delaunayPointsToProcess_.size();
+
+		// swap
+		int tmp = delaunayPointsToProcess_[i];
+		delaunayPointsToProcess_[i] = delaunayPointsToProcess_[j];
+		delaunayPointsToProcess_[j] = tmp;
+	}
+
+}
+
+
+
+template<typename I>
+void DelaunayAlgorithm<I>::run() {
+	// Iterate through the points we need to process.
+	// NO ANIMATION, just run each step immediately.
+	int numPoints = delaunayPointsToProcess_.size(); // DELAUNAY_TRACE_OUTPUT
+	int pt = 0;                                      // DELAUNAY_TRACE_OUTPUT
+	for (int pIdx : delaunayPointsToProcess_) {
+		TRACE("[runDelaunayTriangulationOn(dag)] adding vertex " << (++pt) << "/" << numPoints);
+		/// Insert into new Tri into the DAG.
+		/// These new triangles mightn't be Locally Delaunay.
+		// Return the containing triangle for the point i.
+		dag_.addVertex(pIdx);
+
+		/// Everything is Locally Delaunay by this point.
+	}
+
+	voronoiPolygons_ = createVoronoi(dag_); // in `delaunay`
+
+	finished_ = true;
+}
+
+
+
 // Instantiate functions
 template void runDelaunayTriangulationOn<LongInt>(DirectedGraph<LongInt>&);
 template Point<LongInt> pointForTri<LongInt>(const PointSetArray<LongInt>&, const LinkedTriangle&);

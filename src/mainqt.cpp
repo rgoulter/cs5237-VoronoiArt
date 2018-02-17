@@ -12,6 +12,9 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
 
+#include "delaunay/pointsetarray.h"
+#include "delaunay/delaunay.h"
+
 #include "ui/qt5/voronoieffect.h"
 
 #include "generatepoints.h"
@@ -22,6 +25,10 @@ using std::vector;
 
 using cv::Mat;
 using cv::imread;
+
+using delaunay::LongInt;
+using delaunay::PointSetArray;
+using delaunay::DelaunayAlgorithm;
 
 using ui::qt5::ShowImageType;
 using ui::qt5::VoronoiEffect;
@@ -34,26 +41,36 @@ mainqt::mainqt(QWidget *parent)
 
 	connect(ui.btnLoadImage, &QAbstractButton::pressed, this, &mainqt::chooseImage);
 
-	connect(ui.radioBtnEffectNone, &QAbstractButton::pressed, [=]{
+	connect(ui.radioBtnEffectNone, &QAbstractButton::pressed, [=] {
 		ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::NONE);
 	});
-	connect(ui.radioBtnEffectImage, &QAbstractButton::pressed, [=]{
+	connect(ui.radioBtnEffectImage, &QAbstractButton::pressed, [=] {
 		ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::IMAGE);
 	});
-	connect(ui.radioBtnEffectEdges, &QAbstractButton::pressed, [=]{
+	connect(ui.radioBtnEffectEdges, &QAbstractButton::pressed, [=] {
 		ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::EDGE_RAW);
 	});
-	connect(ui.radioBtnEffectEdgesSharp, &QAbstractButton::pressed, [=]{
+	connect(ui.radioBtnEffectEdgesSharp, &QAbstractButton::pressed, [=] {
 		ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::EDGE_SHARP);
 	});
-	connect(ui.radioBtnEffectEdgesBlurred, &QAbstractButton::pressed, [=]{
+	connect(ui.radioBtnEffectEdgesBlurred, &QAbstractButton::pressed, [=] {
 		ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::EDGE_BLUR);
 	});
-	connect(ui.radioBtnEffectPDF, &QAbstractButton::pressed, [=]{
+	connect(ui.radioBtnEffectPDF, &QAbstractButton::pressed, [=] {
 		ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::PDF);
 	});
 
-	connect(ui.btnGenUniform, &QAbstractButton::pressed, [=]{
+	connect(ui.radioBtnEffectVoronoi, &QAbstractButton::pressed, [=] {
+		const vector<pair<int, int>>& points = ui.glWidget->getPoints();
+		const PointSetArray<LongInt>& inputPointSet(points);
+		DelaunayAlgorithm<LongInt>* delaunay = new DelaunayAlgorithm<LongInt>(inputPointSet);
+		ui.glWidget->getVoronoiEffect()->setDelaunayAlgorithm(delaunay);
+
+		// ON THE GUI THREAD
+		delaunay->run();
+	});
+
+	connect(ui.btnGenUniform, &QAbstractButton::pressed, [=] {
 		int numPoints = ui.spinBoxNumPoints->value();
 		ImageData* imageData = ui.glWidget->getVoronoiEffect()->getImageData();
 		int width = imageData->width();
@@ -61,7 +78,7 @@ mainqt::mainqt(QWidget *parent)
 		vector<pair<int, int>> points = generateUniformRandomPoints(width, height, numPoints);
 		ui.glWidget->insertPoints(points);
 	});
-	connect(ui.btnGenPDF, &QAbstractButton::pressed, [=]{
+	connect(ui.btnGenPDF, &QAbstractButton::pressed, [=] {
 		int numPoints = ui.spinBoxNumPoints->value();
 		VoronoiEffect* voronoiEffect = ui.glWidget->getVoronoiEffect();
 
@@ -73,6 +90,10 @@ mainqt::mainqt(QWidget *parent)
 		const Mat& pdfMat = distributionFromPDFTextures(pdfTextures);
 		vector<pair<int, int>> points = generatePointsFromDistributionField(pdfMat, numPoints);
 		ui.glWidget->insertPoints(points);
+	});
+
+	connect(ui.glWidget, &MyPanelOpenGL::hasEnoughPointsForVoronoiEffect, [=] {
+		ui.radioBtnEffectVoronoi->setEnabled(true);
 	});
 }
 

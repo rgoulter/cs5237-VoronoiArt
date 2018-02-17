@@ -64,6 +64,8 @@ public:
 
 	void setPDFTextures(PDFTextures textures) { pdfTextures_ = textures; };
 
+	void setDelaunayAlgorithm(delaunay::DelaunayAlgorithm<delaunay::LongInt>* algorithm) { algorithm_ = algorithm; };
+
 	void paintGL();
 
 signals:
@@ -83,7 +85,7 @@ public slots:
 	// XXX but, like, surely we can use sig + slots here?
 
 private:
-	delaunay::DelaunayAlgorithm<delaunay::LongInt> algorithm_;
+	delaunay::DelaunayAlgorithm<delaunay::LongInt>* algorithm_;
 	EffectState effectState_;
 	// DELAUNAY / Rendering.
 	// XXX:#24:Should move this to ... algorithm state, or something.
