@@ -53,19 +53,19 @@ void VoronoiEffect::paintGL() {
 			break;
 
 		case EDGE_RAW:
-	// 		pdfTextures_.edgesTexture->renderPlane();
+			pdfTextures_.edgesTexture->renderPlane();
 			break;
 
 		case EDGE_SHARP:
-	// 		pdfTextures_.edgesSharpTexture->renderPlane();
+			pdfTextures_.edgesSharpTexture->renderPlane();
 			break;
 
 		case EDGE_BLUR:
-	// 		pdfTextures_.edgesBlurTexture->renderPlane();
+			pdfTextures_.edgesBlurTexture->renderPlane();
 			break;
 
 		case PDF:
-	// 		pdfTextures_.pdfTexture->renderPlane();
+			pdfTextures_.pdfTexture->renderPlane();
 			break;
 
 		case IMAGE:

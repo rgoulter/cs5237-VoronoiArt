@@ -1,6 +1,8 @@
 #ifndef MAINQT_H
 #define MAINQT_H
 
+#include <string>
+
 #include <QtWidgets/QMainWindow>
 #include "ui_mainqt.h"
 
@@ -52,6 +54,7 @@ public slots:
 
 private:
 	Ui::mainqtClass ui;
+
 };
 
 #endif // MAINQT_H

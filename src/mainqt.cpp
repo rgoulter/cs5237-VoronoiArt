@@ -1,15 +1,27 @@
 #include "mainqt.h"
 
 #include <iostream>
+#include <utility>
+#include <vector>
 
 #include <QTextStream>
 #include <QDebug>
 #include <QFileDialog>
 #include <QtWidgets/QApplication>
 
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
+
 #include "ui/qt5/voronoieffect.h"
 
+#include "generatepoints.h"
 #include "imagedata.h"
+
+using std::pair;
+using std::vector;
+
+using cv::Mat;
+using cv::imread;
 
 using ui::qt5::ShowImageType;
 using ui::qt5::VoronoiEffect;
@@ -21,11 +33,46 @@ mainqt::mainqt(QWidget *parent)
 	ui.setupUi(this);
 
 	connect(ui.btnLoadImage, &QAbstractButton::pressed, this, &mainqt::chooseImage);
+
 	connect(ui.radioBtnEffectNone, &QAbstractButton::pressed, [=]{
 		ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::NONE);
 	});
 	connect(ui.radioBtnEffectImage, &QAbstractButton::pressed, [=]{
 		ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::IMAGE);
+	});
+	connect(ui.radioBtnEffectEdges, &QAbstractButton::pressed, [=]{
+		ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::EDGE_RAW);
+	});
+	connect(ui.radioBtnEffectEdgesSharp, &QAbstractButton::pressed, [=]{
+		ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::EDGE_SHARP);
+	});
+	connect(ui.radioBtnEffectEdgesBlurred, &QAbstractButton::pressed, [=]{
+		ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::EDGE_BLUR);
+	});
+	connect(ui.radioBtnEffectPDF, &QAbstractButton::pressed, [=]{
+		ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::PDF);
+	});
+
+	connect(ui.btnGenUniform, &QAbstractButton::pressed, [=]{
+		int numPoints = ui.spinBoxNumPoints->value();
+		ImageData* imageData = ui.glWidget->getVoronoiEffect()->getImageData();
+		int width = imageData->width();
+		int height = imageData->height();
+		vector<pair<int, int>> points = generateUniformRandomPoints(width, height, numPoints);
+		ui.glWidget->insertPoints(points);
+	});
+	connect(ui.btnGenPDF, &QAbstractButton::pressed, [=]{
+		int numPoints = ui.spinBoxNumPoints->value();
+		VoronoiEffect* voronoiEffect = ui.glWidget->getVoronoiEffect();
+
+		ImageData* imageData = voronoiEffect->getImageData();
+		PDFTextures pdfTextures = pdfTexturesFromImage(imageData->getImageMat());
+		voronoiEffect->setPDFTextures(pdfTextures);
+		setUsePDF(true);
+
+		const Mat& pdfMat = distributionFromPDFTextures(pdfTextures);
+		vector<pair<int, int>> points = generatePointsFromDistributionField(pdfMat, numPoints);
+		ui.glWidget->insertPoints(points);
 	});
 }
 
@@ -89,10 +136,10 @@ void mainqt::imageLoaded() {
 }
 
 void mainqt::setUsePDF(bool b) {
-	// ui.btnDrawEdges->setEnabled(b);
-	// ui.btnDrawBlurredEdges->setEnabled(b);
-	// ui.btnDrawSharpEdges->setEnabled(b);
-	// ui.btnDrawPDF->setEnabled(b);
+	ui.radioBtnEffectEdges->setEnabled(b);
+	ui.radioBtnEffectEdgesBlurred->setEnabled(b);
+	ui.radioBtnEffectEdgesSharp->setEnabled(b);
+	ui.radioBtnEffectPDF->setEnabled(b);
 }
 
 

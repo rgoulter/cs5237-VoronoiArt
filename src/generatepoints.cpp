@@ -24,6 +24,7 @@ using std::make_pair;
 using std::min;
 
 using cv::COLOR_BGR2GRAY;
+using cv::COLOR_RGB2GRAY;
 using cv::Mat;
 using cv::Size;
 using cv::Scalar;
@@ -134,10 +135,14 @@ const Mat& distributionFromPDFTextures(PDFTextures pdfTextures) {
 
 
 
-vector<pair<int, int>> generatePointsFromDistributionField(const Mat& dst, int numPDFPoints) {
+/// SMELL: dstRGB expected to be RGB encoded
+vector<pair<int, int>> generatePointsFromDistributionField(const Mat& dstRGB, int numPDFPoints) {
 	// So, let's build up a 1-D array of the CDF from the 2D PDF.
 	//  idx -> (row, col) : row = idx / width, col = idx % width
 	//  (row, col) -> idx : idx = row * width + col
+
+	Mat dst;
+	cvtColor(dstRGB, dst, COLOR_RGB2GRAY);
 
 	// use float or uchar?
 	vector<float> cdf; //loadedImageWidth * loadedImageHeight

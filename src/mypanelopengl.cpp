@@ -157,13 +157,12 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 
 		qDebug("[MyPanelOpenGL::mousePressEvent] add point: px: %d, py: %d\n", px, py);
 		insertPoint(px, py);
-
-		updateGL();
 	}
 }
 
 
 
+/// coordinates x, y are in the same scale as the rendered image.
 void MyPanelOpenGL::insertPoint(int x, int y) {
 	inputPoints_.push_back(make_pair(x, y));
 
@@ -171,6 +170,8 @@ void MyPanelOpenGL::insertPoint(int x, int y) {
 	if (inputPoints_.size() > minPointsForDelaunay) {
 		emit hasEnoughPointsForVoronoiEffect();
 	}
+
+	updateGL();
 }
 
 

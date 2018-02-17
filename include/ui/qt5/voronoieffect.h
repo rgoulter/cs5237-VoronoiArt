@@ -60,9 +60,11 @@ public:
 
 	EffectState getEffectState();
 
-	void paintGL();
-
 	void setEffectShowType(ShowImageType kind);
+
+	void setPDFTextures(PDFTextures textures) { pdfTextures_ = textures; };
+
+	void paintGL();
 
 signals:
 	/// This signal exists so that the mainqt knows to update enabled/disabled state of its button
