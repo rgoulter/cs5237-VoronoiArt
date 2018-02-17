@@ -39,7 +39,11 @@ public:
 
 	ui::qt5::VoronoiEffect* getVoronoiEffect();
 
+	void insertPoint(int x, int y);
+	void insertPoints(std::vector<std::pair<int, int>> points);
+
 signals:
+	void hasEnoughPointsForVoronoiEffect();
 	// /// Provides a way to update the *textfield* in mainqt
 	// void updateFilename(QString);
 
@@ -94,7 +98,6 @@ protected:
 	void mousePressEvent(QMouseEvent *event);
 
 private:
-	void insertPoint(delaunay::LongInt x, delaunay::LongInt y);
 	// bool hasLoadedImage() { return false; }
 
 	// TODO Probably could do without these?

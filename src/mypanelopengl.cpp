@@ -156,9 +156,28 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 		int py = (event->y() * viewScale) - deltaY;
 
 		qDebug("[MyPanelOpenGL::mousePressEvent] add point: px: %d, py: %d\n", px, py);
-		inputPoints_.push_back(make_pair(px, py));
+		insertPoint(px, py);
 
 		updateGL();
+	}
+}
+
+
+
+void MyPanelOpenGL::insertPoint(int x, int y) {
+	inputPoints_.push_back(make_pair(x, y));
+
+	const int minPointsForDelaunay = 3;
+	if (inputPoints_.size() > minPointsForDelaunay) {
+		emit hasEnoughPointsForVoronoiEffect();
+	}
+}
+
+
+
+void MyPanelOpenGL::insertPoints(std::vector<std::pair<int, int>> points) {
+	for (const pair<int, int>& pt : points) {
+		insertPoint(pt.first, pt.second);
 	}
 }
 
