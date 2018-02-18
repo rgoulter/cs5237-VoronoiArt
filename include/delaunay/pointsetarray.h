@@ -1,6 +1,7 @@
 #ifndef DELAUNAY_POINTSETARRAYH
 #define DELAUNAY_POINTSETARRAYH
 
+#include <utility>
 #include <vector>
 
 #include "geometry/point.h"
@@ -12,6 +13,14 @@ namespace delaunay {
 template<typename I>
 class PointSetArray {
 public:
+	PointSetArray() {};
+
+	PointSetArray(std::vector<std::pair<int, int>> points) {
+		for (const std::pair<int, int>& pt : points) {
+			addPoint(pt.first, pt.second);
+		}
+	};
+
 	/// add an ith (according to the adding sequence) point (x1, y1),
 	/// return i.
 	int addPoint(I x1, I y1);

@@ -6,7 +6,6 @@
 
 #include <QtGui/QMouseEvent>
 #include <QDebug>
-#include <QFileDialog>
 #include <QString>
 
 #include "opencv2/highgui/highgui.hpp"
@@ -17,18 +16,20 @@
 #include <utility>
 
 #include "platform.h"
-#include "stopwatch.h"
 
 #include "delaunay/longint/li.h"
 
 #include "delaunay/pointsetarray.h"
 #include "delaunay/delaunay.h"
 
+#include "ui/opengl/graphics.h"
+
 #include "imagedata.h"
 
 using cv::Mat;
 using cv::imread;
 
+using std::make_pair;
 using std::pair;
 using std::string;
 using std::vector;
@@ -38,229 +39,29 @@ using delaunay::PointSetArray;
 
 using geometry::Polygon;
 
-
-
-// TODO: the stopwatch code used makes code less readable.
-static StopWatch globalSW;
-
-
-
-void drawAPoint(double x,double y) {
-	glPointSize(5);
-	glBegin(GL_POINTS);
-	glColor3f(0,0,0);
-		glVertex2d(x,y);
-	glEnd();
-	glPointSize(1);
-}
-
-void drawALine(double x1, double y1, double x2, double y2) {
-	glPointSize(1);
-	glBegin(GL_LINE_LOOP);
-	glColor3f(0,0,1);
-		glVertex2d(x1,y1);
-		glVertex2d(x2,y2);
-	glEnd();
-	glPointSize(1);
-}
-
-
-
-void drawATriangle(double x1,double y1, double x2, double y2, double x3, double y3) {
-	glBegin(GL_POLYGON);
-	glColor3f(0,0.5,0);
-		glVertex2d(x1,y1);
-		glVertex2d(x2,y2);
-		glVertex2d(x3,y3);
-	glEnd();
-}
-
-
-
-void drawPointSetArray(const PointSetArray<LongInt>& pointSet) {
-	// Draw input points
-	for (int i = 1; i <= pointSet.noPt(); i++){
-		LongInt px, py;
-		pointSet.getPoint(i, px, py);
-		drawAPoint(px.doubleValue(), py.doubleValue());
-	}
-}
-
-
-
-// void drawDelaunayStuff() {
-// 	// Draw all DAG leaf triangles.
-// 	vector<TriRecord> leafNodes = dag.getLeafNodes();
-//
-// 	for (int i = 0; i < leafNodes.size(); i++){
-// 		TriRecord leafNode = leafNodes[i];
-//
-// 		int pIndex1 = leafNode.vi_[0];
-// 		int pIndex2 = leafNode.vi_[1];
-// 		int pIndex3 = leafNode.vi_[2];
-//
-// 		// Ignore if from the super triangle (i.e. index too large for input set)
-// 		if(pIndex1 > delaunayPointSet.noPt() - 3 ||
-// 		   pIndex2 > delaunayPointSet.noPt() - 3 ||
-// 		   pIndex3 > delaunayPointSet.noPt() - 3) {
-// 			continue;
-// 		}
-//
-// 		// Probably could clean this up..
-// 		LongInt p1x, p1y, p2x, p2y, p3x, p3y;
-//
-// 		delaunayPointSet.getPoint(pIndex1, p1x, p1y);
-// 		delaunayPointSet.getPoint(pIndex2, p2x, p2y);
-// 		delaunayPointSet.getPoint(pIndex3, p3x, p3y);
-//
-//
-// 		drawATriangle(p1x.doubleValue(), p1y.doubleValue(),
-// 		              p2x.doubleValue(), p2y.doubleValue(),
-// 		              p3x.doubleValue(), p3y.doubleValue());
-// 		drawALine(p1x.doubleValue(), p1y.doubleValue(),
-// 		          p2x.doubleValue(), p2y.doubleValue());
-// 		drawALine(p2x.doubleValue(), p2y.doubleValue(),
-// 		          p3x.doubleValue(), p3y.doubleValue());
-// 		drawALine(p3x.doubleValue(), p3y.doubleValue(),
-// 		          p1x.doubleValue(), p1y.doubleValue());
-// 	}
-// }
-
-
-
-// DELAUNAY (it uses voronoiEdges)
-void drawVoronoiPolygons(vector<geometry::Polygon>& voronoiPolys) {
-	for (const geometry::Polygon& polygon : voronoiPolys) {
-		glColor3f(0,0,1); // blue
-
-		for(const geometry::Edge& edge : polygon.edges()) {
-			drawALine(edge.first.x, edge.first.y,
-			          edge.second.x, edge.second.y);
-		}
-	}
-}
-
-
-
-void drawColoredPolygons(const vector<ColoredPolygon>& renderedPolygons) {
-	glEnable(GL_COLOR_MATERIAL);
-	glEnable(GL_SCISSOR_TEST);
-
-	// TODO: Could prob'ly do a re-useable drawPolygon(const Polygon&)
-	for (unsigned int i = 0; i < renderedPolygons.size(); i++) {
-		ColoredPolygon coloredPoly = renderedPolygons[i];
-
-		glBegin(GL_POLYGON);
-		glColor3fv(coloredPoly.rgb); // rgb?
-
-		const geometry::Polygon& poly = coloredPoly.poly;
-
-		for(const geometry::Point<int>& pt : poly.points()) {
-			glVertex2d(pt.x, pt.y);
-		}
-
-		glEnd();
-	}
-
-	glDisable(GL_SCISSOR_TEST);
-}
-
-
-
-// XXX this should be a method?
-void refreshProjection(int width, int height,
-                       int& canvas_offsetX, int& canvas_offsetY,
-                       ImageData *imData) {
-	glViewport (0, 0, (GLsizei) width, (GLsizei) height);
-	glMatrixMode (GL_PROJECTION);
-	glLoadIdentity();
-
-	canvas_offsetX = 0;
-	canvas_offsetY = 0;
-
-	// If we haven't loaded an image,
-	// we don't particularly care what the coord system is.
-	if (imData == NULL) {
-		// Just some boring thing.
-		glOrtho(-1, 1, 1, -1, -1, 1);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-
-		return;
-	}
-
-	int imWidth = imData->width();
-	int imHeight = imData->height();
-
-	double imageRatio = ((double) imWidth) / imHeight;
-	double windowRatio = ((double) width) / height;
-
-	if (imageRatio > windowRatio) {
-		double ratio = ((double) width) / height;
-
-		int renderWidth = imWidth;
-		int renderHeight = (int) (imWidth / ratio);
-
-		int delta = (renderHeight - imHeight) / 2;
-
-		glOrtho(0,
-		        renderWidth,
-		        imHeight + delta,
-		        -delta,
-		        -1,
-		        1);
-
-		// Scissor test to draw stuff only within the image
-		// (Use this for the voronoi-diagram-colors
-		int scissorDelta = delta * height / renderHeight;
-		canvas_offsetY = scissorDelta;
-		glScissor(0, scissorDelta, width, height - (2 * scissorDelta));
-	} else {
-		double ratio = ((double) width) / height;
-
-		int renderWidth = (int) (imHeight * ratio);
-		int renderHeight = imHeight;
-
-		int delta = (renderWidth - imWidth) / 2;
-
-		glOrtho(-delta,
-		        imWidth + delta,
-		        renderHeight,
-		        0,
-		        -1,
-		        1);
-
-		// Scissor test to draw stuff only within the image
-		// (Use this for the voronoi-diagram-colors
-		int scissorDelta = delta * width / renderWidth;
-		canvas_offsetX = scissorDelta;
-		glScissor(scissorDelta, 0, width - (2 * scissorDelta), height);
-	}
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-}
-
-
-
-// Uses OpenCV
-ImageData* loadImageData(string imgFilename) {
-	Mat imgMat = imread(imgFilename.c_str()); // BGR
-
-	return new ImageData(imgMat, CV_BGR2RGB);
-}
-
-
-
-// DELAUNAY & VORONOI
-void MyPanelOpenGL::insertPoint(LongInt x, LongInt y) {
-	// DELAUNAY
-	inputPointSet_.addPoint(x, y);
-}
+using ui::qt5::VoronoiEffect;
+using ui::qt5::EffectState;
 
 
 
 MyPanelOpenGL::MyPanelOpenGL(QWidget *parent) : QGLWidget (parent) {
+	effect_ = new VoronoiEffect();
+
+	connect(effect_, &VoronoiEffect::imageLoaded, [=] {
+		QSize size = this->size();
+		refreshProjection(size.width(), size.height(), canvasOffsetX_, canvasOffsetY_, effect_->getImageData());
+
+		updateGL();
+	});
+	connect(effect_, &VoronoiEffect::effectChanged, [=] {
+		updateGL();
+	});
+}
+
+
+
+VoronoiEffect* MyPanelOpenGL::getVoronoiEffect() {
+	return effect_;
 }
 
 
@@ -281,7 +82,7 @@ void MyPanelOpenGL::initializeGL() {
 
 
 void MyPanelOpenGL::resizeGL(int width, int height) {
-	refreshProjection(width, height, canvasOffsetX_, canvasOffsetY_, imData_);
+	refreshProjection(width, height, canvasOffsetX_, canvasOffsetY_, effect_->getImageData());
 }
 
 
@@ -291,43 +92,12 @@ void MyPanelOpenGL::paintGL() {
 
 	glPushMatrix();
 
-	switch (currentRenderType_) {
-		case EFFECT:
-			drawColoredPolygons(renderedPolygons_);
-			break;
+	effect_->paintGL();
 
-		case EDGE_RAW:
-			pdfTextures_.edgesTexture->renderPlane();
-			break;
-
-		case EDGE_SHARP:
-			pdfTextures_.edgesSharpTexture->renderPlane();
-			break;
-
-		case EDGE_BLUR:
-			pdfTextures_.edgesBlurTexture->renderPlane();
-			break;
-
-		case PDF:
-			pdfTextures_.pdfTexture->renderPlane();
-			break;
-
-		case IMAGE:
-			imData_->renderPlane();
-			break;
-
-		default:
-		case NONE:
-			break;
-	}
-
-	if (showVoronoiEdges_) {
-		// DELAUNAY (voronoiEdges)
-		drawVoronoiPolygons(voronoiPolygons_);
-	}
-
-	if (showVoronoiSites_) {
-		drawPointSetArray(inputPointSet_);
+	if (effect_->getEffectState().showVertices) {
+		for (const pair<int, int>& pt : inputPoints_) {
+			drawAPoint(pt.first, pt.second);
+		}
 	}
 
 	glPopMatrix();
@@ -336,13 +106,15 @@ void MyPanelOpenGL::paintGL() {
 
 
 void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
-	//qDebug("Window: %d, %d\n", event->x(), event->y());
-	if (!hasLoadedImage()) {
+	qDebug("[MyPanelOpenGL::mousePressEvent] x: %d, y: %d\n", event->x(), event->y());
+
+	ImageData* imageData = effect_->getImageData();
+	if (imageData == nullptr) {
 		return;
 	}
 
-	int loadedImageWidth = imData_->width();
-	int loadedImageHeight = imData_->height();
+	int loadedImageWidth = imageData->width();
+	int loadedImageHeight = imageData->height();
 
 	QSize widgetSize = size();
 	int windowWidth = widgetSize.width();
@@ -379,77 +151,66 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 		int px = (event->x() * viewScale) - deltaX;
 		int py = (event->y() * viewScale) - deltaY;
 
-		qDebug("Insert Point: %d, %d\n", px, py);
-
+		qDebug("[MyPanelOpenGL::mousePressEvent] add point: px: %d, py: %d\n", px, py);
 		insertPoint(px, py);
-		updateNumPoints(inputPointSet_.noPt());
-
-		updateGL();
 	}
 }
 
 
 
-void MyPanelOpenGL::doVoronoiDiagram() {
-	//qDebug("Do Voronoi creation\n");
+/// coordinates x, y are in the same scale as the rendered image.
+void MyPanelOpenGL::insertPoint(int x, int y) {
+	inputPoints_.push_back(make_pair(x, y));
 
-	StopWatch voroSW;
-
-	voroSW.reset();
-	voroSW.resume();
-
-	voronoiPolygons_ = delaunay::runDelaunayAlgorithm(inputPointSet_);
-
-
-	// Make the colored polygons from Voronoi.
-	assert(imData_ != NULL);
-	renderedPolygons_ = generateColoredPolygons(voronoiPolygons_, *imData_);
-	currentRenderType_ = EFFECT;
-
-	voroSW.pause();
-	double timePolyColor = voroSW.ms();
-	qDebug("TIME: generateColoredPolygons(..) is %f", timePolyColor);
-	voroSW.reset();
-	voroSW.resume();
-
-	setVoronoiComputed(true);
+	const int minPointsForDelaunay = 3;
+	if (inputPoints_.size() > minPointsForDelaunay) {
+		emit hasEnoughPointsForVoronoiEffect();
+	}
 
 	updateGL();
 }
 
 
 
-void MyPanelOpenGL::doOpenImage() {
-	//get a filename to open
-	QString qStr_fileName =
-		QFileDialog::getOpenFileName(Q_NULLPTR,
-	                                 tr("Open Image"),
-	                                 ".",
-	                                 tr("Image Files (*.png *.jpg *.bmp)"));
-	if (qStr_fileName == "") {
-		return;
+void MyPanelOpenGL::insertPoints(std::vector<std::pair<int, int>> points) {
+	for (const pair<int, int>& pt : points) {
+		insertPoint(pt.first, pt.second);
 	}
-
-	string filenameStr = qStr_fileName.toStdString();
-
-	emit updateFilename(qStr_fileName); // to Qt textbox
-
-	imData_ = loadImageData(filenameStr);
-	loadedImageFilename_ = filenameStr;
-
-	QSize widgetSize = size();
-	refreshProjection(widgetSize.width(), widgetSize.height(),
-	                  canvasOffsetX_, canvasOffsetY_,
-	                  imData_);
-	emit imageLoaded();
-
-	currentRenderType_ = IMAGE;
-	updateGL();
 }
 
 
 
-void MyPanelOpenGL::doSaveImage() {
+// void MyPanelOpenGL::doOpenImage() {
+// 	//get a filename to open
+// 	QString qStr_fileName =
+// 		QFileDialog::getOpenFileName(Q_NULLPTR,
+// 	                                 tr("Open Image"),
+// 	                                 ".",
+// 	                                 tr("Image Files (*.png *.jpg *.bmp)"));
+// 	if (qStr_fileName == "") {
+// 		return;
+// 	}
+
+// 	string filenameStr = qStr_fileName.toStdString();
+
+// 	emit updateFilename(qStr_fileName); // to Qt textbox
+
+// 	imData_ = loadImageData(filenameStr);
+// 	loadedImageFilename_ = filenameStr;
+
+// 	QSize widgetSize = size();
+// 	refreshProjection(widgetSize.width(), widgetSize.height(),
+// 	                  canvasOffsetX_, canvasOffsetY_,
+// 	                  imData_);
+// 	emit imageLoaded();
+
+// 	currentRenderType_ = IMAGE;
+// 	updateGL();
+// }
+
+
+
+void MyPanelOpenGL::saveImage() {
 	// TODO: This impl. feels impure
 	// TODO: Should be a way to set output filename
 	// TODO: ImageData stuff applies here, too.
@@ -490,161 +251,12 @@ void MyPanelOpenGL::doSaveImage() {
 
 
 
-void MyPanelOpenGL::doDrawImage() {
-	currentRenderType_ = IMAGE;
-	updateGL();
-}
-
-
-
-void MyPanelOpenGL::doDrawEdge() {
-	currentRenderType_ = EDGE_RAW;
-	updateGL();
-}
-
-
-
-void MyPanelOpenGL::doDrawEdgeSharp() {
-	currentRenderType_ = EDGE_SHARP;
-	updateGL();
-}
-
-
-
-void MyPanelOpenGL::doDrawEdgeBlur() {
-	currentRenderType_ = EDGE_BLUR;
-
-	updateGL();
-}
-
-
-
-void MyPanelOpenGL::doDrawPDF() {
-	currentRenderType_ = PDF;
-	updateGL();
-}
-
-
-
-void MyPanelOpenGL::doDrawEffect() {
-	currentRenderType_ = EFFECT;
-	updateGL();
-}
-
-
-
-void MyPanelOpenGL::doGenerateUniformRandomPoints() {
-	if (!hasLoadedImage()) return;
-
-	// POINTREP:INTVEC
-	// Returns {x0, y0, x1, y1,...}
-	int width = imData_->width();
-	int height = imData_->height();
-	vector< pair<int,int> > points = generateUniformRandomPoints(width, height, numPDFPoints_);
-
-	for (pair<int,int> pt : points) {
-		int x = pt.first;
-		int y = pt.second;
-
-		insertPoint(x, y);
-	}
-
-	updateNumPoints(inputPointSet_.noPt());
-
-	updateGL();
-}
-
-
-
-void MyPanelOpenGL::doPDF() {
-	// POINTREP:INTVEC
-	// Returns {x0, y0, x1, y1,...}
-	vector< pair<int,int> > points = generatePointsWithPDF(loadedImageFilename_, numPDFPoints_, &pdfTextures_);
-
-	for (pair<int,int> pt : points) {
-		int x = pt.first;
-		int y = pt.second;
-
-		insertPoint(x, y);
-	}
-
-	updateNumPoints(inputPointSet_.noPt());
-	setUsePDF(true);
-
-	updateGL();
-}
-
 
 
 void MyPanelOpenGL::clearAll() {
-	// Clear all our points, and such data.
+	inputPoints_.clear();
 
-	// Clear all the colored polygons.
-	renderedPolygons_.clear();
-
-	voronoiPolygons_.clear();
-
-	// Clear all the points.
-	inputPointSet_.eraseAllPoints();
-
-	// Signals and stuff
-	updateNumPoints(inputPointSet_.noPt());
-	setUsePDF(false);
-	setVoronoiComputed(false);
-
-	currentRenderType_ = NONE;
+	effect_->clearAll();
 
 	updateGL();
 }
-
-
-
-void MyPanelOpenGL::mouseMoveEvent(QMouseEvent *) {
-}
-
-
-
-void MyPanelOpenGL::setShowVoronoiSites(bool b) {
-	showVoronoiSites_ = b;
-	updateGL();
-}
-
-
-
-void MyPanelOpenGL::setShowVoronoiEdges(bool b) {
-	showVoronoiEdges_ = b;
-	updateGL();
-}
-
-
-
-void MyPanelOpenGL::setNumPoints1k() {
-	setNumPoints(1000);
-}
-
-
-
-void MyPanelOpenGL::setNumPoints5k() {
-	setNumPoints(5000);
-}
-
-
-
-void MyPanelOpenGL::setNumPoints(int n) {
-	numPDFPoints_ = n;
-	updateNumPointsToGenerate(n);
-}
-
-
-
-void MyPanelOpenGL::keyPressEvent(QKeyEvent* event) {
-	switch (event->key()) {
-		case Qt::Key_Escape:
-			close();
-			break;
-		default:
-			event->ignore();
-			break;
-	}
-}
-

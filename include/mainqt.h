@@ -1,6 +1,8 @@
 #ifndef MAINQT_H
 #define MAINQT_H
 
+#include <string>
+
 #include <QtWidgets/QMainWindow>
 #include "ui_mainqt.h"
 
@@ -14,14 +16,19 @@ public:
 	~mainqt();
 
 public slots:
+	void chooseImage();
+
+	/// A general reset. Compared to above, resets: filename, draw state, algorithm computations, input-points.
+	void clearAll();
+
 	// Just copy-paste the name of the signals from MyPanelOpenGL
-	void updateNumPoints(int);
 	void imageLoaded();
+
 	void setUsePDF(bool);
-	void setVoronoiComputed(bool);
 
 private:
 	Ui::mainqtClass ui;
+
 };
 
 #endif // MAINQT_H

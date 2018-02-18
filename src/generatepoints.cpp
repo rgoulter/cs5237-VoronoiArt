@@ -24,6 +24,7 @@ using std::make_pair;
 using std::min;
 
 using cv::COLOR_BGR2GRAY;
+using cv::COLOR_RGB2GRAY;
 using cv::Mat;
 using cv::Size;
 using cv::Scalar;
@@ -35,7 +36,7 @@ using cv::imread;
 // and generate points from that. Oh well.
 //
 // POINTREP:INTPAIRVEC
-vector< pair<int,int> > generateUniformRandomPoints(int width, int height, int numPoints) {
+vector<pair<int,int>> generateUniformRandomPoints(int width, int height, int numPoints) {
 	set<int> generated;
 
 	// shouldn't call generateUniformRandomPoints with too many numPoints,
@@ -66,34 +67,33 @@ vector< pair<int,int> > generateUniformRandomPoints(int width, int height, int n
 
 
 
-// POINTREP:INTPAIRVEC
-// TODO: generatePointsWithPDF could do with a tidyup
-vector< pair<int,int> > generatePointsWithPDF(string imageFilename, int numPDFPoints, PDFTextures *oglTextures, int cannyRatio, int kernelSize) {
-	Mat src = imread(imageFilename);
-
-	int width = src.cols;
-
-	if (!src.data) {
-		return vector< pair<int,int> >();
+PDFTextures pdfTexturesFromImage(const Mat& imgMat, int cannyRatio, int kernelSize) {
+	if (!imgMat.data) {
+		PDFTextures tmp;
+		return tmp;
 	}
 
-	// Create a matrix of the same type and size as src (for dst)
-	Mat dst(src.size(), src.type());
+	// Create a matrix of the same type and size as imgMat (for dst)
+	Mat dst(imgMat.size(), imgMat.type());
 
 	// Convert the image to grayscale
-	Mat src_gray;
-	cvtColor(src, src_gray, COLOR_BGR2GRAY);
+	Mat imgMat_gray;
+	cvtColor(imgMat, imgMat_gray, COLOR_BGR2GRAY);
 
 	// Reduce noise with a kernel 3x3
 	Mat detected_edges;
-	blur(src_gray, detected_edges, Size(3,3));
+	blur(imgMat_gray, detected_edges, Size(3,3));
 
 	// Detect edges with Canny edge detector
-	Canny(detected_edges, detected_edges, 100, 100*cannyRatio, kernelSize);
+	// void Canny(InputArray image, OutputArray edges, double threshold1, double threshold2, int apertureSize=3, bool L2gradient=false )
+	// Reference: https://docs.opencv.org/2.4/modules/imgproc/doc/feature_detection.html#canny
+	Canny(detected_edges, detected_edges, 100, 100 * cannyRatio, kernelSize);
 
 	// This is to get P_sharp?
 	Mat detected_edges2;
-	GaussianBlur(detected_edges, detected_edges2, Size(7,7), 0, 0);
+	// void GaussianBlur(InputArray src, OutputArray dst, Size ksize, double sigmaX, double sigmaY=0)
+	// Reference: https://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html#gaussianblur
+	GaussianBlur(detected_edges, detected_edges2, Size(7, 7), 0, 0);
 
 	dst = Scalar::all(0);
 	Mat dst2;
@@ -101,30 +101,48 @@ vector< pair<int,int> > generatePointsWithPDF(string imageFilename, int numPDFPo
 	Mat dst3;
 	dst3 = Scalar::all(0);
 
-	src_gray.copyTo(dst2, detected_edges2);
-	src_gray.copyTo(dst, detected_edges);
+	// void Mat::copyTo(OutputArray m) const
+	// void Mat::copyTo(OutputArray m, InputArray mask) const
+	// Reference: https://docs.opencv.org/2.4/modules/core/doc/basic_structures.html#mat-copyto
+	imgMat_gray.copyTo(dst2, detected_edges2);
+	imgMat_gray.copyTo(dst, detected_edges);
 
 	// This is to get P_blur?
-	GaussianBlur(dst2, dst3, Size(15,15), 0, 0);
+	GaussianBlur(dst2, dst3, Size(15, 15), 0, 0);
 	dst3.convertTo(dst3, -1, 2, 0);
 
 	// Ps = Pblur - Psharp
+	// void subtract(InputArray src1, InputArray src2, OutputArray dst)
+	// Reference: https://docs.opencv.org/2.4/modules/core/doc/operations_on_arrays.html#subtract
 	subtract(dst3, dst2, dst);
 
-
 	// Make OpenGL Textures for the following:
-	// (I'm not 100% certain about these mappings?).
-	if (oglTextures != NULL) {
-		oglTextures->edgesTexture = new ImageData(detected_edges, CV_GRAY2RGB);
-		oglTextures->edgesSharpTexture = new ImageData(detected_edges2, CV_GRAY2RGB);
-		oglTextures->edgesBlurTexture = new ImageData(dst3, CV_GRAY2RGB);
-		oglTextures->pdfTexture = new ImageData(dst, CV_GRAY2RGB);
-	}
+	PDFTextures effectTextures;
+	effectTextures.edgesTexture = new ImageData(detected_edges, CV_GRAY2RGB);
+	effectTextures.edgesSharpTexture = new ImageData(detected_edges2, CV_GRAY2RGB);
+	effectTextures.edgesBlurTexture = new ImageData(dst3, CV_GRAY2RGB);
+	effectTextures.pdfTexture = new ImageData(dst, CV_GRAY2RGB);
 
+	return effectTextures;
+}
+
+
+
+const Mat& distributionFromPDFTextures(PDFTextures pdfTextures) {
+	ImageData* pdfTexture = pdfTextures.pdfTexture;
+	return pdfTexture->getImageMat();
+}
+
+
+
+/// SMELL: dstRGB expected to be RGB encoded
+vector<pair<int, int>> generatePointsFromDistributionField(const Mat& dstRGB, int numPDFPoints) {
 	// So, let's build up a 1-D array of the CDF from the 2D PDF.
 	//  idx -> (row, col) : row = idx / width, col = idx % width
 	//  (row, col) -> idx : idx = row * width + col
 
+	Mat dst;
+	cvtColor(dstRGB, dst, COLOR_RGB2GRAY);
 
 	// use float or uchar?
 	vector<float> cdf; //loadedImageWidth * loadedImageHeight
@@ -132,7 +150,7 @@ vector< pair<int,int> > generatePointsWithPDF(string imageFilename, int numPDFPo
 
 	for (int r = 0; r < dst.rows; r++) {
 		for (int c = 0; c < dst.cols; c++) {
-			unsigned char val = dst.at<unsigned char> (r, c);
+			unsigned char val = dst.at<unsigned char>(r, c);
 
 			cdf.push_back(sum);
 			sum += (float) val / 255;
@@ -146,6 +164,7 @@ vector< pair<int,int> > generatePointsWithPDF(string imageFilename, int numPDFPo
 	// Now generate random points
 	srand((unsigned) time(0));
 	double maxVal = cdf[cdf.size() - 1];
+	int width = dst.cols;
 
 	for (int i = 0; i < numPDFPoints; i++) {
 		double rnd = float(rand()) / RAND_MAX;
@@ -174,9 +193,8 @@ vector< pair<int,int> > generatePointsWithPDF(string imageFilename, int numPDFPo
 		int x = idx % width;
 		int y = idx / width;
 
-		outputPts.push_back(make_pair(x,y));
+		outputPts.push_back(make_pair(x, y));
 	}
 
 	return outputPts;
 }
-

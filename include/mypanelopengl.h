@@ -2,6 +2,7 @@
 #define MYPANELOPENGL_H
 
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <QGLWidget>
@@ -13,63 +14,41 @@
 
 #include "geometry/polygon.h"
 
+#include "ui/qt5/voronoieffect.h"
+
 #include "polypixel.h"
 #include "generatepoints.h"
 
 
 
-enum ShowImageType {
-	IMAGE,
-	EDGE_RAW,
-	EDGE_SHARP,
-	EDGE_BLUR,
-	PDF,
-	EFFECT,
-	NONE
-};
-
-
-
+// This is the QT5 Widget we use for:
+//  - allowing click-input of points
+//  - rendering the stuff using OpenGL
+//
 // As per http://doc.qt.io/qt-5/qglwidget.html
 // XXX QGLWidget is legacy, should use QOpenGLWidget instead.
 class MyPanelOpenGL : public QGLWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	explicit MyPanelOpenGL(QWidget *parent = 0);
 
-signals:
-	void updateFilename(QString);
-	void updateNumPoints(int);
-	void updateNumPointsToGenerate(int);
+	ui::qt5::VoronoiEffect* getVoronoiEffect();
 
-	void imageLoaded();
-	void setUsePDF(bool);
-	void setVoronoiComputed(bool);
+	void insertPoint(int x, int y);
+	void insertPoints(std::vector<std::pair<int, int>> points);
+
+	const std::vector<std::pair<int, int>>& getPoints() const { return inputPoints_; };
+
+signals:
+	void hasEnoughPointsForVoronoiEffect();
 
 public slots:
-	void doOpenImage();
+	/// When the 'save image' button is clicked, from mainqt.
+	void saveImage();
 
-	void doDrawImage();
-	void doDrawEdge();
-	void doDrawEdgeSharp();
-	void doDrawEdgeBlur();
-	void doDrawPDF();
-	void doDrawEffect();
-
-	void doVoronoiDiagram();
-	void doGenerateUniformRandomPoints();
-	void doPDF();
-
-	void setNumPoints1k();
-	void setNumPoints5k();
-	void setNumPoints(int);
-
-	void doSaveImage();
+	/// A general reset. Compared to above, resets: filename, draw state, algorithm computations, input-points.
 	void clearAll();
-
-	void setShowVoronoiSites(bool b);
-	void setShowVoronoiEdges(bool b);
 
 protected:
 	// overloaded
@@ -78,39 +57,19 @@ protected:
 	void resizeGL(int x, int h);
 	// overloaded
 	void paintGL();
+
 	void mousePressEvent(QMouseEvent *event);
-	void mouseMoveEvent(QMouseEvent *event);
-	void keyPressEvent(QKeyEvent *event);
 
 private:
-	void insertPoint(delaunay::LongInt x, delaunay::LongInt y);
-	bool hasLoadedImage() { return imData_ != NULL; }
-
 	// TODO Probably could do without these?
 	// Position of the image, in canvas space..
 	int canvasOffsetX_ = 0;
 	int canvasOffsetY_ = 0;
 
-	std::string loadedImageFilename_ = "";
-	ImageData *imData_ = NULL;
-	PDFTextures pdfTextures_;
-
-	// OpenGL stuff
-	ShowImageType currentRenderType_ = NONE;
-	bool showVoronoiSites_ = true;
-	bool showVoronoiEdges_ = false;
-
-
-	int numPDFPoints_ = 75;
-
-	/// The 'bare-bones' Voronoi regions, represented using `PointSetArray`s.
-	std::vector<geometry::Polygon> voronoiPolygons_;
-
-	/// The `ColoredPolygon`s we use to render the "stain-glass" effect.
-	std::vector<ColoredPolygon> renderedPolygons_;
+	ui::qt5::VoronoiEffect* effect_ = nullptr;
 
 	// DELAUNAY
-    delaunay::PointSetArray<delaunay::LongInt> inputPointSet_;
+	std::vector<std::pair<int, int>> inputPoints_;
 };
 
 #endif // MYPANELOPENGL_H
