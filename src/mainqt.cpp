@@ -122,7 +122,6 @@ mainqt::mainqt(QWidget *parent)
 
 	connect(ui.btnSaveImage, &QAbstractButton::pressed, ui.glWidget, &MyPanelOpenGL::saveImage);
 
-	// btnClearAll
 	connect(ui.btnClearAll, &QAbstractButton::pressed, this, &mainqt::clearAll);
 }
 
@@ -131,9 +130,6 @@ mainqt::mainqt(QWidget *parent)
 mainqt::~mainqt() { }
 
 
-
-// XXX: method to "do load image", copied from mypanelopenglh (ish)
-//      & set the image to the ... effect of the mypanelopengh
 
 void mainqt::chooseImage() {
 	//get a filename to open
@@ -160,24 +156,10 @@ void mainqt::chooseImage() {
 
 
 
-void mainqt::updateNumPoints(int n) {
-	// bool b = n > 0;
-
-	// ui.btnDoVoronoi->setEnabled(b);
-}
-
-
-
 void mainqt::imageLoaded() {
-	// Enable various components
 	ui.chkShowPoints->setEnabled(true);
 
 	ui.radioBtnEffectImage->setEnabled(true);
-
-	// ui.radioBtnEffectEdges->setEnabled(true);
-	// ui.radioBtnEffectEdgesBlurred->setEnabled(true);
-	// ui.radioBtnEffectEdgesSharp->setEnabled(true);
-	// ui.radioBtnEffectPDF->setEnabled(true);
 
 	ui.spinBoxNumPoints->setEnabled(true);
 	ui.btnGenUniform->setEnabled(true);
@@ -192,13 +174,6 @@ void mainqt::setUsePDF(bool b) {
 	ui.radioBtnEffectEdgesBlurred->setEnabled(b);
 	ui.radioBtnEffectEdgesSharp->setEnabled(b);
 	ui.radioBtnEffectPDF->setEnabled(b);
-}
-
-
-
-void mainqt::setVoronoiComputed(bool b) {
-	// ui.btnDrawEffect->setEnabled(b);
-	// ui.chkShowEdges->setEnabled(b);
 }
 
 

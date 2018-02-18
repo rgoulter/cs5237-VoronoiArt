@@ -112,9 +112,9 @@ void VoronoiEffect::paintGL() {
 		drawVoronoiPolygons(voronoiPolygons);
 	}
 
-	// if (effectState_.showAlgorithm && algorithm_ != nullptr) {
-	// 	// TODO: Show Delaunay Triangulation
-	// }
+	if (effectState_.showAlgorithm && algorithm_ != nullptr) {
+		// TODO: Show Delaunay Triangulation
+	}
 }
 
 void VoronoiEffect::clearAll() {

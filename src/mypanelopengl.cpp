@@ -16,7 +16,6 @@
 #include <utility>
 
 #include "platform.h"
-#include "stopwatch.h"
 
 #include "delaunay/longint/li.h"
 
@@ -42,11 +41,6 @@ using geometry::Polygon;
 
 using ui::qt5::VoronoiEffect;
 using ui::qt5::EffectState;
-
-
-
-// TODO: the stopwatch code used makes code less readable.
-static StopWatch globalSW;
 
 
 
@@ -256,152 +250,6 @@ void MyPanelOpenGL::saveImage() {
 }
 
 
-
-// void MyPanelOpenGL::doDrawImage() {
-// 	currentRenderType_ = IMAGE;
-// 	updateGL();
-// }
-
-
-
-// void MyPanelOpenGL::doDrawEdge() {
-// 	currentRenderType_ = EDGE_RAW;
-// 	updateGL();
-// }
-
-
-
-// void MyPanelOpenGL::doDrawEdgeSharp() {
-// 	currentRenderType_ = EDGE_SHARP;
-// 	updateGL();
-// }
-
-
-
-// void MyPanelOpenGL::doDrawEdgeBlur() {
-// 	currentRenderType_ = EDGE_BLUR;
-
-// 	updateGL();
-// }
-
-
-
-// void MyPanelOpenGL::doDrawPDF() {
-// 	currentRenderType_ = PDF;
-// 	updateGL();
-// }
-
-
-
-// void MyPanelOpenGL::doDrawEffect() {
-// 	currentRenderType_ = EFFECT;
-// 	updateGL();
-// }
-
-
-
-// void MyPanelOpenGL::setShowVoronoiSites(bool b) {
-// 	showVoronoiSites_ = b;
-// 	updateGL();
-// }
-
-
-
-// void MyPanelOpenGL::setShowVoronoiEdges(bool b) {
-// 	showVoronoiEdges_ = b;
-// 	updateGL();
-// }
-
-
-
-// void MyPanelOpenGL::setNumPoints1k() {
-// 	setNumPoints(1000);
-// }
-
-
-
-// void MyPanelOpenGL::setNumPoints5k() {
-// 	setNumPoints(5000);
-// }
-
-
-
-// void MyPanelOpenGL::setNumPoints(int n) {
-// 	numPDFPoints_ = n;
-// 	updateNumPointsToGenerate(n);
-// }
-
-
-
-// void MyPanelOpenGL::doGenerateUniformRandomPoints() {
-// 	if (!hasLoadedImage()) return;
-
-// 	// POINTREP:INTVEC
-// 	// Returns {x0, y0, x1, y1,...}
-// 	int width = imData_->width();
-// 	int height = imData_->height();
-// 	vector< pair<int,int> > points = generateUniformRandomPoints(width, height, numPDFPoints_);
-
-// 	for (pair<int,int> pt : points) {
-// 		int x = pt.first;
-// 		int y = pt.second;
-
-// 		insertPoint(x, y);
-// 	}
-
-// 	updateNumPoints(inputPointSet_.noPt());
-
-// 	updateGL();
-// }
-
-
-
-// void MyPanelOpenGL::doPDF() {
-// 	// POINTREP:INTVEC
-// 	// Returns {x0, y0, x1, y1,...}
-// 	vector< pair<int,int> > points = generatePointsWithPDF(loadedImageFilename_, numPDFPoints_, &pdfTextures_);
-
-// 	for (pair<int,int> pt : points) {
-// 		int x = pt.first;
-// 		int y = pt.second;
-
-// 		insertPoint(x, y);
-// 	}
-
-// 	updateNumPoints(inputPointSet_.noPt());
-// 	setUsePDF(true);
-
-// 	updateGL();
-// }
-
-
-
-// void MyPanelOpenGL::doVoronoiDiagram() {
-// 	//qDebug("Do Voronoi creation\n");
-
-// 	StopWatch voroSW;
-
-// 	voroSW.reset();
-// 	voroSW.resume();
-
-// 	voronoiPolygons_ = delaunay::runDelaunayAlgorithm(inputPointSet_);
-
-
-// 	// Make the colored polygons from Voronoi.
-// 	assert(imData_ != NULL);
-// 	renderedPolygons_ = generateColoredPolygons(voronoiPolygons_, *imData_);
-// 	currentRenderType_ = EFFECT;
-
-// 	voroSW.pause();
-// 	double timePolyColor = voroSW.ms();
-// 	qDebug("TIME: generateColoredPolygons(..) is %f", timePolyColor);
-// 	voroSW.reset();
-// 	voroSW.resume();
-
-// 	setVoronoiComputed(true);
-
-// 	updateGL();
-// }
 
 
 

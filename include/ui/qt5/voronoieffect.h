@@ -55,10 +55,6 @@ public:
 		effectState_.showAlgorithm = true;
 	};
 
-	// XXX:#24: property: Algorithm e.g. Delaunay
-	// XXX:#24: property: image, drawState, etc.
-	// XXX:#24: and a method to *draw* this.
-
 	void setImageData(ImageData* imageData);
 
 	ImageData* getImageData();
@@ -91,13 +87,10 @@ signals:
 public slots:
 	void setEffectState(EffectState state);
 
-	// XXX but, like, surely we can use sig + slots here?
-
 private:
 	delaunay::DelaunayAlgorithm<delaunay::LongInt>* algorithm_ = nullptr;
 	EffectState effectState_;
 	// DELAUNAY / Rendering.
-	// XXX:#24:Should move this to ... algorithm state, or something.
 	/// The `ColoredPolygon`s we use to render the "stain-glass" effect.
 	std::vector<ColoredPolygon> renderedPolygons_;
 
