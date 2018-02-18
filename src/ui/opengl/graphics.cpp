@@ -93,7 +93,7 @@ void drawPointSetArray(const PointSetArray<LongInt>& pointSet) {
 
 
 // DELAUNAY (it uses voronoiEdges)
-void drawVoronoiPolygons(vector<geometry::Polygon>& voronoiPolys) {
+void drawVoronoiPolygons(const vector<geometry::Polygon>& voronoiPolys) {
 	for (const geometry::Polygon& polygon : voronoiPolys) {
 		glColor3f(0,0,1); // blue
 

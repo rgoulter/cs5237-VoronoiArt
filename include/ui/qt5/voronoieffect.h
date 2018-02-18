@@ -39,6 +39,7 @@ public:
 	ShowImageType showType;
 	bool showVertices;
 	bool showEdges;
+	bool showAlgorithm;
 };
 
 
@@ -50,7 +51,8 @@ public:
 	VoronoiEffect(QObject *parent = 0) : QObject(parent) {
 		effectState_.showType = NONE;
 		effectState_.showVertices = true;
-		effectState_.showEdges = true;
+		effectState_.showEdges = false;
+		effectState_.showAlgorithm = true;
 	};
 
 	// XXX:#24: property: Algorithm e.g. Delaunay
@@ -90,7 +92,7 @@ public slots:
 	// XXX but, like, surely we can use sig + slots here?
 
 private:
-	delaunay::DelaunayAlgorithm<delaunay::LongInt>* algorithm_;
+	delaunay::DelaunayAlgorithm<delaunay::LongInt>* algorithm_ = nullptr;
 	EffectState effectState_;
 	// DELAUNAY / Rendering.
 	// XXX:#24:Should move this to ... algorithm state, or something.

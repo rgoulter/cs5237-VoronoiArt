@@ -1,10 +1,21 @@
 #include "ui/qt5/voronoieffect.h"
 
+#include "delaunay/longint/li.h"
+
+#include "delaunay/pointsetarray.h"
+
+#include "geometry/polygon.h"
+
 #include "ui/opengl/graphics.h"
 
 #include "polypixel.h"
 
 using std::vector;
+
+using delaunay::LongInt;
+using delaunay::PointSetArray;
+
+using geometry::Polygon;
 
 using ui::qt5::EffectState;
 using ui::qt5::ShowImageType;
@@ -90,12 +101,18 @@ void VoronoiEffect::paintGL() {
 			break;
 	}
 
-	// if (showVoronoiEdges_) {
-	// 	// DELAUNAY (voronoiEdges)
-	// 	// drawVoronoiPolygons(voronoiPolygons_);
-	// }
+	if (effectState_.showVertices && algorithm_ != nullptr) {
+		const PointSetArray<LongInt>& points = algorithm_->allPoints();
+		drawPointSetArray(points);
+	}
 
-	// if (showVoronoiSites_) {
-	// 	// drawPointSetArray(inputPointSet_);
+	if (effectState_.showEdges && algorithm_ != nullptr) {
+		// DELAUNAY (voronoiEdges)
+		const vector<geometry::Polygon>& voronoiPolygons = algorithm_->getVoronoiPolygons();
+		drawVoronoiPolygons(voronoiPolygons);
+	}
+
+	// if (effectState_.showAlgorithm && algorithm_ != nullptr) {
+	// 	// TODO: Show Delaunay Triangulation
 	// }
 }

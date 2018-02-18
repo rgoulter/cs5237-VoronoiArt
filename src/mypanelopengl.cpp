@@ -100,8 +100,10 @@ void MyPanelOpenGL::paintGL() {
 
 	effect_->paintGL();
 
-	for (const pair<int, int>& pt : inputPoints_) {
-		drawAPoint(pt.first, pt.second);
+	if (effect_->getEffectState().showVertices) {
+		for (const pair<int, int>& pt : inputPoints_) {
+			drawAPoint(pt.first, pt.second);
+		}
 	}
 
 	glPopMatrix();

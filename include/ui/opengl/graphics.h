@@ -22,7 +22,7 @@ void drawATriangle(double x1,double y1, double x2, double y2, double x3, double 
 
 void drawPointSetArray(const delaunay::PointSetArray<delaunay::LongInt>& pointSet);
 
-void drawVoronoiPolygons(std::vector<geometry::Polygon>& voronoiPolys);
+void drawVoronoiPolygons(const std::vector<geometry::Polygon>& voronoiPolys);
 
 void drawColoredPolygons(const std::vector<ColoredPolygon>& renderedPolygons);
 

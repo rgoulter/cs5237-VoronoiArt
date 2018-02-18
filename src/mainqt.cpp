@@ -30,6 +30,7 @@ using delaunay::LongInt;
 using delaunay::PointSetArray;
 using delaunay::DelaunayAlgorithm;
 
+using ui::qt5::EffectState;
 using ui::qt5::ShowImageType;
 using ui::qt5::VoronoiEffect;
 
@@ -102,6 +103,24 @@ mainqt::mainqt(QWidget *parent)
 	connect(ui.glWidget, &MyPanelOpenGL::hasEnoughPointsForVoronoiEffect, [=] {
 		ui.radioBtnEffectVoronoi->setEnabled(true);
 	});
+
+	connect(ui.chkShowPoints, &QAbstractButton::toggled, [=] {
+		EffectState currentState = ui.glWidget->getVoronoiEffect()->getEffectState();
+		currentState.showVertices = !currentState.showVertices;
+		ui.glWidget->getVoronoiEffect()->setEffectState(currentState);
+	});
+	connect(ui.chkShowEdges, &QAbstractButton::toggled, [=] {
+		EffectState currentState = ui.glWidget->getVoronoiEffect()->getEffectState();
+		currentState.showEdges = !currentState.showEdges;
+		ui.glWidget->getVoronoiEffect()->setEffectState(currentState);
+	});
+	connect(ui.chkShowAlgorithm, &QAbstractButton::toggled, [=] {
+		EffectState currentState = ui.glWidget->getVoronoiEffect()->getEffectState();
+		currentState.showAlgorithm = !currentState.showAlgorithm;
+		ui.glWidget->getVoronoiEffect()->setEffectState(currentState);
+	});
+
+	// btnClearAll
 }
 
 
@@ -123,6 +142,8 @@ void mainqt::chooseImage() {
 	if (qStr_fileName == "") {
 		return;
 	}
+
+	// XXX: Need to clear current image/state here
 
 	ui.txtImageName->setText(qStr_fileName);
 

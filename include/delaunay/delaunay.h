@@ -49,6 +49,8 @@ public:
 
 	bool finished() const { return finished_; };
 
+	const PointSetArray<I>& allPoints() const { return dag_.getPointSet(); };
+
 private:
 	/// The 'bare-bones' Voronoi regions, represented using `PointSetArray`s.
 	std::vector<geometry::Polygon> voronoiPolygons_;
