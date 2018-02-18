@@ -87,7 +87,7 @@ public slots:
 	// void doSaveImage();
 
 	// /// A general reset. Compared to above, resets: filename, draw state, algorithm computations, input-points.
-	// void clearAll();
+	void clearAll();
 
 
 protected:
@@ -107,7 +107,7 @@ private:
 	int canvasOffsetX_ = 0;
 	int canvasOffsetY_ = 0;
 
-	ui::qt5::VoronoiEffect* effect_;
+	ui::qt5::VoronoiEffect* effect_ = nullptr;
 
 
 	// DELAUNAY

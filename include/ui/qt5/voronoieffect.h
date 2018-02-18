@@ -75,6 +75,8 @@ public:
 
 	void paintGL();
 
+	void clearAll();
+
 signals:
 	/// This signal exists so that the mainqt knows to update enabled/disabled state of its button
 	void imageLoaded();
@@ -99,8 +101,6 @@ private:
 	/// The `ColoredPolygon`s we use to render the "stain-glass" effect.
 	std::vector<ColoredPolygon> renderedPolygons_;
 
-	// XXX:#24:Should move these to ... VisualEffectState or something?
-	std::string loadedImageFilename_ = "";
 	ImageData *imageData_ = NULL;
 	PDFTextures pdfTextures_;
 };

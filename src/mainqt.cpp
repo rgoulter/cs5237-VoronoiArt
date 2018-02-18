@@ -121,6 +121,7 @@ mainqt::mainqt(QWidget *parent)
 	});
 
 	// btnClearAll
+	connect(ui.btnClearAll, &QAbstractButton::pressed, this, &mainqt::clearAll);
 }
 
 
@@ -143,7 +144,7 @@ void mainqt::chooseImage() {
 		return;
 	}
 
-	// XXX: Need to clear current image/state here
+	clearAll();
 
 	ui.txtImageName->setText(qStr_fileName);
 
@@ -196,6 +197,34 @@ void mainqt::setUsePDF(bool b) {
 void mainqt::setVoronoiComputed(bool b) {
 	// ui.btnDrawEffect->setEnabled(b);
 	// ui.chkShowEdges->setEnabled(b);
+}
+
+
+
+void mainqt::clearAll() {
+	ui.txtImageName->setText("");
+
+	ui.radioBtnEffectImage->setEnabled(false);
+	ui.radioBtnEffectEdges->setEnabled(false);
+	ui.radioBtnEffectEdgesBlurred->setEnabled(false);
+	ui.radioBtnEffectEdgesSharp->setEnabled(false);
+	ui.radioBtnEffectPDF->setEnabled(false);
+	ui.radioBtnEffectVoronoi->setEnabled(false);
+
+	ui.radioBtnEffectNone->setChecked(true);
+
+	ui.spinBoxNumPoints->setEnabled(false);
+	ui.btnGenUniform->setEnabled(false);
+	ui.btnGenPDF->setEnabled(false);
+	
+	ui.chkShowPoints->setEnabled(false);
+	ui.chkShowEdges->setEnabled(false);
+	ui.chkShowAlgorithm->setEnabled(false);
+
+	ui.btnSaveImage->setEnabled(false);
+	ui.btnClearAll->setEnabled(false);
+
+	ui.glWidget->clearAll();
 }
 
 

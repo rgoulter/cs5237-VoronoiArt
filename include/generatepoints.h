@@ -19,10 +19,10 @@
 // Since ImageData keeps cv::Mat, and cv::Mat is cheap to copy,
 // should be ok to do like this.
 struct PDFTextures {
-	ImageData* edgesTexture;
-	ImageData* edgesSharpTexture;
-	ImageData* edgesBlurTexture;
-	ImageData* pdfTexture;
+	ImageData* edgesTexture = nullptr;
+	ImageData* edgesSharpTexture = nullptr;
+	ImageData* edgesBlurTexture = nullptr;
+	ImageData* pdfTexture = nullptr;
 };
 
 

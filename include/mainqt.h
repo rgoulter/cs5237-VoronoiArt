@@ -50,7 +50,7 @@ public slots:
 	// void doSaveImage();
 
 	/// A general reset. Compared to above, resets: filename, draw state, algorithm computations, input-points.
-	// void clearAll();
+	void clearAll();
 
 private:
 	Ui::mainqtClass ui;

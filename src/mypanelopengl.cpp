@@ -405,23 +405,10 @@ void MyPanelOpenGL::insertPoints(std::vector<std::pair<int, int>> points) {
 
 
 
-// void MyPanelOpenGL::clearAll() {
-// 	// Clear all our points, and such data.
+void MyPanelOpenGL::clearAll() {
+	inputPoints_.clear();
 
-// 	// Clear all the colored polygons.
-// 	renderedPolygons_.clear();
+	effect_->clearAll();
 
-// 	voronoiPolygons_.clear();
-
-// 	// Clear all the points.
-// 	inputPointSet_.eraseAllPoints();
-
-// 	// Signals and stuff
-// 	updateNumPoints(inputPointSet_.noPt());
-// 	setUsePDF(false);
-// 	setVoronoiComputed(false);
-
-// 	currentRenderType_ = NONE;
-
-// 	updateGL();
-// }
+	updateGL();
+}

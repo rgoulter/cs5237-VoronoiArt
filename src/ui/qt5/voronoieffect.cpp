@@ -116,3 +116,29 @@ void VoronoiEffect::paintGL() {
 	// 	// TODO: Show Delaunay Triangulation
 	// }
 }
+
+void VoronoiEffect::clearAll() {
+	if (algorithm_ != nullptr) {
+		delete algorithm_;
+		algorithm_ = nullptr;
+	}
+	
+	effectState_.showType = NONE;
+	effectState_.showVertices = true;
+	effectState_.showEdges = false;
+	effectState_.showAlgorithm = true;
+
+	renderedPolygons_.clear();
+
+	delete pdfTextures_.edgesTexture;
+	pdfTextures_.edgesTexture = nullptr;
+
+	delete pdfTextures_.edgesSharpTexture;
+	pdfTextures_.edgesSharpTexture = nullptr;
+
+	delete pdfTextures_.edgesBlurTexture;
+	pdfTextures_.edgesBlurTexture = nullptr;
+
+	delete pdfTextures_.pdfTexture;
+	pdfTextures_.pdfTexture = nullptr;
+}
