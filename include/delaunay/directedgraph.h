@@ -49,6 +49,10 @@ public:
 
 	const Triangulation& getTriangulation() const { return trist_; }
 
+	// This was used in `mypanelopengl` for when we wanted to
+	// render the Delaunay things.
+	std::vector<TriRecord> getLeafNodes() const;
+
 protected:
 	// Keeps the relationship between a parent node and its children.
 	// std::map<TriRecord, std::vector<TriRecord> > dagNode_;
@@ -71,10 +75,6 @@ private:
 	/// Method to search the DAG for the triangle containing the point.
 	/// This triangle will be subdivided into smaller triangles.
 	// TriRecord findLeafNodeForPoint(int);
-
-	// This was used in `mypanelopengl` for when we wanted to
-	// render the Delaunay things.
-	// std::vector<TriRecord> getLeafNodes();
 
 	/// The directed graph's pointSet.
 	PointSetArray<I> pointSet_;

@@ -5,6 +5,7 @@
 
 #include "delaunay/longint/li.h"
 
+#include "delaunay/directedgraph.h"
 #include "delaunay/pointsetarray.h"
 
 #include "geometry/polygon.h"
@@ -21,6 +22,8 @@ void drawALine(double x1, double y1, double x2, double y2);
 void drawATriangle(double x1,double y1, double x2, double y2, double x3, double y3);
 
 void drawPointSetArray(const delaunay::PointSetArray<delaunay::LongInt>& pointSet);
+
+void drawDelaunayTriangles(const delaunay::DirectedGraph<delaunay::LongInt>& dag);
 
 void drawVoronoiPolygons(const std::vector<geometry::Polygon>& voronoiPolys);
 

@@ -113,7 +113,7 @@ void VoronoiEffect::paintGL() {
 	}
 
 	if (effectState_.showAlgorithm && algorithm_ != nullptr) {
-		// TODO: Show Delaunay Triangulation
+		drawDelaunayTriangles(algorithm_->directedGraph());
 	}
 }
 

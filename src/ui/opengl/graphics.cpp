@@ -1,9 +1,13 @@
 #include "ui/opengl/graphics.h"
 
+#include "delaunay/triangle.h"
+
 using std::vector;
 
+using delaunay::DirectedGraph;
 using delaunay::LongInt;
 using delaunay::PointSetArray;
+using delaunay::TriRecord;
 
 
 
@@ -52,43 +56,45 @@ void drawPointSetArray(const PointSetArray<LongInt>& pointSet) {
 
 
 
-// void drawDelaunayStuff() {
-// 	// Draw all DAG leaf triangles.
-// 	vector<TriRecord> leafNodes = dag.getLeafNodes();
-//
-// 	for (int i = 0; i < leafNodes.size(); i++){
-// 		TriRecord leafNode = leafNodes[i];
-//
-// 		int pIndex1 = leafNode.vi_[0];
-// 		int pIndex2 = leafNode.vi_[1];
-// 		int pIndex3 = leafNode.vi_[2];
-//
-// 		// Ignore if from the super triangle (i.e. index too large for input set)
-// 		if(pIndex1 > delaunayPointSet.noPt() - 3 ||
-// 		   pIndex2 > delaunayPointSet.noPt() - 3 ||
-// 		   pIndex3 > delaunayPointSet.noPt() - 3) {
-// 			continue;
-// 		}
-//
-// 		// Probably could clean this up..
-// 		LongInt p1x, p1y, p2x, p2y, p3x, p3y;
-//
-// 		delaunayPointSet.getPoint(pIndex1, p1x, p1y);
-// 		delaunayPointSet.getPoint(pIndex2, p2x, p2y);
-// 		delaunayPointSet.getPoint(pIndex3, p3x, p3y);
-//
-//
-// 		drawATriangle(p1x.doubleValue(), p1y.doubleValue(),
-// 		              p2x.doubleValue(), p2y.doubleValue(),
-// 		              p3x.doubleValue(), p3y.doubleValue());
-// 		drawALine(p1x.doubleValue(), p1y.doubleValue(),
-// 		          p2x.doubleValue(), p2y.doubleValue());
-// 		drawALine(p2x.doubleValue(), p2y.doubleValue(),
-// 		          p3x.doubleValue(), p3y.doubleValue());
-// 		drawALine(p3x.doubleValue(), p3y.doubleValue(),
-// 		          p1x.doubleValue(), p1y.doubleValue());
-// 	}
-// }
+void drawDelaunayTriangles(const DirectedGraph<LongInt>& dag) {
+	const PointSetArray<LongInt>& pointSet = dag.getPointSet();
+
+	// Draw all DAG leaf triangles.
+	vector<TriRecord> leafNodes = dag.getLeafNodes();
+
+	for (size_t i = 0; i < leafNodes.size(); i++){
+		TriRecord leafNode = leafNodes[i];
+
+		int pIndex1, pIndex2, pIndex3;
+		leafNode.get(pIndex1, pIndex2, pIndex3);
+
+		// Ignore if from the super triangle (i.e. index too large for input set)
+		if(pIndex1 > pointSet.noPt() - 3 ||
+		   pIndex2 > pointSet.noPt() - 3 ||
+		   pIndex3 > pointSet.noPt() - 3) {
+			continue;
+		}
+
+		// Probably could clean this up..
+		LongInt p1x, p1y, p2x, p2y, p3x, p3y;
+
+		pointSet.getPoint(pIndex1, p1x, p1y);
+		pointSet.getPoint(pIndex2, p2x, p2y);
+		pointSet.getPoint(pIndex3, p3x, p3y);
+
+
+		// drawATriangle(p1x.doubleValue(), p1y.doubleValue(),
+		//               p2x.doubleValue(), p2y.doubleValue(),
+		//               p3x.doubleValue(), p3y.doubleValue());
+
+		drawALine(p1x.doubleValue(), p1y.doubleValue(),
+		          p2x.doubleValue(), p2y.doubleValue());
+		drawALine(p2x.doubleValue(), p2y.doubleValue(),
+		          p3x.doubleValue(), p3y.doubleValue());
+		drawALine(p3x.doubleValue(), p3y.doubleValue(),
+		          p1x.doubleValue(), p1y.doubleValue());
+	}
+}
 
 
 

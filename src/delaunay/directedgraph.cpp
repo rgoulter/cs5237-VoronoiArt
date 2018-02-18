@@ -637,6 +637,22 @@ void flipTriangles(Triangulation& trist,
 
 
 
+template<typename I>
+vector<TriRecord> DirectedGraph<I>::getLeafNodes() const {
+	// Recomputing this is a bit expensive?
+	vector<TriRecord> result;
+
+	for (const std::shared_ptr<DAGNode<I>>& node : dagNodes_) {
+		if (node->children_.empty()) {
+			result.push_back(node->tri_);
+		}
+	}
+
+	return result;
+}
+
+
+
 // Instantiate functions, methods
 template bool containsTri<LongInt>(const vector<shared_ptr<DAGNode<LongInt>>>&, int, int, int);
 template void outputTriList<LongInt>(const vector<shared_ptr<DAGNode<LongInt>>>&);

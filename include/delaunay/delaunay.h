@@ -32,12 +32,6 @@ void runDelaunayTriangulationOn(DirectedGraph<I>&);
 template<typename I>
 std::vector<geometry::Polygon> runDelaunayAlgorithm(const PointSetArray<I>& inputPoints);
 
-/// XXX:#24: We need a class which has:
-///   - points, i.e. PointSetArray
-///   - how many points have been completely processed
-///   - resulting voronoi polygons...
-///   - trace/state polygons (e.g. delaunay triangulation + which points have been 'seen'?)
-///   - *iteration* ... point-by-point!
 template<typename I>
 class DelaunayAlgorithm {
 public:
@@ -50,6 +44,8 @@ public:
 	bool finished() const { return finished_; };
 
 	const PointSetArray<I>& allPoints() const { return dag_.getPointSet(); };
+
+	const DirectedGraph<I>& directedGraph() const { return dag_; };
 
 private:
 	/// The 'bare-bones' Voronoi regions, represented using `PointSetArray`s.
