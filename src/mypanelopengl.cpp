@@ -216,44 +216,44 @@ void MyPanelOpenGL::insertPoints(std::vector<std::pair<int, int>> points) {
 
 
 
-// void MyPanelOpenGL::doSaveImage() {
-// 	// TODO: This impl. feels impure
-// 	// TODO: Should be a way to set output filename
-// 	// TODO: ImageData stuff applies here, too.
-// 	string outputImageFilename = "output.bmp";
+void MyPanelOpenGL::saveImage() {
+	// TODO: This impl. feels impure
+	// TODO: Should be a way to set output filename
+	// TODO: ImageData stuff applies here, too.
+	string outputImageFilename = "output.bmp";
 
-// 	int x = canvasOffsetX_;
-// 	int y = canvasOffsetY_;
+	int x = canvasOffsetX_;
+	int y = canvasOffsetY_;
 
-// 	QSize widgetSize = size();
-// 	int windowWidth = widgetSize.width();
-// 	int windowHeight = widgetSize.height();
+	QSize widgetSize = size();
+	int windowWidth = widgetSize.width();
+	int windowHeight = widgetSize.height();
 
-// 	int copyWidth = (windowWidth - (2 * x));
-// 	int copyHeight = (windowHeight - (2 * y));
+	int copyWidth = (windowWidth - (2 * x));
+	int copyHeight = (windowHeight - (2 * y));
 
-// 	int numComponents = 3; // RGB
+	int numComponents = 3; // RGB
 
-// 	// Memory for width * height * RGB pixel values.
-// 	unsigned char *data;
-// 	data = (unsigned char *) malloc(numComponents * copyWidth * copyHeight * sizeof(unsigned char));
+	// Memory for width * height * RGB pixel values.
+	unsigned char *data;
+	data = (unsigned char *) malloc(numComponents * copyWidth * copyHeight * sizeof(unsigned char));
 
-// 	glPixelStorei(GL_PACK_ALIGNMENT, 1); // align to the byte..
-// 	glReadBuffer(GL_FRONT);
+	glPixelStorei(GL_PACK_ALIGNMENT, 1); // align to the byte..
+	glReadBuffer(GL_FRONT);
 
-// 	// Read in "correct" row...
-// 	// (I think I have to do this since the texture coordinates' y-axis is flipped
-// 	//  compared to the rendered y-axis).
+	// Read in "correct" row...
+	// (I think I have to do this since the texture coordinates' y-axis is flipped
+	//  compared to the rendered y-axis).
 
-// 	for (int rowOffset = 0; rowOffset < copyHeight; rowOffset++) {
-// 		int copyRow = y + copyHeight - rowOffset - 1; // reverse this.
-// 		unsigned char * copyAddress = data + rowOffset * (copyWidth * numComponents);
-// 		glReadPixels(x, copyRow, copyWidth, 1, GL_BGR, GL_UNSIGNED_BYTE, copyAddress);
-// 	}
+	for (int rowOffset = 0; rowOffset < copyHeight; rowOffset++) {
+		int copyRow = y + copyHeight - rowOffset - 1; // reverse this.
+		unsigned char * copyAddress = data + rowOffset * (copyWidth * numComponents);
+		glReadPixels(x, copyRow, copyWidth, 1, GL_BGR, GL_UNSIGNED_BYTE, copyAddress);
+	}
 
-// 	Mat img(copyHeight, copyWidth, CV_8UC3, data);
-// 	imwrite(outputImageFilename.c_str(), img);
-// }
+	Mat img(copyHeight, copyWidth, CV_8UC3, data);
+	imwrite(outputImageFilename.c_str(), img);
+}
 
 
 

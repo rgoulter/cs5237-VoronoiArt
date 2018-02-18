@@ -83,8 +83,8 @@ public slots:
 	// void setNumPoints(int);
 	// void doGenerateUniformRandomPoints();
 
-	// /// When the 'save image' button is clicked, from mainqt.
-	// void doSaveImage();
+	/// When the 'save image' button is clicked, from mainqt.
+	void saveImage();
 
 	// /// A general reset. Compared to above, resets: filename, draw state, algorithm computations, input-points.
 	void clearAll();

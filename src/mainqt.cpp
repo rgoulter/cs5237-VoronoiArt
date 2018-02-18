@@ -120,6 +120,8 @@ mainqt::mainqt(QWidget *parent)
 		ui.glWidget->getVoronoiEffect()->setEffectState(currentState);
 	});
 
+	connect(ui.btnSaveImage, &QAbstractButton::pressed, ui.glWidget, &MyPanelOpenGL::saveImage);
+
 	// btnClearAll
 	connect(ui.btnClearAll, &QAbstractButton::pressed, this, &mainqt::clearAll);
 }
