@@ -12,6 +12,8 @@
 
 #include "geometry/polygon.h"
 
+#include "ui/qt5/delaunay.h"
+
 #include "generatepoints.h"  // for PDFTextures
 #include "imagedata.h"
 #include "polypixel.h"       // for ColoredPolygon
@@ -65,7 +67,7 @@ public:
 
 	void setPDFTextures(PDFTextures textures) { pdfTextures_ = textures; };
 
-	void setDelaunayAlgorithm(delaunay::DelaunayAlgorithm<delaunay::LongInt>* algorithm) { algorithm_ = algorithm; };
+	void setDelaunayAlgorithm(Delaunay* algorithm) { algorithm_ = algorithm; };
 
 	void setVoronoiPolygons(const std::vector<geometry::Polygon>& polygons);
 
@@ -88,7 +90,7 @@ public slots:
 	void setEffectState(EffectState state);
 
 private:
-	delaunay::DelaunayAlgorithm<delaunay::LongInt>* algorithm_ = nullptr;
+	Delaunay* algorithm_ = nullptr;
 	EffectState effectState_;
 	// DELAUNAY / Rendering.
 	/// The `ColoredPolygon`s we use to render the "stain-glass" effect.

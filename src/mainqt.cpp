@@ -15,6 +15,7 @@
 #include "delaunay/pointsetarray.h"
 #include "delaunay/delaunay.h"
 
+#include "ui/qt5/delaunay.h"
 #include "ui/qt5/voronoieffect.h"
 
 #include "generatepoints.h"
@@ -28,8 +29,8 @@ using cv::imread;
 
 using delaunay::LongInt;
 using delaunay::PointSetArray;
-using delaunay::DelaunayAlgorithm;
 
+using ui::qt5::Delaunay;
 using ui::qt5::EffectState;
 using ui::qt5::ShowImageType;
 using ui::qt5::VoronoiEffect;
@@ -67,13 +68,15 @@ mainqt::mainqt(QWidget *parent)
 
 		const vector<pair<int, int>>& points = ui.glWidget->getPoints();
 		const PointSetArray<LongInt>& inputPointSet(points);
-		DelaunayAlgorithm<LongInt>* delaunay = new DelaunayAlgorithm<LongInt>(inputPointSet);
+		Delaunay* delaunay = new Delaunay(inputPointSet);
 		ui.glWidget->getVoronoiEffect()->setDelaunayAlgorithm(delaunay);
 
 		// ON THE GUI THREAD
+		// XXX: #15: Don't do synchronously
 		delaunay->run();
 
 		// Once it's finished all iterations...
+		// XXX: #15: This really needs to be done in another method
 		ui.glWidget->getVoronoiEffect()->setVoronoiPolygons(delaunay->getVoronoiPolygons());
 		ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::EFFECT);
 	});

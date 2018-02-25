@@ -37,6 +37,8 @@ class DelaunayAlgorithm {
 public:
 	DelaunayAlgorithm(const PointSetArray<I>& inputPoints);
 
+	void setVoronoiPolygons(std::vector<geometry::Polygon> voronoiPolygons) { voronoiPolygons_ = voronoiPolygons; };
+
 	const std::vector<geometry::Polygon>& getVoronoiPolygons() const { return voronoiPolygons_; };
 
 	void run();
@@ -46,6 +48,11 @@ public:
 	const PointSetArray<I>& allPoints() const { return dag_.getPointSet(); };
 
 	const DirectedGraph<I>& directedGraph() const { return dag_; };
+
+	const std::vector<int>& indicesToProcess() const { return delaunayPointsToProcess_; };
+
+	/// Adds the point (indexed in the inputPoints) to the directed-graph structure.
+	const void processPoint(int pointIdx) { dag_.addVertex(pointIdx); };
 
 private:
 	/// The 'bare-bones' Voronoi regions, represented using `PointSetArray`s.
