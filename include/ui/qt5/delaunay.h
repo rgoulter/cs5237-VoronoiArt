@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include <QReadWriteLock>
 #include <QRunnable>
 
 #include "delaunay/longint/li.h"
@@ -29,14 +30,15 @@ public:
 
 	bool finished() const { return finished_; };
 
-	const std::vector<geometry::Polygon>& getVoronoiPolygons() const;
+	const std::vector<geometry::Polygon>& getVoronoiPolygons();
 
 	const delaunay::PointSetArray<delaunay::LongInt>& allPoints() const;
 
-	const std::vector<delaunay::TriRecord>& getLeafNodes() const;
+	const std::vector<delaunay::TriRecord>& getLeafNodes();
 
 private:
-	// XXX: #15: readWrite locks for DirectedGraph; for VoroPolygons
+	QReadWriteLock leafNodesLock_;
+	QReadWriteLock voronoiPolygonsLock_;
 	delaunay::DelaunayAlgorithm<delaunay::LongInt> algorithm_;
 	std::vector<delaunay::TriRecord> leafNodes_;
 	bool finished_ = false;
