@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include <QObject>
 #include <QReadWriteLock>
 #include <QRunnable>
 
@@ -22,9 +23,10 @@ namespace qt5 {
 
 
 
-class Delaunay : public QRunnable {
+class Delaunay : public QObject, public QRunnable {
+	Q_OBJECT
 public:
-	Delaunay(const delaunay::PointSetArray<delaunay::LongInt>& inputPoints);
+	Delaunay(const delaunay::PointSetArray<delaunay::LongInt>& inputPoints, QObject *parent = 0);
 
 	virtual void run();
 
@@ -35,6 +37,9 @@ public:
 	const delaunay::PointSetArray<delaunay::LongInt>& allPoints() const;
 
 	const std::vector<delaunay::TriRecord>& getLeafNodes();
+
+signals:
+	void progressed(int done, int total);
 
 private:
 	QReadWriteLock leafNodesLock_;

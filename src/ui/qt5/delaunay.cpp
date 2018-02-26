@@ -14,7 +14,7 @@ using namespace ui::qt5;
 
 
 
-Delaunay::Delaunay(const PointSetArray<LongInt>& inputPoints) : algorithm_(inputPoints) {
+Delaunay::Delaunay(const PointSetArray<LongInt>& inputPoints, QObject *parent) : QObject(parent), algorithm_(inputPoints) {
 }
 
 
@@ -45,6 +45,9 @@ const vector<TriRecord>& Delaunay::getLeafNodes() {
 void Delaunay::run() {
 	const vector<int>& delaunayPointsToProcess = algorithm_.indicesToProcess();
 
+	int numProcessed = 0;
+	int total = delaunayPointsToProcess.size();
+
 	// Iterate through the points we need to process.
 	for (int pIdx : delaunayPointsToProcess) {
 		/// Insert into new Tri into the DAG.
@@ -53,11 +56,13 @@ void Delaunay::run() {
 		QReadLocker lockUntilCanRead(&leafNodesLock_);
 		algorithm_.processPoint(pIdx);
 
-		// TODO: #15: Ideally, could update GL to inform we've updated the UI?
 		{
 			QWriteLocker lockUntilCanWrite(&leafNodesLock_);
 			leafNodes_ = algorithm_.directedGraph().getLeafNodes();
 		}
+
+		numProcessed++;
+		emit progressed(numProcessed, total + 1);
 
 		/// Everything is Locally Delaunay by this point.
 	}
@@ -65,6 +70,7 @@ void Delaunay::run() {
 	{
 		QWriteLocker lockUntilCanWrite(&voronoiPolygonsLock_);
 		algorithm_.setVoronoiPolygons(createVoronoi(algorithm_.directedGraph()));
+		emit progressed(total + 1, total + 1);
 	}
 
 	finished_ = true;
