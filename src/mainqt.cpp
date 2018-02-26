@@ -4,16 +4,17 @@
 #include <utility>
 #include <vector>
 
-#include <QTextStream>
 #include <QDebug>
 #include <QFileDialog>
+#include <QTextStream>
+#include <QThreadPool>
 #include <QtWidgets/QApplication>
 
-#include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 
-#include "delaunay/pointsetarray.h"
 #include "delaunay/delaunay.h"
+#include "delaunay/pointsetarray.h"
 
 #include "ui/qt5/delaunay.h"
 #include "ui/qt5/voronoieffect.h"
@@ -71,14 +72,22 @@ mainqt::mainqt(QWidget *parent)
 		Delaunay* delaunay = new Delaunay(inputPointSet);
 		ui.glWidget->getVoronoiEffect()->setDelaunayAlgorithm(delaunay);
 
-		// ON THE GUI THREAD
-		// XXX: #15: Don't do synchronously
-		delaunay->run();
+		connect(delaunay, &Delaunay::progressed, [=] (int numProcessed, int total) {
+			// Update the progress bar
+			ui.progressBarVoronoi->setMaximum(total);
+			ui.progressBarVoronoi->setValue(numProcessed);
 
-		// Once it's finished all iterations...
-		// XXX: #15: This really needs to be done in another method
-		ui.glWidget->getVoronoiEffect()->setVoronoiPolygons(delaunay->getVoronoiPolygons());
-		ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::EFFECT);
+			// Redraw the UI
+			ui.glWidget->updateGL();
+
+			// Once it's finished all iterations...
+			if (numProcessed >= total) {
+				ui.glWidget->getVoronoiEffect()->setVoronoiPolygons(delaunay->getVoronoiPolygons());
+				ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::EFFECT);
+			}
+		});
+
+		QThreadPool::globalInstance()->start(delaunay);
 	});
 
 	connect(ui.btnGenUniform, &QAbstractButton::pressed, [=] {
@@ -200,6 +209,9 @@ void mainqt::clearAll() {
 	ui.chkShowPoints->setEnabled(false);
 	ui.chkShowEdges->setEnabled(false);
 	ui.chkShowAlgorithm->setEnabled(false);
+
+	ui.progressBarVoronoi->setMaximum(100);
+	ui.progressBarVoronoi->setValue(0);
 
 	ui.btnSaveImage->setEnabled(false);
 	ui.btnClearAll->setEnabled(false);
