@@ -70,8 +70,8 @@ void Delaunay::run() {
 	{
 		QWriteLocker lockUntilCanWrite(&voronoiPolygonsLock_);
 		algorithm_.setVoronoiPolygons(createVoronoi(algorithm_.directedGraph()));
-		emit progressed(total + 1, total + 1);
 	}
+	emit progressed(total + 1, total + 1);
 
 	finished_ = true;
 }

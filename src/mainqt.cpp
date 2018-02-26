@@ -67,6 +67,10 @@ mainqt::mainqt(QWidget *parent)
 		ui.chkShowAlgorithm->setEnabled(true);
 		ui.chkShowEdges->setEnabled(true);
 
+		// XXX: #15: if the algorithm is already computed
+		//      (or already in progress for current input) then
+		//       don't re-compute!!
+
 		const vector<pair<int, int>>& points = ui.glWidget->getPoints();
 		const PointSetArray<LongInt>& inputPointSet(points);
 		Delaunay* delaunay = new Delaunay(inputPointSet);
@@ -78,12 +82,15 @@ mainqt::mainqt(QWidget *parent)
 			ui.progressBarVoronoi->setValue(numProcessed);
 
 			// Redraw the UI
-			ui.glWidget->updateGL();
+			// XXX: #15: updateGL must be called from the UI thread. Doing from
+			//      the delaunay thread crashes the program
+			// ui.glWidget->updateGL();
 
 			// Once it's finished all iterations...
 			if (numProcessed >= total) {
-				ui.glWidget->getVoronoiEffect()->setVoronoiPolygons(delaunay->getVoronoiPolygons());
-				ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::EFFECT);
+				// XXX: This also needs to be done from the UI thread
+				// ui.glWidget->getVoronoiEffect()->setVoronoiPolygons(delaunay->getVoronoiPolygons());
+				// ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::EFFECT);
 			}
 		});
 
