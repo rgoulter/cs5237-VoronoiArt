@@ -15,6 +15,7 @@ using namespace ui::qt5;
 
 
 Delaunay::Delaunay(const PointSetArray<LongInt>& inputPoints, QObject *parent) : QObject(parent), algorithm_(inputPoints) {
+	setAutoDelete(false);
 }
 
 
