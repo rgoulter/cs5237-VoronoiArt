@@ -16,7 +16,6 @@
 #include "delaunay/delaunay.h"
 #include "delaunay/pointsetarray.h"
 
-#include "ui/qt5/delaunay.h"
 #include "ui/qt5/voronoieffect.h"
 
 #include "generatepoints.h"
@@ -67,34 +66,23 @@ mainqt::mainqt(QWidget *parent)
 		ui.chkShowAlgorithm->setEnabled(true);
 		ui.chkShowEdges->setEnabled(true);
 
-		// XXX: #15: if the algorithm is already computed
-		//      (or already in progress for current input) then
-		//       don't re-compute!!
+		// if the algorithm is already computed
+		// (or already in progress for current input)
+		// then don't re-compute!!
+		// TODO: #15: need to be careful about conditions-to-recompute,
+		//  & about tidying up the algorithm.
+		if (delaunay_ != nullptr) {
+			return;
+		}
 
 		const vector<pair<int, int>>& points = ui.glWidget->getPoints();
 		const PointSetArray<LongInt>& inputPointSet(points);
-		Delaunay* delaunay = new Delaunay(inputPointSet);
-		ui.glWidget->getVoronoiEffect()->setDelaunayAlgorithm(delaunay);
+		delaunay_ = new Delaunay(inputPointSet);
+		ui.glWidget->getVoronoiEffect()->setDelaunayAlgorithm(delaunay_);
 
-		connect(delaunay, &Delaunay::progressed, [=] (int numProcessed, int total) {
-			// Update the progress bar
-			ui.progressBarVoronoi->setMaximum(total);
-			ui.progressBarVoronoi->setValue(numProcessed);
+		connect(delaunay_, &Delaunay::progressed, this, &mainqt::algorithmProgressed);
 
-			// Redraw the UI
-			// XXX: #15: updateGL must be called from the UI thread. Doing from
-			//      the delaunay thread crashes the program
-			// ui.glWidget->updateGL();
-
-			// Once it's finished all iterations...
-			if (numProcessed >= total) {
-				// XXX: This also needs to be done from the UI thread
-				// ui.glWidget->getVoronoiEffect()->setVoronoiPolygons(delaunay->getVoronoiPolygons());
-				// ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::EFFECT);
-			}
-		});
-
-		QThreadPool::globalInstance()->start(delaunay);
+		QThreadPool::globalInstance()->start(delaunay_);
 	});
 
 	connect(ui.btnGenUniform, &QAbstractButton::pressed, [=] {
@@ -147,6 +135,23 @@ mainqt::mainqt(QWidget *parent)
 
 
 mainqt::~mainqt() { }
+
+
+
+void mainqt::algorithmProgressed(int numProcessed, int total) {
+	// Update the progress bar
+	ui.progressBarVoronoi->setMaximum(total);
+	ui.progressBarVoronoi->setValue(numProcessed);
+
+	// Redraw the UI
+	ui.glWidget->updateGL();
+
+	// Once it's finished all iterations...
+	if (numProcessed >= total) {
+		ui.glWidget->getVoronoiEffect()->setVoronoiPolygons(delaunay_->getVoronoiPolygons());
+		ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::EFFECT);
+	}
+}
 
 
 
@@ -222,6 +227,9 @@ void mainqt::clearAll() {
 
 	ui.btnSaveImage->setEnabled(false);
 	ui.btnClearAll->setEnabled(false);
+
+	// TODO: #15: Need to take some care about conditions for clearing/tidying
+	//  up the delaunay_ algorithm.
 
 	ui.glWidget->clearAll();
 }
