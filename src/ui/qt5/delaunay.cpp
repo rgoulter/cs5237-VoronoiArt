@@ -54,7 +54,6 @@ void Delaunay::run() {
 		/// Insert into new Tri into the DAG.
 		/// These new triangles mightn't be Locally Delaunay.
 		// Return the containing triangle for the point i.
-		QReadLocker lockUntilCanRead(&leafNodesLock_);
 		algorithm_.processPoint(pIdx);
 
 		{
