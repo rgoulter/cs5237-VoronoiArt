@@ -167,6 +167,8 @@ void MyPanelOpenGL::insertPoint(int x, int y) {
 		emit hasEnoughPointsForVoronoiEffect();
 	}
 
+	emit inputPointsChanged();
+
 	updateGL();
 }
 
@@ -177,36 +179,6 @@ void MyPanelOpenGL::insertPoints(std::vector<std::pair<int, int>> points) {
 		insertPoint(pt.first, pt.second);
 	}
 }
-
-
-
-// void MyPanelOpenGL::doOpenImage() {
-// 	//get a filename to open
-// 	QString qStr_fileName =
-// 		QFileDialog::getOpenFileName(Q_NULLPTR,
-// 	                                 tr("Open Image"),
-// 	                                 ".",
-// 	                                 tr("Image Files (*.png *.jpg *.bmp)"));
-// 	if (qStr_fileName == "") {
-// 		return;
-// 	}
-
-// 	string filenameStr = qStr_fileName.toStdString();
-
-// 	emit updateFilename(qStr_fileName); // to Qt textbox
-
-// 	imData_ = loadImageData(filenameStr);
-// 	loadedImageFilename_ = filenameStr;
-
-// 	QSize widgetSize = size();
-// 	refreshProjection(widgetSize.width(), widgetSize.height(),
-// 	                  canvasOffsetX_, canvasOffsetY_,
-// 	                  imData_);
-// 	emit imageLoaded();
-
-// 	currentRenderType_ = IMAGE;
-// 	updateGL();
-// }
 
 
 

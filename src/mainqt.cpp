@@ -66,23 +66,31 @@ mainqt::mainqt(QWidget *parent)
 		ui.chkShowAlgorithm->setEnabled(true);
 		ui.chkShowEdges->setEnabled(true);
 
-		// if the algorithm is already computed
-		// (or already in progress for current input)
-		// then don't re-compute!!
-		// TODO: #15: need to be careful about conditions-to-recompute,
-		//  & about tidying up the algorithm.
-		if (delaunay_ != nullptr) {
+		if (algorithmComputedSincePointsChanged_) {
+			// if the algorithm is already computed
+			// (or already in progress for current input)
+			// then don't re-compute!!
+			if (delaunay_ != nullptr && delaunay_->finished()) {
+				ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::EFFECT);
+			}
 			return;
+		} else {
+			if (delaunay_ != nullptr) {
+				disconnect(delaunayConnection_);
+				delaunay_->setAutoDelete(true);
+				delaunay_ = nullptr;
+			}
+
+			const vector<pair<int, int>>& points = ui.glWidget->getPoints();
+			const PointSetArray<LongInt>& inputPointSet(points);
+			delaunay_ = new Delaunay(inputPointSet);
+			ui.glWidget->getVoronoiEffect()->setDelaunayAlgorithm(delaunay_);
+
+			delaunayConnection_ = connect(delaunay_, &Delaunay::progressed, this, &mainqt::algorithmProgressed);
+
+			algorithmComputedSincePointsChanged_ = true;
+			QThreadPool::globalInstance()->start(delaunay_);
 		}
-
-		const vector<pair<int, int>>& points = ui.glWidget->getPoints();
-		const PointSetArray<LongInt>& inputPointSet(points);
-		delaunay_ = new Delaunay(inputPointSet);
-		ui.glWidget->getVoronoiEffect()->setDelaunayAlgorithm(delaunay_);
-
-		connect(delaunay_, &Delaunay::progressed, this, &mainqt::algorithmProgressed);
-
-		QThreadPool::globalInstance()->start(delaunay_);
 	});
 
 	connect(ui.btnGenUniform, &QAbstractButton::pressed, [=] {
@@ -109,6 +117,9 @@ mainqt::mainqt(QWidget *parent)
 
 	connect(ui.glWidget, &MyPanelOpenGL::hasEnoughPointsForVoronoiEffect, [=] {
 		ui.radioBtnEffectVoronoi->setEnabled(true);
+	});
+	connect(ui.glWidget, &MyPanelOpenGL::inputPointsChanged, [=] {
+		algorithmComputedSincePointsChanged_ = false;
 	});
 
 	connect(ui.chkShowPoints, &QAbstractButton::toggled, [=] {
@@ -228,8 +239,9 @@ void mainqt::clearAll() {
 	ui.btnSaveImage->setEnabled(false);
 	ui.btnClearAll->setEnabled(false);
 
-	// TODO: #15: Need to take some care about conditions for clearing/tidying
-	//  up the delaunay_ algorithm.
+	if (delaunay_ != nullptr) {
+		delaunay_->setAutoDelete(true);  // Qt5 Documentation for QThreadPool calls this UB.
+	}
 
 	ui.glWidget->clearAll();
 }

@@ -51,6 +51,10 @@ void Delaunay::run() {
 
 	// Iterate through the points we need to process.
 	for (int pIdx : delaunayPointsToProcess) {
+		if (autoDelete()) {
+			return;
+		}
+
 		/// Insert into new Tri into the DAG.
 		/// These new triangles mightn't be Locally Delaunay.
 		// Return the containing triangle for the point i.

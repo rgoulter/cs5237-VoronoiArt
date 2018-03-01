@@ -33,6 +33,8 @@ public slots:
 private:
 	Ui::mainqtClass ui;
 	ui::qt5::Delaunay* delaunay_ = nullptr;
+	QMetaObject::Connection delaunayConnection_;
+	bool algorithmComputedSincePointsChanged_ = false;
 
 };
 

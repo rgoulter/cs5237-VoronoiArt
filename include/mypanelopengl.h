@@ -43,6 +43,8 @@ public:
 signals:
 	void hasEnoughPointsForVoronoiEffect();
 
+	void inputPointsChanged();
+
 public slots:
 	/// When the 'save image' button is clicked, from mainqt.
 	void saveImage();
