@@ -3,6 +3,7 @@
 #include "delaunay/longint/li.h"
 
 #include "delaunay/pointsetarray.h"
+#include "delaunay/triangle.h"
 
 #include "geometry/polygon.h"
 
@@ -14,6 +15,7 @@ using std::vector;
 
 using delaunay::LongInt;
 using delaunay::PointSetArray;
+using delaunay::TriRecord;
 
 using geometry::Polygon;
 
@@ -106,16 +108,20 @@ void VoronoiEffect::paintGL() {
 		drawPointSetArray(points);
 	}
 
-	if (effectState_.showEdges && algorithm_ != nullptr) {
+	if (effectState_.showEdges && algorithm_ != nullptr && algorithm_->finished()) {
 		// DELAUNAY (voronoiEdges)
 		const vector<geometry::Polygon>& voronoiPolygons = algorithm_->getVoronoiPolygons();
 		drawVoronoiPolygons(voronoiPolygons);
 	}
 
 	if (effectState_.showAlgorithm && algorithm_ != nullptr) {
-		drawDelaunayTriangles(algorithm_->directedGraph());
+		const PointSetArray<LongInt>& pointSet = algorithm_->allPoints();
+		const vector<TriRecord>& leafNodes = algorithm_->getLeafNodes();
+		drawDelaunayTriangles(pointSet, leafNodes);
 	}
 }
+
+
 
 void VoronoiEffect::clearAll() {
 	if (algorithm_ != nullptr) {

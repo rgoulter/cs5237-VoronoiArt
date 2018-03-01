@@ -6,6 +6,7 @@
 #include <QtWidgets/QMainWindow>
 #include "ui_mainqt.h"
 
+#include "ui/qt5/delaunay.h"
 
 
 class mainqt : public QMainWindow {
@@ -16,6 +17,9 @@ public:
 	~mainqt();
 
 public slots:
+	/// Slot so that we can update the GLWidget from the UI thread.
+	void algorithmProgressed(int numProcessed, int total);
+
 	void chooseImage();
 
 	/// A general reset. Compared to above, resets: filename, draw state, algorithm computations, input-points.
@@ -28,6 +32,9 @@ public slots:
 
 private:
 	Ui::mainqtClass ui;
+	ui::qt5::Delaunay* delaunay_ = nullptr;
+	QMetaObject::Connection delaunayConnection_;
+	bool algorithmComputedSincePointsChanged_ = false;
 
 };
 

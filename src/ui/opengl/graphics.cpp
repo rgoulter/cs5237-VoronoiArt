@@ -56,12 +56,7 @@ void drawPointSetArray(const PointSetArray<LongInt>& pointSet) {
 
 
 
-void drawDelaunayTriangles(const DirectedGraph<LongInt>& dag) {
-	const PointSetArray<LongInt>& pointSet = dag.getPointSet();
-
-	// Draw all DAG leaf triangles.
-	vector<TriRecord> leafNodes = dag.getLeafNodes();
-
+void drawDelaunayTriangles(const PointSetArray<LongInt>& pointSet, const vector<TriRecord>& leafNodes) {
 	for (size_t i = 0; i < leafNodes.size(); i++){
 		TriRecord leafNode = leafNodes[i];
 

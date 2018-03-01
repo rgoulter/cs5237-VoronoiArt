@@ -4,16 +4,17 @@
 #include <utility>
 #include <vector>
 
-#include <QTextStream>
 #include <QDebug>
 #include <QFileDialog>
+#include <QTextStream>
+#include <QThreadPool>
 #include <QtWidgets/QApplication>
 
-#include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 
-#include "delaunay/pointsetarray.h"
 #include "delaunay/delaunay.h"
+#include "delaunay/pointsetarray.h"
 
 #include "ui/qt5/voronoieffect.h"
 
@@ -28,8 +29,8 @@ using cv::imread;
 
 using delaunay::LongInt;
 using delaunay::PointSetArray;
-using delaunay::DelaunayAlgorithm;
 
+using ui::qt5::Delaunay;
 using ui::qt5::EffectState;
 using ui::qt5::ShowImageType;
 using ui::qt5::VoronoiEffect;
@@ -65,17 +66,31 @@ mainqt::mainqt(QWidget *parent)
 		ui.chkShowAlgorithm->setEnabled(true);
 		ui.chkShowEdges->setEnabled(true);
 
-		const vector<pair<int, int>>& points = ui.glWidget->getPoints();
-		const PointSetArray<LongInt>& inputPointSet(points);
-		DelaunayAlgorithm<LongInt>* delaunay = new DelaunayAlgorithm<LongInt>(inputPointSet);
-		ui.glWidget->getVoronoiEffect()->setDelaunayAlgorithm(delaunay);
+		if (algorithmComputedSincePointsChanged_) {
+			// if the algorithm is already computed
+			// (or already in progress for current input)
+			// then don't re-compute!!
+			if (delaunay_ != nullptr && delaunay_->finished()) {
+				ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::EFFECT);
+			}
+			return;
+		} else {
+			if (delaunay_ != nullptr) {
+				disconnect(delaunayConnection_);
+				delaunay_->setAutoDelete(true);
+				delaunay_ = nullptr;
+			}
 
-		// ON THE GUI THREAD
-		delaunay->run();
+			const vector<pair<int, int>>& points = ui.glWidget->getPoints();
+			const PointSetArray<LongInt>& inputPointSet(points);
+			delaunay_ = new Delaunay(inputPointSet);
+			ui.glWidget->getVoronoiEffect()->setDelaunayAlgorithm(delaunay_);
 
-		// Once it's finished all iterations...
-		ui.glWidget->getVoronoiEffect()->setVoronoiPolygons(delaunay->getVoronoiPolygons());
-		ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::EFFECT);
+			delaunayConnection_ = connect(delaunay_, &Delaunay::progressed, this, &mainqt::algorithmProgressed);
+
+			algorithmComputedSincePointsChanged_ = true;
+			QThreadPool::globalInstance()->start(delaunay_);
+		}
 	});
 
 	connect(ui.btnGenUniform, &QAbstractButton::pressed, [=] {
@@ -103,6 +118,9 @@ mainqt::mainqt(QWidget *parent)
 	connect(ui.glWidget, &MyPanelOpenGL::hasEnoughPointsForVoronoiEffect, [=] {
 		ui.radioBtnEffectVoronoi->setEnabled(true);
 	});
+	connect(ui.glWidget, &MyPanelOpenGL::inputPointsChanged, [=] {
+		algorithmComputedSincePointsChanged_ = false;
+	});
 
 	connect(ui.chkShowPoints, &QAbstractButton::toggled, [=] {
 		EffectState currentState = ui.glWidget->getVoronoiEffect()->getEffectState();
@@ -128,6 +146,23 @@ mainqt::mainqt(QWidget *parent)
 
 
 mainqt::~mainqt() { }
+
+
+
+void mainqt::algorithmProgressed(int numProcessed, int total) {
+	// Update the progress bar
+	ui.progressBarVoronoi->setMaximum(total);
+	ui.progressBarVoronoi->setValue(numProcessed);
+
+	// Redraw the UI
+	ui.glWidget->updateGL();
+
+	// Once it's finished all iterations...
+	if (numProcessed >= total) {
+		ui.glWidget->getVoronoiEffect()->setVoronoiPolygons(delaunay_->getVoronoiPolygons());
+		ui.glWidget->getVoronoiEffect()->setEffectShowType(ShowImageType::EFFECT);
+	}
+}
 
 
 
@@ -198,8 +233,15 @@ void mainqt::clearAll() {
 	ui.chkShowEdges->setEnabled(false);
 	ui.chkShowAlgorithm->setEnabled(false);
 
+	ui.progressBarVoronoi->setMaximum(100);
+	ui.progressBarVoronoi->setValue(0);
+
 	ui.btnSaveImage->setEnabled(false);
 	ui.btnClearAll->setEnabled(false);
+
+	if (delaunay_ != nullptr) {
+		delaunay_->setAutoDelete(true);  // Qt5 Documentation for QThreadPool calls this UB.
+	}
 
 	ui.glWidget->clearAll();
 }

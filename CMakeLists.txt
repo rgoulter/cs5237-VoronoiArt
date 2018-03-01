@@ -50,6 +50,7 @@ set(VORONOI_LIB_SOURCES src/delaunay/longint/li.cpp
                         src/generatepoints.cpp)
 # For Qt code
 set(VORONOI_SOURCES src/ui/opengl/graphics.cpp
+                    src/ui/qt5/delaunay.cpp
                     src/ui/qt5/voronoieffect.cpp
                     src/mypanelopengl.cpp
                     src/mainqt.cpp
@@ -74,6 +75,7 @@ set(VORONOI_LIB_HEADERS include/delaunay/longint/li.h
                         include/imagedata.h
                         include/tracing.h)
 set(VORONOI_HEADERS include/ui/opengl/graphics.h
+                    include/ui/qt5/delaunay.h
                     include/ui/qt5/voronoieffect.h
                     include/mypanelopengl.h
                     include/mainqt.h
