@@ -6,6 +6,8 @@
 #include <iostream>
 #include <sstream>
 
+using std::vector;
+
 
 
 namespace delaunay {
@@ -19,7 +21,6 @@ LongInt::LongInt() {
 
 LongInt::LongInt(const LongInt& oldLongInt) {
 	//Copy vector
-	using std::vector;
 	this->myLongInt = oldLongInt.myLongInt;
 
 	//Copy sign
@@ -55,7 +56,7 @@ LongInt::LongInt(std::string x){
 		this->signType = type_zero;
 	else if (x[0] == '-') {
 		this->signType = type_negative;
-		x = x.substr(1, x.length()-1);
+		x = x.substr(1, x.length() - 1);
 	}
 	else
 		this->signType = type_positive;
@@ -64,10 +65,10 @@ LongInt::LongInt(std::string x){
 	this->myLongInt.clear();
 
 	if (len > 9) {
-		this->myLongInt.push_back(atol(x.substr(len-9, 9).c_str()));
+		this->myLongInt.push_back(atol(x.substr(len - 9, 9).c_str()));
 
 		for (int i = 1; i < len / 9; i ++) {
-			this->myLongInt.push_back(atol(x.substr(len-(9*(i+1)), 9).c_str()));
+			this->myLongInt.push_back(atol(x.substr(len - (9 * (i + 1)), 9).c_str()));
 		}
 
 		if (len % 9 != 0) {
@@ -285,7 +286,7 @@ LongInt LongInt::longMult(const LongInt& otherLongInt) const {
 			long long mult2 = otherLongInt.myLongInt[j];
 			multTemp.setZero_();
 
-			for (int k = 0; k <= j-1; k++) {
+			for (int k = 0; k <= j - 1; k++) {
 				multTemp.myLongInt.push_back(0);
 			}
 
@@ -294,7 +295,7 @@ LongInt LongInt::longMult(const LongInt& otherLongInt) const {
 				long long multResult = mult1 * mult2;
 
 				// There might be overflow from the previous multiplication
-				multResult += multTemp.myLongInt[j+i];
+				multResult += multTemp.myLongInt[j + i];
 
 				if (!isMultTempValued && (multResult > 0))
 					isMultTempValued = true;
@@ -305,9 +306,9 @@ LongInt LongInt::longMult(const LongInt& otherLongInt) const {
 				if (exceed > 0)
 					multResult %= DIVISOR; // If overflow take remainder
 
-				multTemp.myLongInt[j+i] = (long) multResult;
+				multTemp.myLongInt[j + i] = (long) multResult;
 
-				if ((i != thisSize-1) || (exceed > 0))
+				if ((i != thisSize - 1) || (exceed > 0))
 					multTemp.myLongInt.push_back(exceed);
 			}
 
@@ -335,7 +336,7 @@ LongInt LongInt::karatsuba(const LongInt& otherLongInt) const {
 	if (thisSize < KARAT_MIN_LENGTH || otherSize < KARAT_MIN_LENGTH) {
 		theAnswer = this->longMult(otherLongInt);
 	} else { // Begin algorithm
-		int digits = std::max(thisSize, otherSize)/2;
+		int digits = std::max(thisSize, otherSize) / 2;
 		// Calculate length of shifting numbers' sizes
 		int x1_size = thisSize - digits;
 
@@ -371,9 +372,9 @@ LongInt LongInt::karatsuba(const LongInt& otherLongInt) const {
 
 		LongInt z2 = x1.karatsuba(y1);
 		LongInt z0 = x2.karatsuba(y2);
-		LongInt z1 = (x1+x2).karatsuba(y1+y2) - z2 - z0;
+		LongInt z1 = (x1 + x2).karatsuba(y1 + y2) - z2 - z0;
 
-		z2.myLongInt.insert(z2.myLongInt.begin(), 2*digits, 0);
+		z2.myLongInt.insert(z2.myLongInt.begin(), 2 * digits, 0);
 		z1.myLongInt.insert(z1.myLongInt.begin(), digits, 0);
 
 		LongInt temp = z1 + z0;
@@ -586,11 +587,11 @@ bool LongInt::operator>(const LongInt& otherLongInt) const {
 			long thisLong = this->myLongInt[i];
 			long otherLong = otherLongInt.myLongInt[i];
 
-			if (((thisSign == 1) && (thisLong < otherLong))      //Both positive
-			    || ((thisSign == -1) && (thisLong > otherLong))) //Both negative
+			if (((thisSign == 1) && (thisLong < otherLong))      // Both positive
+			    || ((thisSign == -1) && (thisLong > otherLong))) // Both negative
 				return false;
-			if (((thisSign == 1) && (thisLong > otherLong))       //Both positive
-			     || ((thisSign == -1) && (thisLong < otherLong))) //Both negative
+			if (((thisSign == 1) && (thisLong > otherLong))       // Both positive
+			     || ((thisSign == -1) && (thisLong < otherLong))) // Both negative
 				return true;
 		}
 	}
@@ -614,11 +615,11 @@ bool LongInt::operator==(const LongInt& otherLongInt) const {
 	int otherSize = (int)otherLongInt.myLongInt.size();
 
 	if ((thisSign != otherSign) || (thisSize != otherSize))
-		return false; //Early return for optimization
+		return false; // Early return for optimization
 	else {
 		for (int i = 0; i < thisSize; i++){
 			if (this->myLongInt[i] != otherLongInt.myLongInt[i])
-				return false; //Early return for optimization
+				return false; // Early return for optimization
 		}
 	}
 
