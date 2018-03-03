@@ -24,6 +24,7 @@ set(CMAKE_AUTOMOC ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set_property(SOURCE ui_mainqt.h PROPERTY SKIP_AUTOMOC ON)
 
 # Find dependencies
 find_package(Qt5Widgets REQUIRED)

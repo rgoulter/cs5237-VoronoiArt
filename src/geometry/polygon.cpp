@@ -211,7 +211,7 @@ Polygon clipPolygonToRectangle(const Polygon& poly, const Rect& rect) {
 		const int nextRectPtIdx   = isect.nextRectPointIdx_;
 
 		const Point<int>& polyNextPt = poly[nextPolyPtIdx];
-		const Point<int>& rectNextPt = rectPoly[nextRectPtIdx];
+		// const Point<int>& rectNextPt = rectPoly[nextRectPtIdx];
 
 		// Add the intersection point itself,
 		// UNLESS it *is* the next pt.

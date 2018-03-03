@@ -123,10 +123,10 @@ vector<pair<int,int>> enumerateLeftRightOfSimplePolygon(const geometry::Polygon&
 void findAverageColor3iv(const ImageData& imData, const geometry::Polygon& poly, int* colorIv) {
 	// Find bounding box of polygon
 	const Rect& boundingRect = boundingBox(poly);
-	int minX = boundingRect.left();
-	int maxX = boundingRect.left();
+	// int minX = boundingRect.left();
+	// int maxX = boundingRect.left();
 	int minY = boundingRect.top();
-	int maxY = boundingRect.bottom();
+	// int maxY = boundingRect.bottom();
 
 	// Within this bounding box, search for all the points.
 	// int left   = minX;
