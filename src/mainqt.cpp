@@ -6,6 +6,7 @@
 
 #include <QDebug>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QTextStream>
 #include <QThreadPool>
 #include <QtWidgets/QApplication>
@@ -168,20 +169,23 @@ void mainqt::algorithmProgressed(int numProcessed, int total) {
 
 void mainqt::chooseImage() {
 	//get a filename to open
-	QString qStr_fileName =
+	QString filename =
 		QFileDialog::getOpenFileName(Q_NULLPTR,
-	                                 tr("Open Image"),
-	                                 ".",
-	                                 tr("Image Files (*.png *.jpg *.bmp)"));
-	if (qStr_fileName == "") {
+		                             tr("Open Image"),
+		                             directoryLoadImageFrom_,
+		                             tr("Image Files (*.png *.jpg *.bmp)"));
+	if (filename == "") {
 		return;
 	}
 
 	clearAll();
 
-	ui.txtImageName->setText(qStr_fileName);
+	QFileInfo fileInfo(filename);
+	directoryLoadImageFrom_ = fileInfo.dir().absolutePath();
 
-	ImageData* imageData = loadImageData(qStr_fileName.toStdString());
+	ui.txtImageName->setText(filename);
+
+	ImageData* imageData = loadImageData(filename.toStdString());
 	ui.glWidget->getVoronoiEffect()->setImageData(imageData);
 
 	imageLoaded();
