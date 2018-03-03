@@ -44,18 +44,17 @@ using ui::qt5::EffectState;
 
 
 
-MyPanelOpenGL::MyPanelOpenGL(QWidget *parent) : QGLWidget (parent) {
+MyPanelOpenGL::MyPanelOpenGL(QWidget *parent) : QOpenGLWidget (parent) {
 	effect_ = new VoronoiEffect();
 
 	connect(effect_, &VoronoiEffect::imageLoaded, [=] {
 		QSize size = this->size();
 		refreshProjection(size.width(), size.height(), canvasOffsetX_, canvasOffsetY_, effect_->getImageData());
 
-		updateGL();
+		update();
 	});
-	connect(effect_, &VoronoiEffect::effectChanged, [=] {
-		updateGL();
-	});
+	// connect(effect_, &VoronoiEffect::effectChanged, this, static_cast<void (QWidget::*)()>(update));
+	connect(effect_, &VoronoiEffect::effectChanged, [=] { update(); });
 }
 
 
@@ -169,7 +168,7 @@ void MyPanelOpenGL::insertPoint(int x, int y) {
 
 	emit inputPointsChanged();
 
-	updateGL();
+	update();
 }
 
 
@@ -230,5 +229,5 @@ void MyPanelOpenGL::clearAll() {
 
 	effect_->clearAll();
 
-	updateGL();
+	update();
 }

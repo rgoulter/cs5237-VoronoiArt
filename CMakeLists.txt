@@ -145,9 +145,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 
-# Use the Widgets module from Qt 5.
-# Core, Gui, Widgets, OpenGL.
-qt5_use_modules(VoronoiArt Widgets OpenGL)
+qt5_use_modules(VoronoiArt Widgets)
 
 
 

@@ -5,7 +5,7 @@
 #include <utility>
 #include <vector>
 
-#include <QGLWidget>
+#include <QOpenGLWidget>
 #include <QString>
 
 #include "delaunay/longint/li.h"
@@ -27,7 +27,7 @@
 //
 // As per http://doc.qt.io/qt-5/qglwidget.html
 // XXX QGLWidget is legacy, should use QOpenGLWidget instead.
-class MyPanelOpenGL : public QGLWidget
+class MyPanelOpenGL : public QOpenGLWidget
 {
 	Q_OBJECT
 public:

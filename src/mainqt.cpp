@@ -155,7 +155,7 @@ void mainqt::algorithmProgressed(int numProcessed, int total) {
 	ui.progressBarVoronoi->setValue(numProcessed);
 
 	// Redraw the UI
-	ui.glWidget->updateGL();
+	ui.glWidget->update();
 
 	// Once it's finished all iterations...
 	if (numProcessed >= total) {
