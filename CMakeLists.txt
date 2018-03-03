@@ -11,7 +11,12 @@ option(test "Build all tests." OFF)
 project(VoronoiArt)
 
 # MSVC doesn't like -Wextra
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic")
+if (CMAKE_COMPILER_IS_GNUCC)
+    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
+endif()
+if (MSVC)
+    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /W4")
+endif()
 
 # We need C++11 stantard.
 set(CMAKE_CXX_STANDARD 11)
