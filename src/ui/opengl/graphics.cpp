@@ -157,14 +157,14 @@ void refreshProjection(int width, int height,
 	int imWidth = imData->width();
 	int imHeight = imData->height();
 
-	double imageRatio = ((double) imWidth) / imHeight;
-	double windowRatio = ((double) width) / height;
+	double imageRatio = static_cast<double>(imWidth) / imHeight;
+	double windowRatio = static_cast<double>(width) / height;
 
 	if (imageRatio > windowRatio) {
-		double ratio = ((double) width) / height;
+		double ratio = static_cast<double>(width) / height;
 
 		int renderWidth = imWidth;
-		int renderHeight = (int) (imWidth / ratio);
+		int renderHeight = static_cast<int>(imWidth / ratio);
 
 		int delta = (renderHeight - imHeight) / 2;
 
@@ -181,9 +181,9 @@ void refreshProjection(int width, int height,
 		canvas_offsetY = scissorDelta;
 		glScissor(0, scissorDelta, width, height - (2 * scissorDelta));
 	} else {
-		double ratio = ((double) width) / height;
+		double ratio = static_cast<double>(width) / height;
 
-		int renderWidth = (int) (imHeight * ratio);
+		int renderWidth = static_cast<int>(imHeight * ratio);
 		int renderHeight = imHeight;
 
 		int delta = (renderWidth - imWidth) / 2;

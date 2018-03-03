@@ -174,8 +174,8 @@ Point<int> findIntersectionPoint(const LineSegment<int>& ab, const LineSegment<i
 	t = 1 - t;
 
 	// A * t + (1 - t) * B
-	return Point<int>((int) (ax * t + (1 - t) * bx),
-	                  (int) (ay * t + (1 - t) * by));
+	return Point<int>(static_cast<int>(ax * t + (1 - t) * bx),
+	                  static_cast<int>(ay * t + (1 - t) * by));
 }
 
 }

@@ -55,9 +55,9 @@ vector<ColoredPolygon> generateColoredPolygons(const vector<geometry::Polygon>& 
 		ColoredPolygon coloredPoly;
 
 		coloredPoly.poly = poly;
-		coloredPoly.rgb[0] = (float) colorIv[0] / 255;
-		coloredPoly.rgb[1] = (float) colorIv[1] / 255;
-		coloredPoly.rgb[2] = (float) colorIv[2] / 255;
+		coloredPoly.rgb[0] = static_cast<float>(colorIv[0]) / 255;
+		coloredPoly.rgb[1] = static_cast<float>(colorIv[1]) / 255;
+		coloredPoly.rgb[2] = static_cast<float>(colorIv[2]) / 255;
 
 		renderedPolygons.push_back(coloredPoly);
 	}

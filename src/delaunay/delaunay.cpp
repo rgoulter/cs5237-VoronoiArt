@@ -123,16 +123,14 @@ vector<geometry::Polygon> createVoronoi(const DirectedGraph<I>& dag) {
 
 		// TODO May be convenient if PointSetArray had addPoint(MyPoint)
 		const Point<I>& initPt = pointForTri(delaunayPointSet, ltri);
-		polygon.addPoint((int) initPt.x,
-		                 (int) initPt.y);
+		polygon.addPoint(initPt.x, initPt.y);
 
 		const FIndex initTriIdx = triIdx;
 		triIdx = nextTriangle(dppIdx, ltri);
 		while (triIdx != initTriIdx) {
 			const LinkedTriangle& ltri = trist[triIdx];
 			const Point<I>& voronoiPt = pointForTri(delaunayPointSet, ltri);
-			polygon.addPoint((int) voronoiPt.x,
-			                 (int) voronoiPt.y);
+			polygon.addPoint(voronoiPt.x, voronoiPt.y);
 
 			triIdx = nextTriangle(dppIdx, ltri);
 		}

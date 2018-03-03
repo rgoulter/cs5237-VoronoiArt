@@ -48,7 +48,7 @@ int parseInt(string::const_iterator& p, const string::const_iterator& end) {
 	int number = 0;
 	while (p != end &&
 	       '0' <= *p && *p <= '9') {
-		int digit = (int) (*p - '0');
+		int digit = static_cast<int>(*p - '0');
 		number = (10 * number) + digit;
 		++p;
 	}

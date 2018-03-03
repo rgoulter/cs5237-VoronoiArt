@@ -153,7 +153,7 @@ vector<pair<int, int>> generatePointsFromDistributionField(const Mat& dstRGB, in
 			unsigned char val = dst.at<unsigned char>(r, c);
 
 			cdf.push_back(sum);
-			sum += (float) val / 255;
+			sum += static_cast<float>(val / 255);
 		}
 	}
 

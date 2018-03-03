@@ -120,8 +120,8 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 	int windowWidth = widgetSize.width();
 	int windowHeight = widgetSize.height();
 
-	double imageRatio = ((double) loadedImageWidth) / loadedImageHeight;
-	double windowRatio = ((double) windowWidth) / windowHeight;
+	double imageRatio = static_cast<double>(loadedImageWidth) / loadedImageHeight;
+	double windowRatio = static_cast<double>(windowWidth) / windowHeight;
 
 	int renderWidth = 2;
 	int renderHeight = 2;
@@ -131,22 +131,22 @@ void MyPanelOpenGL::mousePressEvent(QMouseEvent *event) {
 
 	if (loadedImageWidth > 0) {
 		if (imageRatio > windowRatio) {
-			double ratio = ((double) windowWidth) / windowHeight;
+			double ratio = static_cast<double>(windowWidth) / windowHeight;
 
 			renderWidth = loadedImageWidth;
-			renderHeight = (int) (loadedImageWidth / ratio);
+			renderHeight = static_cast<int>(loadedImageWidth / ratio);
 
 			deltaY = (renderHeight - loadedImageHeight) / 2;
 		} else {
-			double ratio = ((double) windowWidth) / windowHeight;
+			double ratio = static_cast<double>(windowWidth) / windowHeight;
 
-			renderWidth = (int) (loadedImageHeight * ratio);
+			renderWidth = static_cast<int>(loadedImageHeight * ratio);
 			renderHeight = loadedImageHeight;
 
 			deltaX = (renderWidth - loadedImageWidth) / 2;
 		}
 
-		double viewScale = (double) renderWidth / windowWidth;
+		double viewScale = static_cast<double>(renderWidth) / windowWidth;
 
 		int px = (event->x() * viewScale) - deltaX;
 		int py = (event->y() * viewScale) - deltaY;

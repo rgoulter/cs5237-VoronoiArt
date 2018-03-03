@@ -100,8 +100,8 @@ void ImageData::renderPlane() const {
 	int width = imageMat_.cols;
 	int height = imageMat_.rows;
 
-	float texW = (float)width / textureWidth();
-	float texH = (float)height / textureHeight();
+	float texW = static_cast<float>(width) / textureWidth();
+	float texH = static_cast<float>(height) / textureHeight();
 
 	glBegin(GL_QUADS);
 		glTexCoord2f(0.0, 0.0);
