@@ -9,25 +9,25 @@ This project is based on methods out in the paper:
 <http://www.cs.swarthmore.edu/~adanner/cs97/s08/papers/gorbach.pdf>
 
 This was initially developed as a group project for Computational Geometry CS5237 course in NUS in 2013.
-Work since then has been to polish/improve it as a toy C++ project.
+Work on this project since then has been to polish/improve it for fun. :-)  
+The Voronoi Diagram is computed from the result of the Delaunay Triangulation. It's pretty slow.
 
+## Screenshots
+
+![](https://github.com/rgoulter/cs5237-VoronoiArt/raw/master/screenshot_computing.png)
+![](https://github.com/rgoulter/cs5237-VoronoiArt/raw/master/screenshot_voronoi.png)
+![](https://github.com/rgoulter/cs5237-VoronoiArt/raw/master/screenshot_voronoi_effect.png)
 
 ## Using the GUI
 
 Load an image using the "..." button.
 
-Select a number of points to generate. 1,000 works well.
+Select a number of points to generate.
 
 Generate random points, either with a uniform distribution, or with a
-Probability Distribution based on detected edges.
+probability distribution based on detected edges.
 
-Generate the Voronoi diagram of these points.
-
-Clicking the "Draw Image", "Draw Effect" buttons will allow you to switch
-between what is shown on the canvas. Voronoi sites and edges can be
-shown/hidden with the checkboxes.  
-(You can also see the Edge detection steps, if the points were generated with
-the edge detection method).
+The Voronoi diagram is computed when the "Voronoi Effect" radiobutton is selected.
 
 Clicking "Save Image" will output the canvas to "output.bmp" in the current
 directory.
