@@ -66,7 +66,7 @@ ImageData* VoronoiEffect::getImageData() {
 
 
 
-void VoronoiEffect::setVoronoiPolygons(const vector<geometry::Polygon>& polygons) {
+void VoronoiEffect::setVoronoiPolygons(const vector<Polygon>& polygons) {
 	renderedPolygons_ = generateColoredPolygons(polygons, *imageData_);
 }
 
@@ -110,7 +110,7 @@ void VoronoiEffect::paintGL() {
 
 	if (effectState_.showEdges && algorithm_ != nullptr && algorithm_->finished()) {
 		// DELAUNAY (voronoiEdges)
-		const vector<geometry::Polygon>& voronoiPolygons = algorithm_->getVoronoiPolygons();
+		const vector<Polygon>& voronoiPolygons = algorithm_->getVoronoiPolygons();
 		drawVoronoiPolygons(voronoiPolygons);
 	}
 

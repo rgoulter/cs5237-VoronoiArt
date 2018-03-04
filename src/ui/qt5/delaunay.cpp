@@ -10,6 +10,8 @@ using delaunay::LongInt;
 using delaunay::TriRecord;
 using delaunay::createVoronoi;
 
+using geometry::Polygon;
+
 using namespace ui::qt5;
 
 
@@ -20,7 +22,7 @@ Delaunay::Delaunay(const PointSetArray<LongInt>& inputPoints, QObject *parent) :
 
 
 
-const vector<geometry::Polygon>& Delaunay::getVoronoiPolygons() {
+const vector<Polygon>& Delaunay::getVoronoiPolygons() {
 	QReadLocker lockUntilCanRead(&voronoiPolygonsLock_);
 
 	// Before the Delaunay Triangulation has finished, this is just an empty vector.

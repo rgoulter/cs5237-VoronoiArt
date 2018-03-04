@@ -66,10 +66,10 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Generate random points, or load from file?
-	vector<geometry::Polygon> result = delaunay::runDelaunayAlgorithm(inputPointSet);
+	vector<Polygon> result = delaunay::runDelaunayAlgorithm(inputPointSet);
 
 	cout << "*** Result: ***" << endl;
-	for (const geometry::Polygon& polygon : result) {
+	for (const Polygon& polygon : result) {
 		cout << "- " << polygon << endl;
 	}
 

@@ -9,6 +9,8 @@ using delaunay::LongInt;
 using delaunay::PointSetArray;
 using delaunay::TriRecord;
 
+using geometry::Polygon;
+
 
 
 void drawAPoint(double x, double y) {
@@ -94,8 +96,8 @@ void drawDelaunayTriangles(const PointSetArray<LongInt>& pointSet, const vector<
 
 
 // DELAUNAY (it uses voronoiEdges)
-void drawVoronoiPolygons(const vector<geometry::Polygon>& voronoiPolys) {
-	for (const geometry::Polygon& polygon : voronoiPolys) {
+void drawVoronoiPolygons(const vector<Polygon>& voronoiPolys) {
+	for (const Polygon& polygon : voronoiPolys) {
 		glColor3f(0,0,1); // blue
 
 		for(const geometry::Edge& edge : polygon.edges()) {
@@ -118,7 +120,7 @@ void drawColoredPolygons(const vector<ColoredPolygon>& renderedPolygons) {
 		glBegin(GL_POLYGON);
 		glColor3fv(coloredPoly.rgb); // rgb?
 
-		const geometry::Polygon& poly = coloredPoly.poly;
+		const Polygon& poly = coloredPoly.poly;
 
 		for(const geometry::Point<int>& pt : poly.points()) {
 			glVertex2d(pt.x, pt.y);
