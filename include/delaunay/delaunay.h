@@ -52,7 +52,7 @@ public:
 	const std::vector<int>& indicesToProcess() const { return delaunayPointsToProcess_; };
 
 	/// Adds the point (indexed in the inputPoints) to the directed-graph structure.
-	const void processPoint(int pointIdx) { dag_.addVertex(pointIdx); };
+	void processPoint(int pointIdx) { dag_.addVertex(pointIdx); };
 
 private:
 	/// The 'bare-bones' Voronoi regions, represented using `PointSetArray`s.
