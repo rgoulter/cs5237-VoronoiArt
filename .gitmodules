@@ -1,0 +1,3 @@
+[submodule "third_party\\CMake-codecov"]
+	path = third_party\\CMake-codecov
+	url = git://github.com/RWTH-HPC/CMake-codecov.git

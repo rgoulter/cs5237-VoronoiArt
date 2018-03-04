@@ -31,6 +31,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set_property(SOURCE ui_mainqt.h PROPERTY SKIP_AUTOMOC ON)
 
+
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/third_party/CMake-codecov/cmake" ${CMAKE_MODULE_PATH})
+
+
 # Find dependencies
 find_package(Qt5Widgets REQUIRED)
 find_package(OpenCV REQUIRED)
@@ -181,6 +185,12 @@ if(test)
                               test/testmain.cpp)
 
   target_link_libraries(runUnitTests VoronoiArt_lib)
+
+    if (ENABLE_COVERAGE)
+        list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/CMake")
+        find_package(codecov)
+        add_coverage(runUnitTests)
+    endif()
 
   # This is so you can do 'make test' to see all your tests run, instead of
   # manually running the executable runUnitTests to see those specific tests.
