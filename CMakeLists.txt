@@ -115,13 +115,17 @@ qt5_wrap_ui(UI_HEADERS ./forms/mainqt.ui)
 
 
 # Set some Win32 Specific Settings
-if(WIN32)
-set(GUI_TYPE WIN32)
-endif(WIN32)
-# Set some Apple MacOS Specific settings
-if(APPLE)
-set(GUI_TYPE MACOSX_BUNDLE)
-endif(APPLE)
+#  Setting the GUI_TYPE suppresses the console.
+#  But, for Debug build, I do want to see the console output.
+if (CMAKE_BUILD_TYPE AND NOT CMAKE_BUILD_TYPE STREQUAL "DEBUG")
+    if(WIN32)
+        set(GUI_TYPE WIN32)
+    endif(WIN32)
+    # Set some Apple MacOS Specific settings
+    if(APPLE)
+        set(GUI_TYPE MACOSX_BUNDLE)
+    endif(APPLE)
+endif()
 
 
 add_library(VoronoiArt_lib ${VORONOI_LIB_HEADERS}
