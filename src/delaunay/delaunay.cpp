@@ -15,7 +15,6 @@
 #include "delaunay/directedgraph.h"
 
 #include "tracing.h"
-#include "stopwatch.h"
 
 #ifndef NDEBUG
 #define DELAUNAY_CHECK
@@ -147,11 +146,6 @@ vector<geometry::Polygon> createVoronoi(const DirectedGraph<I>& dag) {
 
 template<typename I>
 vector<geometry::Polygon> runDelaunayAlgorithm(const PointSetArray<I>& inputPoints) {
-	StopWatch voroSW;
-
-	voroSW.reset();
-	voroSW.resume();
-
 	DirectedGraph<I> dag(inputPoints);
 
 	cout << "MPOG::doVoronoi, created dag" << endl;
@@ -159,19 +153,7 @@ vector<geometry::Polygon> runDelaunayAlgorithm(const PointSetArray<I>& inputPoin
 	runDelaunayTriangulationOn(dag);
 	//generateDelaunayColoredPolygons(); // too slow.
 
-	voroSW.pause();
-	double timeDelaunay = voroSW.ms();
-	cout << "TIME: doDelaunayTriangulation() is " << timeDelaunay << endl;
-	voroSW.reset();
-	voroSW.resume();
-
 	const vector<geometry::Polygon>& voronoiPolygons = createVoronoi(dag); // in `delaunay`
-
-	voroSW.pause();
-	double timeCreateVoronoi = voroSW.ms();
-	cout << "TIME: createVoronoi() is " << timeCreateVoronoi << endl;
-	voroSW.reset();
-	voroSW.resume();
 
 	return voronoiPolygons;
 }

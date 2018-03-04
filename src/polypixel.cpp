@@ -6,8 +6,6 @@
 #include <string>
 #include <utility>
 
-#include "stopwatch.h"
-
 using std::pair;
 using std::string;
 using std::vector;
@@ -25,9 +23,6 @@ using geometry::inPoly;
 // also uses polypixel's ColoredPolygon
 vector<ColoredPolygon> generateColoredPolygons(const vector<geometry::Polygon>& polys, const ImageData& imData) {
 	vector<ColoredPolygon> renderedPolygons;
-
-	StopWatch allSW;
-	allSW.resume();
 
 	vector<geometry::Polygon> clippedPolys;
 
@@ -61,12 +56,6 @@ vector<ColoredPolygon> generateColoredPolygons(const vector<geometry::Polygon>& 
 
 		renderedPolygons.push_back(coloredPoly);
 	}
-
-	allSW.pause();
-	double timeFindSomeColor = allSW.ms();
-	int n = polys.size();
-	double timeAvg = timeFindSomeColor / n;
-	cout << "TIME: Average: " << timeAvg << " for " << n << " polygons. Total: " << timeFindSomeColor << endl;
 
 	return renderedPolygons;
 }
