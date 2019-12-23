@@ -5,7 +5,7 @@ matrix:
    - os: linux
      dist: trusty
      sudo: required
-   - os: osx
+#    - os: osx
 
 compiler:
   - gcc
@@ -15,13 +15,13 @@ before_install:
       sudo apt-get -qq update;
       sudo apt-get install -y libopencv-dev qt5-default libqt5opengl5-dev;
     fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      brew update
-      /usr/bin/yes | pip2 uninstall numpy;
-      brew install opencv;
-      brew install qt5;
-      export CMAKE_PREFIX_PATH=$(brew --prefix qt5);
-    fi
+#  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+#      brew update
+#      /usr/bin/yes | pip2 uninstall numpy;
+#      brew install opencv;
+#      brew install qt5;
+#      export CMAKE_PREFIX_PATH=$(brew --prefix qt5);
+#    fi
 
 script:
   - mkdir build
