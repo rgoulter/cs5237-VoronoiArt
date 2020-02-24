@@ -278,8 +278,8 @@ LongInt LongInt::longMult(const LongInt& otherLongInt) const {
 	LongInt theAnswer = LongInt(0);
 
 	if (!this->eqZero() && !otherLongInt.eqZero()) {
-		int thisSize = (int) this->myLongInt.size();
-		int otherSize = (int) otherLongInt.myLongInt.size();
+		int thisSize = this->myLongInt.size();
+		int otherSize = otherLongInt.myLongInt.size();
 		LongInt multTemp;
 		bool isMultTempValued = false;
 
@@ -331,8 +331,8 @@ LongInt LongInt::longMult(const LongInt& otherLongInt) const {
 LongInt LongInt::karatsuba(const LongInt& otherLongInt) const {
 	LongInt theAnswer;
 
-	int thisSize = (int) this->myLongInt.size();
-	int otherSize = (int) otherLongInt.myLongInt.size();
+	int thisSize = this->myLongInt.size();
+	int otherSize = otherLongInt.myLongInt.size();
 
 	if (thisSize < KARAT_MIN_LENGTH || otherSize < KARAT_MIN_LENGTH) {
 		theAnswer = this->longMult(otherLongInt);
@@ -569,8 +569,8 @@ bool LongInt::operator>(const LongInt& otherLongInt) const {
 	int thisSign = this->sign();
 	int otherSign = otherLongInt.sign();
 
-	int thisSize = (int)this->myLongInt.size();
-	int otherSize = (int)otherLongInt.myLongInt.size();
+	int thisSize = this->myLongInt.size();
+	int otherSize = otherLongInt.myLongInt.size();
 
 	if (thisSign > otherSign)
 		return true; //Early return for optimization
@@ -612,8 +612,8 @@ bool LongInt::operator==(const LongInt& otherLongInt) const {
 	int thisSign = this->sign();
 	int otherSign = otherLongInt.sign();
 
-	int thisSize = (int)this->myLongInt.size();
-	int otherSize = (int)otherLongInt.myLongInt.size();
+	int thisSize = this->myLongInt.size();
+	int otherSize = otherLongInt.myLongInt.size();
 
 	if ((thisSign != otherSign) || (thisSize != otherSize))
 		return false; // Early return for optimization

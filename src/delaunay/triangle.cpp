@@ -149,10 +149,12 @@ void findBoundingTri(PointSetArray<I> &pSet) {
 	int super1Idx = pSet.addPoint(minX - (maxY - minY), minY);
 	int super2Idx = pSet.addPoint(maxX + (maxY - minY), minY);
 
-	maxX = ((double)maxX - (double)minX) / 2;
+	// Cast to a double, since the LongInt doesn't divide.
+	// Then implicity cast back to LongInt.
+	maxX = static_cast<double>(maxX - minX) / 2;
 
 	// some rounding may occur if LongInt is odd
-	int super3Idx = pSet.addPoint((I) (((double) maxX + (double) minX) / 2),
+	int super3Idx = pSet.addPoint(static_cast<double>(maxX + minX) / 2,
 	                              maxY + (maxX - minX));
 
 #ifdef TRIANGLE_CHECK

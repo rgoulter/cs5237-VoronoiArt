@@ -235,8 +235,8 @@ vector<int> coercePSAPolyToIVecPoly(PointSetArray<I>& psa) {
 	for (int ptIdx = 1; ptIdx <= psa.noPt(); ptIdx++) {
 		I x, y;
 		psa.getPoint(ptIdx, x, y);
-		poly.push_back((int) x.doubleValue());
-		poly.push_back((int) y.doubleValue()); 
+		poly.push_back(x);
+		poly.push_back(y);
 	}
 
 	return poly;
