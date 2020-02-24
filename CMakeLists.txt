@@ -91,23 +91,17 @@ include_directories(include)
 
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(PLATFORM_SOURCES src/linux/stopwatch.cpp)
-    set(PLATFORM_HEADERS include/linux/platform.h
-                         include/linux/stopwatch.h)
+    set(PLATFORM_HEADERS include/linux/platform.h)
     include_directories(include/linux include/linux/basics)
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 if(APPLE)
-    set(PLATFORM_SOURCES src/linux/stopwatch.cpp)
-    set(PLATFORM_HEADERS include/mac/platform.h
-                         include/mac/stopwatch.h)
+    set(PLATFORM_HEADERS include/mac/platform.h)
     include_directories(include/mac include/mac/basics)
 endif(APPLE)
 
 if(WIN32)
-    set(PLATFORM_SOURCES src/win32/stopwatch.cpp)
-    set(PLATFORM_HEADERS include/win32/platform.h
-                         include/win32/stopwatch.h)
+    set(PLATFORM_HEADERS include/win32/platform.h)
     include_directories(include/win32)
 endif(WIN32)
 
@@ -134,15 +128,13 @@ add_executable(VoronoiArt ${GUI_TYPE}
                           ${VORONOI_HEADERS}
                           ${VORONOI_SOURCES}
                           ${PLATFORM_HEADERS}
-                          ${PLATFORM_SOURCES}
                           ${UI_HEADERS})
 target_link_libraries(VoronoiArt VoronoiArt_lib)
 target_link_libraries(VoronoiArt ${OpenCV_LIBS})
 target_link_libraries(VoronoiArt ${OPENGL_LIBRARIES})
 
 add_executable(VoronoiCLI ${VORONOI_CLI_SOURCES}
-                          ${PLATFORM_HEADERS}
-                          ${PLATFORM_SOURCES})
+                          ${PLATFORM_HEADERS})
 
 target_link_libraries(VoronoiCLI VoronoiArt_lib)
 target_link_libraries(VoronoiCLI ${OpenCV_LIBS})
